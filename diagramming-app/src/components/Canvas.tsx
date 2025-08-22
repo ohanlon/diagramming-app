@@ -42,22 +42,33 @@ const Canvas: React.FC = () => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const shapeType = e.dataTransfer.getData('shapeType') as ShapeType;
+    const shapeType = e.dataTransfer.getData('shapeType');
+    const svgContent = e.dataTransfer.getData('svgContent');
     if (!shapeType) return;
 
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
+
+    const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
+    let width = 100;
+    let height = 100;
+    if (viewBoxMatch && viewBoxMatch[1]) {
+      const viewBox = viewBoxMatch[1].split(' ').map(Number);
+      width = viewBox[2] - viewBox[0];
+      height = viewBox[3] - viewBox[1];
+    }
 
     const newShape = {
       id: uuidv4(),
       type: shapeType,
       x: (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom,
       y: (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom,
-      width: 100,
-      height: 100,
-      text: `${shapeType.charAt(0).toUpperCase() + shapeType.slice(1)}`,
+      width: width,
+      height: height,
+      text: shapeType,
       color: '#f0f0f0',
       layerId: activeSheet.activeLayerId,
+      svgContent: svgContent,
     };
     addShape(newShape);
   };

@@ -14,7 +14,7 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color } = shape;
+  const { id, type, x, y, width, height, text, color, svgContent } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, updateShapeText, toggleShapeSelection, setSelectedShapes } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
@@ -224,6 +224,14 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   }, [isResizing, handleResizeMouseMove, handleResizeMouseUp]);
 
   const renderShape = () => {
+    if (svgContent) {
+      return (
+        <foreignObject width={width} height={height}>
+          <div dangerouslySetInnerHTML={{ __html: svgContent }} style={{ width: '100%', height: '100%' }} />
+        </foreignObject>
+      );
+    }
+
     const commonProps = {
       x: 0,
       y: 0,
@@ -294,7 +302,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         </div>
       </foreignObject>
 
-      {isSelected && isInteractive && type !== 'text' && (
+      {isSelected && isInteractive && (type !== 'text' || svgContent) && (
         <>
           {/* Resize handles */}
           {/* Top-left corner */}

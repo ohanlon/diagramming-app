@@ -11,7 +11,7 @@ export type Layer = {
   isLocked: boolean; // Optional: for preventing interaction
 };
 
-export type ShapeType = 'rectangle' | 'circle' | 'diamond' | 'text';
+export type ShapeType = string;
 
 export type Shape = {
   id: string;
@@ -23,6 +23,7 @@ export type Shape = {
   text: string;
   color: string; // For example, to distinguish shapes
   layerId: string; // New: ID of the layer this shape belongs to
+  svgContent?: string;
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
@@ -57,4 +58,18 @@ export type DiagramState = {
     past: HistoryState[];
     future: HistoryState[];
   };
+};
+
+export type ShapeStoreShape = {
+  title: string;
+  shape: string;
+};
+
+export type ShapeStoreCategory = {
+  name: string;
+  shapes: ShapeStoreShape[];
+};
+
+export type ShapeStore = {
+  categories: ShapeStoreCategory[];
 };

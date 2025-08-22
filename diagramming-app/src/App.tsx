@@ -1,4 +1,4 @@
-import Palette from './components/Palette';
+import ShapeStore from './components/ShapeStore';
 import Canvas from './components/Canvas';
 import Toolbar from './components/Toolbar';
 import LayerPanel from './components/LayerPanel';
@@ -9,10 +9,6 @@ import { useState } from 'react';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
-  const handleDragStart = (type: ShapeType) => {
-    // This function can be used if any specific logic is needed when drag starts from palette
-    console.log(`Dragging shape type: ${type}`);
-  };
 
   return (
     <div
@@ -27,7 +23,7 @@ function App() {
     >
       <Toolbar />
       <div style={{ display: 'flex', flexGrow: 1 }}>
-        <Palette onDragStart={handleDragStart} />
+        <ShapeStore />
         <Canvas />
       </div>
       {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}

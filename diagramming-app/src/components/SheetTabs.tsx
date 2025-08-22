@@ -141,7 +141,7 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
               <button
                 className="remove-sheet-button"
                 disabled={sheetIds.length === 1}
-                data-tooltip-id="diagram--status-tooltip" data-tooltip-content="Remove Sheet"
+                data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Remove Sheet"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleRemoveSheet(sheet.id);
