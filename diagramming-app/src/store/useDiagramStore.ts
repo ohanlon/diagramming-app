@@ -54,9 +54,9 @@ interface DiagramStoreActions {
   removeSheet: (id: string) => void;
   setActiveSheet: (id: string) => void;
   renameSheet: (id: string, name: string) => void;
-  cutShape: (id: string) => void;
-  copyShape: (id: string) => void;
-  pasteShape: (x: number, y: number) => void;
+  cutShape: (ids: string[]) => void;
+  copyShape: (ids: string[]) => void;
+  pasteShape: () => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -747,23 +747,23 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       });
     },
 
-    cutShape: (id) => {
+    cutShape: (ids) => {
       addHistory(get, set);
       set((state) => {
         const activeSheet = state.sheets[state.activeSheetId];
         if (!activeSheet) return state;
 
-        const shapeToCut = activeSheet.shapesById[id];
-        if (!shapeToCut) return state;
+        const shapesToCut = ids.map(id => activeSheet.shapesById[id]).filter(Boolean);
+        if (shapesToCut.length === 0) return state;
 
         const newShapesById = { ...activeSheet.shapesById };
-        delete newShapesById[id];
+        ids.forEach(id => delete newShapesById[id]);
 
-        const newShapeIds = activeSheet.shapeIds.filter((shapeId) => shapeId !== id);
+        const newShapeIds = activeSheet.shapeIds.filter((id) => !ids.includes(id));
 
         const newConnectors = Object.fromEntries(
           Object.entries(activeSheet.connectors).filter(
-            ([, conn]) => conn.startNodeId !== id && conn.endNodeId !== id
+            ([, conn]) => !ids.includes(conn.startNodeId) && !ids.includes(conn.endNodeId)
           )
         );
 
@@ -776,61 +776,86 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               shapeIds: newShapeIds,
               connectors: newConnectors,
               selectedShapeIds: [],
-              clipboard: shapeToCut,
+              clipboard: shapesToCut,
             },
           },
         };
       });
     },
 
-    copyShape: (id) => {
+    copyShape: (ids) => {
       set((state) => {
         const activeSheet = state.sheets[state.activeSheetId];
         if (!activeSheet) return state;
 
-        const shapeToCopy = activeSheet.shapesById[id];
-        if (!shapeToCopy) return state;
+        const shapesToCopy = ids.map(id => activeSheet.shapesById[id]).filter(Boolean);
+        if (shapesToCopy.length === 0) return state;
+
         return {
           sheets: {
             ...state.sheets,
             [state.activeSheetId]: {
               ...activeSheet,
-              clipboard: shapeToCopy,
+              clipboard: shapesToCopy,
             },
           },
         };
       });
     },
 
-    pasteShape: (x, y) => {
+    pasteShape: () => {
       addHistory(get, set);
       set((state) => {
         const activeSheet = state.sheets[state.activeSheetId];
         if (!activeSheet) return state;
 
-        const clipboardShape = activeSheet.clipboard;
-        if (!clipboardShape) return state;
+        const { clipboard, selectedShapeIds, shapesById, shapeIds } = activeSheet;
+        if (!clipboard || clipboard.length === 0) return state;
 
-        const newShapeId = uuidv4();
-        const newShape = {
-          ...clipboardShape,
-          id: newShapeId,
-          x: x,
-          y: y,
-          layerId: activeSheet.activeLayerId,
-        };
+        let x = 0;
+        let y = 0;
+
+        if (selectedShapeIds.length > 0) {
+          const selectedShape = shapesById[selectedShapeIds[0]];
+          if (selectedShape) {
+            x = selectedShape.x + 16;
+            y = selectedShape.y + 16;
+          }
+        } else if (shapeIds.length > 0) {
+          const lastShape = shapesById[shapeIds[shapeIds.length - 1]];
+          if (lastShape) {
+            x = lastShape.x + 16;
+            y = lastShape.y + 16;
+          }
+        }
+
+        const newShapes: Shape[] = [];
+        const newShapeIds: string[] = [];
+        const newShapesById = { ...shapesById };
+
+        clipboard.forEach(shape => {
+            const newShapeId = uuidv4();
+            const newShape = {
+                ...shape,
+                id: newShapeId,
+                x: x + (shape.x - clipboard[0].x),
+                y: y + (shape.y - clipboard[0].y),
+                layerId: activeSheet.activeLayerId,
+            };
+            newShapes.push(newShape);
+            newShapeIds.push(newShapeId);
+            newShapesById[newShapeId] = newShape;
+        });
+
 
         return {
           sheets: {
             ...state.sheets,
             [state.activeSheetId]: {
               ...activeSheet,
-              shapesById: {
-                ...activeSheet.shapesById,
-                [newShapeId]: newShape,
-              },
-              shapeIds: [...activeSheet.shapeIds, newShapeId],
-              selectedShapeIds: [newShapeId],
+              shapesById: newShapesById,
+              shapeIds: [...shapeIds, ...newShapeIds],
+              selectedShapeIds: newShapeIds,
             },
           },
         };

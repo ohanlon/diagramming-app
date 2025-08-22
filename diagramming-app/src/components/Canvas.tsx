@@ -10,7 +10,7 @@ import { calculateBezierPath } from '../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, cutShape, copyShape, pasteShape, history, updateShapePosition } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, cutShape, copyShape, pasteShape, history, updateShapePosition, updateShapePositions, recordShapeMoves } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   if (!activeSheet) {
@@ -38,6 +38,7 @@ const Canvas: React.FC = () => {
 
   const [isMouseDownOnShape, setIsMouseDownOnShape] = useState<string | null>(null); // New state
   const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null); // New state
+  const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -88,6 +89,14 @@ const Canvas: React.FC = () => {
           } else {
             if (!activeSheet.selectedShapeIds.includes(nodeId)) {
               setSelectedShapes([nodeId]);
+              setInitialDragPositions({ [nodeId]: { x: shape.x, y: shape.y } });
+            } else {
+                const initialPositions = selectedShapeIds.reduce((acc, id) => {
+                    const s = shapesById[id];
+                    if(s) acc[id] = { x: s.x, y: s.y };
+                    return acc;
+                }, {} as { [shapeId: string]: Point });
+                setInitialDragPositions(initialPositions);
             }
           }
           setIsPanning(false);
@@ -136,22 +145,24 @@ const Canvas: React.FC = () => {
       const width = Math.abs(selectionStartPoint.x - mouseX);
       const height = Math.abs(selectionStartPoint.y - mouseY);
       setSelectionRect({ x, y, width, height });
-    } else if (isMouseDownOnShape && mouseDownPos) {
-        // Check if mouse has moved beyond a threshold to start dragging
-        const dragThreshold = 5; // pixels
-        const dist = Math.sqrt(
-            Math.pow(mouseX - mouseDownPos.x, 2) + Math.pow(mouseY - mouseDownPos.y, 2)
-        );
+    } else if (isMouseDownOnShape && mouseDownPos && initialDragPositions) {
+        const dx = mouseX - mouseDownPos.x;
+        const dy = mouseY - mouseDownPos.y;
 
-        if (dist > dragThreshold) {
-            // Start dragging the node
-            const shape = activeSheet.shapesById[isMouseDownOnShape];
-            if (shape) {
-                updateShapePosition(isMouseDownOnShape, mouseX, mouseY);
+        if (selectedShapeIds.length > 1) {
+            const newPositions = selectedShapeIds.map(id => {
+                const initialPos = initialDragPositions[id];
+                return { id, x: initialPos.x + dx, y: initialPos.y + dy };
+            });
+            updateShapePositions(newPositions);
+        } else {
+            const initialPos = initialDragPositions[isMouseDownOnShape];
+            if (initialPos) {
+                updateShapePosition(isMouseDownOnShape, initialPos.x + dx, initialPos.y + dy);
             }
         }
     }
-  }, [isPanning, startPan, setPan, isDrawingConnector, activeSheet.pan, activeSheet.zoom, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, activeSheet.shapesById, updateShapePosition]);
+  }, [isPanning, startPan, setPan, isDrawingConnector, activeSheet.pan, activeSheet.zoom, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, selectedShapeIds, updateShapePositions, updateShapePosition]);
 
   const handleMouseUp = useCallback((e: MouseEvent) => {
     if (isPanning) {
@@ -224,8 +235,21 @@ const Canvas: React.FC = () => {
     }
 
     // Reset states related to mouse down on shape
+    if (isMouseDownOnShape) {
+        if (selectedShapeIds.length > 1) {
+            const finalPositions = selectedShapeIds.map(id => {
+                const shape = shapesById[id];
+                return { id, x: shape.x, y: shape.y };
+            });
+            recordShapeMoves(finalPositions);
+        } else {
+            const shape = shapesById[isMouseDownOnShape];
+            if(shape) recordShapeMoves([{id: isMouseDownOnShape, x: shape.x, y: shape.y}]);
+        }
+    }
     setIsMouseDownOnShape(null);
     setMouseDownPos(null);
+    setInitialDragPositions(null);
 
     setIsPanning(false);
     setIsDrawingConnector(false);

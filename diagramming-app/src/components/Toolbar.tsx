@@ -21,10 +21,10 @@ const Toolbar: React.FC = () => {
         </button>
       </div>
       <div className="bordered-button">
-        <button onClick={() => cutShape(selectedShapeIds[0])} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Cut" disabled={selectedShapeIds.length === 0}>
+        <button onClick={() => cutShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Cut" disabled={selectedShapeIds.length === 0}>
           <FontAwesomeIcon icon={faScissors} />
         </button>
-        <button onClick={() => copyShape(selectedShapeIds[0])} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Copy" disabled={selectedShapeIds.length === 0}>
+        <button onClick={() => copyShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Copy" disabled={selectedShapeIds.length === 0}>
           <FontAwesomeIcon icon={faCopy} />
         </button>
         <button onClick={() => pasteShape()} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Paste" disabled={!clipboard}>

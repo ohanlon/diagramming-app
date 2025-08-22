@@ -47,7 +47,7 @@ export type Sheet = {
   activeLayerId: string;
   zoom: number;
   pan: Point;
-  clipboard: Shape | null;
+  clipboard: Shape[] | null;
 };
 
 export type DiagramState = {
