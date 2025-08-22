@@ -10,7 +10,7 @@ import { calculateBezierPath } from '../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, undo, redo, cutShape, copyShape, pasteShape, history, updateShapePosition } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, cutShape, copyShape, pasteShape, history, updateShapePosition } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   if (!activeSheet) {
@@ -367,12 +367,6 @@ const Canvas: React.FC = () => {
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={handleCloseContextMenu}
-          onCut={() => cutShape(contextMenu.shapeId)}
-          onCopy={() => copyShape(contextMenu.shapeId)}
-          onPaste={() => pasteShape(contextMenu.x, contextMenu.y)}
-          canCut={activeSheet.selectedShapeIds.length > 0}
-          canCopy={activeSheet.selectedShapeIds.length > 0}
-          canPaste={!!activeSheet.clipboard}
           onBringForward={() => bringForward(contextMenu.shapeId)}
           onSendBackward={() => sendBackward(contextMenu.shapeId)}
           onBringToFront={() => bringToFront(contextMenu.shapeId)}

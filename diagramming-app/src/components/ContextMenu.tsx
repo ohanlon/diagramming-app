@@ -5,12 +5,6 @@ interface ContextMenuProps {
   x: number;
   y: number;
   onClose: () => void;
-  onCut: () => void;
-  onCopy: () => void;
-  onPaste: () => void;
-  canCut: boolean;
-  canCopy: boolean;
-  canPaste: boolean;
   onBringForward: () => void;
   onSendBackward: () => void;
   onBringToFront: () => void;
@@ -18,7 +12,7 @@ interface ContextMenuProps {
 }
 
 const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>((
-  { x, y, onClose, onCut, onCopy, onPaste, canCut, canCopy, canPaste, onBringForward, onSendBackward, onBringToFront, onSendToBack },
+  { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack },
   ref
 ) => {
   const handleItemClick = (action: () => void) => {
@@ -34,10 +28,6 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>((
       onContextMenu={(e) => e.preventDefault()}
     >
       <ul>
-        <li className={!canCut ? 'disabled' : ''} onClick={canCut ? () => handleItemClick(onCut) : undefined}>Cut</li>
-        <li className={!canCopy ? 'disabled' : ''} onClick={canCopy ? () => handleItemClick(onCopy) : undefined}>Copy</li>
-        <li className={!canPaste ? 'disabled' : ''} onClick={canPaste ? () => handleItemClick(onPaste) : undefined}>Paste</li>
-        <hr />
         <li className="submenu-container">
           Arrange
           <ul className="submenu">
