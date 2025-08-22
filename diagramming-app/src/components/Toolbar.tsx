@@ -5,10 +5,25 @@ import { faArrowRotateLeft, faArrowRotateRight, faCopy, faPaste, faScissors } fr
 import './Toolbar.less';
 import { Tooltip } from 'react-tooltip';
 
+const googleFonts = [
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Montserrat',
+  'Oswald',
+  'Playfair Display',
+  'Arial', // Common fallback
+  'Verdana', // Common fallback
+];
+
 const Toolbar: React.FC = () => {
-  const { undo, redo, history, cutShape, copyShape, pasteShape, activeSheetId, sheets } = useDiagramStore();
+  const { undo, redo, history, cutShape, copyShape, pasteShape, activeSheetId, sheets, selectedFont, setSelectedFont } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const { selectedShapeIds, clipboard } = activeSheet;
+
+  const handleFontChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFont(event.target.value);
+  };
 
   return (
     <div className="toolbar">
@@ -31,7 +46,19 @@ const Toolbar: React.FC = () => {
           <FontAwesomeIcon icon={faPaste} />
         </button>
       </div>
-      <Tooltip id="diagram-toolbar-tooltip" />
+
+      {/* Font Selection Dropdown */}
+      <div className="bordered-button">
+        <select value={selectedFont} onChange={handleFontChange} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Select Font">
+          {googleFonts.map((font) => (
+            <option key={font} value={font} style={{ fontFamily: font }}>
+              {font}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <Tooltip id="diagram-toolbar-tooltip" data-tooltip-float="true" />
     </div>
   );
 };

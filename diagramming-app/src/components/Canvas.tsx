@@ -12,6 +12,7 @@ import './Canvas.less';
 const Canvas: React.FC = () => {
   const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, cutShape, copyShape, pasteShape, history, updateShapePosition, updateShapePositions, recordShapeMoves } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
+  const selectedFont = activeSheet.selectedFont;
 
   if (!activeSheet) {
     return <div>No active sheet found.</div>; // Or a loading state
@@ -75,6 +76,7 @@ const Canvas: React.FC = () => {
       svgContent: svgContent,
       minX: minX,
       minY: minY,
+      fontFamily: selectedFont, // Assign the selected font here
     };
     addShape(newShape);
   };

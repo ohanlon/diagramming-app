@@ -57,6 +57,7 @@ interface DiagramStoreActions {
   cutShape: (ids: string[]) => void;
   copyShape: (ids: string[]) => void;
   pasteShape: () => void;
+  setSelectedFont: (font: string) => void; // New action
 }
 
 const defaultLayerId = uuidv4();
@@ -84,6 +85,7 @@ const initialState: DiagramState = {
       zoom: 1,
       pan: { x: 0, y: 0 },
       clipboard: null,
+      selectedFont: 'Roboto', // Default font
     },
   },
   activeSheetId: defaultSheetId,

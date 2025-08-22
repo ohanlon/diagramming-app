@@ -13,8 +13,8 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent } = shape; // Removed minX, minY
-  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, updateShapeText, toggleShapeSelection, setSelectedShapes } = useDiagramStore();
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily } = shape; // Destructure fontFamily from shape
+  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, updateShapeText, toggleShapeSelection, setSelectedShapes, selectedFont } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   if (!activeSheet) return null; // Should not happen

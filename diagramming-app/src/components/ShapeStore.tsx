@@ -66,7 +66,7 @@ const ShapeStore: React.FC = () => {
 
   return (
     <div className="shape-store">
-      <Tooltip id="diagram-shapestore-tooltip" />
+      <Tooltip id="diagram-shapestore-tooltip" data-tooltip-float="true" />
       {categories.map((category) => (
         <div key={category.name} className="category">
           <h3>{category.name}</h3>

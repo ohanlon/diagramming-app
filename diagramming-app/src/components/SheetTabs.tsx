@@ -102,7 +102,7 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
 
   return (
     <div className="sheet-tabs-container">
-      <Tooltip id="diagram-status-tooltip" />
+      <Tooltip id="diagram-status-tooltip" data-tooltip-float="true" />
 
       {showLeftScroll && (
         <button className="scroll-button left" onClick={() => scrollTabs('left')}>

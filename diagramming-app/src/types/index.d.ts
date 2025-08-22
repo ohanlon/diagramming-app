@@ -26,6 +26,7 @@ export type Shape = {
   svgContent?: string;
   minX?: number;
   minY?: number;
+  fontFamily?: string; // New: Optional font family for the shape's text
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
@@ -51,6 +52,7 @@ export type Sheet = {
   zoom: number;
   pan: Point;
   clipboard: Shape[] | null;
+  selectedFont: string; // New: The currently selected font for this sheet
 };
 
 export type DiagramState = {

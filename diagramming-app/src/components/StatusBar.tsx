@@ -41,7 +41,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
 
   return (
     <div className="status-bar">
-      <Tooltip id="diagram-tooltip" />
+      <Tooltip id="diagram-tooltip" data-tooltip-float="true" />
       <div className="bordered-button">
         <div className="zoom-controls">
           <button onClick={handleZoomOut} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content="Zoom out">
