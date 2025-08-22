@@ -5,10 +5,6 @@ interface ContextMenuProps {
   x: number;
   y: number;
   onClose: () => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
   onCut: () => void;
   onCopy: () => void;
   onPaste: () => void;
@@ -22,7 +18,7 @@ interface ContextMenuProps {
 }
 
 const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>((
-  { x, y, onClose, onUndo, onRedo, canUndo, canRedo, onCut, onCopy, onPaste, canCut, canCopy, canPaste, onBringForward, onSendBackward, onBringToFront, onSendToBack },
+  { x, y, onClose, onCut, onCopy, onPaste, canCut, canCopy, canPaste, onBringForward, onSendBackward, onBringToFront, onSendToBack },
   ref
 ) => {
   const handleItemClick = (action: () => void) => {
@@ -38,9 +34,6 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>((
       onContextMenu={(e) => e.preventDefault()}
     >
       <ul>
-        <li className={!canUndo ? 'disabled' : ''} onClick={canUndo ? () => handleItemClick(onUndo) : undefined}>Undo</li>
-        <li className={!canRedo ? 'disabled' : ''} onClick={canRedo ? () => handleItemClick(onRedo) : undefined}>Redo</li>
-        <hr />
         <li className={!canCut ? 'disabled' : ''} onClick={canCut ? () => handleItemClick(onCut) : undefined}>Cut</li>
         <li className={!canCopy ? 'disabled' : ''} onClick={canCopy ? () => handleItemClick(onCopy) : undefined}>Copy</li>
         <li className={!canPaste ? 'disabled' : ''} onClick={canPaste ? () => handleItemClick(onPaste) : undefined}>Paste</li>

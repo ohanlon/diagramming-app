@@ -367,10 +367,6 @@ const Canvas: React.FC = () => {
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={handleCloseContextMenu}
-          onUndo={undo}
-          onRedo={redo}
-          canUndo={history.past.length > 0}
-          canRedo={history.future.length > 0}
           onCut={() => cutShape(contextMenu.shapeId)}
           onCopy={() => copyShape(contextMenu.shapeId)}
           onPaste={() => pasteShape(contextMenu.x, contextMenu.y)}
