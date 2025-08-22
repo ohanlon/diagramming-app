@@ -1,0 +1,64 @@
+// Main variables for the application
+
+// Colors
+@primary-bg-color: #fff;
+@primary-border-color: #CED4DB;
+@secondary-border-color: #ccc;
+
+// Sizing
+@base-font-size: 16px;
+
+// Button
+@button-padding: 5px 5px;
+@button-border-radius: 4px;
+@button-hover-bg-color: #e0e0e0;
+
+// Palette
+@palette-bg-color: #f4f4f4;
+@palette-width: 150px;
+@palette-padding: 10px;
+@shape-item-padding: 10px;
+@shape-item-margin: 5px 0;
+@shape-item-border-color: #ddd;
+@shape-item-border-radius: 5px;
+@shape-item-font-size: 12px;
+@palette-padding-left: 0.625em;
+
+// Toolbar
+@toolbar-bg-color: #f9f9f9;
+@toolbar-gap: 10px;
+
+// LayerPanel
+@layer-panel-width: 200px;
+@layer-panel-height: 60vh;
+@layer-panel-margin: 20px;
+@layer-item-padding: 8px;
+@layer-item-margin-bottom: 5px;
+@layer-item-active-bg-color: #e0e0e0;
+@layer-item-margin-left: 5px;
+
+// ContextMenu
+@context-menu-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+@context-menu-z-index: 1000;
+@context-menu-min-width: 150px;
+@context-menu-padding: 5px 0;
+@context-menu-item-padding: 8px 12px;
+@disabled-color: gray;
+@separator-border-color: #eee;
+
+// Canvas
+@canvas-bg-color: #f8f8f8;
+
+button {
+  background-color: #fff;
+
+  &:hover {
+    background-color: @button-hover-bg-color;
+  }
+}
+
+.bordered-button {
+  //padding-left: @statusbar-gap;
+  //margin-left: @statusbar-gap;
+  border-left: 1px solid @secondary-border-color;
+}

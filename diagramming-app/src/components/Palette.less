@@ -1,0 +1,26 @@
+@import "../styles/variables.less";
+
+.palette {
+  width: @palette-width;
+  border-right: 1px solid @secondary-border-color;
+  padding: @palette-padding;
+  background-color: @palette-bg-color;
+  overflow-y: auto;
+
+  h3 {
+    margin-top: 0;
+  }
+
+  .shape-item {
+    padding: @shape-item-padding;
+    margin: @shape-item-margin;
+    border: 1px solid @shape-item-border-color;
+    border-radius: @shape-item-border-radius;
+    background-color: @primary-bg-color;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: @shape-item-font-size;
+  }
+}
