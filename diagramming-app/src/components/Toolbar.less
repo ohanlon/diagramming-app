@@ -1,10 +1,31 @@
 @import "../styles/variables.less";
 
+// Toolbar
+@toolbar-height: 2em;
+@toolbar-padding: .5em 1em;
+@toolbar-font-size: 0.8750em;
+@toolbar-gap: 0.625em;
+
 .toolbar {
-  padding: @palette-padding;
+  //padding: @palette-padding;
   border-bottom: 1px solid @secondary-border-color;
-  background-color: @toolbar-bg-color;
+  background-color: @primary-bg-color;
   display: flex;
   gap: @toolbar-gap;
   align-items: center;
+
+  button {
+    //padding: @button-padding;
+    border: none;
+    //border-radius: @button-border-radius;
+    background-color: transparent;
+    cursor: pointer;
+    min-width: 30px;
+    text-align: center;
+    height: 100%;
+
+    &:hover {
+      background-color: @button-hover-bg-color;
+    }
+  }
 }

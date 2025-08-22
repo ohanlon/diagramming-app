@@ -3,6 +3,7 @@ import { useDiagramStore } from '../store/useDiagramStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './SheetTabs.less';
+import { Tooltip } from 'react-tooltip';
 
 interface SheetTabsProps {
   // No props needed as it will interact directly with the store
@@ -101,6 +102,8 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
 
   return (
     <div className="sheet-tabs-container">
+      <Tooltip id="diagram-status-tooltip" />
+
       {showLeftScroll && (
         <button className="scroll-button left" onClick={() => scrollTabs('left')}>
           <FontAwesomeIcon icon={faChevronLeft} />
@@ -138,6 +141,7 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
               <button
                 className="remove-sheet-button"
                 disabled={sheetIds.length === 1}
+                data-tooltip-id="diagram--status-tooltip" data-tooltip-content="Remove Sheet"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleRemoveSheet(sheet.id);
@@ -157,7 +161,7 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
         </div>
       )}
       <div className="bordered-button">
-        <button onClick={handleAddSheet} className="add-sheet-button">
+        <button onClick={handleAddSheet} className="add-sheet-button" data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Add New Sheet">
           <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>

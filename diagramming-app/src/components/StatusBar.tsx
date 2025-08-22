@@ -41,25 +41,25 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
 
   return (
     <div className="status-bar">
-      <Tooltip id="my-tooltip" />
+      <Tooltip id="diagram-tooltip" />
       <div className="bordered-button">
         <div className="zoom-controls">
-          <button onClick={handleZoomOut} className="status-bar-button" data-tooltip-id="my-tooltip" data-tooltip-content="Zoom out">
+          <button onClick={handleZoomOut} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content="Zoom out">
             <FontAwesomeIcon icon={faMinus} />
           </button>
           <span className="zoom-percentage">{zoomPercentage}%</span>
-          <button onClick={handleZoomIn} className="status-bar-button" data-tooltip-id="my-tooltip" data-tooltip-content="Zoom in">
+          <button onClick={handleZoomIn} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content="Zoom in">
             <FontAwesomeIcon icon={faPlus} />
           </button>
         </div>
       </div>
-      <div className="bordered-button"> {/* This is the fullscreen button's container */}
-        <button onClick={toggleFullscreen} className="status-bar-button" data-tooltip-id="my-tooltip" data-tooltip-content={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+      <div className="bordered-button"> 
+        <button onClick={toggleFullscreen} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
           <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} />
         </button>
       </div>
-      <div className="bordered-button"> {/* New container for Layers button */}
-        <button onClick={() => setShowLayerPanel(!showLayerPanel)} className="status-bar-button" data-tooltip-id="my-tooltip" data-tooltip-content={showLayerPanel ? "Hide Layers" : "Show Layers"}>
+      <div className="bordered-button"> 
+        <button onClick={() => setShowLayerPanel(!showLayerPanel)} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={showLayerPanel ? "Hide Layers" : "Show Layers"}>
           <FontAwesomeIcon icon={faLayerGroup} />
         </button>
       </div>
