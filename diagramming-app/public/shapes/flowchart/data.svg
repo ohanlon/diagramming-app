@@ -1,0 +1,6 @@
+<svg viewBox="-45 -30 90 60">
+              <rect x="-40" y="-25" width="80" height="50"
+                    fill="#f1e9ff" stroke="#7b1fa2" stroke-width="2"/>
+              <!-- Line across center -->
+              <line x1="-40" y1="0" x2="40" y2="0" stroke="#7b1fa2" stroke-width="1.5"/>
+            </svg>

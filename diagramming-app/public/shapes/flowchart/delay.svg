@@ -1,0 +1,7 @@
+<svg viewBox="-40 -30 80 60">
+              <rect x="-40" y="-25" width="80" height="50"
+                    fill="#fff9c4" stroke="#f57c00" stroke-width="2"/>
+              <!-- Wave -->
+              <path d="M-40,-10 Q-10,0 0,10 T40,-10"
+                    stroke="#f57c00" fill="none" stroke-width="1.5"/>
+            </svg>

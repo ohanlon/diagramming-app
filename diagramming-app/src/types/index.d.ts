@@ -24,6 +24,8 @@ export type Shape = {
   color: string; // For example, to distinguish shapes
   layerId: string; // New: ID of the layer this shape belongs to
   svgContent?: string;
+  minX?: number;
+  minY?: number;
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';

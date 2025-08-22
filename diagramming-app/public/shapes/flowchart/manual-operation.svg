@@ -1,0 +1,7 @@
+<svg viewBox="-40 -30 80 60">
+              <rect x="-40" y="-25" width="80" height="50"
+                    fill="#e7f3ff" stroke="#1a73e8" stroke-width="2"/>
+              <!-- Hand symbol -->
+              <path d="M-20,-10 C -15,0 -15,10 0,15 Q 15,10 20,0 M40,-15 L40,0 M30,-15 L30,0"
+                    stroke="#d679c8" fill="none" stroke-width="2"/>
+            </svg>

@@ -50,10 +50,14 @@ const Canvas: React.FC = () => {
     if (!svgRect) return;
 
     const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
+    let minX = 0;
+    let minY = 0;
     let width = 100;
     let height = 100;
     if (viewBoxMatch && viewBoxMatch[1]) {
       const viewBox = viewBoxMatch[1].split(' ').map(Number);
+      minX = viewBox[0];
+      minY = viewBox[1];
       width = viewBox[2] - viewBox[0];
       height = viewBox[3] - viewBox[1];
     }
@@ -69,6 +73,8 @@ const Canvas: React.FC = () => {
       color: '#f0f0f0',
       layerId: activeSheet.activeLayerId,
       svgContent: svgContent,
+      minX: minX,
+      minY: minY,
     };
     addShape(newShape);
   };

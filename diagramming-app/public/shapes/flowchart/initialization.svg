@@ -1,0 +1,8 @@
+<svg viewBox="-40 -30 80 60">
+              <rect x="-40" y="-25" width="80" height="50"
+                    fill="#e9f5ff" stroke="#1a73e8" stroke-width="2"/>
+              <!-- Clock -->
+              <circle cx="0" cy="0" r="10" stroke="#1a73e8" fill="none" stroke-width="2"/>
+              <line x1="0" y1="-5" x2="0" y2="0" stroke="#1a73e8" stroke-width="2"/>
+              <line x1="0" y1="0" x2="4" y2="6" stroke="#1a73e8" stroke-width="2"/>
+            </svg>

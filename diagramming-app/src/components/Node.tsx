@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect, memo } from 'react';
 import type { Shape, Point, AnchorType } from '../types';
 import { useDiagramStore } from '../store/useDiagramStore';
@@ -14,7 +13,7 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent } = shape;
+  const { id, type, x, y, width, height, text, color, svgContent } = shape; // Removed minX, minY
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, updateShapeText, toggleShapeSelection, setSelectedShapes } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
@@ -59,26 +58,6 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         initialResizeStates.current = { [id]: { x, y, width, height } };
     }
   };
-
-  // const handleResizeMouseDown = (e: React.MouseEvent, type: string) => {
-  //   if (!isInteractive) return;
-  //   e.stopPropagation(); // Prevent node dragging
-  //   setIsResizing(true);
-  //   setResizeHandleType(type);
-  //   initialMousePos.current = { x: e.clientX, y: e.clientY };
-
-  //   if (isSelected && selectedShapeIds.length > 1) {
-  //       initialResizeStates.current = selectedShapeIds.reduce((acc, shapeId) => {
-  //           const shape = shapesById[shapeId];
-  //           if (shape) {
-  //               acc[shapeId] = { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
-  //           }
-  //           return acc;
-  //       }, {} as { [key: string]: { x: number; y: number; width: number; height: number } });
-  //   } else {
-  //       initialResizeStates.current = { [id]: { x, y, width, height } };
-  //   }
-  // };
 
   const handleResizeMouseMove = (e: MouseEvent) => {
     if (!isResizing) return;
@@ -207,8 +186,6 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     onContextMenu(e, id); // Call the prop
   };
 
-  // Removed: const handleCloseContextMenu = () => { setContextMenu(null); };
-
   useEffect(() => {
     if (isResizing) {
       document.addEventListener('mousemove', handleResizeMouseMove);
@@ -226,7 +203,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const renderShape = () => {
     if (svgContent) {
       return (
-        <foreignObject width={width} height={height}>
+        <foreignObject x={0} y={0} width={width} height={height}> {/* Changed x, y to 0,0 as foreignObject is relative to g */}
           <div dangerouslySetInnerHTML={{ __html: svgContent }} style={{ width: '100%', height: '100%' }} />
         </foreignObject>
       );
@@ -280,6 +257,12 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     { x: 0, y: height / 2, type: 'left' },
   ];
 
+  // Calculate new text foreignObject dimensions and position
+  const textForeignObjectWidth = width + 40;
+  const textForeignObjectX = (width - textForeignObjectWidth) / 2; // Center horizontally relative to shape's width
+  const textForeignObjectY = height + 5; // 5 pixels below the shape
+  const textForeignObjectHeight = 50; // A reasonable height, can be adjusted or made dynamic
+
   return (
     <g
       data-node-id={id}
@@ -290,17 +273,36 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       style={{ cursor: isInteractive ? 'grab' : 'default' }}
     >
       {renderShape()}
-      <foreignObject x="0" y="0" width={width} height={height}>
-        <div
-          ref={textRef}
-          contentEditable={isEditingText}
-          onBlur={handleTextBlur}
-          suppressContentEditableWarning={true}
-          className={`shape-text ${isEditingText ? 'editing' : ''}`}
+
+      {/* New foreignObject for text below the shape */}
+      {text && (
+        <foreignObject
+          x={textForeignObjectX}
+          y={textForeignObjectY}
+          width={textForeignObjectWidth}
+          height={textForeignObjectHeight}
         >
-          {text}
-        </div>
-      </foreignObject>
+          <div
+            ref={textRef}
+            contentEditable={isEditingText}
+            onBlur={handleTextBlur}
+            suppressContentEditableWarning={true}
+            className={`shape-text-below ${isEditingText ? 'editing' : ''}`}
+            style={{
+              textAlign: 'center',
+              wordWrap: 'break-word',
+              whiteSpace: 'normal',
+              overflow: 'hidden',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {text}
+          </div>
+        </foreignObject>
+      )}
 
       {isSelected && isInteractive && (type !== 'text' || svgContent) && (
         <>

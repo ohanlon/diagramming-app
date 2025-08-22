@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Start",
+    "path": "/shapes/flowchart/start.svg"
+  },
+  {
+    "title": "End",
+    "path": "/shapes/flowchart/end.svg"
+  },
+  {
+    "title": "Process",
+    "path": "/shapes/flowchart/process.svg"
+  },
+  {
+    "title": "Decision",
+    "path": "/shapes/flowchart/decision.svg"
+  },
+  {
+    "title": "Input/Output",
+    "path": "/shapes/flowchart/input-output.svg"
+  },
+  {
+    "title": "+",
+    "path": "/shapes/flowchart/plus.svg"
+  },
+  {
+    "title": "Subroutine",
+    "path": "/shapes/flowchart/subroutine.svg"
+  },
+  {
+    "title": "Terminator",
+    "path": "/shapes/flowchart/terminator.svg"
+  },
+  {
+    "title": "Data",
+    "path": "/shapes/flowchart/data.svg"
+  },
+  {
+    "title": "Delay",
+    "path": "/shapes/flowchart/delay.svg"
+  },
+  {
+    "title": "Manual Operation",
+    "path": "/shapes/flowchart/manual-operation.svg"
+  },
+  {
+    "title": "Initialization",
+    "path": "/shapes/flowchart/initialization.svg"
+  }
+]

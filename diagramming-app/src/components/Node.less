@@ -8,10 +8,22 @@
   justify-content: center;
   text-align: center;
   word-break: break-word;
-  padding: 5px;
+  padding: @five-pixel;
   box-sizing: border-box;
-  font-size: 14px;
+  // font-size: 14px;
   color: black; // Default text color
+
+  &.editing {
+    pointer-events: auto;
+    outline: 1px dashed blue;
+  }
+}
+
+.shape-text-below {
+  font-size: 12px; // Slightly smaller font for text below
+  color: #333; // Darker grey for text below
+  padding: 2px;
+  box-sizing: border-box;
 
   &.editing {
     pointer-events: auto;
