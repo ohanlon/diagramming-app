@@ -30,7 +30,19 @@ const ShapeStore: React.FC = () => {
         const flowchartShapes: Shape[] = [];
         for (const shapeData of shapesData) {
           const svgResponse = await fetch(shapeData.path);
-          const svgContent = await svgResponse.text();
+          let svgContent = await svgResponse.text();
+
+          // Sanitize SVG content: remove width and height attributes from the <svg> tag
+          const svgTagRegex = /<svg([^>]*)>/;
+          const match = svgTagRegex.exec(svgContent);
+
+          if (match && match[1]) {
+            let attributes = match[1];
+            attributes = attributes.replace(/\swidth="[^"]*"/g, '');
+            attributes = attributes.replace(/\sheight="[^"]*"/g, '');
+
+            svgContent = `<svg${attributes}>${svgContent.substring(match[0].length)}`;
+          }
 
           flowchartShapes.push({
             title: shapeData.title,

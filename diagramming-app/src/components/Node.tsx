@@ -202,9 +202,15 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
 
   const renderShape = () => {
     if (svgContent) {
+      // Inject width="100%" and height="100%" into the SVG tag
+      const scaledSvgContent = svgContent.replace(
+        /<svg([^>]*)>/,
+        '<svg$1 width="100%" height="100%">'
+      );
+
       return (
         <foreignObject x={0} y={0} width={width} height={height}> {/* Changed x, y to 0,0 as foreignObject is relative to g */}
-          <div dangerouslySetInnerHTML={{ __html: svgContent }} style={{ width: '100%', height: '100%' }} />
+          <div dangerouslySetInnerHTML={{ __html: scaledSvgContent }} style={{ width: '100%', height: '100%' }} />
         </foreignObject>
       );
     }

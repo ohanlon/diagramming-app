@@ -123,6 +123,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 [shape.id]: { ...shape, layerId: activeSheet.activeLayerId },
               },
               shapeIds: [...activeSheet.shapeIds, shape.id],
+              selectedShapeIds: [shape.id], // <--- Add this line
             },
           },
         };
