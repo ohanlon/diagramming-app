@@ -74,6 +74,7 @@ const ShapeStore: React.FC = () => {
             {category.shapes.map((shape) => (
               <div
                 data-tooltip-id="diagram-shapestore-tooltip" data-tooltip-content={shape.title}
+                data-testid={shape.title}
                 key={shape.title}
                 draggable
                 onDragStart={(e) => {

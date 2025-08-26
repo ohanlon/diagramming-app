@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useDiagramStore } from '../store/useDiagramStore';
+import { useDiagramStore } from '../../store/useDiagramStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './SheetTabs.less';
@@ -161,7 +161,7 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
         </div>
       )}
       <div className="bordered-tool-group">
-        <button onClick={handleAddSheet} className="add-sheet-button" data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Add New Sheet">
+        <button onClick={handleAddSheet} className="add-sheet-button" data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Add New Sheet" data-testid="add-sheet-button">
           <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>

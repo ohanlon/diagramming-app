@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, memo } from 'react';
-import type { Shape, Point, AnchorType } from '../types';
-import { useDiagramStore } from '../store/useDiagramStore';
+import type { Shape, Point, AnchorType } from '../../types';
+import { useDiagramStore } from '../../store/useDiagramStore';
 import './Node.less';
 
 interface NodeProps {

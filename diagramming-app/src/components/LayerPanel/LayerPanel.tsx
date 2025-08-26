@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useDiagramStore } from '../store/useDiagramStore';
+import { useDiagramStore } from '../../store/useDiagramStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import './LayerPanel.less';
@@ -98,11 +98,11 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
     >
       <div className="layer-panel-header" onMouseDown={handleMouseDown}>
         <h3>Layers</h3>
-        <button onClick={() => setShowLayerPanel(false)} className="close-button">
+        <button onClick={() => setShowLayerPanel(false)} className="close-button" data-testid="close-layer-panel-button">
           <FontAwesomeIcon icon={faTimes} />
         </button>
       </div>
-      <button onClick={handleAddLayer} className="add-layer-button">Add Layer</button>
+      <button onClick={handleAddLayer} className="add-layer-button" data-testid="add-layer-button">Add Layer</button>
       <div className="layers-list">
         {layerIds.map((id: string) => {
           const layer = layers[id];

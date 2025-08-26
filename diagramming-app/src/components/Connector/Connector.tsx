@@ -1,8 +1,8 @@
 
 import React, { memo } from 'react';
-import type { Connector, Point, Shape, AnchorType } from '../types';
-import { calculateBezierPath } from '../utils/calculateBezierPath';
-import { useDiagramStore } from '../store/useDiagramStore';
+import type { Connector, Point, Shape, AnchorType } from '../../types';
+import { calculateBezierPath } from '../../utils/calculateBezierPath';
+import { useDiagramStore } from '../../store/useDiagramStore';
 
 // Helper function to get the absolute point of an anchor on a shape
 const getPointFromAnchorType = (shape: Shape, anchorType: AnchorType): Point => {
@@ -64,6 +64,8 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
         stroke="black"
         strokeWidth="2"
         fill="none"
+        role="graphics-symbol"
+        aria-label="Connector between nodes"
         markerEnd="url(#arrowhead)"
       />
     </g>

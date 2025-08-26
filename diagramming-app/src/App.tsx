@@ -1,10 +1,9 @@
-import ShapeStore from './components/ShapeStore';
-import Canvas from './components/Canvas';
-import Toolbar from './components/Toolbar';
-import LayerPanel from './components/LayerPanel';
-import StatusBar from './components/StatusBar'; // Import StatusBar
-import SheetTabs from './components/SheetTabs';
-import type { ShapeType } from './types';
+import ShapeStore from './components/ShapeStore/ShapeStore';
+import Canvas from './components/Canvas/Canvas';
+import Toolbar from './components/Toolbar/Toolbar';
+import LayerPanel from './components/LayerPanel/LayerPanel';
+import StatusBar from './components/StatusBar/StatusBar'; // Import StatusBar
+import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState } from 'react';
 
 function App() {

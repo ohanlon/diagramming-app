@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDiagramStore } from '../store/useDiagramStore';
+import { useDiagramStore } from '../../store/useDiagramStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand, faCompress, faPlus, faMinus, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from 'react-tooltip';
@@ -59,7 +59,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
         </button>
       </div>
       <div className="bordered-tool-group"> 
-        <button onClick={() => setShowLayerPanel(!showLayerPanel)} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={showLayerPanel ? "Hide Layers" : "Show Layers"}>
+        <button onClick={() => setShowLayerPanel(!showLayerPanel)} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={showLayerPanel ? "Hide Layers" : "Show Layers"} data-testid="toggle-layer-panel-button">
           <FontAwesomeIcon icon={faLayerGroup} />
         </button>
       </div>

@@ -1,12 +1,12 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useDiagramStore } from '../store/useDiagramStore';
-import Node from './Node';
-import ConnectorComponent from './Connector';
-import ContextMenu from './ContextMenu';
-import type { ShapeType, Point, AnchorType } from '../types';
+import { useDiagramStore } from '../../store/useDiagramStore';
+import Node from '../Node/Node';
+import ConnectorComponent from '../Connector/Connector';
+import ContextMenu from '../ContextMenu/ContextMenu';
+import type { Point, AnchorType } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
-import { getAnchorPoint } from '../utils/getAnchorPoint';
-import { calculateBezierPath } from '../utils/calculateBezierPath';
+import { getAnchorPoint } from '../../utils/getAnchorPoint';
+import { calculateBezierPath } from '../../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {

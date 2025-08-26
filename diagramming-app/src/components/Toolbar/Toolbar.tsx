@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDiagramStore } from '../store/useDiagramStore';
+import { useDiagramStore } from '../../store/useDiagramStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRotateLeft, faArrowRotateRight, faCopy, faPaste, faScissors } from '@fortawesome/free-solid-svg-icons';
 import './Toolbar.less';
@@ -28,28 +28,28 @@ const Toolbar: React.FC = () => {
   return (
     <div className="toolbar">
       <div className="bordered-tool-group">
-        <button onClick={undo} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Undo" disabled={history.past.length === 0}>
+        <button onClick={undo} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Undo" disabled={history.past.length === 0} data-testid="undo-button">
           <FontAwesomeIcon icon={faArrowRotateLeft} />
         </button>
-        <button onClick={redo} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Redo" disabled={history.future.length === 0}>
+        <button onClick={redo} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Redo" disabled={history.future.length === 0} data-testid="redo-button">
           <FontAwesomeIcon icon={faArrowRotateRight} />
         </button>
       </div>
       <div className="bordered-tool-group">
-        <button onClick={() => cutShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Cut" disabled={selectedShapeIds.length === 0}>
+        <button onClick={() => cutShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Cut" disabled={selectedShapeIds.length === 0} data-testid="cut-button">
           <FontAwesomeIcon icon={faScissors} />
         </button>
-        <button onClick={() => copyShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Copy" disabled={selectedShapeIds.length === 0}>
+        <button onClick={() => copyShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Copy" disabled={selectedShapeIds.length === 0} data-testid="copy-button">
           <FontAwesomeIcon icon={faCopy} />
         </button>
-        <button onClick={() => pasteShape()} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Paste" disabled={!clipboard}>
+        <button onClick={() => pasteShape()} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Paste" disabled={!clipboard} data-testid="paste-button">
           <FontAwesomeIcon icon={faPaste} />
         </button>
       </div>
 
       {/* Font Selection Dropdown */}
       <div className="bordered-tool-group">
-        <select value={selectedFont} onChange={handleFontChange} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Select Font">
+        <select value={selectedFont} onChange={handleFontChange} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Select Font" data-testid="selectFont">
           {googleFonts.map((font) => (
             <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
               {font.name}
