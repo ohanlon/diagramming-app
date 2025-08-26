@@ -154,13 +154,13 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
         })}
       </div>
       {showRightScroll && (
-        <div className="bordered-button">
+        <div className="bordered-tool-group">
           <button className="scroll-button right" onClick={() => scrollTabs('right')}>
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
       )}
-      <div className="bordered-button">
+      <div className="bordered-tool-group">
         <button onClick={handleAddSheet} className="add-sheet-button" data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Add New Sheet">
           <FontAwesomeIcon icon={faPlus} />
         </button>

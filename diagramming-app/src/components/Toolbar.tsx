@@ -6,14 +6,14 @@ import './Toolbar.less';
 import { Tooltip } from 'react-tooltip';
 
 const googleFonts = [
-  'Roboto',
-  'Open Sans',
-  'Lato',
-  'Montserrat',
-  'Oswald',
-  'Playfair Display',
-  'Arial', // Common fallback
-  'Verdana', // Common fallback
+  { name: 'Open Sans (Default)', value: 'Open Sans' },
+  { name: 'Roboto', value: 'Roboto' },
+  { name: 'Lato', value: 'Lato' },
+  { name: 'Montserrat', value: 'Montserrat' },
+  { name: 'Oswald', value: 'Oswald' },
+  { name: 'Playfair Display', value: 'Playfair Display' },
+  { name: 'Arial', value: 'Arial' },
+  { name: 'Verdana', value: 'Verdana' },
 ];
 
 const Toolbar: React.FC = () => {
@@ -27,7 +27,7 @@ const Toolbar: React.FC = () => {
 
   return (
     <div className="toolbar">
-      <div className="bordered-button">
+      <div className="bordered-tool-group">
         <button onClick={undo} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Undo" disabled={history.past.length === 0}>
           <FontAwesomeIcon icon={faArrowRotateLeft} />
         </button>
@@ -35,7 +35,7 @@ const Toolbar: React.FC = () => {
           <FontAwesomeIcon icon={faArrowRotateRight} />
         </button>
       </div>
-      <div className="bordered-button">
+      <div className="bordered-tool-group">
         <button onClick={() => cutShape(selectedShapeIds)} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Cut" disabled={selectedShapeIds.length === 0}>
           <FontAwesomeIcon icon={faScissors} />
         </button>
@@ -48,11 +48,11 @@ const Toolbar: React.FC = () => {
       </div>
 
       {/* Font Selection Dropdown */}
-      <div className="bordered-button">
+      <div className="bordered-tool-group">
         <select value={selectedFont} onChange={handleFontChange} data-tooltip-id="diagram-toolbar-tooltip" data-tooltip-content="Select Font">
           {googleFonts.map((font) => (
-            <option key={font} value={font} style={{ fontFamily: font }}>
-              {font}
+            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+              {font.name}
             </option>
           ))}
         </select>

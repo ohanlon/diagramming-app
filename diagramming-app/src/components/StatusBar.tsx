@@ -42,7 +42,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
   return (
     <div className="status-bar">
       <Tooltip id="diagram-tooltip" data-tooltip-float="true" />
-      <div className="bordered-button">
+      <div className="bordered-tool-group">
         <div className="zoom-controls">
           <button onClick={handleZoomOut} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content="Zoom out">
             <FontAwesomeIcon icon={faMinus} />
@@ -53,12 +53,12 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
           </button>
         </div>
       </div>
-      <div className="bordered-button"> 
+      <div className="bordered-tool-group"> 
         <button onClick={toggleFullscreen} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
           <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} />
         </button>
       </div>
-      <div className="bordered-button"> 
+      <div className="bordered-tool-group"> 
         <button onClick={() => setShowLayerPanel(!showLayerPanel)} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={showLayerPanel ? "Hide Layers" : "Show Layers"}>
           <FontAwesomeIcon icon={faLayerGroup} />
         </button>
