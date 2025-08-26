@@ -5,6 +5,7 @@ import { faChevronLeft, faChevronRight, faPlus, faTimes } from '@fortawesome/fre
 import './SheetTabs.less';
 import { Tooltip } from 'react-tooltip';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface SheetTabsProps {
   // No props needed as it will interact directly with the store
 }

@@ -10,7 +10,7 @@ import { calculateBezierPath } from '../../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, cutShape, copyShape, pasteShape, history, updateShapePosition, updateShapePositions, recordShapeMoves } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const selectedFont = activeSheet.selectedFont;
 

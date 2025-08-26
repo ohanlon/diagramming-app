@@ -45,18 +45,65 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
 
   const d = calculateBezierPath(startPoint, endPoint);
 
+  let markerId = "arrowhead-right"; // Default
+
+  if (endAnchorType === 'top') {
+    markerId = "arrowhead-down";
+  } else if (endAnchorType === 'bottom') {
+    markerId = "arrowhead-up";
+  } else if (endAnchorType === 'left') {
+    markerId = "arrowhead-left";
+  }
+
   return (
     <g>
       <defs>
+        {/* Arrowhead pointing right (default) */}
         <marker
-          id="arrowhead"
+          id="arrowhead-right"
+          markerWidth="10"
+          markerHeight="7"
+          refX="10"
+          refY="3.5"
+          orient="0"
+        >
+          <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+        </marker>
+
+        {/* Arrowhead pointing down */}
+        <marker
+          id="arrowhead-down"
+          markerWidth="10"
+          markerHeight="10"
+          refX="5"
+          refY="10"
+          orient="0"
+        >
+          <polygon points="0 0, 10 0, 5 10" transform="rotate(90 5 5)" fill="black" />
+        </marker>
+
+        {/* Arrowhead pointing up */}
+        <marker
+          id="arrowhead-up"
+          markerWidth="10"
+          markerHeight="10"
+          refX="5"
+          refY="0"
+          orient="0"
+        >
+          <polygon points="0 10, 10 10, 5 0" transform="rotate(90 5 5)" fill="black" />
+        </marker>
+
+        {/* Arrowhead pointing left */}
+        <marker
+          id="arrowhead-left"
           markerWidth="10"
           markerHeight="7"
           refX="0"
           refY="3.5"
-          orient="auto"
+          orient="180"
         >
-          <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+          <polygon points="10 0, 0 3.5, 10 7" fill="black" />
         </marker>
       </defs>
       <path
@@ -66,7 +113,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
         fill="none"
         role="graphics-symbol"
         aria-label="Connector between nodes"
-        markerEnd="url(#arrowhead)"
+        markerEnd={`url(#${markerId})`}
       />
     </g>
   );
