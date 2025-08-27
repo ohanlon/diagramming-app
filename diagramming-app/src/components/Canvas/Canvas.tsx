@@ -12,142 +12,27 @@ import './Canvas.less';
 const Canvas: React.FC = () => {
   const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
-  const selectedFont = activeSheet.selectedFont;
-
-  if (!activeSheet) {
-    return <div>No active sheet found.</div>; // Or a loading state
-  }
-
-  const { shapesById, shapeIds, connectors, selectedShapeIds } = activeSheet;
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
-
   const [isPanning, setIsPanning] = useState(false);
   const [startPan] = useState({ x: 0, y: 0 });
-
   const [isDrawingConnector, setIsDrawingConnector] = useState(false);
   const [startConnectorPoint, setStartConnectorPoint] = useState<Point | null>(null);
   const [startConnectorNodeId, setStartConnectorNodeId] = useState<string | null>(null);
   const [startConnectorAnchorType, setStartConnectorAnchorType] = useState<AnchorType | null>(null);
   const [currentMousePoint, setCurrentMousePoint] = useState<Point | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; shapeId: string } | null>(null);
-
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStartPoint, setSelectionStartPoint] = useState<Point | null>(null);
   const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
-
-  const [isMouseDownOnShape, setIsMouseDownOnShape] = useState<string | null>(null); // New state
-  const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null); // New state
+  const [isMouseDownOnShape, setIsMouseDownOnShape] = useState<string | null>(null);
+  const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const shapeType = e.dataTransfer.getData('shapeType');
-    const svgContent = e.dataTransfer.getData('svgContent');
-    if (!shapeType) return;
-
-    const svgRect = svgRef.current?.getBoundingClientRect();
-    if (!svgRect) return;
-
-    const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
-    let minX = 0;
-    let minY = 0;
-    let width = 100;
-    let height = 100;
-    if (viewBoxMatch && viewBoxMatch[1]) {
-      const viewBox = viewBoxMatch[1].split(' ').map(Number);
-      minX = viewBox[0];
-      minY = viewBox[1];
-      width = viewBox[2] - viewBox[0];
-      height = viewBox[3] - viewBox[1];
-    }
-
-    const newShape = {
-      id: uuidv4(),
-      type: shapeType,
-      x: (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom,
-      y: (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom,
-      width: width,
-      height: height,
-      text: shapeType,
-      color: '#f0f0f0',
-      layerId: activeSheet.activeLayerId,
-      svgContent: svgContent,
-      minX: minX,
-      minY: minY,
-      fontFamily: selectedFont, // Assign the selected font here
-    };
-    addShape(newShape);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const targetElement = e.target as SVGElement;
-    const targetNodeG = targetElement.closest('g[data-node-id]');
-
-    const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
-    const mouseY = (e.clientY - svgRef.current!.getBoundingClientRect().top - activeSheet.pan.y) / activeSheet.zoom;
-
-    if (targetNodeG) {
-      const nodeId = targetNodeG.getAttribute('data-node-id');
-      if (nodeId) {
-        const shape = activeSheet.shapesById[nodeId];
-        const layer = activeSheet.layers[shape.layerId];
-        if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
-          // Set state for potential drag
-          setIsMouseDownOnShape(nodeId);
-          setMouseDownPos({ x: mouseX, y: mouseY });
-
-          // Handle selection immediately
-          if (e.shiftKey) {
-            toggleShapeSelection(nodeId);
-          } else {
-            if (!activeSheet.selectedShapeIds.includes(nodeId)) {
-              setSelectedShapes([nodeId]);
-              setInitialDragPositions({ [nodeId]: { x: shape.x, y: shape.y } });
-            } else {
-                const initialPositions = selectedShapeIds.reduce((acc, id) => {
-                    const s = shapesById[id];
-                    if(s) acc[id] = { x: s.x, y: s.y };
-                    return acc;
-                }, {} as { [shapeId: string]: Point });
-                setInitialDragPositions(initialPositions);
-            }
-          }
-          setIsPanning(false);
-        } else {
-          setSelectedShapes([]);
-        }
-      }
-    } else if (e.target === svgRef.current) {
-      setIsSelecting(true);
-      const svgRect = svgRef.current?.getBoundingClientRect();
-      if (!svgRect) return;
-      const x = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
-      const y = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
-      setSelectionStartPoint({ x, y });
-      setSelectionRect({ x, y, width: 0, height: 0 });
-      setSelectedShapes([]);
-    }
-  };
-
-  const handleConnectorStart = useCallback((nodeId: string, point: Point, anchorType: AnchorType) => {
-    const shape = activeSheet.shapesById[nodeId];
-    const layer = activeSheet.layers[shape.layerId];
-    if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
-      setIsDrawingConnector(true);
-      setStartConnectorNodeId(nodeId);
-      setStartConnectorPoint(point);
-      setStartConnectorAnchorType(anchorType);
-      setCurrentMousePoint(point);
-    }
-  }, [activeSheet.shapesById, activeSheet.layers, activeSheet.activeLayerId]);
-
   const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!activeSheet) return;
+
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
@@ -168,8 +53,8 @@ const Canvas: React.FC = () => {
         const dx = mouseX - mouseDownPos.x;
         const dy = mouseY - mouseDownPos.y;
 
-        if (selectedShapeIds.length > 1) {
-            const newPositions = selectedShapeIds.map(id => {
+        if (activeSheet.selectedShapeIds.length > 1) {
+            const newPositions = activeSheet.selectedShapeIds.map(id => {
                 const initialPos = initialDragPositions[id];
                 return { id, x: initialPos.x + dx, y: initialPos.y + dy };
             });
@@ -181,9 +66,11 @@ const Canvas: React.FC = () => {
             }
         }
     }
-  }, [isPanning, startPan, setPan, isDrawingConnector, activeSheet.pan, activeSheet.zoom, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, selectedShapeIds, updateShapePositions, updateShapePosition]);
+  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition]);
 
   const handleMouseUp = useCallback((e: MouseEvent) => {
+    if (!activeSheet) return;
+
     if (isPanning) {
       setIsPanning(false);
     }
@@ -253,16 +140,15 @@ const Canvas: React.FC = () => {
         setSelectedShapes(selectedIds);
     }
 
-    // Reset states related to mouse down on shape
     if (isMouseDownOnShape) {
-        if (selectedShapeIds.length > 1) {
-            const finalPositions = selectedShapeIds.map(id => {
-                const shape = shapesById[id];
+        if (activeSheet.selectedShapeIds.length > 1) {
+            const finalPositions = activeSheet.selectedShapeIds.map(id => {
+                const shape = activeSheet.shapesById[id];
                 return { id, x: shape.x, y: shape.y };
             });
             recordShapeMoves(finalPositions);
         } else {
-            const shape = shapesById[isMouseDownOnShape];
+            const shape = activeSheet.shapesById[isMouseDownOnShape];
             if(shape) recordShapeMoves([{id: isMouseDownOnShape, x: shape.x, y: shape.y}]);
         }
     }
@@ -275,9 +161,10 @@ const Canvas: React.FC = () => {
     setIsSelecting(false);
     setSelectionStartPoint(null);
     setSelectionRect(null);
-  }, [isPanning, isDrawingConnector, startConnectorNodeId, startConnectorPoint, startConnectorAnchorType, activeSheet.pan, activeSheet.zoom, activeSheet.shapesById, addConnector, activeSheet.layers, activeSheet.activeLayerId, isSelecting, selectionRect, activeSheet.shapeIds, setSelectedShapes, setIsMouseDownOnShape, setMouseDownPos]);
+  }, [activeSheet, isPanning, isDrawingConnector, startConnectorNodeId, startConnectorAnchorType, addConnector, isSelecting, selectionRect, setSelectedShapes, isMouseDownOnShape, recordShapeMoves]);
 
   const handleWheel = useCallback((e: WheelEvent) => {
+    if (!activeSheet) return;
     e.preventDefault();
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
@@ -295,24 +182,7 @@ const Canvas: React.FC = () => {
       setZoom(newZoom);
       setPan({ x: newPanX, y: newPanY });
     });
-  }, [activeSheet.zoom, activeSheet.pan, setZoom, setPan]);
-
-  const handleNodeContextMenu = useCallback((e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!selectedShapeIds.includes(id)) {
-        setSelectedShapes([id]);
-    }
-
-    const canvasRect = canvasRef.current?.getBoundingClientRect();
-    if (!canvasRect) return;
-
-    setContextMenu({
-      x: e.clientX - canvasRect.left,
-      y: e.clientY - canvasRect.top,
-      shapeId: id
-    });
-  }, [setSelectedShapes, selectedShapeIds]);
+  }, [activeSheet, setZoom, setPan]);
 
   const handleCloseContextMenu = useCallback(() => {
     setContextMenu(null);
@@ -356,6 +226,134 @@ const Canvas: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [contextMenu, handleCloseContextMenu]);
+
+  if (!activeSheet) {
+    return <div>No active sheet found.</div>;
+  }
+
+  const { shapesById, shapeIds, connectors, selectedShapeIds } = activeSheet;
+  const selectedFont = activeSheet.selectedFont;
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const shapeType = e.dataTransfer.getData('shapeType');
+    const svgContent = e.dataTransfer.getData('svgContent');
+    if (!shapeType) return;
+
+    const svgRect = svgRef.current?.getBoundingClientRect();
+    if (!svgRect) return;
+
+    const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
+    let minX = 0;
+    let minY = 0;
+    let width = 100;
+    let height = 100;
+    if (viewBoxMatch && viewBoxMatch[1]) {
+      const viewBox = viewBoxMatch[1].split(' ').map(Number);
+      minX = viewBox[0];
+      minY = viewBox[1];
+      width = viewBox[2] - viewBox[0];
+      height = viewBox[3] - viewBox[1];
+    }
+
+    const newShape = {
+      id: uuidv4(),
+      type: shapeType,
+      x: (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom,
+      y: (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom,
+      width: width,
+      height: height,
+      text: shapeType,
+      color: '#f0f0f0',
+      layerId: activeSheet.activeLayerId,
+      svgContent: svgContent,
+      minX: minX,
+      minY: minY,
+      fontFamily: selectedFont,
+    };
+    addShape(newShape);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const targetElement = e.target as SVGElement;
+    const targetNodeG = targetElement.closest('g[data-node-id]');
+
+    const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
+    const mouseY = (e.clientY - svgRef.current!.getBoundingClientRect().top - activeSheet.pan.y) / activeSheet.zoom;
+
+    if (targetNodeG) {
+      const nodeId = targetNodeG.getAttribute('data-node-id');
+      if (nodeId) {
+        const shape = activeSheet.shapesById[nodeId];
+        const layer = activeSheet.layers[shape.layerId];
+        if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
+          setIsMouseDownOnShape(nodeId);
+          setMouseDownPos({ x: mouseX, y: mouseY });
+
+          if (e.shiftKey) {
+            toggleShapeSelection(nodeId);
+          } else {
+            if (!activeSheet.selectedShapeIds.includes(nodeId)) {
+              setSelectedShapes([nodeId]);
+              setInitialDragPositions({ [nodeId]: { x: shape.x, y: shape.y } });
+            } else {
+                const initialPositions = selectedShapeIds.reduce((acc, id) => {
+                    const s = shapesById[id];
+                    if(s) acc[id] = { x: s.x, y: s.y };
+                    return acc;
+                }, {} as { [shapeId: string]: Point });
+                setInitialDragPositions(initialPositions);
+            }
+          }
+          setIsPanning(false);
+        } else {
+          setSelectedShapes([]);
+        }
+      }
+    } else if (e.target === svgRef.current) {
+      setIsSelecting(true);
+      const svgRect = svgRef.current?.getBoundingClientRect();
+      if (!svgRect) return;
+      const x = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
+      const y = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
+      setSelectionStartPoint({ x, y });
+      setSelectionRect({ x, y, width: 0, height: 0 });
+      setSelectedShapes([]);
+    }
+  };
+
+  const handleConnectorStart = (nodeId: string, point: Point, anchorType: AnchorType) => {
+    const shape = activeSheet.shapesById[nodeId];
+    const layer = activeSheet.layers[shape.layerId];
+    if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
+      setIsDrawingConnector(true);
+      setStartConnectorNodeId(nodeId);
+      setStartConnectorPoint(point);
+      setStartConnectorAnchorType(anchorType);
+      setCurrentMousePoint(point);
+    }
+  };
+
+  const handleNodeContextMenu = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedShapeIds.includes(id)) {
+        setSelectedShapes([id]);
+    }
+
+    const canvasRect = canvasRef.current?.getBoundingClientRect();
+    if (!canvasRect) return;
+
+    setContextMenu({
+      x: e.clientX - canvasRect.left,
+      y: e.clientY - canvasRect.top,
+      shapeId: id
+    });
+  };
 
   const visibleShapes = shapeIds
     .map(id => shapesById[id])

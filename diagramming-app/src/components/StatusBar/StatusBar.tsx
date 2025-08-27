@@ -14,9 +14,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
   const { sheets, activeSheetId, setZoom, toggleFullscreen } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
-  if (!activeSheet) return null; // Should not happen
-
-  const { zoom } = activeSheet;
+  // ✅ Move hooks above any early returns
   const [isFullscreen, setIsFullscreen] = useState(document.fullscreenElement != null);
 
   useEffect(() => {
@@ -29,6 +27,10 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
     };
   }, []);
 
+  // ✅ Now check for activeSheet
+  if (!activeSheet) return null;
+
+  const { zoom } = activeSheet;
   const handleZoomIn = () => {
     setZoom(Math.min(5, zoom * 1.1));
   };
