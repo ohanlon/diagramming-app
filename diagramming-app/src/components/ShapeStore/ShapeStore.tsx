@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import './ShapeStore.less';
-import { Tooltip } from 'react-tooltip';
+import { Box, Typography, Grid, Card, CardContent, Tooltip } from '@mui/material';
 
 interface Shape {
   title: string;
-  shape: string; // SVG content
+  shape: string;
 }
 
 interface Category {
@@ -18,12 +17,10 @@ const ShapeStore: React.FC = () => {
   useEffect(() => {
     const fetchShapes = async () => {
       const fetchedCategories: Category[] = [];
-
       const categoryName = 'AWS Database';
-      const categoryPath = '/shapes/aws-database'; // Base path for the category
+      const categoryPath = '/shapes/aws-database';
 
       try {
-        // Fetch the combined flowchart.json file
         const jsonResponse = await fetch(`${categoryPath}/shapes.json`);
         const shapesData: { title: string; path: string }[] = await jsonResponse.json();
 
@@ -32,7 +29,6 @@ const ShapeStore: React.FC = () => {
           const svgResponse = await fetch(shapeData.path);
           let svgContent = await svgResponse.text();
 
-          // Sanitize SVG content: remove width and height attributes from the <svg> tag
           const svgTagRegex = /<svg([^>]*)>/;
           const match = svgTagRegex.exec(svgContent);
 
@@ -40,7 +36,6 @@ const ShapeStore: React.FC = () => {
             let attributes = match[1];
             attributes = attributes.replace(/\swidth="[^"]*"/g, '');
             attributes = attributes.replace(/\sheight="[^"]*"/g, '');
-
             svgContent = `<svg${attributes}>${svgContent.substring(match[0].length)}`;
           }
 
@@ -62,33 +57,34 @@ const ShapeStore: React.FC = () => {
     };
 
     fetchShapes();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   return (
-    <div className="shape-store">
-      <Tooltip id="diagram-shapestore-tooltip" data-tooltip-float="true" />
+    <Box sx={{ width: 240, p: 2, borderRight: 1, borderColor: 'divider' }}>
       {categories.map((category) => (
-        <div key={category.name} className="category">
-          <h3>{category.name}</h3>
-          <div className="shapes">
+        <Box key={category.name} sx={{ mb: 2 }}>
+          <Typography variant="h6" gutterBottom>{category.name}</Typography>
+          <Grid container spacing={1}>
             {category.shapes.map((shape) => (
-              <div
-                data-tooltip-id="diagram-shapestore-tooltip" data-tooltip-content={shape.title}
-                data-testid={shape.title}
-                key={shape.title}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('shapeType', shape.title);
-                  e.dataTransfer.setData('svgContent', shape.shape);
-                }}
-                className="shape-item"
-                dangerouslySetInnerHTML={{ __html: shape.shape }}
-              />
+              <Grid item xs={2.4} key={shape.title}>
+                <Tooltip title={shape.title} placement="top">
+                  <Card
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('shapeType', shape.title);
+                      e.dataTransfer.setData('svgContent', shape.shape);
+                    }}
+                    sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />
+                  </Card>
+                </Tooltip>
+              </Grid>
             ))}
-          </div>
-        </div>
+          </Grid>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 };
 

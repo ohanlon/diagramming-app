@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import './LayerPanel.less';
+import { Paper, Typography, List, ListItem, ListItemText, IconButton, Checkbox, TextField, Button, Box } from '@mui/material';
+import { Add, Close, Delete, Edit, Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface LayerPanelProps {
   showLayerPanel: boolean;
@@ -13,9 +12,8 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
   const { sheets, activeSheetId, setActiveLayer, addLayer, removeLayer, renameLayer, toggleLayerVisibility } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: window.innerWidth - 280, y: 100 });
   const [startOffset, setStartOffset] = useState({ x: 0, y: 0 });
-  const [position, setPosition] = useState({ x: window.innerWidth - 200 - 20, y: window.innerHeight - (window.innerHeight * 0.6) - 20 });
-  const panelRef = useRef<HTMLDivElement>(null);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editedLayerName, setEditedLayerName] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,6 +22,10 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
     if (!isDragging) return;
     setPosition({ x: e.clientX - startOffset.x, y: e.clientY - startOffset.y });
   }, [isDragging, startOffset]);
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   useEffect(() => {
     if (isDragging) {
@@ -54,10 +56,6 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
     setStartOffset({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
   const handleAddLayer = () => {
     addLayer();
   };
@@ -85,69 +83,70 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
   };
 
   return (
-    <div
-      ref={panelRef}
-      className="layer-panel"
-      style={{ left: position.x, top: position.y }}
+    <Paper
+      elevation={3}
+      sx={{
+        position: 'absolute',
+        left: position.x,
+        top: position.y,
+        width: 250,
+        zIndex: 1200,
+      }}
     >
-      <div className="layer-panel-header" onMouseDown={handleMouseDown}>
-        <h3>Layers</h3>
-        <button onClick={() => setShowLayerPanel(false)} className="close-button" data-testid="close-layer-panel-button">
-          <FontAwesomeIcon icon={faTimes} />
-        </button>
-      </div>
-      <button onClick={handleAddLayer} className="add-layer-button" data-testid="add-layer-button">Add Layer</button>
-      <div className="layers-list">
+      <Box
+        sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'move' }}
+        onMouseDown={handleMouseDown}
+      >
+        <Typography variant="h6">Layers</Typography>
+        <IconButton onClick={() => setShowLayerPanel(false)} size="small">
+          <Close />
+        </IconButton>
+      </Box>
+      <Button onClick={handleAddLayer} startIcon={<Add />} fullWidth>Add Layer</Button>
+      <List dense>
         {layerIds.map((id: string) => {
           const layer = layers[id];
           if (!layer) return null;
           const isEditing = editingLayerId === layer.id;
 
           return (
-            <div
+            <ListItem
               key={layer.id}
-              className={`layer-item ${layer.id === activeLayerId ? 'active' : ''}`}
+              selected={layer.id === activeLayerId}
               onClick={() => setActiveLayer(layer.id)}
+              secondaryAction={
+                <>
+                  <IconButton onClick={() => toggleLayerVisibility(layer.id)} size="small">
+                    {layer.isVisible ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                  <IconButton onClick={() => handleRenameLayer(layer.id, layer.name)} size="small">
+                    <Edit />
+                  </IconButton>
+                  <IconButton onClick={() => removeLayer(layer.id)} size="small" disabled={layerIds.length === 1}>
+                    <Delete />
+                  </IconButton>
+                </>
+              }
             >
               {isEditing ? (
-                <input
-                  ref={inputRef}
-                  type="text"
+                <TextField
+                  inputRef={inputRef}
                   value={editedLayerName}
                   onChange={(e) => setEditedLayerName(e.target.value)}
                   onBlur={() => saveEditedName(layer.id)}
-                  onKeyDown={(e) => handleInputKeyDown(e, layer.id)}
+                  onKeyDown={(e) => handleInputKeyDown(e as any, layer.id)}
+                  size="small"
+                  variant="standard"
+                  fullWidth
                 />
               ) : (
-                <span onDoubleClick={() => handleRenameLayer(layer.id, layer.name)}>{layer.name}</span>
+                <ListItemText primary={layer.name} />
               )}
-              <div>
-                <input
-                  type="checkbox"
-                  checked={layer.isVisible}
-                  onChange={() => toggleLayerVisibility(layer.id)}
-                  title="Toggle Visibility"
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (layerIds.length > 1) {
-                      removeLayer(layer.id);
-                    } else {
-                      alert('Cannot remove the last layer.');
-                    }
-                  }}
-                  className="remove-layer-button"
-                  title="Remove Layer"
-                >
-                  X
-                </button>
-              </div>
-            </div>
+            </ListItem>
           );
         })}
-      </div>
-    </div>
+      </List>
+    </Paper>
   );
 };
 

@@ -1,16 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import './SheetTabs.less';
-import { Tooltip } from 'react-tooltip';
+import { Tabs, Tab, Button, Box, TextField, IconButton, Tooltip } from '@mui/material';
+import { Add, Close } from '@mui/icons-material';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface SheetTabsProps {
-  // No props needed as it will interact directly with the store
-}
-
-const SheetTabs: React.FC<SheetTabsProps> = () => {
+const SheetTabs: React.FC = () => {
   const { sheets, activeSheetId, addSheet, removeSheet, setActiveSheet, renameSheet } = useDiagramStore();
   const sheetIds = Object.keys(sheets);
 
@@ -18,15 +11,12 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
   const [editedSheetName, setEditedSheetName] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const tabsRef = useRef<HTMLDivElement>(null);
-  const [showLeftScroll, setShowLeftScroll] = useState(false);
-  const [showRightScroll, setShowRightScroll] = useState(false);
-
   const handleAddSheet = () => {
     addSheet();
   };
 
-  const handleRemoveSheet = (id: string) => {
+  const handleRemoveSheet = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     if (sheetIds.length > 1) {
       removeSheet(id);
     } else {
@@ -62,111 +52,59 @@ const SheetTabs: React.FC<SheetTabsProps> = () => {
     }
   }, [editingSheetId]);
 
-  const checkScrollButtons = () => {
-    if (tabsRef.current) {
-      const { scrollWidth, clientWidth, scrollLeft } = tabsRef.current;
-      setShowLeftScroll(scrollLeft > 0);
-      setShowRightScroll(scrollLeft + clientWidth < scrollWidth);
-    }
-  };
-
-  useEffect(() => {
-    const currentTabsRef = tabsRef.current;
-    if (currentTabsRef) {
-      currentTabsRef.addEventListener('scroll', checkScrollButtons);
-      // Initial check
-      checkScrollButtons();
-    }
-
-    // Re-check when sheets change (add/remove/rename)
-    // Use a timeout to ensure DOM has updated after sheet changes
-    const timeoutId = setTimeout(checkScrollButtons, 0);
-
-    return () => {
-      if (currentTabsRef) {
-        currentTabsRef.removeEventListener('scroll', checkScrollButtons);
-      }
-      clearTimeout(timeoutId);
-    };
-  }, [sheetIds, sheets]); // Depend on sheetIds and sheets to re-check on changes
-
-  const scrollTabs = (direction: 'left' | 'right') => {
-    if (tabsRef.current) {
-      const scrollAmount = tabsRef.current.clientWidth * 0.5; // Scroll half the visible width
-      if (direction === 'left') {
-        tabsRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        tabsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
-
   return (
-    <div className="sheet-tabs-container">
-      <Tooltip id="diagram-status-tooltip" data-tooltip-float="true" />
-
-      {showLeftScroll && (
-        <button className="scroll-button left" onClick={() => scrollTabs('left')}>
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </button>
-      )}
-      <div ref={tabsRef} className="sheet-tabs">
+    <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2.8em' }}>
+      <Tabs
+        value={activeSheetId}
+        onChange={(e, newValue) => setActiveSheet(newValue)}
+        variant="scrollable"
+        scrollButtons="auto"
+        aria-label="sheet tabs"
+      >
         {sheetIds.map((id) => {
           const sheet = sheets[id];
           if (!sheet) return null;
           const isEditing = editingSheetId === sheet.id;
 
           return (
-            <div
+            <Tab
               key={sheet.id}
-              className={`sheet-tab ${sheet.id === activeSheetId ? 'active' : ''}`}
-              onClick={() => setActiveSheet(sheet.id)}
-              onDoubleClick={() => handleRenameSheet(sheet.id, sheet.name)}
-            >
-              {isEditing ? (
-                <span className='sheet-name-container'>
-                  <input
-                    ref={inputRef}
-                    type="text"
+              sx={{ height: '2em' }}
+              label={
+                isEditing ? (
+                  <TextField
+                    inputRef={inputRef}
                     value={editedSheetName}
                     onChange={(e) => setEditedSheetName(e.target.value)}
                     onBlur={() => saveEditedName(sheet.id)}
-                    onKeyDown={(e) => handleInputKeyDown(e, sheet.id)}
+                    onKeyDown={(e) => handleInputKeyDown(e as any, sheet.id)}
+                    size="small"
+                    variant="standard"
                   />
-                </span>
-              ) : (
-                <span className='sheet-name-container'>
-                  <span className='sheet-name'>{sheet.name}</span>
-                </span>
-              )}
-              <button
-                className="remove-sheet-button"
-                disabled={sheetIds.length === 1}
-                data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Remove Sheet"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveSheet(sheet.id);
-                }}
-              >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <span onDoubleClick={() => handleRenameSheet(sheet.id, sheet.name)}>{sheet.name}</span>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleRemoveSheet(e, sheet.id)}
+                      disabled={sheetIds.length === 1}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                  </Box>
+                )
+              }
+              value={sheet.id}
+            />
           );
         })}
-      </div>
-      {showRightScroll && (
-        <div className="bordered-tool-group">
-          <button className="scroll-button right" onClick={() => scrollTabs('right')}>
-            <FontAwesomeIcon icon={faChevronRight} />
-          </button>
-        </div>
-      )}
-      <div className="bordered-tool-group">
-        <button onClick={handleAddSheet} className="add-sheet-button" data-tooltip-id="diagram-status-tooltip" data-tooltip-content="Add New Sheet" data-testid="add-sheet-button">
-          <FontAwesomeIcon icon={faPlus} />
-        </button>
-      </div>
-    </div>
+      </Tabs>
+      <Tooltip title="Add New Sheet">
+        <Button onClick={handleAddSheet} sx={{ height: '2.5em' }}>
+          <Add />
+        </Button>
+      </Tooltip>
+    </Box>
   );
 };
 

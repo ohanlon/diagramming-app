@@ -404,7 +404,6 @@ const Canvas: React.FC = () => {
       </svg>
       {contextMenu && (
         <ContextMenu
-          ref={contextMenuRef}
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={handleCloseContextMenu}

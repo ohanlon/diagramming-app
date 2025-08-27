@@ -1,34 +1,34 @@
 import ShapeStore from './components/ShapeStore/ShapeStore';
 import Canvas from './components/Canvas/Canvas';
-import Toolbar from './components/Toolbar/Toolbar';
+import ToolbarComponent from './components/Toolbar/Toolbar';
 import LayerPanel from './components/LayerPanel/LayerPanel';
-import StatusBar from './components/StatusBar/StatusBar'; // Import StatusBar
+import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState } from 'react';
+import { Box } from '@mui/material';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
         width: '100vw',
-        fontFamily: 'sans-serif',
         overflow: 'hidden',
       }}
     >
-      <Toolbar />
-      <div style={{ display: 'flex', flexGrow: 1 }}>
+      <ToolbarComponent />
+      <Box sx={{ display: 'flex', flexGrow: 1 }}>
         <ShapeStore />
         <Canvas />
-      </div>
+      </Box>
       {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}
       <SheetTabs />
-      <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} /> {/* Render StatusBar at the bottom */}
-    </div>
+      <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />
+    </Box>
   );
 }
 

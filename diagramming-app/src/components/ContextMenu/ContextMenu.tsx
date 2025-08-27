@@ -1,5 +1,6 @@
-import { forwardRef } from 'react';
-import './ContextMenu.less';
+import React from 'react';
+import { Menu, MenuItem, ListItemText, ListItemIcon } from '@mui/material';
+import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom } from '@mui/icons-material';
 
 interface ContextMenuProps {
   x: number;
@@ -11,9 +12,8 @@ interface ContextMenuProps {
   onSendToBack: () => void;
 }
 
-const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>((
+const ContextMenu: React.FC<ContextMenuProps> = (
   { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack },
-  ref
 ) => {
   const handleItemClick = (action: () => void) => {
     action();
@@ -21,25 +21,38 @@ const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>((
   };
 
   return (
-    <div
-      ref={ref}
-      className="context-menu"
-      style={{ top: y, left: x }}
-      onContextMenu={(e) => e.preventDefault()}
+    <Menu
+      open={true}
+      onClose={onClose}
+      anchorReference="anchorPosition"
+      anchorPosition={{ top: y, left: x }}
     >
-      <ul>
-        <li className="submenu-container">
-          Arrange
-          <ul className="submenu">
-            <li onClick={() => handleItemClick(onBringForward)}>Bring Forward</li>
-            <li onClick={() => handleItemClick(onSendBackward)}>Send Backward</li>
-            <li onClick={() => handleItemClick(onBringToFront)}>Bring to Front</li>
-            <li onClick={() => handleItemClick(onSendToBack)}>Send to Back</li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+      <MenuItem onClick={() => handleItemClick(onBringForward)}>
+        <ListItemIcon>
+          <ArrowUpward fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Bring Forward</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleItemClick(onSendBackward)}>
+        <ListItemIcon>
+          <ArrowDownward fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Send Backward</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleItemClick(onBringToFront)}>
+        <ListItemIcon>
+          <VerticalAlignTop fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Bring to Front</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleItemClick(onSendToBack)}>
+        <ListItemIcon>
+          <VerticalAlignBottom fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Send to Back</ListItemText>
+      </MenuItem>
+    </Menu>
   );
-});
+};
 
 export default ContextMenu;

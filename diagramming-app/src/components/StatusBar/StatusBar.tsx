@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Box, Typography, IconButton, Tooltip } from '@mui/material';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExpand, faCompress, faPlus, faMinus, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
-import { Tooltip } from 'react-tooltip';
-import './StatusBar.less';
+import { ZoomIn, ZoomOut, Layers, Fullscreen, FullscreenExit } from '@mui/icons-material';
 
 interface StatusBarProps {
   showLayerPanel: boolean;
@@ -13,8 +11,6 @@ interface StatusBarProps {
 const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel }) => {
   const { sheets, activeSheetId, setZoom, toggleFullscreen } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
-
-  // ✅ Move hooks above any early returns
   const [isFullscreen, setIsFullscreen] = useState(document.fullscreenElement != null);
 
   useEffect(() => {
@@ -27,10 +23,10 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
     };
   }, []);
 
-  // ✅ Now check for activeSheet
   if (!activeSheet) return null;
 
   const { zoom } = activeSheet;
+
   const handleZoomIn = () => {
     setZoom(Math.min(5, zoom * 1.1));
   };
@@ -42,30 +38,46 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
   const zoomPercentage = Math.round(zoom * 100);
 
   return (
-    <div className="status-bar">
-      <Tooltip id="diagram-tooltip" data-tooltip-float="true" />
-      <div className="bordered-tool-group">
-        <div className="zoom-controls">
-          <button onClick={handleZoomOut} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content="Zoom out">
-            <FontAwesomeIcon icon={faMinus} />
-          </button>
-          <span className="zoom-percentage">{zoomPercentage}%</span>
-          <button onClick={handleZoomIn} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content="Zoom in">
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
-        </div>
-      </div>
-      <div className="bordered-tool-group"> 
-        <button onClick={toggleFullscreen} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
-          <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} />
-        </button>
-      </div>
-      <div className="bordered-tool-group"> 
-        <button onClick={() => setShowLayerPanel(!showLayerPanel)} className="status-bar-button" data-tooltip-id="diagram-tooltip" data-tooltip-content={showLayerPanel ? "Hide Layers" : "Show Layers"} data-testid="toggle-layer-panel-button">
-          <FontAwesomeIcon icon={faLayerGroup} />
-        </button>
-      </div>
-    </div>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        p: 1,
+        bgcolor: 'background.paper',
+        borderTop: '1px solid #e0e0e0',
+        height: '1em',
+        alignItems: 'center',
+      }}
+    >
+      <Box sx={{ flexGrow: 1 }} />
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Tooltip title="Zoom Out">
+          <IconButton onClick={handleZoomOut} size="small">
+            <ZoomOut />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="body2" color="text.secondary" sx={{ mx: 1 }}>
+          {zoomPercentage}%
+        </Typography>
+        <Tooltip title="Zoom In">
+          <IconButton onClick={handleZoomIn} size="small">
+            <ZoomIn />
+          </IconButton>
+        </Tooltip>
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+          <IconButton onClick={toggleFullscreen} size="small">
+            {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={showLayerPanel ? "Hide Layers" : "Show Layers"}>
+          <IconButton onClick={() => setShowLayerPanel(!showLayerPanel)} size="small">
+            <Layers />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
   );
 };
 
