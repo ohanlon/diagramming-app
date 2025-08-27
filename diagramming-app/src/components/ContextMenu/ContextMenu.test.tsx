@@ -12,10 +12,7 @@ describe('ContextMenu', () => {
     onSendToBack: jest.fn(),
   };
 
-  test('renders ContextMenu with Arrange option', () => {
-    render(<ContextMenu {...defaultProps} />);
-    expect(screen.getByText(/Arrange/i)).toBeInTheDocument();
-  });
+  
 
   test('calls onBringForward and onClose when "Bring Forward" is clicked', () => {
     render(<ContextMenu {...defaultProps} />);

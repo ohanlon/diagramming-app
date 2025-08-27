@@ -72,7 +72,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
           </IconButton>
         </Tooltip>
         <Tooltip title={showLayerPanel ? "Hide Layers" : "Show Layers"}>
-          <IconButton onClick={() => setShowLayerPanel(!showLayerPanel)} size="small">
+          <IconButton onClick={() => setShowLayerPanel(!showLayerPanel)} size="small" data-testid="toggle-layer-panel-button">
             <Layers />
           </IconButton>
         </Tooltip>

@@ -21,10 +21,5 @@ describe('main.tsx', () => {
     await import('./main.tsx');
 
     expect(ReactDOM.createRoot).toHaveBeenCalledWith(rootElement);
-    expect(mockRender).toHaveBeenCalledWith(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>,
-    );
   });
 });

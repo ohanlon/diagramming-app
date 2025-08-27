@@ -13,31 +13,20 @@ describe('Toolbar', () => {
     (useDiagramStore as jest.Mock).mockReturnValue({
       undo: jest.fn(),
       redo: jest.fn(),
-      history: { past: [], future: [] },
-      cutShape: jest.fn(),
-      copyShape: jest.fn(),
-      pasteShape: jest.fn(),
-      activeSheetId: 'sheet-1',
-      sheets: {
-        'sheet-1': {
-          id: 'sheet-1',
-          name: 'Sheet 1',
-          selectedShapeIds: [],
-          clipboard: null,
-        },
-      },
+      setZoom: jest.fn(),
+      activeSheet: { zoom: 1 },
       selectedFont: 'Open Sans',
       setSelectedFont: jest.fn(),
+      history: { past: [], future: [] },
     });
   });
 
-  test('renders Toolbar with undo, redo, cut, copy, paste buttons and font selector', () => {
+  test('renders Toolbar with undo, redo, zoom, and font selector', () => {
     render(<Toolbar />);
     expect(screen.getByTestId('undo-button')).toBeInTheDocument();
     expect(screen.getByTestId('redo-button')).toBeInTheDocument();
-    expect(screen.getByTestId('cut-button')).toBeInTheDocument();
-    expect(screen.getByTestId('copy-button')).toBeInTheDocument();
-    expect(screen.getByTestId('paste-button')).toBeInTheDocument();
+    expect(screen.getByTestId('zoom-in-button')).toBeInTheDocument();
+    expect(screen.getByTestId('zoom-out-button')).toBeInTheDocument();
     expect(screen.getByTestId('selectFont')).toBeInTheDocument();
   });
 
@@ -51,17 +40,6 @@ describe('Toolbar', () => {
     expect(screen.getByTestId('redo-button')).toBeDisabled();
   });
 
-  test('cut and copy buttons are disabled when no shape is selected', () => {
-    render(<Toolbar />);
-    expect(screen.getByTestId('cut-button')).toBeDisabled();
-    expect(screen.getByTestId('copy-button')).toBeDisabled();
-  });
-
-  test('paste button is disabled when clipboard is empty', () => {
-    render(<Toolbar />);
-    expect(screen.getByTestId('paste-button')).toBeDisabled();
-  });
-
   test('calls undo when undo button is clicked', () => {
     const { undo } = useDiagramStore();
     (useDiagramStore as jest.Mock).mockReturnValueOnce({
@@ -71,6 +49,31 @@ describe('Toolbar', () => {
     render(<Toolbar />);
     fireEvent.click(screen.getByTestId('undo-button'));
     expect(undo).toHaveBeenCalled();
+  });
+
+  test('calls redo when redo button is clicked', () => {
+    const { redo } = useDiagramStore();
+    (useDiagramStore as jest.Mock).mockReturnValueOnce({
+      ...useDiagramStore(),
+      history: { past: [], future: [{}] },
+    });
+    render(<Toolbar />);
+    fireEvent.click(screen.getByTestId('redo-button'));
+    expect(redo).toHaveBeenCalled();
+  });
+
+  test('calls setZoom when zoom in button is clicked', () => {
+    const { setZoom } = useDiagramStore();
+    render(<Toolbar />);
+    fireEvent.click(screen.getByTestId('zoom-in-button'));
+    expect(setZoom).toHaveBeenCalledWith(1.1);
+  });
+
+  test('calls setZoom when zoom out button is clicked', () => {
+    const { setZoom } = useDiagramStore();
+    render(<Toolbar />);
+    fireEvent.click(screen.getByTestId('zoom-out-button'));
+    expect(setZoom).toHaveBeenCalledWith(1 / 1.1);
   });
 
   test('calls setSelectedFont when font is changed', () => {

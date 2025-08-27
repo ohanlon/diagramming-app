@@ -15,7 +15,7 @@ const googleFonts = [
 ];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setZoom, activeSheet, selectedFont = 'Open Sans', setSelectedFont } = useDiagramStore();
+  const { undo, redo, setZoom, activeSheet, selectedFont = 'Open Sans', setSelectedFont, history } = useDiagramStore();
 
   const handleFontChange = (event: SelectChangeEvent<string>) => {
     setSelectedFont(event.target.value as string);
@@ -25,22 +25,22 @@ const ToolbarComponent: React.FC = () => {
     <AppBar position="static">
       <Toolbar sx={{ height: '1em', minHeight: '1em' }}>
         <Tooltip title="Undo">
-          <IconButton color="inherit" onClick={undo}>
+          <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
             <Undo />
           </IconButton>
         </Tooltip>
         <Tooltip title="Redo">
-          <IconButton color="inherit" onClick={redo}>
+          <IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0}>
             <Redo />
           </IconButton>
         </Tooltip>
         <Tooltip title="Zoom In">
-          <IconButton color="inherit" onClick={() => setZoom(activeSheet.zoom * 1.1)}>
+          <IconButton color="inherit" onClick={() => setZoom(activeSheet.zoom * 1.1)} data-testid="zoom-in-button">
             <ZoomIn />
           </IconButton>
         </Tooltip>
         <Tooltip title="Zoom Out">
-          <IconButton color="inherit" onClick={() => setZoom(activeSheet.zoom / 1.1)}>
+          <IconButton color="inherit" onClick={() => setZoom(activeSheet.zoom / 1.1)} data-testid="zoom-out-button">
             <ZoomOut />
           </IconButton>
         </Tooltip>
@@ -53,6 +53,7 @@ const ToolbarComponent: React.FC = () => {
             label="Font"
             onChange={handleFontChange}
             sx={{ color: 'white', '.MuiSvgIcon-root': { color: 'white' } }}
+            inputProps={{ 'data-testid': 'selectFont' }}
           >
             {googleFonts.map((font) => (
               <MenuItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>

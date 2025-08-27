@@ -114,7 +114,7 @@ const SheetTabs: React.FC = () => {
         })}
       </Tabs>
       <Tooltip title="Add New Sheet">
-        <Button onClick={handleAddSheet} sx={{ height: '2.5em' }}>
+        <Button onClick={handleAddSheet} sx={{ height: '2.5em' }} data-testid="add-sheet-button">
           <Add />
         </Button>
       </Tooltip>

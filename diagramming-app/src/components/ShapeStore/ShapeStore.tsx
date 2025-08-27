@@ -82,6 +82,7 @@ const ShapeStore: React.FC = () => {
                       e.dataTransfer.setData('svgContent', shape.shape);
                     }}
                     sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    data-testid={shape.title}
                   >
                     <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />
                   </Card>

@@ -98,11 +98,11 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
         onMouseDown={handleMouseDown}
       >
         <Typography variant="h6">Layers</Typography>
-        <IconButton onClick={() => setShowLayerPanel(false)} size="small">
+        <IconButton onClick={() => setShowLayerPanel(false)} size="small" data-testid="close-layer-panel-button">
           <Close />
         </IconButton>
       </Box>
-      <Button onClick={handleAddLayer} startIcon={<Add />} fullWidth>Add Layer</Button>
+      <Button onClick={handleAddLayer} startIcon={<Add />} fullWidth data-testid="add-layer-button">Add Layer</Button>
       <List dense>
         {layerIds.map((id: string) => {
           const layer = layers[id];
