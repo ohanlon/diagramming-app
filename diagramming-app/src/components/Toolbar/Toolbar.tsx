@@ -1,5 +1,4 @@
 import { AppBar, Toolbar, IconButton, Tooltip, Select, FormControl, InputLabel, MenuItem } from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
 import { Undo, Redo, ZoomIn, ZoomOut } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
@@ -17,7 +16,7 @@ const googleFonts = [
 const ToolbarComponent: React.FC = () => {
   const { undo, redo, setZoom, activeSheet, selectedFont = 'Open Sans', setSelectedFont, history } = useDiagramStore();
 
-  const handleFontChange = (event: SelectChangeEvent<string>) => {
+  const handleFontChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedFont(event.target.value as string);
   };
 
@@ -55,7 +54,7 @@ const ToolbarComponent: React.FC = () => {
             sx={{ color: 'white', '.MuiSvgIcon-root': { color: 'white' } }}
             inputProps={{ 'data-testid': 'selectFont' }}
           >
-            {googleFonts.map((font) => (
+            {googleFonts.slice().sort((a, b) => a.name.localeCompare(b.name)).map((font) => (
               <MenuItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
                 {font.name}
               </MenuItem>
