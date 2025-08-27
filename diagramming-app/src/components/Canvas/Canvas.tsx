@@ -10,7 +10,7 @@ import { calculateBezierPath } from '../../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -323,6 +323,7 @@ const Canvas: React.FC = () => {
       setSelectionStartPoint({ x, y });
       setSelectionRect({ x, y, width: 0, height: 0 });
       setSelectedShapes([]);
+      deselectAllTextBlocks();
     }
   };
 
