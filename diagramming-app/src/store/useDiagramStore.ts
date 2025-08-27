@@ -816,24 +816,31 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
-          const { clipboard, selectedShapeIds, shapesById, shapeIds } = activeSheet;
+          const { clipboard, selectedShapeIds, shapesById, shapeIds, pan, zoom } = activeSheet;
           if (!clipboard || clipboard.length === 0) return state;
 
-          let x = 0;
-          let y = 0;
+          let pasteX = 0;
+          let pasteY = 0;
 
           if (selectedShapeIds.length > 0) {
             const selectedShape = shapesById[selectedShapeIds[0]];
             if (selectedShape) {
-              x = selectedShape.x + 16;
-              y = selectedShape.y + 16;
+              pasteX = selectedShape.x + 10;
+              pasteY = selectedShape.y + 10;
             }
-          } else if (shapeIds.length > 0) {
-            const lastShape = shapesById[shapeIds[shapeIds.length - 1]];
-            if (lastShape) {
-              x = lastShape.x + 16;
-              y = lastShape.y + 16;
-            }
+          } else {
+            // Calculate center of the visible canvas area
+            const canvasWidth = window.innerWidth; // Assuming canvas takes full window width
+            const canvasHeight = window.innerHeight; // Assuming canvas takes full window height
+
+            // Adjust for current pan and zoom to get the center in diagram coordinates
+            pasteX = (canvasWidth / 2 - pan.x) / zoom;
+            pasteY = (canvasHeight / 2 - pan.y) / zoom;
+
+            // Adjust for the first shape's own offset from its group's top-left
+            // This assumes clipboard[0] is the reference point for the group
+            pasteX -= clipboard[0].x;
+            pasteY -= clipboard[0].y;
           }
 
           const newShapes: Shape[] = [];
@@ -845,8 +852,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               const newShape = {
                   ...shape,
                   id: newShapeId,
-                  x: x + (shape.x - clipboard[0].x),
-                  y: y + (shape.y - clipboard[0].y),
+                  x: pasteX + (shape.x - clipboard[0].x),
+                  y: pasteY + (shape.y - clipboard[0].y),
                   layerId: activeSheet.activeLayerId,
               };
               newShapes.push(newShape);
