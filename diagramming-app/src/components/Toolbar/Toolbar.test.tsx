@@ -13,21 +13,40 @@ describe('Toolbar', () => {
     (useDiagramStore as jest.Mock).mockReturnValue({
       undo: jest.fn(),
       redo: jest.fn(),
-      setZoom: jest.fn(),
-      activeSheet: { zoom: 1 },
-      selectedFont: 'Open Sans',
       setSelectedFont: jest.fn(),
+      setSelectedFontSize: jest.fn(),
+      cutShape: jest.fn(),
+      copyShape: jest.fn(),
+      pasteShape: jest.fn(),
       history: { past: [], future: [] },
+      sheets: {
+        'sheet-1': {
+          id: 'sheet-1',
+          name: 'Sheet 1',
+          shapesById: {},
+          shapeIds: [],
+          connectors: {},
+          selectedShapeIds: [],
+          layers: {},
+          layerIds: [],
+          activeLayerId: 'layer-1',
+          zoom: 1,
+          pan: { x: 0, y: 0 },
+          clipboard: null,
+          selectedFont: 'Open Sans',
+          selectedFontSize: 10,
+        },
+      },
+      activeSheetId: 'sheet-1',
     });
   });
 
-  test('renders Toolbar with undo, redo, zoom, and font selector', () => {
+  test('renders Toolbar with undo, redo, font and font size selector', () => {
     render(<Toolbar />);
     expect(screen.getByTestId('undo-button')).toBeInTheDocument();
     expect(screen.getByTestId('redo-button')).toBeInTheDocument();
-    expect(screen.getByTestId('zoom-in-button')).toBeInTheDocument();
-    expect(screen.getByTestId('zoom-out-button')).toBeInTheDocument();
     expect(screen.getByTestId('selectFont')).toBeInTheDocument();
+    expect(screen.getByTestId('selectFontSize')).toBeInTheDocument();
   });
 
   test('undo button is disabled when no past history', () => {
@@ -62,19 +81,7 @@ describe('Toolbar', () => {
     expect(redo).toHaveBeenCalled();
   });
 
-  test('calls setZoom when zoom in button is clicked', () => {
-    const { setZoom } = useDiagramStore();
-    render(<Toolbar />);
-    fireEvent.click(screen.getByTestId('zoom-in-button'));
-    expect(setZoom).toHaveBeenCalledWith(1.1);
-  });
-
-  test('calls setZoom when zoom out button is clicked', () => {
-    const { setZoom } = useDiagramStore();
-    render(<Toolbar />);
-    fireEvent.click(screen.getByTestId('zoom-out-button'));
-    expect(setZoom).toHaveBeenCalledWith(1 / 1.1);
-  });
+  
 
   test('calls setSelectedFont when font is changed', () => {
     const { setSelectedFont } = useDiagramStore();
