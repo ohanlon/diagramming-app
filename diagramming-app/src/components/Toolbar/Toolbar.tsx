@@ -15,7 +15,7 @@ const googleFonts = [
 ];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setZoom, addShape, activeSheet, selectedFont, setSelectedFont } = useDiagramStore();
+  const { undo, redo, setZoom, addShape, activeSheet, selectedFont = 'Open Sans', setSelectedFont } = useDiagramStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -54,7 +54,7 @@ const ToolbarComponent: React.FC = () => {
 
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ height: '1em', minHeight: '1em' }}>
         <Tooltip title="Undo">
           <IconButton color="inherit" onClick={undo}>
             <Undo />
@@ -73,35 +73,6 @@ const ToolbarComponent: React.FC = () => {
         <Tooltip title="Zoom Out">
           <IconButton color="inherit" onClick={() => setZoom(activeSheet.zoom / 1.1)}>
             <ZoomOut />
-          </IconButton>
-        </Tooltip>
-        <Button
-          id="basic-button"
-          aria-controls={open ? 'basic-menu' : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? 'true' : undefined}
-          onClick={handleMenu}
-          color="inherit"
-        >
-          Shapes
-        </Button>
-        <Menu
-          id="basic-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          MenuListProps={{
-            'aria-labelledby': 'basic-button',
-          }}
-        >
-          <MenuItem onClick={() => handleAddShape('rectangle')}><Square sx={{ mr: 1 }} /> Rectangle</MenuItem>
-          <MenuItem onClick={() => handleAddShape('circle')}><Circle sx={{ mr: 1 }} /> Circle</MenuItem>
-          <MenuItem onClick={() => handleAddShape('diamond')}><Timeline sx={{ mr: 1 }} /> Diamond</MenuItem>
-          <MenuItem onClick={() => handleAddShape('text')}><TextFields sx={{ mr: 1 }} /> Text</MenuItem>
-        </Menu>
-        <Tooltip title="Draw Connector">
-          <IconButton color="inherit">
-            <Create />
           </IconButton>
         </Tooltip>
         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">

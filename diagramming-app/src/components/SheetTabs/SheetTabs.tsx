@@ -71,28 +71,42 @@ const SheetTabs: React.FC = () => {
               key={sheet.id}
               sx={{ height: '2em' }}
               label={
-                isEditing ? (
-                  <TextField
-                    inputRef={inputRef}
-                    value={editedSheetName}
-                    onChange={(e) => setEditedSheetName(e.target.value)}
-                    onBlur={() => saveEditedName(sheet.id)}
-                    onKeyDown={(e) => handleInputKeyDown(e as any, sheet.id)}
-                    size="small"
-                    variant="standard"
-                  />
-                ) : (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <span onDoubleClick={() => handleRenameSheet(sheet.id, sheet.name)}>{sheet.name}</span>
-                    <IconButton
-                      size="small"
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    {isEditing ? (
+                      <TextField
+                        inputRef={inputRef}
+                        value={editedSheetName}
+                        onChange={(e) => setEditedSheetName(e.target.value)}
+                        onBlur={() => saveEditedName(sheet.id)}
+                        onKeyDown={(e) => handleInputKeyDown(e as any, sheet.id)}
+                        size="small"
+                        variant="standard"
+                        sx={{ flexGrow: 1 }}
+                      />
+                    ) : (
+                      <span onDoubleClick={() => handleRenameSheet(sheet.id, sheet.name)}>{sheet.name}</span>
+                    )}
+                    <Box
+                      component="span"
                       onClick={(e) => handleRemoveSheet(e, sheet.id)}
-                      disabled={sheetIds.length === 1}
+                      sx={{
+                        ml: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          bgcolor: 'rgba(0, 0, 0, 0.04)',
+                        },
+                        visibility: sheetIds.length === 1 ? 'hidden' : 'visible',
+                      }}
                     >
                       <Close fontSize="small" />
-                    </IconButton>
+                    </Box>
                   </Box>
-                )
               }
               value={sheet.id}
             />

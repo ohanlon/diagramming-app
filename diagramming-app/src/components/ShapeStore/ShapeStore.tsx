@@ -60,13 +60,20 @@ const ShapeStore: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ width: 240, p: 2, borderRight: 1, borderColor: 'divider' }}>
+    <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider' }}>
       {categories.map((category) => (
         <Box key={category.name} sx={{ mb: 2 }}>
           <Typography variant="h6" gutterBottom>{category.name}</Typography>
-          <Grid container spacing={1}>
+          <Grid container spacing={0.625}>
             {category.shapes.map((shape) => (
-              <Grid item xs={2.4} key={shape.title}>
+              <Grid
+                key={shape.title}
+                sx={{
+                  flexBasis: '15%',
+                  maxWidth: '20%',
+                  padding: '4px', // Adjust padding to simulate spacing
+                }}
+              >
                 <Tooltip title={shape.title} placement="top">
                   <Card
                     draggable
