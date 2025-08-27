@@ -126,7 +126,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize },
+                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20 },
                 },
                 shapeIds: [...activeSheet.shapeIds, shape.id],
                 selectedShapeIds: [shape.id],
@@ -999,6 +999,103 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 selectedFontSize: size,
                 shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeTextPosition: (id, textOffsetX, textOffsetY) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const shape = activeSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: {
+                  ...activeSheet.shapesById,
+                  [id]: { ...shape, textOffsetX, textOffsetY },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeTextDimensions: (id, textWidth, textHeight) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const shape = activeSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: {
+                  ...activeSheet.shapesById,
+                  [id]: { ...shape, textWidth, textHeight },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      deselectAllTextBlocks: () => {
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.shapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isTextSelected: false };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeIsTextSelected: (id, isTextSelected) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const shape = activeSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: {
+                  ...activeSheet.shapesById,
+                  [id]: { ...shape, isTextSelected },
+                },
               },
             },
           };

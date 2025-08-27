@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
@@ -17,7 +17,8 @@ const googleFonts = [
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, selectedFont = 'Open Sans', setSelectedFont, selectedFontSize = 10, setSelectedFontSize, history } = useDiagramStore();
+  const { undo, redo, selectedFont = 'Open Sans', setSelectedFont, selectedFontSize = 10, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId } = useDiagramStore();
+  const activeSheet = sheets[activeSheetId];
 
   const handleFontChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedFont(event.target.value as string);
@@ -38,6 +39,21 @@ const ToolbarComponent: React.FC = () => {
         <Tooltip title="Redo">
           <IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0}>
             <Redo />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Cut">
+          <IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0}>
+            <ContentCut />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Copy">
+          <IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0}>
+            <ContentCopy />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Paste">
+          <IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
+            <ContentPaste />
           </IconButton>
         </Tooltip>
         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">

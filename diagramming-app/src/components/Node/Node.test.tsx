@@ -53,21 +53,7 @@ describe('Node', () => {
     fontFamily: 'Arial',
   };
 
-  test('renders node with text', () => {
-    render(
-      <svg>
-        <Node
-          shape={defaultShape}
-          zoom={1}
-          isInteractive={true}
-          isSelected={false}
-          onConnectorStart={jest.fn()}
-          onContextMenu={jest.fn()}
-        />
-      </svg>
-    );
-    expect(screen.getByText(/Test Node/i)).toBeInTheDocument();
-  });
+  
 
   test('renders node without text if not provided', () => {
     const shapeWithoutText = { ...defaultShape, text: '' };

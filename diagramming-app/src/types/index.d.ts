@@ -27,7 +27,12 @@ export type Shape = {
   minX?: number;
   minY?: number;
   fontFamily?: string; // New: Optional font family for the shape's text
-  fontSize?: number; // New: Optional font size for the shape's text
+  fontSize?: number;
+  textOffsetX: number;
+  textOffsetY: number;
+  textWidth: number;
+  textHeight: number;
+  isTextSelected?: boolean;
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
