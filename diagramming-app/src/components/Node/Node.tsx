@@ -17,6 +17,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20 } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, isTextSelected, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
+  const [isResizing, setIsResizing] = useState(false);
   
   const [resizeHandleType, setResizeHandleType] = useState<string | null>(null);
   const initialMousePos = useRef({ x: 0, y: 0 });
@@ -113,7 +114,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     } else {
         updateShapeDimensions(id, newMainX, newMainY, newMainWidth, newMainHeight);
     }
-  }, [resizeHandleType, zoom, id, updateShapeDimensions, updateShapeDimensionsMultiple, activeSheet]);
+  }, [isResizing, resizeHandleType, zoom, id, updateShapeDimensions, updateShapeDimensionsMultiple, activeSheet]);
 
   const handleResizeMouseUp = useCallback(() => {
     if (!isResizing || !activeSheet) return;
@@ -130,7 +131,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         recordShapeResize(id, x, y, width, height);
     }
     initialResizeStates.current = {};
-  }, [id, x, y, width, height, recordShapeResize, recordShapeResizeMultiple, activeSheet]);
+  }, [isResizing, id, x, y, width, height, recordShapeResize, recordShapeResizeMultiple, activeSheet]);
 
   const handleDoubleClick = useCallback(() => {
     if (!isInteractive) return;
@@ -151,7 +152,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       document.removeEventListener('mousemove', handleResizeMouseMove);
       document.removeEventListener('mouseup', handleResizeMouseUp);
     };
-  }, [handleResizeMouseMove, handleResizeMouseUp]);
+  }, [isResizing, handleResizeMouseMove, handleResizeMouseUp]);
 
   if (!activeSheet) return null;
 
