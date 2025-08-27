@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import type { Shape, Point, AnchorType } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import './Node.less';
+import TextResizer from '../TextResizer/TextResizer';
 
 interface NodeProps {
   shape: Shape;
@@ -13,15 +14,15 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily } = shape;
-  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, updateShapeText, toggleShapeSelection, setSelectedShapes } = useDiagramStore();
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20 } = shape;
+  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, isTextSelected, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
-  const [isResizing, setIsResizing] = useState(false);
+  
   const [resizeHandleType, setResizeHandleType] = useState<string | null>(null);
   const initialMousePos = useRef({ x: 0, y: 0 });
   const initialResizeStates = useRef<{ [key: string]: { x: number; y: number; width: number; height: number } }>({});
-  const [isEditingText, setIsEditingText] = useState(false);
-  const textRef = useRef<HTMLDivElement>(null);
+  
+  
 
   const handleResizeMouseMove = useCallback((e: MouseEvent) => {
     if (!isResizing || !activeSheet) return;
@@ -112,7 +113,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     } else {
         updateShapeDimensions(id, newMainX, newMainY, newMainWidth, newMainHeight);
     }
-  }, [isResizing, resizeHandleType, zoom, id, updateShapeDimensions, updateShapeDimensionsMultiple, activeSheet]);
+  }, [resizeHandleType, zoom, id, updateShapeDimensions, updateShapeDimensionsMultiple, activeSheet]);
 
   const handleResizeMouseUp = useCallback(() => {
     if (!isResizing || !activeSheet) return;
@@ -129,7 +130,14 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         recordShapeResize(id, x, y, width, height);
     }
     initialResizeStates.current = {};
-  }, [isResizing, id, x, y, width, height, recordShapeResize, recordShapeResizeMultiple, activeSheet]);
+  }, [id, x, y, width, height, recordShapeResize, recordShapeResizeMultiple, activeSheet]);
+
+  const handleDoubleClick = useCallback(() => {
+    if (!isInteractive) return;
+    // No longer using isEditingText state directly here
+  }, [isInteractive]);
+
+  
 
   useEffect(() => {
     if (isResizing) {
@@ -143,7 +151,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       document.removeEventListener('mousemove', handleResizeMouseMove);
       document.removeEventListener('mouseup', handleResizeMouseUp);
     };
-  }, [isResizing, handleResizeMouseMove, handleResizeMouseUp]);
+  }, [handleResizeMouseMove, handleResizeMouseUp]);
 
   if (!activeSheet) return null;
 
@@ -152,11 +160,20 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isInteractive) return;
 
+    // Check if the click originated from the TextResizer
+    const target = e.target as HTMLElement;
+    if (target.closest('.text-resizer-foreign-object')) {
+      // If clicking on text, don't select the shape, let TextResizer handle it
+      return;
+    }
+
+    // If not clicking on text, proceed with shape selection
     if (e.shiftKey) {
       toggleShapeSelection(id);
     } else {
       setSelectedShapes([id]);
     }
+    updateShapeIsTextSelected(id, false); // Deselect text when shape is clicked
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, type: string) => {
@@ -179,17 +196,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     }
   };
 
-  const handleDoubleClick = () => {
-    if (!isInteractive) return;
-    setIsEditingText(true);
-  };
-
-  const handleTextBlur = () => {
-    if (textRef.current) {
-      updateShapeText(id, textRef.current.innerText);
-    }
-    setIsEditingText(false);
-  };
+  
 
   const handleNodeContextMenu = (e: React.MouseEvent) => {
     if (!isInteractive) return;
@@ -260,10 +267,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     { x: 0, y: height / 2, type: 'left' },
   ];
 
-  const textForeignObjectWidth = width + 40;
-  const textForeignObjectX = (width - textForeignObjectWidth) / 2;
-  const textForeignObjectY = height + 5;
-  const textForeignObjectHeight = 50;
+  
 
   return (
     <g
@@ -276,35 +280,23 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     >
       {renderShape()}
 
-      {text && (
-        <foreignObject
-          x={textForeignObjectX}
-          y={textForeignObjectY}
-          width={textForeignObjectWidth}
-          height={textForeignObjectHeight}
-        >
-          <div
-            ref={textRef}
-            contentEditable={isEditingText}
-            onBlur={handleTextBlur}
-            suppressContentEditableWarning={true}
-            className={`shape-text-below ${isEditingText ? 'editing' : ''}`}
-            style={{
-              fontFamily: fontFamily,
-              fontSize: shape.fontSize ? `${shape.fontSize}pt` : undefined,
-              textAlign: 'center',
-              wordWrap: 'break-word',
-              whiteSpace: 'normal',
-              overflow: 'hidden',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {text}
-          </div>
-        </foreignObject>
+      
+
+      {text && textOffsetX !== undefined && textOffsetY !== undefined && textWidth !== undefined && textHeight !== undefined && (
+        <TextResizer
+          shapeId={id}
+          text={text}
+          initialTextOffsetX={textOffsetX}
+          initialTextOffsetY={textOffsetY}
+          initialTextWidth={textWidth}
+          initialTextHeight={textHeight}
+          fontFamily={fontFamily}
+          fontSize={fontSize}
+          zoom={zoom}
+          isInteractive={isInteractive}
+          isSelected={isTextSelected}
+          onTextSelect={(selected) => updateShapeIsTextSelected(id, selected)}
+        />
       )}
 
       {isSelected && isInteractive && (type !== 'text' || svgContent) && (
