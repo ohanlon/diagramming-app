@@ -291,6 +291,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
             className={`shape-text-below ${isEditingText ? 'editing' : ''}`}
             style={{
               fontFamily: fontFamily,
+              fontSize: shape.fontSize ? `${shape.fontSize}pt` : undefined,
               textAlign: 'center',
               wordWrap: 'break-word',
               whiteSpace: 'normal',

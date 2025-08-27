@@ -27,6 +27,7 @@ export type Shape = {
   minX?: number;
   minY?: number;
   fontFamily?: string; // New: Optional font family for the shape's text
+  fontSize?: number; // New: Optional font size for the shape's text
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
@@ -53,6 +54,7 @@ export type Sheet = {
   pan: Point;
   clipboard: Shape[] | null;
   selectedFont: string; // New: The currently selected font for this sheet
+  selectedFontSize: number; // New: The currently selected font size for this sheet
 };
 
 export type DiagramState = {

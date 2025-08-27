@@ -13,16 +13,22 @@ const googleFonts = [
   { name: 'Verdana', value: 'Verdana' },
 ];
 
+const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
+
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setZoom, activeSheet, selectedFont = 'Open Sans', setSelectedFont, history } = useDiagramStore();
+  const { undo, redo, setZoom, activeSheet, selectedFont = 'Open Sans', setSelectedFont, selectedFontSize = 10, setSelectedFontSize, history } = useDiagramStore();
 
   const handleFontChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedFont(event.target.value as string);
   };
 
+  const handleFontSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFontSize(Number(event.target.value));
+  };
+
   return (
     <AppBar position="static">
-      <Toolbar sx={{ height: '1em', minHeight: '1em' }}>
+      <Toolbar variant="dense">
         <Tooltip title="Undo">
           <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
             <Undo />
@@ -57,6 +63,24 @@ const ToolbarComponent: React.FC = () => {
             {googleFonts.slice().sort((a, b) => a.name.localeCompare(b.name)).map((font) => (
               <MenuItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
                 {font.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
+          <InputLabel id="font-size-select-label" sx={{ color: 'white' }}>Size</InputLabel>
+          <Select
+            labelId="font-size-select-label"
+            id="font-size-select"
+            value={String(selectedFontSize)}
+            label="Size"
+            onChange={handleFontSizeChange}
+            sx={{ color: 'white', '.MuiSvgIcon-root': { color: 'white' } }}
+            inputProps={{ 'data-testid': 'selectFontSize' }}
+          >
+            {fontSizes.map((size) => (
+              <MenuItem key={size} value={size}>
+                {size}
               </MenuItem>
             ))}
           </Select>

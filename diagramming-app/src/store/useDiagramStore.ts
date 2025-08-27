@@ -58,7 +58,8 @@ interface DiagramStoreActions {
   cutShape: (ids: string[]) => void;
   copyShape: (ids: string[]) => void;
   pasteShape: () => void;
-  setSelectedFont: (font: string) => void; // New action
+  setSelectedFont: (font: string) => void;
+  setSelectedFontSize: (size: number) => void; // New action
 }
 
 const defaultLayerId = uuidv4();
@@ -86,7 +87,8 @@ const initialState: DiagramState = {
       zoom: 1,
       pan: { x: 0, y: 0 },
       clipboard: null,
-      selectedFont: 'Open Sans', // Default font
+      selectedFont: 'Open Sans',
+      selectedFontSize: 10, // Default font size
     },
   },
   activeSheetId: defaultSheetId,
@@ -124,10 +126,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId },
+                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize },
                 },
                 shapeIds: [...activeSheet.shapeIds, shape.id],
-                selectedShapeIds: [shape.id], // <--- Add this line
+                selectedShapeIds: [shape.id],
               },
             },
           };
@@ -969,6 +971,33 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               [state.activeSheetId]: {
                 ...activeSheet,
                 selectedFont: font,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedFontSize: (size) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, fontSize: size };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                selectedFontSize: size,
                 shapesById: newShapesById,
               },
             },
