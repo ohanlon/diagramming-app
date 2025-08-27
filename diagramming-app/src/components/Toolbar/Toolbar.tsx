@@ -1,6 +1,6 @@
-import React from 'react';
-import { AppBar, Toolbar, Button, IconButton, Tooltip, Menu, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
-import { Undo, Redo, ZoomIn, ZoomOut, Square, Circle, Timeline, TextFields, Create } from '@mui/icons-material';
+import { AppBar, Toolbar, IconButton, Tooltip, Select, FormControl, InputLabel, MenuItem } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
+import { Undo, Redo, ZoomIn, ZoomOut } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
@@ -15,40 +15,9 @@ const googleFonts = [
 ];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setZoom, addShape, activeSheet, selectedFont = 'Open Sans', setSelectedFont } = useDiagramStore();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const { undo, redo, setZoom, activeSheet, selectedFont = 'Open Sans', setSelectedFont } = useDiagramStore();
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleAddShape = (type: string) => {
-    if (!activeSheet) return;
-    const newShape = {
-      id: new Date().getTime().toString(),
-      type,
-      x: 100,
-      y: 100,
-      width: 100,
-      height: 100,
-      text: type,
-      color: '#f0f0f0',
-      layerId: activeSheet.activeLayerId,
-      svgContent: '',
-      minX: 0,
-      minY: 0,
-      fontFamily: selectedFont,
-    };
-    addShape(newShape);
-    handleClose();
-  };
-
-  const handleFontChange = (event: any) => {
+  const handleFontChange = (event: SelectChangeEvent<string>) => {
     setSelectedFont(event.target.value as string);
   };
 

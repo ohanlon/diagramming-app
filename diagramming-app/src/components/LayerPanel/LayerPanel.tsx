@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { Paper, Typography, List, ListItem, ListItemText, IconButton, Checkbox, TextField, Button, Box } from '@mui/material';
+import { Paper, Typography, List, ListItem, ListItemText, IconButton, TextField, Button, Box } from '@mui/material';
 import { Add, Close, Delete, Edit, Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface LayerPanelProps {
@@ -134,7 +134,7 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
                   value={editedLayerName}
                   onChange={(e) => setEditedLayerName(e.target.value)}
                   onBlur={() => saveEditedName(layer.id)}
-                  onKeyDown={(e) => handleInputKeyDown(e as any, layer.id)}
+                  onKeyDown={(e) => handleInputKeyDown(e as React.KeyboardEvent<HTMLInputElement>, layer.id)}
                   size="small"
                   variant="standard"
                   fullWidth

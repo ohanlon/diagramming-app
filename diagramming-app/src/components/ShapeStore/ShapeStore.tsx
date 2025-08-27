@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Card, CardContent, Tooltip } from '@mui/material';
+import { Box, Typography, Grid, Card, Tooltip } from '@mui/material';
 
 interface Shape {
   title: string;

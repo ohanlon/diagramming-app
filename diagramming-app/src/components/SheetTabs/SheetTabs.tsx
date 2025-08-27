@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { Tabs, Tab, Button, Box, TextField, IconButton, Tooltip } from '@mui/material';
+import { Tabs, Tab, Button, Box, TextField, Tooltip } from '@mui/material';
 import { Add, Close } from '@mui/icons-material';
 
 const SheetTabs: React.FC = () => {
@@ -78,7 +78,7 @@ const SheetTabs: React.FC = () => {
                         value={editedSheetName}
                         onChange={(e) => setEditedSheetName(e.target.value)}
                         onBlur={() => saveEditedName(sheet.id)}
-                        onKeyDown={(e) => handleInputKeyDown(e as any, sheet.id)}
+                        onKeyDown={(e) => handleInputKeyDown(e as React.KeyboardEvent<HTMLInputElement>, sheet.id)}
                         size="small"
                         variant="standard"
                         sx={{ flexGrow: 1 }}
