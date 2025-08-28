@@ -169,7 +169,9 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     }
 
     // If not clicking on text, proceed with shape selection
-    if (e.shiftKey) {
+    if (e.ctrlKey || e.metaKey) { // Check for Ctrl or Cmd key
+      toggleShapeSelection(id);
+    } else if (e.shiftKey) { // Existing shift key logic
       toggleShapeSelection(id);
     } else {
       setSelectedShapes([id]);
