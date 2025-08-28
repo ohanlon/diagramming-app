@@ -66,12 +66,13 @@ const ToolbarComponent: React.FC = () => {
             </IconButton>
           </span>
         </Tooltip>
-        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+        <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
           <Select
             labelId="font-select-label"
             id="font-select"
-            value={activeSheet.selectedFont || ''}
+            value={activeSheet.selectedFont || googleFonts[0].value}
             displayEmpty
+            autoWidth
             onChange={handleFontChange}
             inputProps={{ 'data-testid': 'selectFont' }}
           >
@@ -82,12 +83,13 @@ const ToolbarComponent: React.FC = () => {
             ))}
           </Select>
         </FormControl>
-        <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
+        <FormControl sx={{ m: 1, minWidth: 60 }} size="small">
           <Select
             labelId="font-size-select-label"
             id="font-size-select"
-            value={String(activeSheet.selectedFontSize)}
+            value={String(activeSheet.selectedFontSize || 10)}
             displayEmpty
+            autoWidth
             onChange={handleFontSizeChange}
             inputProps={{ 'data-testid': 'selectFontSize' }}
           >
