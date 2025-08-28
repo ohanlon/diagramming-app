@@ -302,6 +302,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           isBold={isBold}
           isItalic={isItalic}
           isUnderlined={isUnderlined}
+          textAlign={textAlign}
         />
       )}
 
