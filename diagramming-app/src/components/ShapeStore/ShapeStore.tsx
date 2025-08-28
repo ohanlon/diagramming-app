@@ -60,7 +60,7 @@ const ShapeStore: React.FC = () => {
   }, []);
 
   return (
-    <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider' }}>
+    <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', height: '100%', overflowY: 'auto' }}>
       {categories.map((category) => (
         <Box key={category.name} sx={{ mb: 2 }}>
           <Typography variant="h6" gutterBottom>{category.name}</Typography>
