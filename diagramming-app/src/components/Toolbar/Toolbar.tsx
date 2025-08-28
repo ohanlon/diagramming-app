@@ -1,7 +1,8 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, Brightness4, Brightness7 } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import { useThemeContext } from '../../contexts/ThemeContext';
 
 const googleFonts = [
   { name: 'Open Sans (Default)', value: 'Open Sans' },
@@ -34,6 +35,8 @@ const ToolbarComponent: React.FC = () => {
   const handleFontSizeChange = (event: SelectChangeEvent<string>) => {
     setSelectedFontSize(Number(event.target.value));
   };
+
+  const { toggleTheme, currentTheme } = useThemeContext();
 
   return (
     <AppBar position="static">
@@ -112,6 +115,11 @@ const ToolbarComponent: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+        <Tooltip title={currentTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
+          <IconButton color="inherit" onClick={toggleTheme} data-testid="theme-toggle-button">
+            {currentTheme === 'light' ? <Brightness4 /> : <Brightness7 />}
+          </IconButton>
+        </Tooltip>
       </Toolbar>
     </AppBar>
   );

@@ -1,9 +1,10 @@
 import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
+export const lightTheme = createTheme({
   palette: {
-    primary: { main: '#ffffff' },
-    secondary: { main: '#ff5722' },
+    mode: 'light',
+    primary: { main: '#1976d2' },
+    secondary: { main: '#dc004e' },
     background: { default: '#f8f9fa', paper: '#ffffff' },
   },
   typography: {
@@ -24,4 +25,27 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+export const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: { main: '#90caf9' },
+    secondary: { main: '#f48fb1' },
+    background: { default: '#121212', paper: '#1e1e1e' },
+  },
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
+    h3: { fontWeight: 600 },
+    h4: { fontWeight: 600 },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: 0,
+          color: '#fff'
+        },
+      },
+    },
+  },
+});
