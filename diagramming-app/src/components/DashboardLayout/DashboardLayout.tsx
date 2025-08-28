@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Drawer, Box, CssBaseline, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Toolbar, IconButton, Box, CssBaseline, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CategoryIcon from '@mui/icons-material/Category';
-import { styled, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
+import { ChevronLeft } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -47,8 +48,7 @@ const AppBarStyled = styled(MuiAppBar, {
     duration: theme.transitions.duration.leavingScreen,
   }),
   ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    // Removed marginLeft and width to prevent toolbar from sliding
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -113,9 +113,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
       <DrawerStyled variant="permanent" open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
-            {/* Add an icon for closing the drawer, e.g., <ChevronLeftIcon /> or <ChevronRightIcon /> */}
-            {/* For now, just a placeholder */}
-            Close
+            <ChevronLeft />
           </IconButton>
         </DrawerHeader>
         <List>
