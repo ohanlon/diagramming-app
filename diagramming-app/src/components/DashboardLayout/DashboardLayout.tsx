@@ -1,11 +1,78 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Box, CssBaseline, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Drawer } from '@mui/material';
+import { Toolbar, IconButton, Box, CssBaseline, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CategoryIcon from '@mui/icons-material/Category';
+import { styled } from '@mui/material/styles';
+import MuiDrawer from '@mui/material/Drawer';
+import MuiAppBar from '@mui/material/AppBar';
 import { ChevronLeft } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
 
 const drawerWidth = 240;
+
+const openedMixin = (theme: any) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme: any) => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  minHeight: '128px', // Explicitly set height for two toolbars
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+}));
+
+const AppBarStyled = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }: { theme: any, open: boolean }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    // Removed marginLeft and width to prevent toolbar from sliding
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const DrawerStyled = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }: { theme: any, open: boolean }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
+  }),
+);
 
 interface DashboardLayoutProps {
   toolbar: React.ReactNode;
@@ -14,7 +81,6 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, onShowComponents }) => {
-  const theme = useTheme();
   const [open, setOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -24,9 +90,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{
-        zIndex: theme.zIndex.drawer + 1,
-      }}>
+      <AppBarStyled position="fixed" open={open}>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Toolbar>
             <IconButton
@@ -45,21 +109,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
             {toolbar}
           </Toolbar>
         </Box>
-      </AppBar>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        open={open}
-      >
-        <Toolbar /> {/* This is to push content below the AppBar */}
-        <Box sx={{ minHeight: '128px' }} /> {/* This is to push content below the AppBar */}
+      </AppBarStyled>
+      <DrawerStyled variant="permanent" open={open}>
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerToggle}>
+            <ChevronLeft />
+          </IconButton>
+        </DrawerHeader>
         <List>
           <ListItem disablePadding sx={{ display: 'block' }}>
             <ListItemButton
@@ -83,8 +139,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
             </ListItemButton>
           </ListItem>
         </List>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '128px' }}>
+      </DrawerStyled>
+      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '4em' }}>
+        <DrawerHeader />
         {children}
       </Box>
     </Box>
