@@ -32,39 +32,29 @@ const ToolbarComponent: React.FC = () => {
     <AppBar position="static">
       <Toolbar variant="dense">
         <Tooltip title="Undo">
-          <span style={{ display: "contents" }}>
-            <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
-              <Undo />
-            </IconButton>
-          </span>
+          <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
+            <Undo />
+          </IconButton>
         </Tooltip>
         <Tooltip title="Redo">
-          <span style={{ display: "contents" }}>
-            <IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0}>
-              <Redo />
-            </IconButton>
-          </span>
+          <IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0}>
+            <Redo />
+          </IconButton>
         </Tooltip>
         <Tooltip title="Cut">
-          <span style={{ display: "contents" }}>
-            <IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0}>
-              <ContentCut />
-            </IconButton>
-          </span>
+          <IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0}>
+            <ContentCut />
+          </IconButton>
         </Tooltip>
         <Tooltip title="Copy">
-          <span style={{ display: "contents" }}>
-            <IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0}>
-              <ContentCopy />
-            </IconButton>
-          </span>
+          <IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0}>
+            <ContentCopy />
+          </IconButton>
         </Tooltip>
         <Tooltip title="Paste">
-          <span style={{ display: "contents" }}>
-            <IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
-              <ContentPaste />
-            </IconButton>
-          </span>
+          <IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
+            <ContentPaste />
+          </IconButton>
         </Tooltip>
         <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
           <Select
