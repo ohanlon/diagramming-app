@@ -10,25 +10,19 @@ import { Box } from '@mui/material';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
-  const [showShapeStore, setShowShapeStore] = useState(false);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
-      <DashboardLayout
-        toolbar={<ToolbarComponent />}
-        onShowComponents={() => setShowShapeStore(true)}
-      >
-        <Box sx={{ display: 'flex', flexGrow: 1, height: '100%' }}>
-          {showShapeStore && <ShapeStore />}
-          <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, height: '100%' }}>
-            <Canvas />
-            <SheetTabs />
-          </Box>
-        </Box>
-        {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}
-      </DashboardLayout>
-      <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />
-    </Box>
+    <DashboardLayout
+      toolbar={<ToolbarComponent />}
+      sidebar={<ShapeStore />}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, height: '100%' }}>
+        <Canvas />
+        <SheetTabs />
+        <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />
+      </Box>
+      {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}
+    </DashboardLayout>
   );
 }
 
