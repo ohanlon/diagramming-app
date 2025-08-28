@@ -90,20 +90,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBarStyled position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerToggle}
-            edge="start"
-            sx={{
-              marginRight: 5,
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          {toolbar}
-        </Toolbar>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerToggle}
+              edge="start"
+              sx={{
+                marginRight: 5,
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Toolbar>
+          <Toolbar variant="dense">
+            {toolbar}
+          </Toolbar>
+        </Box>
       </AppBarStyled>
       <DrawerStyled variant="permanent" open={open}>
         <DrawerHeader>
