@@ -63,7 +63,8 @@ interface DiagramStoreActions {
   toggleItalic: () => void;
   toggleUnderlined: () => void;
   resetStore: () => void;
-  setTextAlign: (alignment: string) => void;
+  setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
+  setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -130,7 +131,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, textAlign: 'middle-center' },
+                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center' },
                 },
                 shapeIds: [...activeSheet.shapeIds, shape.id],
                 selectedShapeIds: [shape.id],
@@ -1195,7 +1196,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         set(initialState);
       },
 
-      setTextAlign: (alignment) => {
+      setVerticalAlign: (alignment) => {
         addHistory(get, set);
         set((state) => {
           const activeSheet = state.sheets[state.activeSheetId];
@@ -1205,7 +1206,33 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           activeSheet.selectedShapeIds.forEach((id) => {
             const shape = newShapesById[id];
             if (shape) {
-              newShapesById[id] = { ...shape, textAlign: alignment };
+              newShapesById[id] = { ...shape, verticalAlign: alignment };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setHorizontalAlign: (alignment) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, horizontalAlign: alignment };
             }
           });
 

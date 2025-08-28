@@ -36,7 +36,8 @@ export type Shape = {
   isBold?: boolean;
   isItalic?: boolean;
   isUnderlined?: boolean;
-  textAlign?: string;
+  verticalAlign?: 'top' | 'middle' | 'bottom';
+  horizontalAlign?: 'left' | 'center' | 'right';
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';

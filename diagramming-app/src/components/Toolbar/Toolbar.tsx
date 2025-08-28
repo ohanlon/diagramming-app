@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, FormatAlignJustify } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
@@ -17,7 +17,7 @@ const googleFonts = [
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setTextAlign } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
@@ -27,17 +27,13 @@ const ToolbarComponent: React.FC = () => {
   const isItalicActive = hasSelectedShapes && selectedShapes.some(shape => shape.isItalic);
   const isUnderlinedActive = hasSelectedShapes && selectedShapes.some(shape => shape.isUnderlined);
 
-  const alignmentOptions = [
-    { value: 'top-left', label: 'Top Left' },
-    { value: 'top-center', label: 'Top Center' },
-    { value: 'top-right', label: 'Top Right' },
-    { value: 'middle-left', label: 'Middle Left' },
-    { value: 'middle-center', label: 'Middle Center' },
-    { value: 'middle-right', label: 'Middle Right' },
-    { value: 'bottom-left', label: 'Bottom Left' },
-    { value: 'bottom-center', label: 'Bottom Center' },
-    { value: 'bottom-right', label: 'Bottom Right' },
-  ];
+  const isVerticalAlignTopActive = hasSelectedShapes && selectedShapes.every(shape => shape.verticalAlign === 'top');
+  const isVerticalAlignCenterActive = hasSelectedShapes && selectedShapes.every(shape => shape.verticalAlign === 'middle');
+  const isVerticalAlignBottomActive = hasSelectedShapes && selectedShapes.every(shape => shape.verticalAlign === 'bottom');
+
+  const isHorizontalAlignLeftActive = hasSelectedShapes && selectedShapes.every(shape => shape.horizontalAlign === 'left');
+  const isHorizontalAlignCenterActive = hasSelectedShapes && selectedShapes.every(shape => shape.horizontalAlign === 'center');
+  const isHorizontalAlignRightActive = hasSelectedShapes && selectedShapes.every(shape => shape.horizontalAlign === 'right');
 
   const handleFontChange = (event: SelectChangeEvent<string>) => {
     setSelectedFont(event.target.value as string);
@@ -109,6 +105,38 @@ const ToolbarComponent: React.FC = () => {
           </IconButton>
         </Tooltip>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <Tooltip title="Align Top">
+          <IconButton sx={{ bgcolor: isVerticalAlignTopActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setVerticalAlign('top')} data-testid="align-top-button" disabled={!hasSelectedShapes}>
+            <VerticalAlignTop />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Align Middle">
+          <IconButton sx={{ bgcolor: isVerticalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setVerticalAlign('middle')} data-testid="align-middle-button" disabled={!hasSelectedShapes}>
+            <VerticalAlignCenter />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Align Bottom">
+          <IconButton sx={{ bgcolor: isVerticalAlignBottomActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setVerticalAlign('bottom')} data-testid="align-bottom-button" disabled={!hasSelectedShapes}>
+            <VerticalAlignBottom />
+          </IconButton>
+        </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <Tooltip title="Align Left">
+          <IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}>
+            <AlignHorizontalLeft />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Align Center">
+          <IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}>
+            <AlignHorizontalCenter />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Align Right">
+          <IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}>
+            <AlignHorizontalRight />
+          </IconButton>
+        </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
           <Select
             labelId="font-select-label"
@@ -139,24 +167,6 @@ const ToolbarComponent: React.FC = () => {
             {fontSizes.map((size) => (
               <MenuItem key={size} value={size}>
                 {size}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <FormControl sx={{ m: 1, minWidth: 120 }} size="small" disabled={!hasSelectedShapes}>
-          <Select
-            labelId="text-align-select-label"
-            id="text-align-select"
-            value={currentTextAlign}
-            displayEmpty
-            autoWidth
-            onChange={handleTextAlignChange}
-            inputProps={{ 'data-testid': 'selectTextAlign' }}
-          >
-            {alignmentOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
               </MenuItem>
             ))}
           </Select>
