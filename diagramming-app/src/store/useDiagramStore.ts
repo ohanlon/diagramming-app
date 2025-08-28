@@ -63,6 +63,7 @@ interface DiagramStoreActions {
   toggleItalic: () => void;
   toggleUnderlined: () => void;
   resetStore: () => void;
+  setTextAlign: (alignment: string) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -129,7 +130,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false },
+                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, textAlign: 'middle-center' },
                 },
                 shapeIds: [...activeSheet.shapeIds, shape.id],
                 selectedShapeIds: [shape.id],
@@ -1192,6 +1193,32 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
 
       resetStore: () => {
         set(initialState);
+      },
+
+      setTextAlign: (alignment) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, textAlign: alignment };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
       },
     }),
     {

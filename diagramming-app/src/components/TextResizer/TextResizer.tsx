@@ -18,6 +18,7 @@ interface TextResizerProps {
   isBold?: boolean;
   isItalic?: boolean;
   isUnderlined?: boolean;
+  textAlign?: string;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -35,6 +36,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
   isBold,
   isItalic,
   isUnderlined,
+  textAlign,
 }) => {
   const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText } = useDiagramStore();
   const [currentTextOffsetX, setCurrentTextOffsetX] = useState(initialTextOffsetX);
@@ -225,6 +227,15 @@ const TextResizer: React.FC<TextResizerProps> = ({
           fontWeight: isBold ? 'bold' : 'normal',
           fontStyle: isItalic ? 'italic' : 'normal',
           textDecoration: isUnderlined ? 'underline' : 'none',
+          ...(textAlign === 'top-left' && { alignItems: 'flex-start', justifyContent: 'flex-start' }),
+          ...(textAlign === 'top-center' && { alignItems: 'flex-start', justifyContent: 'center' }),
+          ...(textAlign === 'top-right' && { alignItems: 'flex-start', justifyContent: 'flex-end' }),
+          ...(textAlign === 'middle-left' && { alignItems: 'center', justifyContent: 'flex-start' }),
+          ...(textAlign === 'middle-center' && { alignItems: 'center', justifyContent: 'center' }),
+          ...(textAlign === 'middle-right' && { alignItems: 'center', justifyContent: 'flex-end' }),
+          ...(textAlign === 'bottom-left' && { alignItems: 'flex-end', justifyContent: 'flex-start' }),
+          ...(textAlign === 'bottom-center' && { alignItems: 'flex-end', justifyContent: 'center' }),
+          ...(textAlign === 'bottom-right' && { alignItems: 'flex-end', justifyContent: 'flex-end' }),
         }}
       >
         {text}

@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, FormatAlignJustify } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
@@ -17,7 +17,7 @@ const googleFonts = [
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setTextAlign } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
@@ -27,6 +27,18 @@ const ToolbarComponent: React.FC = () => {
   const isItalicActive = hasSelectedShapes && selectedShapes.some(shape => shape.isItalic);
   const isUnderlinedActive = hasSelectedShapes && selectedShapes.some(shape => shape.isUnderlined);
 
+  const alignmentOptions = [
+    { value: 'top-left', label: 'Top Left' },
+    { value: 'top-center', label: 'Top Center' },
+    { value: 'top-right', label: 'Top Right' },
+    { value: 'middle-left', label: 'Middle Left' },
+    { value: 'middle-center', label: 'Middle Center' },
+    { value: 'middle-right', label: 'Middle Right' },
+    { value: 'bottom-left', label: 'Bottom Left' },
+    { value: 'bottom-center', label: 'Bottom Center' },
+    { value: 'bottom-right', label: 'Bottom Right' },
+  ];
+
   const handleFontChange = (event: SelectChangeEvent<string>) => {
     setSelectedFont(event.target.value as string);
   };
@@ -34,6 +46,16 @@ const ToolbarComponent: React.FC = () => {
   const handleFontSizeChange = (event: SelectChangeEvent<string>) => {
     setSelectedFontSize(Number(event.target.value));
   };
+
+  const handleTextAlignChange = (event: SelectChangeEvent<string>) => {
+    setTextAlign(event.target.value as string);
+  };
+
+  const currentTextAlign = hasSelectedShapes
+    ? (selectedShapes.every(shape => shape.textAlign === selectedShapes[0].textAlign)
+      ? selectedShapes[0].textAlign
+      : '')
+    : '';
 
   return (
     <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0' }}>
@@ -117,6 +139,24 @@ const ToolbarComponent: React.FC = () => {
             {fontSizes.map((size) => (
               <MenuItem key={size} value={size}>
                 {size}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <FormControl sx={{ m: 1, minWidth: 120 }} size="small" disabled={!hasSelectedShapes}>
+          <Select
+            labelId="text-align-select-label"
+            id="text-align-select"
+            value={currentTextAlign}
+            displayEmpty
+            autoWidth
+            onChange={handleTextAlignChange}
+            inputProps={{ 'data-testid': 'selectTextAlign' }}
+          >
+            {alignmentOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
               </MenuItem>
             ))}
           </Select>
