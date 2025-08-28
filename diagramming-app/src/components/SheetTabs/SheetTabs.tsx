@@ -69,7 +69,12 @@ const SheetTabs: React.FC = () => {
           return (
             <Tab
               key={sheet.id}
-              sx={{ height: '2em' }}
+              sx={{
+                height: '2em',
+                '&.Mui-selected': {
+                  bgcolor: '#A0A0A0', // Background color for selected tab
+                },
+              }}
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                     {isEditing ? (
