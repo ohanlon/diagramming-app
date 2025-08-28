@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Drawer, Box, CssBaseline } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Typography, Drawer, Box, CssBaseline, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import CategoryIcon from '@mui/icons-material/Category';
 import { styled, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -74,11 +75,11 @@ const DrawerStyled = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== '
 
 interface DashboardLayoutProps {
   toolbar: React.ReactNode;
-  sidebar: React.ReactNode;
   children: React.ReactNode;
+  onShowComponents: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, sidebar, children }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, onShowComponents }) => {
   const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
@@ -117,7 +118,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, sidebar, chi
             Close
           </IconButton>
         </DrawerHeader>
-        {sidebar}
+        <List>
+          <ListItem disablePadding sx={{ display: 'block' }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+              }}
+              onClick={onShowComponents}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                <CategoryIcon />
+              </ListItemIcon>
+              <ListItemText primary="Components" sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </DrawerStyled>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader /> {/* This pushes content below the AppBar */}
