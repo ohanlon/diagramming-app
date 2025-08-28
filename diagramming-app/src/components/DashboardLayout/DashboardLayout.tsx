@@ -139,8 +139,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
           </ListItem>
         </List>
       </DrawerStyled>
-      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '4em' }}>
-        {/* <DrawerHeader /> This pushes content below the AppBar */}
+      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '8em' }}>
+        <DrawerHeader />
         {children}
       </Box>
     </Box>
