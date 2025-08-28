@@ -102,7 +102,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
             edge="start"
             sx={{
               marginRight: 5,
-              ...(open && { display: 'none' }),
             }}
           >
             <MenuIcon />
