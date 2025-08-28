@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
@@ -17,8 +17,15 @@ const googleFonts = [
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
+
+  const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
+  const hasSelectedShapes = selectedShapes.length > 0;
+
+  const isBoldActive = hasSelectedShapes && selectedShapes.some(shape => shape.isBold);
+  const isItalicActive = hasSelectedShapes && selectedShapes.some(shape => shape.isItalic);
+  const isUnderlinedActive = hasSelectedShapes && selectedShapes.some(shape => shape.isUnderlined);
 
   const handleFontChange = (event: SelectChangeEvent<string>) => {
     setSelectedFont(event.target.value as string);
@@ -54,6 +61,21 @@ const ToolbarComponent: React.FC = () => {
         <Tooltip title="Paste">
           <IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
             <ContentPaste />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Bold">
+          <IconButton color={isBoldActive ? "primary" : "inherit"} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}>
+            <FormatBold />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Italic">
+          <IconButton color={isItalicActive ? "primary" : "inherit"} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}>
+            <FormatItalic />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Underline">
+          <IconButton color={isUnderlinedActive ? "primary" : "inherit"} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}>
+            <FormatUnderlined />
           </IconButton>
         </Tooltip>
         <FormControl sx={{ m: 1, minWidth: 80 }} size="small">

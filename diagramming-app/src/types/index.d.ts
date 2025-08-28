@@ -33,6 +33,9 @@ export type Shape = {
   textWidth: number;
   textHeight: number;
   isTextSelected?: boolean;
+  isBold?: boolean;
+  isItalic?: boolean;
+  isUnderlined?: boolean;
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';

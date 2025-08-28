@@ -15,6 +15,9 @@ interface TextResizerProps {
   isInteractive: boolean;
   isSelected: boolean;
   onTextSelect?: (selected: boolean) => void;
+  isBold?: boolean;
+  isItalic?: boolean;
+  isUnderlined?: boolean;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -29,6 +32,9 @@ const TextResizer: React.FC<TextResizerProps> = ({
   zoom,
   isInteractive,
   isSelected,
+  isBold,
+  isItalic,
+  isUnderlined,
 }) => {
   const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText } = useDiagramStore();
   const [currentTextOffsetX, setCurrentTextOffsetX] = useState(initialTextOffsetX);
@@ -216,6 +222,9 @@ const TextResizer: React.FC<TextResizerProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          fontWeight: isBold ? 'bold' : 'normal',
+          fontStyle: isItalic ? 'italic' : 'normal',
+          textDecoration: isUnderlined ? 'underline' : 'none',
         }}
       >
         {text}

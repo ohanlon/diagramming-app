@@ -59,6 +59,9 @@ interface DiagramStoreActions {
   updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => void;
   deselectAllTextBlocks: () => void;
   updateShapeIsTextSelected: (id: string, isTextSelected: boolean) => void;
+  toggleBold: () => void;
+  toggleItalic: () => void;
+  toggleUnderlined: () => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -125,7 +128,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20 },
+                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false },
                 },
                 shapeIds: [...activeSheet.shapeIds, shape.id],
                 selectedShapeIds: [shape.id],
@@ -1102,6 +1105,84 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                   ...activeSheet.shapesById,
                   [id]: { ...shape, isTextSelected },
                 },
+              },
+            },
+          };
+        });
+      },
+
+      toggleBold: () => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isBold: !shape.isBold };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      toggleItalic: () => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isItalic: !shape.isItalic };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      toggleUnderlined: () => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isUnderlined: !shape.isUnderlined };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
               },
             },
           };

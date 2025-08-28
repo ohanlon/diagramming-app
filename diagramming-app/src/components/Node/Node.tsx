@@ -14,7 +14,7 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20, isTextSelected } = shape;
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20, isTextSelected, isBold, isItalic, isUnderlined } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
@@ -297,6 +297,9 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           isInteractive={isInteractive}
           isSelected={isTextSelected || false}
           onTextSelect={(selected: boolean) => updateShapeIsTextSelected(id, selected)}
+          isBold={isBold}
+          isItalic={isItalic}
+          isUnderlined={isUnderlined}
         />
       )}
 
