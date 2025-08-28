@@ -70,7 +70,7 @@ const ToolbarComponent: React.FC = () => {
           <Select
             labelId="font-select-label"
             id="font-select"
-            value={activeSheet.selectedFont}
+            value={activeSheet.selectedFont || ''}
             displayEmpty
             onChange={handleFontChange}
             inputProps={{ 'data-testid': 'selectFont' }}

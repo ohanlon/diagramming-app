@@ -1,1 +1,7 @@
 @import "variables.less";
+
+// Global styles for MUI Tooltip to ensure correct positioning
+.MuiTooltip-tooltip {
+  position: absolute;
+  z-index: 9999; // Ensure it's on top of other elements
+}
