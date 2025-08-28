@@ -35,7 +35,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'flex-end',
   padding: theme.spacing(0, 1),
-  minHeight: '128px', // Explicitly set height for two toolbars
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
@@ -140,7 +139,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
           </ListItem>
         </List>
       </DrawerStyled>
-      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '4em' }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '8em' }}>
         <DrawerHeader />
         {children}
       </Box>
