@@ -4,12 +4,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DiagramState, Shape, Connector, Point } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
-// Define a type for the history state
-type HistoryState = Pick<
-  DiagramState,
-  | 'sheets'
-  | 'activeSheetId'
->;
+
 
 interface DiagramStoreActions {
   addShape: (shape: Shape) => void;
@@ -59,7 +54,11 @@ interface DiagramStoreActions {
   copyShape: (ids: string[]) => void;
   pasteShape: () => void;
   setSelectedFont: (font: string) => void;
-  setSelectedFontSize: (size: number) => void; // New action
+  setSelectedFontSize: (size: number) => void;
+  updateShapeTextPosition: (id: string, textOffsetX: number, textOffsetY: number) => void;
+  updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => void;
+  deselectAllTextBlocks: () => void;
+  updateShapeIsTextSelected: (id: string, isTextSelected: boolean) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -104,7 +103,7 @@ const addHistory = (
   set: (state: Partial<DiagramState & DiagramStoreActions>) => void
 ) => {
   const { history, sheets, activeSheetId } = get();
-  const newPast = [...history.past, { sheets, activeSheetId } as HistoryState];
+  const newPast = [...history.past, { sheets, activeSheetId } as Partial<DiagramState>];
   set({ history: { past: newPast, future: [] } });
 };
 

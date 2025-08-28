@@ -14,6 +14,7 @@ interface TextResizerProps {
   zoom: number;
   isInteractive: boolean;
   isSelected: boolean;
+  onTextSelect?: (selected: boolean) => void;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({

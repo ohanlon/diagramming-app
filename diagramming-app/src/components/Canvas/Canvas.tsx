@@ -270,6 +270,10 @@ const Canvas: React.FC = () => {
       minX: minX,
       minY: minY,
       fontFamily: selectedFont,
+      textOffsetX: 0,
+      textOffsetY: height + 5,
+      textWidth: width,
+      textHeight: 20,
     };
     addShape(newShape);
   };

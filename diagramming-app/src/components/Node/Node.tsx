@@ -14,8 +14,8 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20 } = shape;
-  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, isTextSelected, updateShapeIsTextSelected } = useDiagramStore();
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20, isTextSelected } = shape;
+  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
   
@@ -295,8 +295,8 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           fontSize={fontSize}
           zoom={zoom}
           isInteractive={isInteractive}
-          isSelected={isTextSelected}
-          onTextSelect={(selected) => updateShapeIsTextSelected(id, selected)}
+          isSelected={isTextSelected || false}
+          onTextSelect={(selected: boolean) => updateShapeIsTextSelected(id, selected)}
         />
       )}
 

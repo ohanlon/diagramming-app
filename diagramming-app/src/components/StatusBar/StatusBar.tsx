@@ -52,29 +52,37 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Tooltip title="Zoom Out">
-          <IconButton onClick={handleZoomOut} size="small">
-            <ZoomOut />
-          </IconButton>
+          <span style={{ display: "contents" }}>
+            <IconButton onClick={handleZoomOut} size="small">
+              <ZoomOut />
+            </IconButton>
+          </span>
         </Tooltip>
         <Typography variant="body2" color="text.secondary" sx={{ mx: 1 }}>
           {zoomPercentage}%
         </Typography>
         <Tooltip title="Zoom In">
-          <IconButton onClick={handleZoomIn} size="small">
-            <ZoomIn />
-          </IconButton>
+          <span style={{ display: "contents" }}>
+            <IconButton onClick={handleZoomIn} size="small">
+              <ZoomIn />
+            </IconButton>
+          </span>
         </Tooltip>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
-          <IconButton onClick={toggleFullscreen} size="small">
-            {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
-          </IconButton>
+          <span style={{ display: "contents" }}>
+            <IconButton onClick={toggleFullscreen} size="small">
+              {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip title={showLayerPanel ? "Hide Layers" : "Show Layers"}>
-          <IconButton onClick={() => setShowLayerPanel(!showLayerPanel)} size="small" data-testid="toggle-layer-panel-button">
-            <Layers />
-          </IconButton>
+          <span style={{ display: "contents" }}>
+            <IconButton onClick={() => setShowLayerPanel(!showLayerPanel)} size="small" data-testid="toggle-layer-panel-button">
+              <Layers />
+            </IconButton>
+          </span>
         </Tooltip>
       </Box>
     </Box>

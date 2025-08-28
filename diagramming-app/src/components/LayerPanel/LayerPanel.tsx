@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { Paper, Typography, List, ListItem, ListItemText, IconButton, TextField, Button, Box } from '@mui/material';
+import { Paper, Typography, List, ListItemText, IconButton, TextField, Button, Box, ListItemButton } from '@mui/material';
 import { Add, Close, Delete, Edit, Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface LayerPanelProps {
@@ -110,23 +110,10 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
           const isEditing = editingLayerId === layer.id;
 
           return (
-            <ListItem
+            <ListItemButton
               key={layer.id}
               selected={layer.id === activeLayerId}
               onClick={() => setActiveLayer(layer.id)}
-              secondaryAction={
-                <>
-                  <IconButton onClick={() => toggleLayerVisibility(layer.id)} size="small">
-                    {layer.isVisible ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                  <IconButton onClick={() => handleRenameLayer(layer.id, layer.name)} size="small">
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => removeLayer(layer.id)} size="small" disabled={layerIds.length === 1}>
-                    <Delete />
-                  </IconButton>
-                </>
-              }
             >
               {isEditing ? (
                 <TextField
@@ -142,7 +129,18 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
               ) : (
                 <ListItemText primary={layer.name} />
               )}
-            </ListItem>
+              <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+                <IconButton onClick={() => toggleLayerVisibility(layer.id)} size="small">
+                  {layer.isVisible ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+                <IconButton onClick={() => handleRenameLayer(layer.id, layer.name)} size="small">
+                  <Edit />
+                </IconButton>
+                <IconButton onClick={() => removeLayer(layer.id)} size="small" disabled={layerIds.length === 1}>
+                  <Delete />
+                </IconButton>
+              </Box>
+            </ListItemButton>
           );
         })}
       </List>

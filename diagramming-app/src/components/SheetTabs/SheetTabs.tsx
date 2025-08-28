@@ -56,7 +56,7 @@ const SheetTabs: React.FC = () => {
     <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2.8em' }}>
       <Tabs
         value={activeSheetId}
-        onChange={(e, newValue) => setActiveSheet(newValue)}
+        onChange={(event, newValue) => setActiveSheet(newValue)}
         variant="scrollable"
         scrollButtons="auto"
         aria-label="sheet tabs"
@@ -114,9 +114,11 @@ const SheetTabs: React.FC = () => {
         })}
       </Tabs>
       <Tooltip title="Add New Sheet">
-        <Button onClick={handleAddSheet} sx={{ height: '2.5em' }} data-testid="add-sheet-button">
-          <Add />
-        </Button>
+        <span style={{ display: "contents" }}>
+          <Button onClick={handleAddSheet} sx={{ height: '2.5em' }} data-testid="add-sheet-button">
+            <Add />
+          </Button>
+        </span>
       </Tooltip>
     </Box>
   );
