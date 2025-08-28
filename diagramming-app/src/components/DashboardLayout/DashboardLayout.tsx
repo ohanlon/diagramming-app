@@ -82,12 +82,8 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, onShowComponents }) => {
   const [open, setOpen] = useState(false);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleDrawerToggle = () => {
+    setOpen(!open);
   };
 
   return (
@@ -98,7 +94,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={handleDrawerToggle}
             edge="start"
             sx={{
               marginRight: 5,
@@ -111,7 +107,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
       </AppBarStyled>
       <DrawerStyled variant="permanent" open={open}>
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerToggle}>
             <ChevronLeft />
           </IconButton>
         </DrawerHeader>
