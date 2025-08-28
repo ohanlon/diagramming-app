@@ -84,23 +84,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ toolbar, children, on
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{
-        flexGrow: 1,
-        p: 0,
-        mt: '128px',
-        transition: theme.transitions.create(['width', 'margin'], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        ...(open && {
-          marginLeft: drawerWidth,
-          width: `calc(100% - ${drawerWidth}px)`,
-          transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-        }),
-      }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 0, mt: '128px' }}>
         {children}
       </Box>
     </Box>
