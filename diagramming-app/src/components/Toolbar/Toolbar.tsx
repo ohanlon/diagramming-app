@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
@@ -17,7 +17,7 @@ const googleFonts = [
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
@@ -38,6 +38,11 @@ const ToolbarComponent: React.FC = () => {
   return (
     <AppBar position="static">
       <Toolbar variant="dense">
+        <Tooltip title="New Diagram">
+          <IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button">
+            <NoteAdd />
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Undo">
           <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
             <Undo />

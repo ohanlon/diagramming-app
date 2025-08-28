@@ -62,6 +62,7 @@ interface DiagramStoreActions {
   toggleBold: () => void;
   toggleItalic: () => void;
   toggleUnderlined: () => void;
+  resetStore: () => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -1187,6 +1188,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             },
           };
         });
+      },
+
+      resetStore: () => {
+        set(initialState);
       },
     }),
     {
