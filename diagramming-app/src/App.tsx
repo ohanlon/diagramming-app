@@ -10,7 +10,7 @@ import { Box } from '@mui/material';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
-  const [showShapeStore, setShowShapeStore] = useState(false);
+  const [showShapeStore, setShowShapeStore] = useState(true);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
