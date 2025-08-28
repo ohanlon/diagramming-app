@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, IconButton, Tooltip, Divider } from '@mui/material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { ZoomIn, ZoomOut, Layers, Fullscreen, FullscreenExit } from '@mui/icons-material';
 
@@ -51,6 +51,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
     >
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Zoom Out">
           <IconButton onClick={handleZoomOut} size="small">
             <ZoomOut />
@@ -66,11 +67,13 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
         </Tooltip>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
           <IconButton onClick={toggleFullscreen} size="small">
             {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
           </IconButton>
         </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title={showLayerPanel ? "Hide Layers" : "Show Layers"}>
           <IconButton onClick={() => setShowLayerPanel(!showLayerPanel)} size="small" data-testid="toggle-layer-panel-button">
             <Layers />

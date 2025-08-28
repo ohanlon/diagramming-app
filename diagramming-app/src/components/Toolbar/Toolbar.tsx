@@ -54,6 +54,7 @@ const ToolbarComponent: React.FC = () => {
             <Redo />
           </IconButton>
         </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Cut">
           <IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0}>
             <ContentCut />
@@ -69,6 +70,7 @@ const ToolbarComponent: React.FC = () => {
             <ContentPaste />
           </IconButton>
         </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Bold">
           <IconButton sx={{ bgcolor: isBoldActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}>
             <FormatBold />
@@ -84,6 +86,7 @@ const ToolbarComponent: React.FC = () => {
             <FormatUnderlined />
           </IconButton>
         </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
           <Select
             labelId="font-select-label"
