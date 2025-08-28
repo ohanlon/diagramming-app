@@ -64,17 +64,17 @@ const ToolbarComponent: React.FC = () => {
           </IconButton>
         </Tooltip>
         <Tooltip title="Bold">
-          <IconButton color={isBoldActive ? "primary" : "inherit"} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}>
+          <IconButton sx={{ bgcolor: isBoldActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}>
             <FormatBold />
           </IconButton>
         </Tooltip>
         <Tooltip title="Italic">
-          <IconButton color={isItalicActive ? "primary" : "inherit"} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}>
+          <IconButton sx={{ bgcolor: isItalicActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}>
             <FormatItalic />
           </IconButton>
         </Tooltip>
         <Tooltip title="Underline">
-          <IconButton color={isUnderlinedActive ? "primary" : "inherit"} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}>
+          <IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}>
             <FormatUnderlined />
           </IconButton>
         </Tooltip>
