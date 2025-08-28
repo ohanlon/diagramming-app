@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider } from '@mui/material';
 import Select from '@mui/material/Select';
 import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
@@ -43,6 +43,7 @@ const ToolbarComponent: React.FC = () => {
             <NoteAdd />
           </IconButton>
         </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Undo">
           <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
             <Undo />
