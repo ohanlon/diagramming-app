@@ -1,5 +1,4 @@
 import { Box, MenuItem, Tooltip } from '@mui/material';
-import { Shape } from '../../types';
 
 interface ColorPickerProps {
   selectedColor: string;
