@@ -90,6 +90,7 @@ main.tsx
 
 \- Write unit tests using Jest \& React Testing Library.
 
+\- Run lint and test stages prior to commiting code.
 
 
 6\. \*\*AI Behavior Rules\*\*
@@ -124,5 +125,3 @@ main.tsx
 
 \- Redundant or duplicated logic in components.
 
-
-8. When committing messages, create a commit message file and use that to save the commit message which gets applied in GIT. Remove the commit message once completed.

@@ -57,87 +57,49 @@ const ToolbarComponent: React.FC = () => {
     <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0' }}>
       <Toolbar variant="dense">
         <Tooltip title="New Diagram">
-          <IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button">
+          <IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button" sx={{ borderRadius: 0 }}>
             <NoteAdd />
           </IconButton>
         </Tooltip>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Undo">
-          <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0}>
-            <Undo />
-          </IconButton>
+          <span>
+            <IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0} sx={{ borderRadius: 0 }}>
+              <Undo />
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip title="Redo">
-          <IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0}>
-            <Redo />
-          </IconButton>
+          <span>
+            <IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0} sx={{ borderRadius: 0 }}>
+              <Redo />
+            </IconButton>
+          </span>
         </Tooltip>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Cut">
-          <IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0}>
-            <ContentCut />
-          </IconButton>
+          <span>
+            <IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0} sx={{ borderRadius: 0 }}>
+              <ContentCut />
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip title="Copy">
-          <IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0}>
-            <ContentCopy />
-          </IconButton>
+          <span>
+            <IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0} sx={{ borderRadius: 0 }}>
+              <ContentCopy />
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip title="Paste">
-          <IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
-            <ContentPaste />
-          </IconButton>
+          <span>
+            <IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0} sx={{ borderRadius: 0 }}>
+              <ContentPaste />
+            </IconButton>
+          </span>
         </Tooltip>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <Tooltip title="Bold">
-          <IconButton sx={{ bgcolor: isBoldActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}>
-            <FormatBold />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Italic">
-          <IconButton sx={{ bgcolor: isItalicActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}>
-            <FormatItalic />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Underline">
-          <IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}>
-            <FormatUnderlined />
-          </IconButton>
-        </Tooltip>
-        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <Tooltip title="Align Top">
-          <IconButton sx={{ bgcolor: isVerticalAlignTopActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setVerticalAlign('top')} data-testid="align-top-button" disabled={!hasSelectedShapes}>
-            <VerticalAlignTop />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Align Middle">
-          <IconButton sx={{ bgcolor: isVerticalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setVerticalAlign('middle')} data-testid="align-middle-button" disabled={!hasSelectedShapes}>
-            <VerticalAlignCenter />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Align Bottom">
-          <IconButton sx={{ bgcolor: isVerticalAlignBottomActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setVerticalAlign('bottom')} data-testid="align-bottom-button" disabled={!hasSelectedShapes}>
-            <VerticalAlignBottom />
-          </IconButton>
-        </Tooltip>
-        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <Tooltip title="Align Left">
-          <IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}>
-            <AlignHorizontalLeft />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Align Center">
-          <IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}>
-            <AlignHorizontalCenter />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Align Right">
-          <IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit' }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}>
-            <AlignHorizontalRight />
-          </IconButton>
-        </Tooltip>
-        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-        <FormControl sx={{ m: 1, minWidth: 80 }} size="small">
+        <FormControl sx={{ m: 1, minWidth: 40 }} size="small">
           <Select
             labelId="font-select-label"
             id="font-select"
@@ -154,7 +116,7 @@ const ToolbarComponent: React.FC = () => {
             ))}
           </Select>
         </FormControl>
-        <FormControl sx={{ m: 1, minWidth: 60 }} size="small">
+        <FormControl sx={{ m: 1, minWidth: 40 }} size="small">
           <Select
             labelId="font-size-select-label"
             id="font-size-select"
@@ -171,6 +133,73 @@ const ToolbarComponent: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <Tooltip title="Bold">
+          <span>
+            <IconButton sx={{ bgcolor: isBoldActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}>
+              <FormatBold />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Italic">
+          <span>
+            <IconButton sx={{ bgcolor: isItalicActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}>
+              <FormatItalic />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Underline">
+          <span>
+            <IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}>
+              <FormatUnderlined />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <Tooltip title="Align Top">
+          <span>
+            <IconButton sx={{ bgcolor: isVerticalAlignTopActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('top')} data-testid="align-top-button" disabled={!hasSelectedShapes}>
+              <VerticalAlignTop />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Align Middle">
+          <span>
+            <IconButton sx={{ bgcolor: isVerticalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('middle')} data-testid="align-middle-button" disabled={!hasSelectedShapes}>
+              <VerticalAlignCenter />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Align Bottom">
+          <span>
+            <IconButton sx={{ bgcolor: isVerticalAlignBottomActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('bottom')} data-testid="align-bottom-button" disabled={!hasSelectedShapes}>
+              <VerticalAlignBottom />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+        <Tooltip title="Align Left">
+          <span>
+            <IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}>
+              <AlignHorizontalLeft />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Align Center">
+          <span>
+            <IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}>
+              <AlignHorizontalCenter />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Align Right">
+          <span>
+            <IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}>
+              <AlignHorizontalRight />
+            </IconButton>
+          </span>
+        </Tooltip>
+
       </Toolbar>
     </AppBar>
   );
