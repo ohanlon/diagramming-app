@@ -224,8 +224,6 @@ const TextResizer: React.FC<TextResizerProps> = ({
           overflow: 'hidden',
           height: '100%',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           fontWeight: isBold ? 'bold' : 'normal',
           fontStyle: isItalic ? 'italic' : 'normal',
           textDecoration: isUnderlined ? 'underline' : 'none',

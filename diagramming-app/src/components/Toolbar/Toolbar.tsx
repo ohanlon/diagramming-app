@@ -4,7 +4,7 @@ import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatIt
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const googleFonts = [
-  { name: 'Open Sans (Default)', value: 'Open Sans' },
+  { name: 'Open Sans', value: 'Open Sans' },
   { name: 'Roboto', value: 'Roboto' },
   { name: 'Lato', value: 'Lato' },
   { name: 'Montserrat', value: 'Montserrat' },
@@ -55,7 +55,7 @@ const ToolbarComponent: React.FC = () => {
 
   return (
     <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0' }}>
-      <Toolbar variant="dense">
+      <Toolbar variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }}>
         <Tooltip title="New Diagram">
           <IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button" sx={{ borderRadius: 0 }}>
             <NoteAdd />
