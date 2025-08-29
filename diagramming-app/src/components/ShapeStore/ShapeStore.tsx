@@ -19,7 +19,7 @@ const ShapeStore: React.FC = () => {
     const fetchShapes = async () => {
       const fetchedCategories: Category[] = [];
       const categoryName = 'AWS Database';
-      const categoryPath = '/shapes/aws-database';
+      const categoryPath = '/shapes/aws/aws-database';
 
       try {
         const jsonResponse = await fetch(`${categoryPath}/shapes.json`);
