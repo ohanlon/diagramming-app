@@ -199,7 +199,7 @@ const ToolbarComponent: React.FC = () => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <ColorPicker selectedColor={activeSheet.selectedTextColor} onColorSelect={handleColorSelect} />
+          <ColorPicker selectedColor={activeSheet.selectedTextColor} onColorSelect={handleColorSelect} selectedShapes={selectedShapes} />
         </Menu>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Align Top">

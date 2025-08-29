@@ -209,7 +209,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
       className={`text-resizer-foreign-object ${isSelected && isInteractive ? 'selected' : ''} ${isDraggingText ? 'dragging' : ''} ${isResizingText ? 'resizing' : ''}`}
       onMouseDown={handleDragMouseDown}
       onDoubleClick={handleDoubleClick}
-      style={{ cursor: isInteractive ? (isDraggingText ? 'grabbing' : 'grab') : 'default' }}
+      style={{ cursor: isInteractive ? (isDraggingText ? 'grabbing' : 'grab') : 'default', pointerEvents: isSelected ? 'auto' : 'none' }}
     >
       <div
         className="text-content"
@@ -232,6 +232,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
           alignItems: verticalAlign === 'top' ? 'flex-start' : verticalAlign === 'middle' ? 'center' : 'flex-end',
           justifyContent: horizontalAlign === 'left' ? 'flex-start' : horizontalAlign === 'center' ? 'center' : 'flex-end',
           color: textColor,
+          pointerEvents: isSelected ? 'auto' : 'none',
         }}
       >
         {text}
