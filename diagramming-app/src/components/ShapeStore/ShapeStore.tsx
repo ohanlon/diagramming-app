@@ -4,6 +4,7 @@ import { Box, Typography, Grid, Card, Tooltip } from '@mui/material';
 interface Shape {
   title: string;
   shape: string;
+  textPosition: 'inside' | 'outside';
 }
 
 interface Category {
@@ -22,7 +23,7 @@ const ShapeStore: React.FC = () => {
 
       try {
         const jsonResponse = await fetch(`${categoryPath}/shapes.json`);
-        const shapesData: { title: string; path: string }[] = await jsonResponse.json();
+        const shapesData: { title: string; path: string; textPosition: 'inside' | 'outside' }[] = await jsonResponse.json();
 
         const flowchartShapes: Shape[] = [];
         for (const shapeData of shapesData) {
@@ -42,6 +43,7 @@ const ShapeStore: React.FC = () => {
           flowchartShapes.push({
             title: shapeData.title,
             shape: svgContent,
+            textPosition: shapeData.textPosition,
           });
         }
 
@@ -80,6 +82,7 @@ const ShapeStore: React.FC = () => {
                     onDragStart={(e) => {
                       e.dataTransfer.setData('shapeType', shape.title);
                       e.dataTransfer.setData('svgContent', shape.shape);
+                      e.dataTransfer.setData('textPosition', shape.textPosition);
                     }}
                     sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     data-testid={shape.title}

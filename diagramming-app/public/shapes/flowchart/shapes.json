@@ -1,50 +1,62 @@
 [
   {
     "title": "Start",
-    "path": "/shapes/flowchart/start.svg"
+    "path": "/shapes/flowchart/start.svg",
+    "textPosition": "inside"
   },
   {
     "title": "End",
-    "path": "/shapes/flowchart/end.svg"
+    "path": "/shapes/flowchart/end.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Process",
-    "path": "/shapes/flowchart/process.svg"
+    "path": "/shapes/flowchart/process.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Decision",
-    "path": "/shapes/flowchart/decision.svg"
+    "path": "/shapes/flowchart/decision.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Input/Output",
-    "path": "/shapes/flowchart/input-output.svg"
+    "path": "/shapes/flowchart/input-output.svg",
+    "textPosition": "inside"
   },
   {
     "title": "+",
-    "path": "/shapes/flowchart/plus.svg"
+    "path": "/shapes/flowchart/plus.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Subroutine",
-    "path": "/shapes/flowchart/subroutine.svg"
+    "path": "/shapes/flowchart/subroutine.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Terminator",
-    "path": "/shapes/flowchart/terminator.svg"
+    "path": "/shapes/flowchart/terminator.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Data",
-    "path": "/shapes/flowchart/data.svg"
+    "path": "/shapes/flowchart/data.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Delay",
-    "path": "/shapes/flowchart/delay.svg"
+    "path": "/shapes/flowchart/delay.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Manual Operation",
-    "path": "/shapes/flowchart/manual-operation.svg"
+    "path": "/shapes/flowchart/manual-operation.svg",
+    "textPosition": "inside"
   },
   {
     "title": "Initialization",
-    "path": "/shapes/flowchart/initialization.svg"
+    "path": "/shapes/flowchart/initialization.svg",
+    "textPosition": "inside"
   }
 ]

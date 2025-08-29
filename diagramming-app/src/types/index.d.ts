@@ -1,4 +1,3 @@
-
 export type Point = {
   x: number;
   y: number;
@@ -38,6 +37,7 @@ export type Shape = {
   isUnderlined?: boolean;
   verticalAlign?: 'top' | 'middle' | 'bottom';
   horizontalAlign?: 'left' | 'center' | 'right';
+  textPosition?: 'inside' | 'outside';
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';

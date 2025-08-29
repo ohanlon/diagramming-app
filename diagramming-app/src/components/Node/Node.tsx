@@ -14,7 +14,7 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, textOffsetX = 0, textOffsetY = height + 5, textWidth = width, textHeight = 20, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center' } = shape;
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside' } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
@@ -22,8 +22,12 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const [resizeHandleType, setResizeHandleType] = useState<string | null>(null);
   const initialMousePos = useRef({ x: 0, y: 0 });
   const initialResizeStates = useRef<{ [key: string]: { x: number; y: number; width: number; height: number } }>({});
-  
-  
+
+  const textOffsetY = textPosition === 'outside' ? height + 5 : 0;
+  const textOffsetX = 0;
+  const textWidth = textPosition === 'inside' ? width : shape.textWidth;
+  const textHeight = textPosition === 'inside' ? height : shape.textHeight;
+
 
   const handleResizeMouseMove = useCallback((e: MouseEvent) => {
     if (!isResizing || !activeSheet) return;
@@ -209,19 +213,6 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   };
 
   const renderShape = () => {
-    if (svgContent) {
-      const scaledSvgContent = svgContent.replace(
-        /<svg([^>]*)>/,
-        '<svg$1 width="100%" height="100%">'
-      );
-
-      return (
-        <foreignObject x={0} y={0} width={width} height={height}>
-          <div dangerouslySetInnerHTML={{ __html: scaledSvgContent }} style={{ width: '100%', height: '100%' }} />
-        </foreignObject>
-      );
-    }
-
     const commonProps = {
       x: 0,
       y: 0,
@@ -231,30 +222,100 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       stroke: isSelected ? 'blue' : 'black',
       strokeWidth: isSelected ? 2 : 1,
     };
-
+  
+    const getAlignmentStyles = () => {
+      const styles: React.CSSProperties = {
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        wordBreak: 'break-word',
+        padding: '5px',
+        boxSizing: 'border-box',
+      };
+  
+      switch (verticalAlign) {
+        case 'top':
+          styles.alignItems = 'flex-start';
+          break;
+        case 'middle':
+          styles.alignItems = 'center';
+          break;
+        case 'bottom':
+          styles.alignItems = 'flex-end';
+          break;
+      }
+  
+      switch (horizontalAlign) {
+        case 'left':
+          styles.justifyContent = 'flex-start';
+          styles.textAlign = 'left';
+          break;
+        case 'center':
+          styles.justifyContent = 'center';
+          styles.textAlign = 'center';
+          break;
+        case 'right':
+          styles.justifyContent = 'flex-end';
+          styles.textAlign = 'right';
+          break;
+      }
+  
+      return styles;
+    };
+  
+    const textElement = text && textPosition === 'inside' && (
+      <foreignObject x={0} y={0} width={width} height={height}>
+        <div style={getAlignmentStyles()}>
+          {text}
+        </div>
+      </foreignObject>
+    );
+  
+    if (svgContent) {
+      const scaledSvgContent = svgContent.replace(
+        /<svg([^>]*)>/,
+        `<svg$1 width="100%" height="100%">`
+      );
+  
+      return (
+        <>
+          <foreignObject x={0} y={0} width={width} height={height}>
+            <div dangerouslySetInnerHTML={{ __html: scaledSvgContent }} style={{ width: '100%', height: '100%' }} />
+          </foreignObject>
+          {textElement}
+        </>
+      );
+    }
+  
     switch (type) {
       case 'rectangle':
-        return <rect {...commonProps} rx={5} ry={5} />;
+        return <><rect {...commonProps} rx={5} ry={5} />{textElement}</>;
       case 'circle':
         return (
-          <circle
-            cx={width / 2}
-            cy={height / 2}
-            r={Math.min(width, height) / 2}
-            {...commonProps}
-          />
+          <>
+            <circle
+              cx={width / 2}
+              cy={height / 2}
+              r={Math.min(width, height) / 2}
+              {...commonProps}
+            />
+            {textElement}
+          </>
         );
       case 'diamond':
         return (
-          <polygon
-            points={`
-              ${width / 2},0
-              ${width},${height / 2}
-              ${width / 2},${height}
-              0,${height / 2}
-            `}
-            {...commonProps}
-          />
+          <>
+            <polygon
+              points={`
+                ${width / 2},0
+                ${width},${height / 2}
+                ${width / 2},${height}
+                0,${height / 2}
+              `}
+              {...commonProps}
+            />
+            {textElement}
+          </>
         );
       case 'text':
         return <rect {...commonProps} fill="none" stroke="none" />;
@@ -285,7 +346,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
 
       
 
-      {text && textOffsetX !== undefined && textOffsetY !== undefined && textWidth !== undefined && textHeight !== undefined && (
+      {text && textPosition === 'outside' && textOffsetX !== undefined && textOffsetY !== undefined && textWidth !== undefined && textHeight !== undefined && (
         <TextResizer
           shapeId={id}
           text={text}

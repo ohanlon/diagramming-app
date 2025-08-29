@@ -12,6 +12,27 @@ const googleFonts = [
   { name: 'Playfair Display', value: 'Playfair Display' },
   { name: 'Arial', value: 'Arial' },
   { name: 'Verdana', value: 'Verdana' },
+  { name: 'Alex Brush', value: 'Alex Brush' },
+  { name: 'Pacifico', value: 'Pacifico' },
+  { name: 'Indie Flower', value: 'Indie Flower' },
+  { name: 'Dancing Script', value: 'Dancing Script' },
+  { name: 'Great Vibes', value: 'Great Vibes' },
+  { name: 'Caveat', value: 'Caveat' },
+  { name: 'Satisfy', value: 'Satisfy' },
+  { name: 'Cookie', value: 'Cookie' },
+  { name: 'Lobster', value: 'Lobster' },
+  { name: 'Kaushan Script', value: 'Kaushan Script' },
+  { name: 'Allura', value: 'Allura' },
+  { name: 'Sacramento', value: 'Sacramento' },
+  { name: 'Yellowtail', value: 'Yellowtail' },
+  { name: 'Abhaya Libre', value: 'Abhaya Libre' },
+  { name: 'Merriweather', value: 'Merriweather' },
+  { name: 'Crimson Text', value: 'Crimson Text' },
+  { name: 'Aboreto', value: 'Aboreto' },
+  { name: 'Alegreya', value: 'Alegreya' },
+  { name: 'Bitter', value: 'Bitter' },
+  { name: 'Cardo', value: 'Cardo' },
+  { name: 'Cormorant Garamond', value: 'Cormorant Garamond' },
 ];
 
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
@@ -43,15 +64,7 @@ const ToolbarComponent: React.FC = () => {
     setSelectedFontSize(Number(event.target.value));
   };
 
-  const handleTextAlignChange = (event: SelectChangeEvent<string>) => {
-    setTextAlign(event.target.value as string);
-  };
-
-  const currentTextAlign = hasSelectedShapes
-    ? (selectedShapes.every(shape => shape.textAlign === selectedShapes[0].textAlign)
-      ? selectedShapes[0].textAlign
-      : '')
-    : '';
+  
 
   return (
     <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0' }}>
