@@ -14,7 +14,7 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside' } = shape;
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
@@ -231,6 +231,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         wordBreak: 'break-word',
         padding: '5px',
         boxSizing: 'border-box',
+        color: textColor,
       };
   
       switch (verticalAlign) {
@@ -365,6 +366,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           isUnderlined={isUnderlined}
           verticalAlign={verticalAlign}
           horizontalAlign={horizontalAlign}
+          textColor={textColor}
         />
       )}
 

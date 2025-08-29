@@ -65,6 +65,7 @@ interface DiagramStoreActions {
   resetStore: () => void;
   setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
   setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
+  setSelectedTextColor: (color: string) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -94,6 +95,7 @@ const initialState: DiagramState = {
       clipboard: null,
       selectedFont: 'Open Sans',
       selectedFontSize: 10, // Default font size
+      selectedTextColor: '#000000',
     },
   },
   activeSheetId: defaultSheetId,
@@ -131,7 +133,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.textPosition === 'inside' ? 0 : shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center' },
+                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.textPosition === 'inside' ? 0 : shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor },
                 },
                 shapeIds: [...activeSheet.shapeIds, shape.id],
                 selectedShapeIds: [shape.id],
@@ -1241,6 +1243,33 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               ...state.sheets,
               [state.activeSheetId]: {
                 ...activeSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedTextColor: (color) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, textColor: color };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                selectedTextColor: color,
                 shapesById: newShapesById,
               },
             },

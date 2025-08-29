@@ -1,7 +1,8 @@
-import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider, Menu, Box } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import React from 'react';
 
 const googleFonts = [
   { name: 'Open Sans', value: 'Open Sans' },
@@ -37,9 +38,26 @@ const googleFonts = [
 
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
+const colors = ['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleColorSelect = (color: string) => {
+    setSelectedTextColor(color);
+    handleClose();
+  };
 
   const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
   const hasSelectedShapes = selectedShapes.length > 0;
@@ -168,6 +186,27 @@ const ToolbarComponent: React.FC = () => {
             </IconButton>
           </span>
         </Tooltip>
+        <Tooltip title="Text Color">
+          <IconButton
+            onClick={handleClick}
+            sx={{ color: 'inherit', borderRadius: 0 }}
+          >
+            <FormatColorTextOutlined />
+          </IconButton>
+        </Tooltip>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', width: 120 }}>
+            {colors.map((color) => (
+              <MenuItem key={color} onClick={() => handleColorSelect(color)} sx={{ p: 0 }}>
+                <Box sx={{ width: 20, height: 20, backgroundColor: color, m: 0.5, border: '1px solid #ccc' }} />
+              </MenuItem>
+            ))}
+          </Box>
+        </Menu>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Align Top">
           <span>

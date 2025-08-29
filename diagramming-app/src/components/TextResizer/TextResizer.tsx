@@ -20,6 +20,7 @@ interface TextResizerProps {
   isUnderlined?: boolean;
   verticalAlign?: 'top' | 'middle' | 'bottom';
   horizontalAlign?: 'left' | 'center' | 'right';
+  textColor?: string;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -39,6 +40,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
   isUnderlined,
   verticalAlign,
   horizontalAlign,
+  textColor,
 }) => {
   const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText } = useDiagramStore();
   const [currentTextOffsetX, setCurrentTextOffsetX] = useState(initialTextOffsetX);
@@ -229,6 +231,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
           textDecoration: isUnderlined ? 'underline' : 'none',
           alignItems: verticalAlign === 'top' ? 'flex-start' : verticalAlign === 'middle' ? 'center' : 'flex-end',
           justifyContent: horizontalAlign === 'left' ? 'flex-start' : horizontalAlign === 'center' ? 'center' : 'flex-end',
+          color: textColor,
         }}
       >
         {text}

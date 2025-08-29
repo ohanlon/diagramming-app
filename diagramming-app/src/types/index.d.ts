@@ -38,6 +38,7 @@ export type Shape = {
   verticalAlign?: 'top' | 'middle' | 'bottom';
   horizontalAlign?: 'left' | 'center' | 'right';
   textPosition?: 'inside' | 'outside';
+  textColor?: string;
 };
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
@@ -65,6 +66,7 @@ export type Sheet = {
   clipboard: Shape[] | null;
   selectedFont: string; // New: The currently selected font for this sheet
   selectedFontSize: number; // New: The currently selected font size for this sheet
+  selectedTextColor: string;
 };
 
 export type DiagramState = {
