@@ -23,8 +23,8 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const initialMousePos = useRef({ x: 0, y: 0 });
   const initialResizeStates = useRef<{ [key: string]: { x: number; y: number; width: number; height: number } }>({});
 
-  const textOffsetY = textPosition === 'outside' ? height + 5 : 0;
-  const textOffsetX = 0;
+  const textOffsetX = textPosition === 'inside' ? 0 : shape.textOffsetX;
+  const textOffsetY = textPosition === 'inside' ? 0 : shape.textOffsetY;
   const textWidth = textPosition === 'inside' ? width : shape.textWidth;
   const textHeight = textPosition === 'inside' ? height : shape.textHeight;
 
@@ -223,55 +223,6 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       strokeWidth: isSelected ? 2 : 1,
     };
   
-    const getAlignmentStyles = () => {
-      const styles: React.CSSProperties = {
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-        wordBreak: 'break-word',
-        padding: '5px',
-        boxSizing: 'border-box',
-        color: textColor,
-      };
-  
-      switch (verticalAlign) {
-        case 'top':
-          styles.alignItems = 'flex-start';
-          break;
-        case 'middle':
-          styles.alignItems = 'center';
-          break;
-        case 'bottom':
-          styles.alignItems = 'flex-end';
-          break;
-      }
-  
-      switch (horizontalAlign) {
-        case 'left':
-          styles.justifyContent = 'flex-start';
-          styles.textAlign = 'left';
-          break;
-        case 'center':
-          styles.justifyContent = 'center';
-          styles.textAlign = 'center';
-          break;
-        case 'right':
-          styles.justifyContent = 'flex-end';
-          styles.textAlign = 'right';
-          break;
-      }
-  
-      return styles;
-    };
-  
-    const textElement = text && textPosition === 'inside' && (
-      <foreignObject x={0} y={0} width={width} height={height}>
-        <div style={getAlignmentStyles()}>
-          {text}
-        </div>
-      </foreignObject>
-    );
-  
     if (svgContent) {
       const scaledSvgContent = svgContent.replace(
         /<svg([^>]*)>/,
@@ -279,44 +230,35 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       );
   
       return (
-        <>
-          <foreignObject x={0} y={0} width={width} height={height}>
-            <div dangerouslySetInnerHTML={{ __html: scaledSvgContent }} style={{ width: '100%', height: '100%' }} />
-          </foreignObject>
-          {textElement}
-        </>
+        <foreignObject x={0} y={0} width={width} height={height}>
+          <div dangerouslySetInnerHTML={{ __html: scaledSvgContent }} style={{ width: '100%', height: '100%' }} />
+        </foreignObject>
       );
     }
   
     switch (type) {
       case 'rectangle':
-        return <><rect {...commonProps} rx={5} ry={5} />{textElement}</>;
+        return <rect {...commonProps} rx={5} ry={5} />;
       case 'circle':
         return (
-          <>
-            <circle
-              cx={width / 2}
-              cy={height / 2}
-              r={Math.min(width, height) / 2}
-              {...commonProps}
-            />
-            {textElement}
-          </>
+          <circle
+            cx={width / 2}
+            cy={height / 2}
+            r={Math.min(width, height) / 2}
+            {...commonProps}
+          />
         );
       case 'diamond':
         return (
-          <>
-            <polygon
-              points={`
-                ${width / 2},0
-                ${width},${height / 2}
-                ${width / 2},${height}
-                0,${height / 2}
-              `}
-              {...commonProps}
-            />
-            {textElement}
-          </>
+          <polygon
+            points={`
+              ${width / 2},0
+              ${width},${height / 2}
+              ${width / 2},${height}
+              0,${height / 2}
+            `}
+            {...commonProps}
+          />
         );
       case 'text':
         return <rect {...commonProps} fill="none" stroke="none" />;
@@ -347,7 +289,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
 
       
 
-      {text && textPosition === 'outside' && textOffsetX !== undefined && textOffsetY !== undefined && textWidth !== undefined && textHeight !== undefined && (
+      {text && (
         <TextResizer
           shapeId={id}
           text={text}

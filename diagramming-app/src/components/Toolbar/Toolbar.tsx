@@ -38,7 +38,7 @@ const googleFonts = [
 
 const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
 
-const colors = ['#FFFFFF', '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+import ColorPicker from '../ColorPicker/ColorPicker';
 
 const ToolbarComponent: React.FC = () => {
   const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor } = useDiagramStore();
@@ -82,7 +82,7 @@ const ToolbarComponent: React.FC = () => {
     setSelectedFontSize(Number(event.target.value));
   };
 
-  
+
 
   return (
     <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0' }}>
@@ -199,13 +199,7 @@ const ToolbarComponent: React.FC = () => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', width: 120 }}>
-            {colors.map((color) => (
-              <MenuItem key={color} onClick={() => handleColorSelect(color)} sx={{ p: 0 }}>
-                <Box sx={{ width: 20, height: 20, backgroundColor: color, m: 0.5, border: '1px solid #ccc' }} />
-              </MenuItem>
-            ))}
-          </Box>
+          <ColorPicker selectedColor={activeSheet.selectedTextColor} onColorSelect={handleColorSelect} />
         </Menu>
         <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
         <Tooltip title="Align Top">
