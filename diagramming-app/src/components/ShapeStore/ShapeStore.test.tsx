@@ -3,8 +3,8 @@ import ShapeStore from './ShapeStore';
 
 // Mock fetch API
 const mockShapesData = [
-  { title: 'Aurora', path: '/shapes/aws/aws-database/aurora.svg' },
-  { title: 'DynamoDB', path: '/shapes/aws/aws-database/dynamodb.svg' },
+  { title: 'Aurora', path: '/shapes/aws/database/aurora.svg' },
+  { title: 'DynamoDB', path: '/shapes/aws/database/dynamodb.svg' },
 ];
 
 const mockSvgContent = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>';

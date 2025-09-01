@@ -2,67 +2,67 @@
     {
         "id": "6dd2a02e-95f1-4867-90f3-cdb197e33979",
         "title": "Amazon Aurora",
-        "path": "/shapes/aws/aws-database/aurora.svg",
+        "path": "/shapes/aws/database/aurora.svg",
         "textPosition": "inside"
     },
     {
         "id": "86afe37f-a4b5-4ed4-885f-bd6ec91165c6",
         "title": "AWS Database Migration",
-        "path": "/shapes/aws/aws-database/migration.svg",
+        "path": "/shapes/aws/database/migration.svg",
         "textPosition": "outside"
     },
     {
         "id": "fb020832-1902-48f4-b862-2f1c9936dc88",
         "title": "Amazon DocumentDB",
-        "path": "/shapes/aws/aws-database/documentdb.svg",
+        "path": "/shapes/aws/database/documentdb.svg",
         "textPosition": "outside"
     },
     {
         "id": "888b356d-7ccb-4c74-9859-02ef511923ed",
         "title": "Amazon DynamoDB",
-        "path": "/shapes/aws/aws-database/dynamodb.svg",
+        "path": "/shapes/aws/database/dynamodb.svg",
         "textPosition": "outside"
     },
     {
         "id": "6de207ff-8e65-4fd2-bef6-03894b5567b5",
         "title": "Amazon ElastiCache",
-        "path": "/shapes/aws/aws-database/elasticache.svg",
+        "path": "/shapes/aws/database/elasticache.svg",
         "textPosition": "outside"
     },
     {
         "id": "90ead8d5-0da7-440a-a37a-c3c35fc63eb6",
         "title": "Amazon MemoryDB for Redis",
-        "path": "/shapes/aws/aws-database/memorydb.svg",
+        "path": "/shapes/aws/database/memorydb.svg",
         "textPosition": "outside"
     },
     {
         "id": "46368c7b-a8ae-4e91-a034-a74dcf90a856",
         "title": "Amazon Neptune",
-        "path": "/shapes/aws/aws-database/neptune.svg",
+        "path": "/shapes/aws/database/neptune.svg",
         "textPosition": "outside"
     },
     {
         "id": "93127d24-b782-4035-90df-8f20f776b2ff",
         "title": "Amazon Keyspaces",
-        "path": "/shapes/aws/aws-database/keyspaces.svg",
+        "path": "/shapes/aws/database/keyspaces.svg",
         "textPosition": "outside"
     },
     {
         "id": "632989a5-d2d5-4da7-8984-21668cd96db4",
         "title": "Amazon RDS",
-        "path": "/shapes/aws/aws-database/rds.svg",
+        "path": "/shapes/aws/database/rds.svg",
         "textPosition": "outside"
     },
     {
         "id": "06dff161-9896-4aa7-bfb4-1c4e1a81400c",
         "title": "Amazon RDS on VMware",
-        "path": "/shapes/aws/aws-database/rds-on-vmware.svg",
+        "path": "/shapes/aws/database/rds-on-vmware.svg",
         "textPosition": "outside"
     },
     {
         "id": "44664acd-093a-4aaa-9d15-41a24ac9b0e3",
         "title": "Amazon Timestream",
-        "path": "/shapes/aws/aws-database/timestream.svg",
+        "path": "/shapes/aws/database/timestream.svg",
         "textPosition": "outside"
     }
 ]
