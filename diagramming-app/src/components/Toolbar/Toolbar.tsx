@@ -85,7 +85,7 @@ const ToolbarComponent: React.FC = () => {
 
 
   return (
-    <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0' }}>
+    <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
       <Toolbar variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }}>
         <Tooltip title="New Diagram">
           <IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button" sx={{ borderRadius: 0 }}>
