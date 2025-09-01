@@ -10,7 +10,7 @@ import { calculateBezierPath } from '../../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, toggleShapeSelection, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -284,43 +284,40 @@ const Canvas: React.FC = () => {
     e.preventDefault();
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const targetElement = e.target as SVGElement;
-    const targetNodeG = targetElement.closest('g[data-node-id]');
+  const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
+    const shape = activeSheet.shapesById[nodeId];
+    const layer = activeSheet.layers[shape.layerId];
+    if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
+      setIsMouseDownOnShape(nodeId);
+      const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
+      const mouseY = (e.clientY - svgRef.current!.getBoundingClientRect().top - activeSheet.pan.y) / activeSheet.zoom;
+      setMouseDownPos({ x: mouseX, y: mouseY });
 
-    const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
-    const mouseY = (e.clientY - svgRef.current!.getBoundingClientRect().top - activeSheet.pan.y) / activeSheet.zoom;
+      const isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
+      const isSelected = activeSheet.selectedShapeIds.includes(nodeId);
 
-    if (targetNodeG) {
-      const nodeId = targetNodeG.getAttribute('data-node-id');
-      if (nodeId) {
-        const shape = activeSheet.shapesById[nodeId];
-        const layer = activeSheet.layers[shape.layerId];
-        if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
-          setIsMouseDownOnShape(nodeId);
-          setMouseDownPos({ x: mouseX, y: mouseY });
-
-          if (e.shiftKey) {
-            toggleShapeSelection(nodeId);
-          } else {
-            if (!activeSheet.selectedShapeIds.includes(nodeId)) {
-              setSelectedShapes([nodeId]);
-              setInitialDragPositions({ [nodeId]: { x: shape.x, y: shape.y } });
-            } else {
-                const initialPositions = selectedShapeIds.reduce((acc, id) => {
-                    const s = shapesById[id];
-                    if(s) acc[id] = { x: s.x, y: s.y };
-                    return acc;
-                }, {} as { [shapeId: string]: Point });
-                setInitialDragPositions(initialPositions);
-            }
-          }
-          setIsPanning(false);
-        } else {
-          setSelectedShapes([]);
-        }
+      let nextSelectedIds;
+      if (isMultiSelect) {
+        nextSelectedIds = isSelected
+          ? activeSheet.selectedShapeIds.filter((id) => id !== nodeId)
+          : [...activeSheet.selectedShapeIds, nodeId];
+      } else {
+        nextSelectedIds = [nodeId];
       }
-    } else if (e.target === svgRef.current) {
+
+      const initialPositions = nextSelectedIds.reduce((acc, id) => {
+        const s = shapesById[id];
+        if (s) acc[id] = { x: s.x, y: s.y };
+        return acc;
+      }, {} as { [shapeId: string]: Point });
+      setInitialDragPositions(initialPositions);
+
+      setIsPanning(false);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === svgRef.current) {
       setIsSelecting(true);
       const svgRect = svgRef.current?.getBoundingClientRect();
       if (!svgRect) return;
@@ -384,7 +381,7 @@ const Canvas: React.FC = () => {
       >
         <g transform={`translate(${activeSheet.pan.x}, ${activeSheet.pan.y}) scale(${activeSheet.zoom})`}>
           {visibleShapes.map((shape) => (
-            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} />
+            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
           ))}
           {visibleConnectors.map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} />

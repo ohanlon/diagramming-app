@@ -11,9 +11,10 @@ interface NodeProps {
   isSelected: boolean;
   onConnectorStart: (nodeId: string, point: Point, anchorType: AnchorType) => void;
   onContextMenu: (e: React.MouseEvent, id: string) => void;
+  onNodeMouseDown: (e: React.MouseEvent, id: string) => void;
 }
 
-const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu }) => {
+const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu, onNodeMouseDown }) => {
   const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
@@ -164,6 +165,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isInteractive) return;
+    e.stopPropagation();
 
     // Check if the click originated from the TextResizer
     const target = e.target as HTMLElement;
@@ -181,6 +183,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       setSelectedShapes([id]);
     }
     updateShapeIsTextSelected(id, false); // Deselect text when shape is clicked
+    onNodeMouseDown(e, id);
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, type: string) => {
