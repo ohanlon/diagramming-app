@@ -174,13 +174,15 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       return;
     }
 
+    const isSelected = activeSheet.selectedShapeIds.includes(id);
+
     // If not clicking on text, proceed with shape selection
-    if (e.ctrlKey || e.metaKey) { // Check for Ctrl or Cmd key
-      toggleShapeSelection(id);
-    } else if (e.shiftKey) { // Existing shift key logic
+    if (e.ctrlKey || e.metaKey || e.shiftKey) { // Check for Ctrl or Cmd key
       toggleShapeSelection(id);
     } else {
-      setSelectedShapes([id]);
+      if (!isSelected) {
+        setSelectedShapes([id]);
+      }
     }
     updateShapeIsTextSelected(id, false); // Deselect text when shape is clicked
     onNodeMouseDown(e, id);

@@ -302,7 +302,11 @@ const Canvas: React.FC = () => {
           ? activeSheet.selectedShapeIds.filter((id) => id !== nodeId)
           : [...activeSheet.selectedShapeIds, nodeId];
       } else {
-        nextSelectedIds = [nodeId];
+        if (!isSelected) {
+          nextSelectedIds = [nodeId];
+        } else {
+          nextSelectedIds = activeSheet.selectedShapeIds;
+        }
       }
 
       const initialPositions = nextSelectedIds.reduce((acc, id) => {
