@@ -174,7 +174,7 @@ const ToolbarComponent: React.FC = () => {
   return (
     <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
       <Toolbar variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }} ref={toolbarRef}>
-        {visibleTools.map(tool => tool.element)}
+        {visibleTools.map(tool => <React.Fragment key={tool.id}>{tool.element}</React.Fragment>)}
         {hiddenTools.length > 0 && (
           <>
             <Tooltip title="More tools">

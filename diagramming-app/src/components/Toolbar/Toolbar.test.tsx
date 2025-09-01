@@ -7,8 +7,15 @@ jest.mock('../../store/useDiagramStore', () => ({
   useDiagramStore: jest.fn(),
 }));
 
+interface MockResizeObserverInstance {
+  observe: jest.Mock;
+  unobserve: jest.Mock;
+  disconnect: jest.Mock;
+  _callback: (entries: { contentRect: { width: number }; target: Element }[]) => void;
+}
+
 describe('Toolbar', () => {
-  let mockResizeObserverInstance: any;
+  let mockResizeObserverInstance: MockResizeObserverInstance;
   let mockToolbarElement: HTMLDivElement; // To hold the mocked toolbar element
 
   beforeEach(() => {
