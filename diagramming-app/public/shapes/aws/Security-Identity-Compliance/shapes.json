@@ -1,0 +1,127 @@
+[
+    {
+        "title": "Artifact",
+        "path": "/shapes/aws/security-identity-compliance/Artifact.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Audit Manager",
+        "path": "/shapes/aws/security-identity-compliance/Audit-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Certificate Manager",
+        "path": "/shapes/aws/security-identity-compliance/Certificate-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud Directory",
+        "path": "/shapes/aws/security-identity-compliance/Cloud-Directory.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudHSM",
+        "path": "/shapes/aws/security-identity-compliance/CloudHSM.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cognito",
+        "path": "/shapes/aws/security-identity-compliance/Cognito.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Detective",
+        "path": "/shapes/aws/security-identity-compliance/Detective.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Directory Service",
+        "path": "/shapes/aws/security-identity-compliance/Directory-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Firewall Manager",
+        "path": "/shapes/aws/security-identity-compliance/Firewall-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "GuardDuty",
+        "path": "/shapes/aws/security-identity-compliance/GuardDuty.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IAM Identity Center",
+        "path": "/shapes/aws/security-identity-compliance/IAM-Identity-Center.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Identity and Access Management",
+        "path": "/shapes/aws/security-identity-compliance/Identity-and-Access-Management.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Inspector",
+        "path": "/shapes/aws/security-identity-compliance/Inspector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Key Management Service",
+        "path": "/shapes/aws/security-identity-compliance/Key-Management-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Macie",
+        "path": "/shapes/aws/security-identity-compliance/Macie.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Network Firewall",
+        "path": "/shapes/aws/security-identity-compliance/Network-Firewall.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Private Certificate Authority",
+        "path": "/shapes/aws/security-identity-compliance/Private-Certificate-Authority.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Resource Access Manager",
+        "path": "/shapes/aws/security-identity-compliance/Resource-Access-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Secrets Manager",
+        "path": "/shapes/aws/security-identity-compliance/Secrets-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Security Hub",
+        "path": "/shapes/aws/security-identity-compliance/Security-Hub.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Security Lake",
+        "path": "/shapes/aws/security-identity-compliance/Security-Lake.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Shield",
+        "path": "/shapes/aws/security-identity-compliance/Shield.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Signer",
+        "path": "/shapes/aws/security-identity-compliance/Signer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Verified Permissions",
+        "path": "/shapes/aws/security-identity-compliance/Verified-Permissions.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "WAF",
+        "path": "/shapes/aws/security-identity-compliance/WAF.svg",
+        "textPosition": "inside"
+    }
+]

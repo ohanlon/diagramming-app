@@ -1,0 +1,37 @@
+[
+    {
+        "title": "Application Cost Profiler",
+        "path": "/shapes/aws/cloud-financial-management/Application-Cost-Profiler.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Billing Conductor",
+        "path": "/shapes/aws/cloud-financial-management/Billing-Conductor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Budgets",
+        "path": "/shapes/aws/cloud-financial-management/Budgets.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cost and Usage Report",
+        "path": "/shapes/aws/cloud-financial-management/Cost-and-Usage-Report.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cost Explorer",
+        "path": "/shapes/aws/cloud-financial-management/Cost-Explorer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Reserved Instance Reporting",
+        "path": "/shapes/aws/cloud-financial-management/Reserved-Instance-Reporting.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Savings Plans",
+        "path": "/shapes/aws/cloud-financial-management/Savings-Plans.svg",
+        "textPosition": "inside"
+    }
+]

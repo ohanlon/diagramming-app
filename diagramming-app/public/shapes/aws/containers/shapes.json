@@ -1,0 +1,47 @@
+[
+    {
+        "title": "ECS Anywhere",
+        "path": "/shapes/aws/containers/ECS-Anywhere.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EKS Anywhere",
+        "path": "/shapes/aws/containers/EKS-Anywhere.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EKS Cloud",
+        "path": "/shapes/aws/containers/EKS-Cloud.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EKS Distro",
+        "path": "/shapes/aws/containers/EKS-Distro.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Container Registry",
+        "path": "/shapes/aws/containers/Elastic-Container-Registry.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Container Service",
+        "path": "/shapes/aws/containers/Elastic-Container-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Kubernetes Service",
+        "path": "/shapes/aws/containers/Elastic-Kubernetes-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Fargate",
+        "path": "/shapes/aws/containers/Fargate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Red Hat OpenShift Service on AWS",
+        "path": "/shapes/aws/containers/Red-Hat-OpenShift-Service-on-AWS.svg",
+        "textPosition": "inside"
+    }
+]

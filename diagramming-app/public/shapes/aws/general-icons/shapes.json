@@ -1,0 +1,12 @@
+[
+    {
+        "title": "Marketplace Dark",
+        "path": "/shapes/aws/general-icons/Marketplace_Dark.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Marketplace Light",
+        "path": "/shapes/aws/general-icons/Marketplace_Light.svg",
+        "textPosition": "inside"
+    }
+]

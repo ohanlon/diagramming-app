@@ -1,0 +1,107 @@
+[
+    {
+        "title": "Athena",
+        "path": "/shapes/aws/analytics/Athena.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Clean Rooms",
+        "path": "/shapes/aws/analytics/Clean-Rooms.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudSearch",
+        "path": "/shapes/aws/analytics/CloudSearch.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Data Exchange",
+        "path": "/shapes/aws/analytics/Data-Exchange.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Data Pipeline",
+        "path": "/shapes/aws/analytics/Data-Pipeline.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "DataZone",
+        "path": "/shapes/aws/analytics/DataZone.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EMR",
+        "path": "/shapes/aws/analytics/EMR.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "FinSpace",
+        "path": "/shapes/aws/analytics/FinSpace.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Glue DataBrew",
+        "path": "/shapes/aws/analytics/Glue-DataBrew.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Glue Elastic Views",
+        "path": "/shapes/aws/analytics/Glue-Elastic-Views.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Glue",
+        "path": "/shapes/aws/analytics/Glue.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kinesis Data Analytics",
+        "path": "/shapes/aws/analytics/Kinesis-Data-Analytics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kinesis Data Streams",
+        "path": "/shapes/aws/analytics/Kinesis-Data-Streams.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kinesis Firehose",
+        "path": "/shapes/aws/analytics/Kinesis-Firehose.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kinesis Video Streams",
+        "path": "/shapes/aws/analytics/Kinesis-Video-Streams.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kinesis",
+        "path": "/shapes/aws/analytics/Kinesis.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lake Formation",
+        "path": "/shapes/aws/analytics/Lake-Formation.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Managed Streaming for Apache Kafka",
+        "path": "/shapes/aws/analytics/Managed-Streaming-for-Apache-Kafka.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "OpenSearch Service",
+        "path": "/shapes/aws/analytics/OpenSearch-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "QuickSight",
+        "path": "/shapes/aws/analytics/QuickSight.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Redshift",
+        "path": "/shapes/aws/analytics/Redshift.svg",
+        "textPosition": "inside"
+    }
+]

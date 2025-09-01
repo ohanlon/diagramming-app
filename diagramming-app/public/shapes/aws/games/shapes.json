@@ -1,0 +1,27 @@
+[
+    {
+        "title": "GameKit",
+        "path": "/shapes/aws/games/GameKit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "GameLift",
+        "path": "/shapes/aws/games/GameLift.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "GameSparks",
+        "path": "/shapes/aws/games/GameSparks.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lumberyard",
+        "path": "/shapes/aws/games/Lumberyard.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Open 3D Engine",
+        "path": "/shapes/aws/games/Open-3D-Engine.svg",
+        "textPosition": "inside"
+    }
+]

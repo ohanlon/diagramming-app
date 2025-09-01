@@ -1,0 +1,82 @@
+[
+    {
+        "title": "FreeRTOS",
+        "path": "/shapes/aws/internet-of-things/FreeRTOS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT 1 Click",
+        "path": "/shapes/aws/internet-of-things/IoT-1-Click.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Analytics",
+        "path": "/shapes/aws/internet-of-things/IoT-Analytics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Button",
+        "path": "/shapes/aws/internet-of-things/IoT-Button.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Core",
+        "path": "/shapes/aws/internet-of-things/IoT-Core.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Device Defender",
+        "path": "/shapes/aws/internet-of-things/IoT-Device-Defender.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Device Management",
+        "path": "/shapes/aws/internet-of-things/IoT-Device-Management.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT EduKit",
+        "path": "/shapes/aws/internet-of-things/IoT-EduKit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Events",
+        "path": "/shapes/aws/internet-of-things/IoT-Events.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT ExpressLink",
+        "path": "/shapes/aws/internet-of-things/IoT-ExpressLink.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT FleetWise",
+        "path": "/shapes/aws/internet-of-things/IoT-FleetWise.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Greengrass",
+        "path": "/shapes/aws/internet-of-things/IoT-Greengrass.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT RoboRunner",
+        "path": "/shapes/aws/internet-of-things/IoT-RoboRunner.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT SiteWise",
+        "path": "/shapes/aws/internet-of-things/IoT-SiteWise.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT Things Graph",
+        "path": "/shapes/aws/internet-of-things/IoT-Things-Graph.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IoT TwinMaker",
+        "path": "/shapes/aws/internet-of-things/IoT-TwinMaker.svg",
+        "textPosition": "inside"
+    }
+]

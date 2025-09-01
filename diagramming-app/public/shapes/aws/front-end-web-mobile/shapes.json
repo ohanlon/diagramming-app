@@ -1,0 +1,17 @@
+[
+    {
+        "title": "Amplify",
+        "path": "/shapes/aws/front-end-web-mobile/Amplify.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Device Farm",
+        "path": "/shapes/aws/front-end-web-mobile/Device-Farm.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Location Service",
+        "path": "/shapes/aws/front-end-web-mobile/Location-Service.svg",
+        "textPosition": "inside"
+    }
+]

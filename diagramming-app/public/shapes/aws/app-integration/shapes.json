@@ -1,0 +1,57 @@
+[
+    {
+        "title": "API Gateway",
+        "path": "/shapes/aws/app-integration/API-Gateway.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "AppFlow",
+        "path": "/shapes/aws/app-integration/AppFlow.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "AppSync",
+        "path": "/shapes/aws/app-integration/AppSync.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Console Mobile Application",
+        "path": "/shapes/aws/app-integration/Console-Mobile-Application.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EventBridge",
+        "path": "/shapes/aws/app-integration/EventBridge.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Express Workflows",
+        "path": "/shapes/aws/app-integration/Express-Workflows.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Managed Workflows for Apache Airflow",
+        "path": "/shapes/aws/app-integration/Managed-Workflows-for-Apache-Airflow.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "MQ",
+        "path": "/shapes/aws/app-integration/MQ.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Simple Notification Service",
+        "path": "/shapes/aws/app-integration/Simple-Notification-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Simple Queue Service",
+        "path": "/shapes/aws/app-integration/Simple-Queue-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Step Functions",
+        "path": "/shapes/aws/app-integration/Step-Functions.svg",
+        "textPosition": "inside"
+    }
+]

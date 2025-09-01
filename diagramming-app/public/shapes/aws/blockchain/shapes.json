@@ -1,0 +1,12 @@
+[
+    {
+        "title": "Managed Blockchain",
+        "path": "/shapes/aws/blockchain/Managed-Blockchain.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Quantum Ledger Database",
+        "path": "/shapes/aws/blockchain/Quantum-Ledger-Database.svg",
+        "textPosition": "inside"
+    }
+]

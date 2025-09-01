@@ -1,0 +1,42 @@
+[
+    {
+        "title": "Application Discovery Service",
+        "path": "/shapes/aws/migration-transfer/Application-Discovery-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Application Migration Service",
+        "path": "/shapes/aws/migration-transfer/Application-Migration-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "DataSync",
+        "path": "/shapes/aws/migration-transfer/DataSync.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Mainframe Modernization",
+        "path": "/shapes/aws/migration-transfer/Mainframe-Modernization.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Migration Evaluator",
+        "path": "/shapes/aws/migration-transfer/Migration-Evaluator.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Migration Hub",
+        "path": "/shapes/aws/migration-transfer/Migration-Hub.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Server Migration Service",
+        "path": "/shapes/aws/migration-transfer/Server-Migration-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Transfer Family",
+        "path": "/shapes/aws/migration-transfer/Transfer-Family.svg",
+        "textPosition": "inside"
+    }
+]

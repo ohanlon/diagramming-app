@@ -1,0 +1,87 @@
+[
+    {
+        "title": "App Mesh",
+        "path": "/shapes/aws/networking-content-delivery/App-Mesh.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Client VPN",
+        "path": "/shapes/aws/networking-content-delivery/Client-VPN.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud Directory",
+        "path": "/shapes/aws/networking-content-delivery/Cloud-Directory.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud Map",
+        "path": "/shapes/aws/networking-content-delivery/Cloud-Map.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud WAN",
+        "path": "/shapes/aws/networking-content-delivery/Cloud-WAN.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudFront",
+        "path": "/shapes/aws/networking-content-delivery/CloudFront.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Direct Connect",
+        "path": "/shapes/aws/networking-content-delivery/Direct-Connect.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Load Balancing",
+        "path": "/shapes/aws/networking-content-delivery/Elastic-Load-Balancing.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Global Accelerator",
+        "path": "/shapes/aws/networking-content-delivery/Global-Accelerator.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Private 5G",
+        "path": "/shapes/aws/networking-content-delivery/Private-5G.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "PrivateLink",
+        "path": "/shapes/aws/networking-content-delivery/PrivateLink.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Route 53",
+        "path": "/shapes/aws/networking-content-delivery/Route-53.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Site to Site VPN",
+        "path": "/shapes/aws/networking-content-delivery/Site-to-Site-VPN.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Transit Gateway",
+        "path": "/shapes/aws/networking-content-delivery/Transit-Gateway.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Verified Access",
+        "path": "/shapes/aws/networking-content-delivery/Verified-Access.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Virtual Private Cloud",
+        "path": "/shapes/aws/networking-content-delivery/Virtual-Private-Cloud.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "VPC Lattice",
+        "path": "/shapes/aws/networking-content-delivery/VPC-Lattice.svg",
+        "textPosition": "inside"
+    }
+]

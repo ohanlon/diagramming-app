@@ -1,0 +1,37 @@
+[
+    {
+        "title": "Activate",
+        "path": "/shapes/aws/customer-enablement/Activate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "IQ",
+        "path": "/shapes/aws/customer-enablement/IQ.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Managed Services",
+        "path": "/shapes/aws/customer-enablement/Managed-Services.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Professional Services",
+        "path": "/shapes/aws/customer-enablement/Professional-Services.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "rePost",
+        "path": "/shapes/aws/customer-enablement/rePost.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Support",
+        "path": "/shapes/aws/customer-enablement/Support.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Training Certification",
+        "path": "/shapes/aws/customer-enablement/Training-Certification.svg",
+        "textPosition": "inside"
+    }
+]

@@ -1,0 +1,82 @@
+[
+    {
+        "title": "Elastic Transcoder",
+        "path": "/shapes/aws/media-services/Elastic-Transcoder.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental Appliances & Software",
+        "path": "/shapes/aws/media-services/Elemental-Appliances-&-Software.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental Conductor",
+        "path": "/shapes/aws/media-services/Elemental-Conductor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental Delta",
+        "path": "/shapes/aws/media-services/Elemental-Delta.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental Link",
+        "path": "/shapes/aws/media-services/Elemental-Link.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental Live",
+        "path": "/shapes/aws/media-services/Elemental-Live.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental MediaConnect",
+        "path": "/shapes/aws/media-services/Elemental-MediaConnect.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental MediaConvert",
+        "path": "/shapes/aws/media-services/Elemental-MediaConvert.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental MediaLive",
+        "path": "/shapes/aws/media-services/Elemental-MediaLive.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental MediaPackage",
+        "path": "/shapes/aws/media-services/Elemental-MediaPackage.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental MediaStore",
+        "path": "/shapes/aws/media-services/Elemental-MediaStore.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental MediaTailor",
+        "path": "/shapes/aws/media-services/Elemental-MediaTailor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elemental Server",
+        "path": "/shapes/aws/media-services/Elemental-Server.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Interactive Video Service",
+        "path": "/shapes/aws/media-services/Interactive-Video-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kinesis Video Streams",
+        "path": "/shapes/aws/media-services/Kinesis-Video-Streams.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Nimble Studio",
+        "path": "/shapes/aws/media-services/Nimble-Studio.svg",
+        "textPosition": "inside"
+    }
+]

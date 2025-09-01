@@ -1,0 +1,182 @@
+[
+    {
+        "title": "Apache MXNet on AWS",
+        "path": "/shapes/aws/machine-learning/Apache-MXNet-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Augmented AI A2I",
+        "path": "/shapes/aws/machine-learning/Augmented-AI-A2I.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeGuru",
+        "path": "/shapes/aws/machine-learning/CodeGuru.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeWhisperer",
+        "path": "/shapes/aws/machine-learning/CodeWhisperer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Comprehend Medical",
+        "path": "/shapes/aws/machine-learning/Comprehend-Medical.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Comprehend",
+        "path": "/shapes/aws/machine-learning/Comprehend.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Deep Learning AMIs",
+        "path": "/shapes/aws/machine-learning/Deep-Learning-AMIs.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Deep Learning Containers",
+        "path": "/shapes/aws/machine-learning/Deep-Learning-Containers.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "DeepComposer",
+        "path": "/shapes/aws/machine-learning/DeepComposer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "DeepLens",
+        "path": "/shapes/aws/machine-learning/DeepLens.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "DeepRacer",
+        "path": "/shapes/aws/machine-learning/DeepRacer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "DevOps Guru",
+        "path": "/shapes/aws/machine-learning/DevOps-Guru.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Inference",
+        "path": "/shapes/aws/machine-learning/Elastic-Inference.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Forecast",
+        "path": "/shapes/aws/machine-learning/Forecast.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Fraud Detector",
+        "path": "/shapes/aws/machine-learning/Fraud-Detector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "HealthLake",
+        "path": "/shapes/aws/machine-learning/HealthLake.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Kendra",
+        "path": "/shapes/aws/machine-learning/Kendra.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lex",
+        "path": "/shapes/aws/machine-learning/Lex.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lookout for Equipment",
+        "path": "/shapes/aws/machine-learning/Lookout-for-Equipment.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lookout for Metrics",
+        "path": "/shapes/aws/machine-learning/Lookout-for-Metrics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lookout for Vision",
+        "path": "/shapes/aws/machine-learning/Lookout-for-Vision.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Monitron",
+        "path": "/shapes/aws/machine-learning/Monitron.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Neuron",
+        "path": "/shapes/aws/machine-learning/Neuron.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Omics",
+        "path": "/shapes/aws/machine-learning/Omics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Panorama",
+        "path": "/shapes/aws/machine-learning/Panorama.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Personalize",
+        "path": "/shapes/aws/machine-learning/Personalize.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Polly",
+        "path": "/shapes/aws/machine-learning/Polly.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Rekognition",
+        "path": "/shapes/aws/machine-learning/Rekognition.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "SageMaker Ground Truth",
+        "path": "/shapes/aws/machine-learning/SageMaker-Ground-Truth.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "SageMaker Studio Lab",
+        "path": "/shapes/aws/machine-learning/SageMaker-Studio-Lab.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "SageMaker",
+        "path": "/shapes/aws/machine-learning/SageMaker.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "TensorFlow on AWS",
+        "path": "/shapes/aws/machine-learning/TensorFlow-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Textract",
+        "path": "/shapes/aws/machine-learning/Textract.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "TorchServe",
+        "path": "/shapes/aws/machine-learning/TorchServe.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Transcribe",
+        "path": "/shapes/aws/machine-learning/Transcribe.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Translate",
+        "path": "/shapes/aws/machine-learning/Translate.svg",
+        "textPosition": "inside"
+    }
+]

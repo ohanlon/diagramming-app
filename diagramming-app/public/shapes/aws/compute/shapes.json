@@ -1,0 +1,162 @@
+[
+    {
+        "title": "App Runner",
+        "path": "/shapes/aws/compute/App-Runner.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Application Auto Scaling",
+        "path": "/shapes/aws/compute/Application-Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Batch",
+        "path": "/shapes/aws/compute/Batch.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Bottlerocket",
+        "path": "/shapes/aws/compute/Bottlerocket.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Compute Optimizer",
+        "path": "/shapes/aws/compute/Compute-Optimizer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EC2 Auto Scaling",
+        "path": "/shapes/aws/compute/EC2-Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EC2 Image Builder",
+        "path": "/shapes/aws/compute/EC2-Image-Builder.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EC2",
+        "path": "/shapes/aws/compute/EC2.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Beanstalk",
+        "path": "/shapes/aws/compute/Elastic-Beanstalk.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Fabric Adapter",
+        "path": "/shapes/aws/compute/Elastic-Fabric-Adapter.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Fargate",
+        "path": "/shapes/aws/compute/Fargate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Genomics CLI",
+        "path": "/shapes/aws/compute/Genomics-CLI.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lambda",
+        "path": "/shapes/aws/compute/Lambda.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Lightsail",
+        "path": "/shapes/aws/compute/Lightsail.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Local Zones",
+        "path": "/shapes/aws/compute/Local-Zones.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "NICE DCV",
+        "path": "/shapes/aws/compute/NICE-DCV.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "NICE EnginFrame",
+        "path": "/shapes/aws/compute/NICE-EnginFrame.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Nitro Enclaves",
+        "path": "/shapes/aws/compute/Nitro-Enclaves.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Outposts family",
+        "path": "/shapes/aws/compute/Outposts-family.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Outposts rack",
+        "path": "/shapes/aws/compute/Outposts-rack.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Outposts servers",
+        "path": "/shapes/aws/compute/Outposts-servers.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "ParallelCluster",
+        "path": "/shapes/aws/compute/ParallelCluster.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Serverless Application Repository",
+        "path": "/shapes/aws/compute/Serverless-Application-Repository.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "SimSpace Weaver",
+        "path": "/shapes/aws/compute/SimSpace-Weaver.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Thinkbox Deadline",
+        "path": "/shapes/aws/compute/Thinkbox-Deadline.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Thinkbox Frost",
+        "path": "/shapes/aws/compute/Thinkbox-Frost.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Thinkbox Krakatoa",
+        "path": "/shapes/aws/compute/Thinkbox-Krakatoa.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Thinkbox Sequoia",
+        "path": "/shapes/aws/compute/Thinkbox-Sequoia.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Thinkbox Stoke",
+        "path": "/shapes/aws/compute/Thinkbox-Stoke.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Thinkbox XMesh",
+        "path": "/shapes/aws/compute/Thinkbox-XMesh.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "VMware Cloud on AWS",
+        "path": "/shapes/aws/compute/VMware-Cloud-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Wavelength",
+        "path": "/shapes/aws/compute/Wavelength.svg",
+        "textPosition": "inside"
+    }
+]

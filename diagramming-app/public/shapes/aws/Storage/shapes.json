@@ -1,0 +1,92 @@
+[
+    {
+        "title": "Backup",
+        "path": "/shapes/aws/storage/Backup.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "EFS",
+        "path": "/shapes/aws/storage/EFS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Block Store",
+        "path": "/shapes/aws/storage/Elastic-Block-Store.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Elastic Disaster Recovery",
+        "path": "/shapes/aws/storage/Elastic-Disaster-Recovery.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "File Cache",
+        "path": "/shapes/aws/storage/File-Cache.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "FSx for Lustre",
+        "path": "/shapes/aws/storage/FSx-for-Lustre.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "FSx for NetApp ONTAP",
+        "path": "/shapes/aws/storage/FSx-for-NetApp-ONTAP.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "FSx for OpenZFS",
+        "path": "/shapes/aws/storage/FSx-for-OpenZFS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "FSx for WFS",
+        "path": "/shapes/aws/storage/FSx-for-WFS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "FSx",
+        "path": "/shapes/aws/storage/FSx.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "S3 on Outposts",
+        "path": "/shapes/aws/storage/S3-on-Outposts.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Simple Storage Service Glacier",
+        "path": "/shapes/aws/storage/Simple-Storage-Service-Glacier.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Simple Storage Service",
+        "path": "/shapes/aws/storage/Simple-Storage-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Snowball Edge",
+        "path": "/shapes/aws/storage/Snowball-Edge.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Snowball",
+        "path": "/shapes/aws/storage/Snowball.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Snowcone",
+        "path": "/shapes/aws/storage/Snowcone.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Snowmobile",
+        "path": "/shapes/aws/storage/Snowmobile.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Storage Gateway",
+        "path": "/shapes/aws/storage/Storage-Gateway.svg",
+        "textPosition": "inside"
+    }
+]

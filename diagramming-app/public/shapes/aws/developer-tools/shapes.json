@@ -1,0 +1,82 @@
+[
+    {
+        "title": "Application Composer",
+        "path": "/shapes/aws/developer-tools/Application-Composer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud Control API",
+        "path": "/shapes/aws/developer-tools/Cloud-Control-API.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud Development Kit",
+        "path": "/shapes/aws/developer-tools/Cloud-Development-Kit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Cloud9",
+        "path": "/shapes/aws/developer-tools/Cloud9.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudShell",
+        "path": "/shapes/aws/developer-tools/CloudShell.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeArtifact",
+        "path": "/shapes/aws/developer-tools/CodeArtifact.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeBuild",
+        "path": "/shapes/aws/developer-tools/CodeBuild.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeCatalyst",
+        "path": "/shapes/aws/developer-tools/CodeCatalyst.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeCommit",
+        "path": "/shapes/aws/developer-tools/CodeCommit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeDeploy",
+        "path": "/shapes/aws/developer-tools/CodeDeploy.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodePipeline",
+        "path": "/shapes/aws/developer-tools/CodePipeline.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CodeStar",
+        "path": "/shapes/aws/developer-tools/CodeStar.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Command Line Interface",
+        "path": "/shapes/aws/developer-tools/Command-Line-Interface.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Corretto",
+        "path": "/shapes/aws/developer-tools/Corretto.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Tools and SDKs",
+        "path": "/shapes/aws/developer-tools/Tools-and-SDKs.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "X Ray",
+        "path": "/shapes/aws/developer-tools/X-Ray.svg",
+        "textPosition": "inside"
+    }
+]

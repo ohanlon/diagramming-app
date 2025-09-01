@@ -1,0 +1,17 @@
+[
+    {
+        "title": "AppStream",
+        "path": "/shapes/aws/end-user-computing/AppStream.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "WorkLink",
+        "path": "/shapes/aws/end-user-computing/WorkLink.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "WorkSpaces Family",
+        "path": "/shapes/aws/end-user-computing/WorkSpaces-Family.svg",
+        "textPosition": "inside"
+    }
+]

@@ -1,0 +1,142 @@
+[
+    {
+        "title": "AppConfig",
+        "path": "/shapes/aws/management-governance/AppConfig.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Application Auto Scaling",
+        "path": "/shapes/aws/management-governance/Application-Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Auto Scaling",
+        "path": "/shapes/aws/management-governance/Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Backint Agent",
+        "path": "/shapes/aws/management-governance/Backint-Agent.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Chatbot",
+        "path": "/shapes/aws/management-governance/Chatbot.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudFormation",
+        "path": "/shapes/aws/management-governance/CloudFormation.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudTrail",
+        "path": "/shapes/aws/management-governance/CloudTrail.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "CloudWatch",
+        "path": "/shapes/aws/management-governance/CloudWatch.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Config",
+        "path": "/shapes/aws/management-governance/Config.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Control Tower",
+        "path": "/shapes/aws/management-governance/Control-Tower.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Distro for OpenTelemetry",
+        "path": "/shapes/aws/management-governance/Distro-for-OpenTelemetry.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Fault Injection Simulator",
+        "path": "/shapes/aws/management-governance/Fault-Injection-Simulator.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Launch Wizard",
+        "path": "/shapes/aws/management-governance/Launch-Wizard.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "License Manager",
+        "path": "/shapes/aws/management-governance/License-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Managed Grafana",
+        "path": "/shapes/aws/management-governance/Managed-Grafana.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Managed Service for Prometheus",
+        "path": "/shapes/aws/management-governance/Managed-Service-for-Prometheus.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Management Console",
+        "path": "/shapes/aws/management-governance/Management-Console.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "OpsWorks",
+        "path": "/shapes/aws/management-governance/OpsWorks.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Organizations",
+        "path": "/shapes/aws/management-governance/Organizations.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Personal Health Dashboard",
+        "path": "/shapes/aws/management-governance/Personal-Health-Dashboard.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Proton",
+        "path": "/shapes/aws/management-governance/Proton.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Resilience Hub",
+        "path": "/shapes/aws/management-governance/Resilience-Hub.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Resource Explorer",
+        "path": "/shapes/aws/management-governance/Resource-Explorer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Service Catalog",
+        "path": "/shapes/aws/management-governance/Service-Catalog.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Service Management Connector",
+        "path": "/shapes/aws/management-governance/Service-Management-Connector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Systems Manager",
+        "path": "/shapes/aws/management-governance/Systems-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Trusted Advisor",
+        "path": "/shapes/aws/management-governance/Trusted-Advisor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "title": "Well Architected Tool",
+        "path": "/shapes/aws/management-governance/Well-Architected-Tool.svg",
+        "textPosition": "inside"
+    }
+]
