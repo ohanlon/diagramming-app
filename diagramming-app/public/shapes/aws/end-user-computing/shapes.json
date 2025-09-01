@@ -1,15 +1,18 @@
 [
     {
+        "id": "bb424108-6351-42c2-8ab3-c8cfd7fb0c4a",
         "title": "AppStream",
         "path": "/shapes/aws/end-user-computing/AppStream.svg",
         "textPosition": "inside"
     },
     {
+        "id": "c8a87947-000f-4c1f-8370-9c17e931bb9c",
         "title": "WorkLink",
         "path": "/shapes/aws/end-user-computing/WorkLink.svg",
         "textPosition": "inside"
     },
     {
+        "id": "5d3aff7f-cd41-4a25-a196-f7ed43b3154e",
         "title": "WorkSpaces Family",
         "path": "/shapes/aws/end-user-computing/WorkSpaces-Family.svg",
         "textPosition": "inside"

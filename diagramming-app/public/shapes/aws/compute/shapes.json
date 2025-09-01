@@ -1,160 +1,192 @@
 [
     {
+        "id": "924b56c4-9b47-42da-bf2b-952a377904ee",
         "title": "App Runner",
         "path": "/shapes/aws/compute/App-Runner.svg",
         "textPosition": "inside"
     },
     {
+        "id": "dc0e71de-b81a-4144-859c-753040147a3f",
         "title": "Application Auto Scaling",
         "path": "/shapes/aws/compute/Application-Auto-Scaling.svg",
         "textPosition": "inside"
     },
     {
+        "id": "eeb3d765-ee42-42a4-ae37-2221d940f832",
         "title": "Batch",
         "path": "/shapes/aws/compute/Batch.svg",
         "textPosition": "inside"
     },
     {
+        "id": "8edc0955-378e-4ad7-810d-22df55297c50",
         "title": "Bottlerocket",
         "path": "/shapes/aws/compute/Bottlerocket.svg",
         "textPosition": "inside"
     },
     {
+        "id": "00398b54-0ed7-4fed-be8e-99acd5e9bfc3",
         "title": "Compute Optimizer",
         "path": "/shapes/aws/compute/Compute-Optimizer.svg",
         "textPosition": "inside"
     },
     {
+        "id": "e809f024-8667-4136-bd5d-4b9d3d6e900e",
         "title": "EC2 Auto Scaling",
         "path": "/shapes/aws/compute/EC2-Auto-Scaling.svg",
         "textPosition": "inside"
     },
     {
+        "id": "0805071d-7a9e-482a-b9d9-38cfeab15b61",
         "title": "EC2 Image Builder",
         "path": "/shapes/aws/compute/EC2-Image-Builder.svg",
         "textPosition": "inside"
     },
     {
+        "id": "4d1b45f3-bd72-4721-85fc-625ba968ed50",
         "title": "EC2",
         "path": "/shapes/aws/compute/EC2.svg",
         "textPosition": "inside"
     },
     {
+        "id": "7e96c4a2-2bad-4d5d-a605-9fc9468bc783",
         "title": "Elastic Beanstalk",
         "path": "/shapes/aws/compute/Elastic-Beanstalk.svg",
         "textPosition": "inside"
     },
     {
+        "id": "bfc666c3-21e1-4a30-93b8-07dc3690ff31",
         "title": "Elastic Fabric Adapter",
         "path": "/shapes/aws/compute/Elastic-Fabric-Adapter.svg",
         "textPosition": "inside"
     },
     {
+        "id": "e1eb4713-5239-41ef-9ae7-92bb419ba408",
         "title": "Fargate",
         "path": "/shapes/aws/compute/Fargate.svg",
         "textPosition": "inside"
     },
     {
+        "id": "8c179b5d-c082-4819-b1df-4481463f03ef",
         "title": "Genomics CLI",
         "path": "/shapes/aws/compute/Genomics-CLI.svg",
         "textPosition": "inside"
     },
     {
+        "id": "ca05dc0c-513d-4055-8898-731b62bbf03f",
         "title": "Lambda",
         "path": "/shapes/aws/compute/Lambda.svg",
         "textPosition": "inside"
     },
     {
+        "id": "2884f647-bdf9-4185-80c2-222c68bd41fe",
         "title": "Lightsail",
         "path": "/shapes/aws/compute/Lightsail.svg",
         "textPosition": "inside"
     },
     {
+        "id": "6097bee9-8b03-4855-a20d-afc9a3e0f543",
         "title": "Local Zones",
         "path": "/shapes/aws/compute/Local-Zones.svg",
         "textPosition": "inside"
     },
     {
+        "id": "a47a5561-f52d-4fda-bd04-5daeebfdcef9",
         "title": "NICE DCV",
         "path": "/shapes/aws/compute/NICE-DCV.svg",
         "textPosition": "inside"
     },
     {
+        "id": "e59ac686-fb4b-46c6-84bc-ee2d82a65265",
         "title": "NICE EnginFrame",
         "path": "/shapes/aws/compute/NICE-EnginFrame.svg",
         "textPosition": "inside"
     },
     {
+        "id": "b0433254-7b75-4252-a3c2-8409bee7e764",
         "title": "Nitro Enclaves",
         "path": "/shapes/aws/compute/Nitro-Enclaves.svg",
         "textPosition": "inside"
     },
     {
+        "id": "c1b6e946-02a0-4b57-af26-21dd573f79a1",
         "title": "Outposts family",
         "path": "/shapes/aws/compute/Outposts-family.svg",
         "textPosition": "inside"
     },
     {
+        "id": "2692b086-3ba8-4c64-8042-e5af57792f44",
         "title": "Outposts rack",
         "path": "/shapes/aws/compute/Outposts-rack.svg",
         "textPosition": "inside"
     },
     {
+        "id": "5d964ac7-e0c0-40ac-b4ce-51eab64cb506",
         "title": "Outposts servers",
         "path": "/shapes/aws/compute/Outposts-servers.svg",
         "textPosition": "inside"
     },
     {
+        "id": "131c29a3-24aa-40c0-97af-928b54f3ca69",
         "title": "ParallelCluster",
         "path": "/shapes/aws/compute/ParallelCluster.svg",
         "textPosition": "inside"
     },
     {
+        "id": "cb0b3276-0f49-47c2-935b-19531d35cf83",
         "title": "Serverless Application Repository",
         "path": "/shapes/aws/compute/Serverless-Application-Repository.svg",
         "textPosition": "inside"
     },
     {
+        "id": "0129d6bf-10d9-455d-9c64-c958dff72dd0",
         "title": "SimSpace Weaver",
         "path": "/shapes/aws/compute/SimSpace-Weaver.svg",
         "textPosition": "inside"
     },
     {
+        "id": "fa775afa-9563-49c9-bed2-3da40b6d093e",
         "title": "Thinkbox Deadline",
         "path": "/shapes/aws/compute/Thinkbox-Deadline.svg",
         "textPosition": "inside"
     },
     {
+        "id": "d11cdceb-2bcc-4548-bec0-39fc50549e79",
         "title": "Thinkbox Frost",
         "path": "/shapes/aws/compute/Thinkbox-Frost.svg",
         "textPosition": "inside"
     },
     {
+        "id": "da36ca8d-c7d0-475a-8e47-d59c8487b82f",
         "title": "Thinkbox Krakatoa",
         "path": "/shapes/aws/compute/Thinkbox-Krakatoa.svg",
         "textPosition": "inside"
     },
     {
+        "id": "94ab59d3-9612-4631-87c1-a073e241877f",
         "title": "Thinkbox Sequoia",
         "path": "/shapes/aws/compute/Thinkbox-Sequoia.svg",
         "textPosition": "inside"
     },
     {
+        "id": "613e611f-27f6-4e34-b342-d2370f732d4c",
         "title": "Thinkbox Stoke",
         "path": "/shapes/aws/compute/Thinkbox-Stoke.svg",
         "textPosition": "inside"
     },
     {
+        "id": "423f3deb-e805-4e76-b5d7-8db743b0525a",
         "title": "Thinkbox XMesh",
         "path": "/shapes/aws/compute/Thinkbox-XMesh.svg",
         "textPosition": "inside"
     },
     {
+        "id": "9255342d-997c-49ce-b504-23af635fa48e",
         "title": "VMware Cloud on AWS",
         "path": "/shapes/aws/compute/VMware-Cloud-on-AWS.svg",
         "textPosition": "inside"
     },
     {
+        "id": "b9150e8e-ebb5-48d6-9aef-68eb5dab380f",
         "title": "Wavelength",
         "path": "/shapes/aws/compute/Wavelength.svg",
         "textPosition": "inside"

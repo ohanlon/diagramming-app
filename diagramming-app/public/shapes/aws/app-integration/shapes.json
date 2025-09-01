@@ -1,55 +1,66 @@
 [
     {
+        "id": "15a2cdce-8161-4445-bee6-1e7fb158c4aa",
         "title": "API Gateway",
         "path": "/shapes/aws/app-integration/API-Gateway.svg",
         "textPosition": "inside"
     },
     {
+        "id": "e7fdf949-7e4a-4bee-bc13-ea5406fffa69",
         "title": "AppFlow",
         "path": "/shapes/aws/app-integration/AppFlow.svg",
         "textPosition": "inside"
     },
     {
+        "id": "aa911d2f-9351-4eda-b50a-3eb9920bf1df",
         "title": "AppSync",
         "path": "/shapes/aws/app-integration/AppSync.svg",
         "textPosition": "inside"
     },
     {
+        "id": "8b03f374-1fc8-4213-9b58-e75a3a9a76ad",
         "title": "Console Mobile Application",
         "path": "/shapes/aws/app-integration/Console-Mobile-Application.svg",
         "textPosition": "inside"
     },
     {
+        "id": "e6bf4028-66f0-4b11-bfa4-9766ac24ef03",
         "title": "EventBridge",
         "path": "/shapes/aws/app-integration/EventBridge.svg",
         "textPosition": "inside"
     },
     {
+        "id": "b276c824-7ab5-43d5-a183-b9f73189f47f",
         "title": "Express Workflows",
         "path": "/shapes/aws/app-integration/Express-Workflows.svg",
         "textPosition": "inside"
     },
     {
+        "id": "63b7f291-2b04-4533-8829-d3d5002d90ce",
         "title": "Managed Workflows for Apache Airflow",
         "path": "/shapes/aws/app-integration/Managed-Workflows-for-Apache-Airflow.svg",
         "textPosition": "inside"
     },
     {
+        "id": "53ac9278-19af-485f-95cd-88a03dbcb98e",
         "title": "MQ",
         "path": "/shapes/aws/app-integration/MQ.svg",
         "textPosition": "inside"
     },
     {
+        "id": "85ab612a-846f-478f-91b2-e877cb498446",
         "title": "Simple Notification Service",
         "path": "/shapes/aws/app-integration/Simple-Notification-Service.svg",
         "textPosition": "inside"
     },
     {
+        "id": "a6c286bd-bc94-43d9-b40a-d5afe81f99f9",
         "title": "Simple Queue Service",
         "path": "/shapes/aws/app-integration/Simple-Queue-Service.svg",
         "textPosition": "inside"
     },
     {
+        "id": "0c09b51e-0649-4e1b-a2cc-ffdb5ce2fe91",
         "title": "Step Functions",
         "path": "/shapes/aws/app-integration/Step-Functions.svg",
         "textPosition": "inside"

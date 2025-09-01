@@ -1,10 +1,12 @@
 [
     {
+        "id": "872c1166-0576-4a82-b8c3-829bdb22ab75",
         "title": "Marketplace Dark",
         "path": "/shapes/aws/general-icons/Marketplace_Dark.svg",
         "textPosition": "inside"
     },
     {
+        "id": "39ead873-e7ab-458f-ae74-45ae9dd7bde9",
         "title": "Marketplace Light",
         "path": "/shapes/aws/general-icons/Marketplace_Light.svg",
         "textPosition": "inside"

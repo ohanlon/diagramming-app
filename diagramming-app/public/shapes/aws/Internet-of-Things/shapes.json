@@ -1,80 +1,96 @@
 [
     {
+        "id": "fc4d7477-386b-44cf-86a2-3e3b2ff976f4",
         "title": "FreeRTOS",
         "path": "/shapes/aws/internet-of-things/FreeRTOS.svg",
         "textPosition": "inside"
     },
     {
+        "id": "a9d4a025-788c-4606-817a-294c57a0215d",
         "title": "IoT 1 Click",
         "path": "/shapes/aws/internet-of-things/IoT-1-Click.svg",
         "textPosition": "inside"
     },
     {
+        "id": "5d3f0d49-1407-4c67-b15e-5fb93f1dfb8b",
         "title": "IoT Analytics",
         "path": "/shapes/aws/internet-of-things/IoT-Analytics.svg",
         "textPosition": "inside"
     },
     {
+        "id": "7bc7f50c-0093-47f5-93ef-786a12022e19",
         "title": "IoT Button",
         "path": "/shapes/aws/internet-of-things/IoT-Button.svg",
         "textPosition": "inside"
     },
     {
+        "id": "ce9cb9c9-5232-44ac-9324-3be6340ffd9a",
         "title": "IoT Core",
         "path": "/shapes/aws/internet-of-things/IoT-Core.svg",
         "textPosition": "inside"
     },
     {
+        "id": "f8c0cec1-f4f6-46ea-af31-b475077e6ddf",
         "title": "IoT Device Defender",
         "path": "/shapes/aws/internet-of-things/IoT-Device-Defender.svg",
         "textPosition": "inside"
     },
     {
+        "id": "26638403-90f4-4286-b6eb-0422bcf944c9",
         "title": "IoT Device Management",
         "path": "/shapes/aws/internet-of-things/IoT-Device-Management.svg",
         "textPosition": "inside"
     },
     {
+        "id": "ede6a9c6-726e-413f-ace1-e066815bd284",
         "title": "IoT EduKit",
         "path": "/shapes/aws/internet-of-things/IoT-EduKit.svg",
         "textPosition": "inside"
     },
     {
+        "id": "8e835df3-47c5-4272-ad52-85ea25518632",
         "title": "IoT Events",
         "path": "/shapes/aws/internet-of-things/IoT-Events.svg",
         "textPosition": "inside"
     },
     {
+        "id": "63fbaa32-ecd0-479b-8865-b486eacb26a3",
         "title": "IoT ExpressLink",
         "path": "/shapes/aws/internet-of-things/IoT-ExpressLink.svg",
         "textPosition": "inside"
     },
     {
+        "id": "dd727b2f-c14f-4914-9acb-af4a0d980b19",
         "title": "IoT FleetWise",
         "path": "/shapes/aws/internet-of-things/IoT-FleetWise.svg",
         "textPosition": "inside"
     },
     {
+        "id": "09133a91-5708-42e3-92ae-2b5ad7b105ac",
         "title": "IoT Greengrass",
         "path": "/shapes/aws/internet-of-things/IoT-Greengrass.svg",
         "textPosition": "inside"
     },
     {
+        "id": "7b1f014e-0941-4a5d-9bc7-7ad6ef97b21d",
         "title": "IoT RoboRunner",
         "path": "/shapes/aws/internet-of-things/IoT-RoboRunner.svg",
         "textPosition": "inside"
     },
     {
+        "id": "b88fd04f-5a46-470b-b25d-42b2fc81b3af",
         "title": "IoT SiteWise",
         "path": "/shapes/aws/internet-of-things/IoT-SiteWise.svg",
         "textPosition": "inside"
     },
     {
+        "id": "0e483c8a-9f43-4394-b518-237a0a542534",
         "title": "IoT Things Graph",
         "path": "/shapes/aws/internet-of-things/IoT-Things-Graph.svg",
         "textPosition": "inside"
     },
     {
+        "id": "abe39e72-ff98-41bc-ba4d-497b138ed2ff",
         "title": "IoT TwinMaker",
         "path": "/shapes/aws/internet-of-things/IoT-TwinMaker.svg",
         "textPosition": "inside"

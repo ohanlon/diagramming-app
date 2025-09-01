@@ -1,140 +1,168 @@
 [
     {
+        "id": "1af1d6f7-2b98-4598-a6d7-228de32693ca",
         "title": "AppConfig",
         "path": "/shapes/aws/management-governance/AppConfig.svg",
         "textPosition": "inside"
     },
     {
+        "id": "f771d489-5fd3-48b2-b39c-edb04e8db58b",
         "title": "Application Auto Scaling",
         "path": "/shapes/aws/management-governance/Application-Auto-Scaling.svg",
         "textPosition": "inside"
     },
     {
+        "id": "75637ebe-f111-4a8a-a0ea-914525c797bb",
         "title": "Auto Scaling",
         "path": "/shapes/aws/management-governance/Auto-Scaling.svg",
         "textPosition": "inside"
     },
     {
+        "id": "55bc4455-b057-4f76-8844-4b58d25cf427",
         "title": "Backint Agent",
         "path": "/shapes/aws/management-governance/Backint-Agent.svg",
         "textPosition": "inside"
     },
     {
+        "id": "39ed9ee1-dace-404e-beeb-5a5339bf08b4",
         "title": "Chatbot",
         "path": "/shapes/aws/management-governance/Chatbot.svg",
         "textPosition": "inside"
     },
     {
+        "id": "319ef9de-ac6f-41df-945c-9fb74c711b4b",
         "title": "CloudFormation",
         "path": "/shapes/aws/management-governance/CloudFormation.svg",
         "textPosition": "inside"
     },
     {
+        "id": "fc4a55bc-ca44-43fe-916b-a4ab9ac09aee",
         "title": "CloudTrail",
         "path": "/shapes/aws/management-governance/CloudTrail.svg",
         "textPosition": "inside"
     },
     {
+        "id": "893a506d-8eb3-4af2-80a3-000d400618f2",
         "title": "CloudWatch",
         "path": "/shapes/aws/management-governance/CloudWatch.svg",
         "textPosition": "inside"
     },
     {
+        "id": "d24a66f4-9fe6-4251-94b0-931602ed7a00",
         "title": "Config",
         "path": "/shapes/aws/management-governance/Config.svg",
         "textPosition": "inside"
     },
     {
+        "id": "4318b0f1-6af1-48f2-95a3-63d67a72e23e",
         "title": "Control Tower",
         "path": "/shapes/aws/management-governance/Control-Tower.svg",
         "textPosition": "inside"
     },
     {
+        "id": "1ee5834a-be30-446f-93ad-15f14474cca4",
         "title": "Distro for OpenTelemetry",
         "path": "/shapes/aws/management-governance/Distro-for-OpenTelemetry.svg",
         "textPosition": "inside"
     },
     {
+        "id": "8d016930-4e17-40b0-a6f1-a0dac08868b9",
         "title": "Fault Injection Simulator",
         "path": "/shapes/aws/management-governance/Fault-Injection-Simulator.svg",
         "textPosition": "inside"
     },
     {
+        "id": "e6459b93-2156-4ed4-a02f-cb86101920eb",
         "title": "Launch Wizard",
         "path": "/shapes/aws/management-governance/Launch-Wizard.svg",
         "textPosition": "inside"
     },
     {
+        "id": "243ddb4d-f700-4862-a573-9afad1866c5f",
         "title": "License Manager",
         "path": "/shapes/aws/management-governance/License-Manager.svg",
         "textPosition": "inside"
     },
     {
+        "id": "3d900292-6ca3-4a36-8229-7a9cbb0337a7",
         "title": "Managed Grafana",
         "path": "/shapes/aws/management-governance/Managed-Grafana.svg",
         "textPosition": "inside"
     },
     {
+        "id": "f553d7d3-9884-4378-b706-38d235e2643a",
         "title": "Managed Service for Prometheus",
         "path": "/shapes/aws/management-governance/Managed-Service-for-Prometheus.svg",
         "textPosition": "inside"
     },
     {
+        "id": "8997d67e-f459-4545-b45d-ea42ecc524e7",
         "title": "Management Console",
         "path": "/shapes/aws/management-governance/Management-Console.svg",
         "textPosition": "inside"
     },
     {
+        "id": "29477345-4913-4277-b8b1-46b6f1eaa765",
         "title": "OpsWorks",
         "path": "/shapes/aws/management-governance/OpsWorks.svg",
         "textPosition": "inside"
     },
     {
+        "id": "2be0de23-65ed-47f8-bb61-a9e90814fb91",
         "title": "Organizations",
         "path": "/shapes/aws/management-governance/Organizations.svg",
         "textPosition": "inside"
     },
     {
+        "id": "4bd99c55-a210-4043-a589-fe36b88bc298",
         "title": "Personal Health Dashboard",
         "path": "/shapes/aws/management-governance/Personal-Health-Dashboard.svg",
         "textPosition": "inside"
     },
     {
+        "id": "94944219-cad8-494c-997b-9430cd485e56",
         "title": "Proton",
         "path": "/shapes/aws/management-governance/Proton.svg",
         "textPosition": "inside"
     },
     {
+        "id": "9740eb26-145a-4b6f-9cf0-b2323ba932b5",
         "title": "Resilience Hub",
         "path": "/shapes/aws/management-governance/Resilience-Hub.svg",
         "textPosition": "inside"
     },
     {
+        "id": "aa0851f4-b9d3-4131-b399-f0ca66351dc1",
         "title": "Resource Explorer",
         "path": "/shapes/aws/management-governance/Resource-Explorer.svg",
         "textPosition": "inside"
     },
     {
+        "id": "c9758c24-749e-43a1-b978-17f81d943c01",
         "title": "Service Catalog",
         "path": "/shapes/aws/management-governance/Service-Catalog.svg",
         "textPosition": "inside"
     },
     {
+        "id": "b71f25e4-2b21-41c0-a407-914a6def4d2e",
         "title": "Service Management Connector",
         "path": "/shapes/aws/management-governance/Service-Management-Connector.svg",
         "textPosition": "inside"
     },
     {
+        "id": "43895375-2671-4bec-87e5-a2498abc4e30",
         "title": "Systems Manager",
         "path": "/shapes/aws/management-governance/Systems-Manager.svg",
         "textPosition": "inside"
     },
     {
+        "id": "3e3b3b7a-ecc0-485f-8606-44a60624db28",
         "title": "Trusted Advisor",
         "path": "/shapes/aws/management-governance/Trusted-Advisor.svg",
         "textPosition": "inside"
     },
     {
+        "id": "b0205f53-0720-4d9b-a980-efa7952589e4",
         "title": "Well Architected Tool",
         "path": "/shapes/aws/management-governance/Well-Architected-Tool.svg",
         "textPosition": "inside"
