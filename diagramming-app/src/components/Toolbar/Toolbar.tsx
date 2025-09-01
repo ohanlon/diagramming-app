@@ -1,8 +1,8 @@
-import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider, Menu, Box } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider, Menu } from '@mui/material';
 import Select from '@mui/material/Select';
 import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 interface ToolDefinition {
   id: string;
@@ -90,20 +90,20 @@ const ToolbarComponent: React.FC = () => {
   const isHorizontalAlignCenterActive = hasSelectedShapes && selectedShapes.every(shape => shape.horizontalAlign === 'center');
   const isHorizontalAlignRightActive = hasSelectedShapes && selectedShapes.every(shape => shape.horizontalAlign === 'right');
 
-  const handleFontChange = (event: SelectChangeEvent<string>) => {
+  const handleFontChange = useCallback((event: SelectChangeEvent<string>) => {
     setSelectedFont(event.target.value as string);
-  };
+  }, [setSelectedFont]);
 
-  const handleFontSizeChange = (event: SelectChangeEvent<string>) => {
+  const handleFontSizeChange = useCallback((event: SelectChangeEvent<string>) => {
     setSelectedFontSize(Number(event.target.value));
-  };
+  }, [setSelectedFontSize]);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [visibleTools, setVisibleTools] = useState<ToolDefinition[]>([]);
   const [hiddenTools, setHiddenTools] = useState<ToolDefinition[]>([]);
   const [moreButtonWidth, setMoreButtonWidth] = useState(0);
 
-  const initialTools: ToolDefinition[] = [
+  const initialTools: ToolDefinition[] = useMemo(() => [
     { id: 'new-diagram', element: <Tooltip title="New Diagram"><IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button" sx={{ borderRadius: 0 }}><NoteAdd /></IconButton></Tooltip>, width: 48 },
     { id: 'divider-1', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 }, // Approximate width for divider
     { id: 'undo', element: <Tooltip title="Undo"><span><IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0} sx={{ borderRadius: 0 }}><Undo /></IconButton></span></Tooltip>, width: 48 },
@@ -128,7 +128,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'align-left', element: <Tooltip title="Align Left"><span><IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}><AlignHorizontalLeft /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-center', element: <Tooltip title="Align Center"><span><IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}><AlignHorizontalCenter /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-right', element: <Tooltip title="Align Right"><span><IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}><AlignHorizontalRight /></IconButton></span></Tooltip>, width: 48 },
-  ];
+  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo]);
 
   useEffect(() => {
     const toolbarElement = toolbarRef.current;
@@ -140,7 +140,7 @@ const ToolbarComponent: React.FC = () => {
     }
 
     const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         if (entry.target === toolbarElement) {
           const availableWidth = entry.contentRect.width;
           let currentWidth = 0;
@@ -180,9 +180,9 @@ const ToolbarComponent: React.FC = () => {
             <Tooltip title="More tools">
               <IconButton
                 id="more-button"
-                aria-controls={Boolean(moreMenuAnchorEl) ? 'more-menu' : undefined}
+                aria-controls={moreMenuAnchorEl ? 'more-menu' : undefined}
                 aria-haspopup="true"
-                aria-expanded={Boolean(moreMenuAnchorEl) ? 'true' : undefined}
+                aria-expanded={moreMenuAnchorEl ? 'true' : undefined}
                 onClick={handleMoreMenuClick}
                 color="inherit"
                 sx={{ borderRadius: 0 }}

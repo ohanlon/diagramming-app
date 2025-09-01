@@ -413,7 +413,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         }),
 
       setZoom: (zoom) => {
-        addHistory(get, set);
         set((state) => {
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
@@ -431,7 +430,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       },
 
       setPan: (pan) => {
-        addHistory(get, set);
         set((state) => {
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
@@ -1280,6 +1278,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     {
       name: 'diagram-storage-v2', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+      partialize: (state) => {
+        const newState = { ...state };
+        delete newState.history;
+        return newState;
+      },
     }
   )
 );
