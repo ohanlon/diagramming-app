@@ -1,0 +1,1868 @@
+[
+    {
+        "id": "6dd2a02e-95f1-4867-90f3-cdb197e33979",
+        "title": "Amazon Aurora",
+        "path": "/shapes/aws/database/aurora.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "86afe37f-a4b5-4ed4-885f-bd6ec91165c6",
+        "title": "AWS Database Migration",
+        "path": "/shapes/aws/database/migration.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "fb020832-1902-48f4-b862-2f1c9936dc88",
+        "title": "Amazon DocumentDB",
+        "path": "/shapes/aws/database/documentdb.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "888b356d-7ccb-4c74-9859-02ef511923ed",
+        "title": "Amazon DynamoDB",
+        "path": "/shapes/aws/database/dynamodb.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "6de207ff-8e65-4fd2-bef6-03894b5567b5",
+        "title": "Amazon ElastiCache",
+        "path": "/shapes/aws/database/elasticache.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "90ead8d5-0da7-440a-a37a-c3c35fc63eb6",
+        "title": "Amazon MemoryDB for Redis",
+        "path": "/shapes/aws/database/memorydb.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "46368c7b-a8ae-4e91-a034-a74dcf90a856",
+        "title": "Amazon Neptune",
+        "path": "/shapes/aws/database/neptune.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "93127d24-b782-4035-90df-8f20f776b2ff",
+        "title": "Amazon Keyspaces",
+        "path": "/shapes/aws/database/keyspaces.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "632989a5-d2d5-4da7-8984-21668cd96db4",
+        "title": "Amazon RDS",
+        "path": "/shapes/aws/database/rds.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "06dff161-9896-4aa7-bfb4-1c4e1a81400c",
+        "title": "Amazon RDS on VMware",
+        "path": "/shapes/aws/database/rds-on-vmware.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "44664acd-093a-4aaa-9d15-41a24ac9b0e3",
+        "title": "Amazon Timestream",
+        "path": "/shapes/aws/database/timestream.svg",
+        "textPosition": "outside"
+    },
+    {
+        "id": "00555e73-f84f-4e25-a9c1-4b86ba216d43",
+        "title": "Athena",
+        "path": "/shapes/aws/analytics/Athena.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2c8ad24d-3a47-4bff-a65a-93cb8cbff2c2",
+        "title": "Clean Rooms",
+        "path": "/shapes/aws/analytics/Clean-Rooms.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8294d5bf-d218-4074-b0a2-2132864c8230",
+        "title": "CloudSearch",
+        "path": "/shapes/aws/analytics/CloudSearch.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2c46a710-8fbd-44c1-9534-7b2beecc8bfd",
+        "title": "Data Exchange",
+        "path": "/shapes/aws/analytics/Data-Exchange.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "304f0598-d137-40f9-9865-8700d80ef023",
+        "title": "Data Pipeline",
+        "path": "/shapes/aws/analytics/Data-Pipeline.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "96de73e7-0707-43c5-b812-0bd2f2acb9c9",
+        "title": "DataZone",
+        "path": "/shapes/aws/analytics/DataZone.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0d236702-63b0-49bd-9268-20a253041797",
+        "title": "EMR",
+        "path": "/shapes/aws/analytics/EMR.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "24a23349-a129-4738-8ad6-1d51e4878e0b",
+        "title": "FinSpace",
+        "path": "/shapes/aws/analytics/FinSpace.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3cfdb1d9-42ca-48ff-a6f6-33b2288f09af",
+        "title": "Glue DataBrew",
+        "path": "/shapes/aws/analytics/Glue-DataBrew.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4f3afbad-1535-4697-9e3b-f2d92004f2f2",
+        "title": "Glue Elastic Views",
+        "path": "/shapes/aws/analytics/Glue-Elastic-Views.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b3261e7c-d28f-4d3e-9186-e9ff9ef8b361",
+        "title": "Glue",
+        "path": "/shapes/aws/analytics/Glue.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b3f9a50a-8589-4796-8a7c-8cb95deec261",
+        "title": "Kinesis Data Analytics",
+        "path": "/shapes/aws/analytics/Kinesis-Data-Analytics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f6e45e5f-b0db-48a2-98c5-bb7f487f3848",
+        "title": "Kinesis Data Streams",
+        "path": "/shapes/aws/analytics/Kinesis-Data-Streams.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "9e3a3303-3b71-4b02-b5a0-f8dc87c0583f",
+        "title": "Kinesis Firehose",
+        "path": "/shapes/aws/analytics/Kinesis-Firehose.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "84a9c96f-be00-4358-97cc-4a23afec5e4a",
+        "title": "Kinesis Video Streams",
+        "path": "/shapes/aws/analytics/Kinesis-Video-Streams.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c27c7ac3-5f43-4b67-a460-d22f85de23ad",
+        "title": "Kinesis",
+        "path": "/shapes/aws/analytics/Kinesis.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "bcfaa8b6-8217-43e9-a3bd-776e33c05f57",
+        "title": "Lake Formation",
+        "path": "/shapes/aws/analytics/Lake-Formation.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b7413f4a-7eed-47f5-b5a3-c89289a82974",
+        "title": "Managed Streaming for Apache Kafka",
+        "path": "/shapes/aws/analytics/Managed-Streaming-for-Apache-Kafka.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "971cd38c-158c-4575-9c36-657d9c7c4a93",
+        "title": "OpenSearch Service",
+        "path": "/shapes/aws/analytics/OpenSearch-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "78b46c6d-b8cb-453e-aede-dfd88f2bcce5",
+        "title": "QuickSight",
+        "path": "/shapes/aws/analytics/QuickSight.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "687701ae-114e-43b0-a91b-9f71f4e23971",
+        "title": "Redshift",
+        "path": "/shapes/aws/analytics/Redshift.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "15a2cdce-8161-4445-bee6-1e7fb158c4aa",
+        "title": "API Gateway",
+        "path": "/shapes/aws/app-integration/API-Gateway.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e7fdf949-7e4a-4bee-bc13-ea5406fffa69",
+        "title": "AppFlow",
+        "path": "/shapes/aws/app-integration/AppFlow.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "aa911d2f-9351-4eda-b50a-3eb9920bf1df",
+        "title": "AppSync",
+        "path": "/shapes/aws/app-integration/AppSync.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8b03f374-1fc8-4213-9b58-e75a3a9a76ad",
+        "title": "Console Mobile Application",
+        "path": "/shapes/aws/app-integration/Console-Mobile-Application.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e6bf4028-66f0-4b11-bfa4-9766ac24ef03",
+        "title": "EventBridge",
+        "path": "/shapes/aws/app-integration/EventBridge.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b276c824-7ab5-43d5-a183-b9f73189f47f",
+        "title": "Express Workflows",
+        "path": "/shapes/aws/app-integration/Express-Workflows.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "63b7f291-2b04-4533-8829-d3d5002d90ce",
+        "title": "Managed Workflows for Apache Airflow",
+        "path": "/shapes/aws/app-integration/Managed-Workflows-for-Apache-Airflow.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "53ac9278-19af-485f-95cd-88a03dbcb98e",
+        "title": "MQ",
+        "path": "/shapes/aws/app-integration/MQ.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "85ab612a-846f-478f-91b2-e877cb498446",
+        "title": "Simple Notification Service",
+        "path": "/shapes/aws/app-integration/Simple-Notification-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a6c286bd-bc94-43d9-b40a-d5afe81f99f9",
+        "title": "Simple Queue Service",
+        "path": "/shapes/aws/app-integration/Simple-Queue-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0c09b51e-0649-4e1b-a2cc-ffdb5ce2fe91",
+        "title": "Step Functions",
+        "path": "/shapes/aws/app-integration/Step-Functions.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ccc7c1a4-5736-459d-b713-f8aacf269bbb",
+        "title": "Managed Blockchain",
+        "path": "/shapes/aws/blockchain/Managed-Blockchain.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4817c4ff-9216-4d7e-ba75-e2020088b5c6",
+        "title": "Quantum Ledger Database",
+        "path": "/shapes/aws/blockchain/Quantum-Ledger-Database.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b4b9c576-3636-4f34-b65c-d97189be8134",
+        "title": "Alexa For Business",
+        "path": "/shapes/aws/business-applications/Alexa-For-Business.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a3a68a3b-d3bd-46ea-bb0f-a0b3a3df2296",
+        "title": "Chime SDK",
+        "path": "/shapes/aws/business-applications/Chime-SDK.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "babf15ca-fce9-450d-b48e-40f1fb0a035f",
+        "title": "Chime Voice Connector",
+        "path": "/shapes/aws/business-applications/Chime-Voice-Connector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "99224bd5-dba2-49c0-9f61-7be1e9b15a23",
+        "title": "Chime",
+        "path": "/shapes/aws/business-applications/Chime.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "83234f51-fe0a-4cda-a601-8442ec059d97",
+        "title": "Connect",
+        "path": "/shapes/aws/business-applications/Connect.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "cc72fc36-d662-40a0-9e50-431b23623f1a",
+        "title": "Honeycode",
+        "path": "/shapes/aws/business-applications/Honeycode.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "65bc69bd-330b-4f54-900b-6b57aab73dbc",
+        "title": "Pinpoint APIs",
+        "path": "/shapes/aws/business-applications/Pinpoint-APIs.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "609fa541-74eb-4f28-a582-bb288ef63e47",
+        "title": "Pinpoint",
+        "path": "/shapes/aws/business-applications/Pinpoint.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5f526f0e-ff77-4e4d-90f9-249265378f48",
+        "title": "Simple Email Service",
+        "path": "/shapes/aws/business-applications/Simple-Email-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6b428537-6488-4bc3-8eac-4cf95383e794",
+        "title": "Supply Chain",
+        "path": "/shapes/aws/business-applications/Supply-Chain.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d94c02f0-0610-449b-976f-682f036d8189",
+        "title": "Wickr",
+        "path": "/shapes/aws/business-applications/Wickr.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a5209fad-85ae-4ce2-98b9-699d099949d7",
+        "title": "WorkDocs SDK",
+        "path": "/shapes/aws/business-applications/WorkDocs-SDK.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c01b33fb-63e8-4221-8650-1409e81a9d64",
+        "title": "WorkDocs",
+        "path": "/shapes/aws/business-applications/WorkDocs.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ed7e9023-af7b-4dc0-abed-2e7289a519b6",
+        "title": "WorkMail",
+        "path": "/shapes/aws/business-applications/WorkMail.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "10d56037-ff32-4367-a98f-2cef99a42fb0",
+        "title": "Application Cost Profiler",
+        "path": "/shapes/aws/cloud-financial-management/Application-Cost-Profiler.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5e302d80-0509-4dc2-bc49-7e41f0e50093",
+        "title": "Billing Conductor",
+        "path": "/shapes/aws/cloud-financial-management/Billing-Conductor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "40a3e5bd-9ac8-4a90-90fb-5c9bd440d0ec",
+        "title": "Budgets",
+        "path": "/shapes/aws/cloud-financial-management/Budgets.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5d1846a6-127d-4745-a3cd-eacd85c62f0c",
+        "title": "Cost and Usage Report",
+        "path": "/shapes/aws/cloud-financial-management/Cost-and-Usage-Report.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6d31683f-eb8a-4202-9460-78157368b6f9",
+        "title": "Cost Explorer",
+        "path": "/shapes/aws/cloud-financial-management/Cost-Explorer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3e7ba08e-1d86-45f2-b183-f4850a83055b",
+        "title": "Reserved Instance Reporting",
+        "path": "/shapes/aws/cloud-financial-management/Reserved-Instance-Reporting.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e4698a11-eceb-498a-8bc2-f8d9e93a692c",
+        "title": "Savings Plans",
+        "path": "/shapes/aws/cloud-financial-management/Savings-Plans.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "924b56c4-9b47-42da-bf2b-952a377904ee",
+        "title": "App Runner",
+        "path": "/shapes/aws/compute/App-Runner.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "dc0e71de-b81a-4144-859c-753040147a3f",
+        "title": "Application Auto Scaling",
+        "path": "/shapes/aws/compute/Application-Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "eeb3d765-ee42-42a4-ae37-2221d940f832",
+        "title": "Batch",
+        "path": "/shapes/aws/compute/Batch.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8edc0955-378e-4ad7-810d-22df55297c50",
+        "title": "Bottlerocket",
+        "path": "/shapes/aws/compute/Bottlerocket.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "00398b54-0ed7-4fed-be8e-99acd5e9bfc3",
+        "title": "Compute Optimizer",
+        "path": "/shapes/aws/compute/Compute-Optimizer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e809f024-8667-4136-bd5d-4b9d3d6e900e",
+        "title": "EC2 Auto Scaling",
+        "path": "/shapes/aws/compute/EC2-Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0805071d-7a9e-482a-b9d9-38cfeab15b61",
+        "title": "EC2 Image Builder",
+        "path": "/shapes/aws/compute/EC2-Image-Builder.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4d1b45f3-bd72-4721-85fc-625ba968ed50",
+        "title": "EC2",
+        "path": "/shapes/aws/compute/EC2.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7e96c4a2-2bad-4d5d-a605-9fc9468bc783",
+        "title": "Elastic Beanstalk",
+        "path": "/shapes/aws/compute/Elastic-Beanstalk.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "bfc666c3-21e1-4a30-93b8-07dc3690ff31",
+        "title": "Elastic Fabric Adapter",
+        "path": "/shapes/aws/compute/Elastic-Fabric-Adapter.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e1eb4713-5239-41ef-9ae7-92bb419ba408",
+        "title": "Fargate",
+        "path": "/shapes/aws/compute/Fargate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8c179b5d-c082-4819-b1df-4481463f03ef",
+        "title": "Genomics CLI",
+        "path": "/shapes/aws/compute/Genomics-CLI.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ca05dc0c-513d-4055-8898-731b62bbf03f",
+        "title": "Lambda",
+        "path": "/shapes/aws/compute/Lambda.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2884f647-bdf9-4185-80c2-222c68bd41fe",
+        "title": "Lightsail",
+        "path": "/shapes/aws/compute/Lightsail.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6097bee9-8b03-4855-a20d-afc9a3e0f543",
+        "title": "Local Zones",
+        "path": "/shapes/aws/compute/Local-Zones.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a47a5561-f52d-4fda-bd04-5daeebfdcef9",
+        "title": "NICE DCV",
+        "path": "/shapes/aws/compute/NICE-DCV.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e59ac686-fb4b-46c6-84bc-ee2d82a65265",
+        "title": "NICE EnginFrame",
+        "path": "/shapes/aws/compute/NICE-EnginFrame.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b0433254-7b75-4252-a3c2-8409bee7e764",
+        "title": "Nitro Enclaves",
+        "path": "/shapes/aws/compute/Nitro-Enclaves.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c1b6e946-02a0-4b57-af26-21dd573f79a1",
+        "title": "Outposts family",
+        "path": "/shapes/aws/compute/Outposts-family.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2692b086-3ba8-4c64-8042-e5af57792f44",
+        "title": "Outposts rack",
+        "path": "/shapes/aws/compute/Outposts-rack.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5d964ac7-e0c0-40ac-b4ce-51eab64cb506",
+        "title": "Outposts servers",
+        "path": "/shapes/aws/compute/Outposts-servers.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "131c29a3-24aa-40c0-97af-928b54f3ca69",
+        "title": "ParallelCluster",
+        "path": "/shapes/aws/compute/ParallelCluster.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "cb0b3276-0f49-47c2-935b-19531d35cf83",
+        "title": "Serverless Application Repository",
+        "path": "/shapes/aws/compute/Serverless-Application-Repository.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0129d6bf-10d9-455d-9c64-c958dff72dd0",
+        "title": "SimSpace Weaver",
+        "path": "/shapes/aws/compute/SimSpace-Weaver.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fa775afa-9563-49c9-bed2-3da40b6d093e",
+        "title": "Thinkbox Deadline",
+        "path": "/shapes/aws/compute/Thinkbox-Deadline.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d11cdceb-2bcc-4548-bec0-39fc50549e79",
+        "title": "Thinkbox Frost",
+        "path": "/shapes/aws/compute/Thinkbox-Frost.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "da36ca8d-c7d0-475a-8e47-d59c8487b82f",
+        "title": "Thinkbox Krakatoa",
+        "path": "/shapes/aws/compute/Thinkbox-Krakatoa.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "94ab59d3-9612-4631-87c1-a073e241877f",
+        "title": "Thinkbox Sequoia",
+        "path": "/shapes/aws/compute/Thinkbox-Sequoia.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "613e611f-27f6-4e34-b342-d2370f732d4c",
+        "title": "Thinkbox Stoke",
+        "path": "/shapes/aws/compute/Thinkbox-Stoke.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "423f3deb-e805-4e76-b5d7-8db743b0525a",
+        "title": "Thinkbox XMesh",
+        "path": "/shapes/aws/compute/Thinkbox-XMesh.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "9255342d-997c-49ce-b504-23af635fa48e",
+        "title": "VMware Cloud on AWS",
+        "path": "/shapes/aws/compute/VMware-Cloud-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b9150e8e-ebb5-48d6-9aef-68eb5dab380f",
+        "title": "Wavelength",
+        "path": "/shapes/aws/compute/Wavelength.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "25677e83-d1d7-4a33-a175-ed2a45e64375",
+        "title": "ECS Anywhere",
+        "path": "/shapes/aws/containers/ECS-Anywhere.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "554808b0-b335-49d5-ad69-b73544694972",
+        "title": "EKS Anywhere",
+        "path": "/shapes/aws/containers/EKS-Anywhere.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "836b05fc-95bd-4f58-bd81-919f8b11eae0",
+        "title": "EKS Cloud",
+        "path": "/shapes/aws/containers/EKS-Cloud.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "bdc0ec0a-f16b-401f-a648-9934e113ce64",
+        "title": "EKS Distro",
+        "path": "/shapes/aws/containers/EKS-Distro.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6a19e73d-12e3-43d7-a7c2-c33ccd15140c",
+        "title": "Elastic Container Registry",
+        "path": "/shapes/aws/containers/Elastic-Container-Registry.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d8ded97f-2bfa-4e1b-af13-2ba72a38a87a",
+        "title": "Elastic Container Service",
+        "path": "/shapes/aws/containers/Elastic-Container-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "953c4c45-7bd0-403f-80ea-07c7134f7735",
+        "title": "Elastic Kubernetes Service",
+        "path": "/shapes/aws/containers/Elastic-Kubernetes-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6b125c4b-a84a-4bdb-b835-39de5d144ac6",
+        "title": "Fargate",
+        "path": "/shapes/aws/containers/Fargate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8a24a94a-2a40-42fe-840c-df5d722393e4",
+        "title": "Red Hat OpenShift Service on AWS",
+        "path": "/shapes/aws/containers/Red-Hat-OpenShift-Service-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fe746bae-8e12-4f5c-ba85-135020f8185d",
+        "title": "Activate",
+        "path": "/shapes/aws/customer-enablement/Activate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4594e369-0772-4465-b3a4-453a3670b074",
+        "title": "IQ",
+        "path": "/shapes/aws/customer-enablement/IQ.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "85438e19-3996-4c68-bc8a-2a54fed89ce9",
+        "title": "Managed Services",
+        "path": "/shapes/aws/customer-enablement/Managed-Services.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f69eeb9d-f60f-4d06-a373-3d873bd0db5c",
+        "title": "Professional Services",
+        "path": "/shapes/aws/customer-enablement/Professional-Services.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e76b41ab-91be-48d0-9f5b-97c47af5e280",
+        "title": "rePost",
+        "path": "/shapes/aws/customer-enablement/rePost.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e955050f-8d31-4457-b9da-eb86b7e68b91",
+        "title": "Support",
+        "path": "/shapes/aws/customer-enablement/Support.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5cf0987e-221c-4dab-b131-7da3a2b36b24",
+        "title": "Training Certification",
+        "path": "/shapes/aws/customer-enablement/Training-Certification.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c904de2f-cf06-434b-ba43-2a10315c7f5c",
+        "title": "Application Composer",
+        "path": "/shapes/aws/developer-tools/Application-Composer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "442cbf66-430b-4669-8373-d416fd8beb42",
+        "title": "Cloud Control API",
+        "path": "/shapes/aws/developer-tools/Cloud-Control-API.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b6a5da7d-fc10-4595-9503-f95907924d8e",
+        "title": "Cloud Development Kit",
+        "path": "/shapes/aws/developer-tools/Cloud-Development-Kit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0849fe0c-c222-4f16-bc8b-df7d23dd8e13",
+        "title": "Cloud9",
+        "path": "/shapes/aws/developer-tools/Cloud9.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "96053e4b-7249-4372-ae69-76a13b907746",
+        "title": "CloudShell",
+        "path": "/shapes/aws/developer-tools/CloudShell.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7cc92a8a-a930-4ec6-8adc-5eab301dc080",
+        "title": "CodeArtifact",
+        "path": "/shapes/aws/developer-tools/CodeArtifact.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3e17e6ac-6118-41cd-92b0-d2f87e8b1b74",
+        "title": "CodeBuild",
+        "path": "/shapes/aws/developer-tools/CodeBuild.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f0148ccf-dcd5-4813-b2cd-78b1d289d60d",
+        "title": "CodeCatalyst",
+        "path": "/shapes/aws/developer-tools/CodeCatalyst.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "872ccba2-2a13-4bb3-919c-4f6d931e3e93",
+        "title": "CodeCommit",
+        "path": "/shapes/aws/developer-tools/CodeCommit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "9236d7b0-c54e-4191-be67-8aacd76e2a56",
+        "title": "CodeDeploy",
+        "path": "/shapes/aws/developer-tools/CodeDeploy.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "33de59f6-8ff5-41f9-a719-f1fe3eaaaecb",
+        "title": "CodePipeline",
+        "path": "/shapes/aws/developer-tools/CodePipeline.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "11d1650f-d4bd-4e0e-99e9-e35933813835",
+        "title": "CodeStar",
+        "path": "/shapes/aws/developer-tools/CodeStar.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7a509402-48f5-4d75-9e67-c51a24ebab22",
+        "title": "Command Line Interface",
+        "path": "/shapes/aws/developer-tools/Command-Line-Interface.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a970ac1c-a6af-46b3-bca6-7902ab845906",
+        "title": "Corretto",
+        "path": "/shapes/aws/developer-tools/Corretto.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fad0d361-cd01-4f27-88fc-1f519085bf96",
+        "title": "Tools and SDKs",
+        "path": "/shapes/aws/developer-tools/Tools-and-SDKs.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "dd74e1a3-d88a-4c58-8b4c-3db962243bf5",
+        "title": "X Ray",
+        "path": "/shapes/aws/developer-tools/X-Ray.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "bb424108-6351-42c2-8ab3-c8cfd7fb0c4a",
+        "title": "AppStream",
+        "path": "/shapes/aws/end-user-computing/AppStream.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c8a87947-000f-4c1f-8370-9c17e931bb9c",
+        "title": "WorkLink",
+        "path": "/shapes/aws/end-user-computing/WorkLink.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5d3aff7f-cd41-4a25-a196-f7ed43b3154e",
+        "title": "WorkSpaces Family",
+        "path": "/shapes/aws/end-user-computing/WorkSpaces-Family.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a94014bf-3c39-41b9-a3b2-4914a404e24e",
+        "title": "Amplify",
+        "path": "/shapes/aws/front-end-web-mobile/Amplify.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8378ba72-96fb-4bad-a393-f15f2e54b91b",
+        "title": "Device Farm",
+        "path": "/shapes/aws/front-end-web-mobile/Device-Farm.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "091bf063-5fbb-48d0-953e-361ff240fab7",
+        "title": "Location Service",
+        "path": "/shapes/aws/front-end-web-mobile/Location-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a9d7e5e7-810e-4f66-ae67-9700ebe135f5",
+        "title": "GameKit",
+        "path": "/shapes/aws/games/GameKit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "61a9ea53-a169-4115-a86e-02a09f593b2f",
+        "title": "GameLift",
+        "path": "/shapes/aws/games/GameLift.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ca5d9f99-3151-43e0-a64d-6b22aef14821",
+        "title": "GameSparks",
+        "path": "/shapes/aws/games/GameSparks.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "68619ae9-06a7-44c1-955d-a06f1363308b",
+        "title": "Lumberyard",
+        "path": "/shapes/aws/games/Lumberyard.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a7a194be-fe43-41c9-ae02-ee28d12c28c6",
+        "title": "Open 3D Engine",
+        "path": "/shapes/aws/games/Open-3D-Engine.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "872c1166-0576-4a82-b8c3-829bdb22ab75",
+        "title": "Marketplace Dark",
+        "path": "/shapes/aws/general-icons/Marketplace_Dark.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "39ead873-e7ab-458f-ae74-45ae9dd7bde9",
+        "title": "Marketplace Light",
+        "path": "/shapes/aws/general-icons/Marketplace_Light.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fc4d7477-386b-44cf-86a2-3e3b2ff976f4",
+        "title": "FreeRTOS",
+        "path": "/shapes/aws/internet-of-things/FreeRTOS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a9d4a025-788c-4606-817a-294c57a0215d",
+        "title": "IoT 1 Click",
+        "path": "/shapes/aws/internet-of-things/IoT-1-Click.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5d3f0d49-1407-4c67-b15e-5fb93f1dfb8b",
+        "title": "IoT Analytics",
+        "path": "/shapes/aws/internet-of-things/IoT-Analytics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7bc7f50c-0093-47f5-93ef-786a12022e19",
+        "title": "IoT Button",
+        "path": "/shapes/aws/internet-of-things/IoT-Button.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ce9cb9c9-5232-44ac-9324-3be6340ffd9a",
+        "title": "IoT Core",
+        "path": "/shapes/aws/internet-of-things/IoT-Core.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f8c0cec1-f4f6-46ea-af31-b475077e6ddf",
+        "title": "IoT Device Defender",
+        "path": "/shapes/aws/internet-of-things/IoT-Device-Defender.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "26638403-90f4-4286-b6eb-0422bcf944c9",
+        "title": "IoT Device Management",
+        "path": "/shapes/aws/internet-of-things/IoT-Device-Management.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ede6a9c6-726e-413f-ace1-e066815bd284",
+        "title": "IoT EduKit",
+        "path": "/shapes/aws/internet-of-things/IoT-EduKit.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8e835df3-47c5-4272-ad52-85ea25518632",
+        "title": "IoT Events",
+        "path": "/shapes/aws/internet-of-things/IoT-Events.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "63fbaa32-ecd0-479b-8865-b486eacb26a3",
+        "title": "IoT ExpressLink",
+        "path": "/shapes/aws/internet-of-things/IoT-ExpressLink.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "dd727b2f-c14f-4914-9acb-af4a0d980b19",
+        "title": "IoT FleetWise",
+        "path": "/shapes/aws/internet-of-things/IoT-FleetWise.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "09133a91-5708-42e3-92ae-2b5ad7b105ac",
+        "title": "IoT Greengrass",
+        "path": "/shapes/aws/internet-of-things/IoT-Greengrass.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7b1f014e-0941-4a5d-9bc7-7ad6ef97b21d",
+        "title": "IoT RoboRunner",
+        "path": "/shapes/aws/internet-of-things/IoT-RoboRunner.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b88fd04f-5a46-470b-b25d-42b2fc81b3af",
+        "title": "IoT SiteWise",
+        "path": "/shapes/aws/internet-of-things/IoT-SiteWise.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0e483c8a-9f43-4394-b518-237a0a542534",
+        "title": "IoT Things Graph",
+        "path": "/shapes/aws/internet-of-things/IoT-Things-Graph.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "abe39e72-ff98-41bc-ba4d-497b138ed2ff",
+        "title": "IoT TwinMaker",
+        "path": "/shapes/aws/internet-of-things/IoT-TwinMaker.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "45091c6b-0b42-40cf-9737-7b422c1b8509",
+        "title": "Apache MXNet on AWS",
+        "path": "/shapes/aws/machine-learning/Apache-MXNet-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fa32626f-e40e-4ca3-b58f-0e653db1a1b8",
+        "title": "Augmented AI A2I",
+        "path": "/shapes/aws/machine-learning/Augmented-AI-A2I.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "219e290d-06ce-4cf6-83c5-725fd96c1bfc",
+        "title": "CodeGuru",
+        "path": "/shapes/aws/machine-learning/CodeGuru.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f3a08688-96ab-4d48-bf81-808763ddac95",
+        "title": "CodeWhisperer",
+        "path": "/shapes/aws/machine-learning/CodeWhisperer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ac678f1e-fe86-495e-a4ee-e8cccfc04e08",
+        "title": "Comprehend Medical",
+        "path": "/shapes/aws/machine-learning/Comprehend-Medical.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e2f2460f-8440-4802-90d9-e944291bea52",
+        "title": "Comprehend",
+        "path": "/shapes/aws/machine-learning/Comprehend.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "61a139c6-7d45-4f1e-8cc1-faa54a5392d9",
+        "title": "Deep Learning AMIs",
+        "path": "/shapes/aws/machine-learning/Deep-Learning-AMIs.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "76ecad2c-aeb7-4d38-9d72-43063d0d43e5",
+        "title": "Deep Learning Containers",
+        "path": "/shapes/aws/machine-learning/Deep-Learning-Containers.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "35f9503b-ce0f-4d9d-85fb-75257b69daa5",
+        "title": "DeepComposer",
+        "path": "/shapes/aws/machine-learning/DeepComposer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "414720e8-0824-4855-bad7-de48c0b77b53",
+        "title": "DeepLens",
+        "path": "/shapes/aws/machine-learning/DeepLens.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f8e9340b-81fa-4b2d-9ce2-9a521dd84ef2",
+        "title": "DeepRacer",
+        "path": "/shapes/aws/machine-learning/DeepRacer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8c955188-f22d-422c-b763-87dfeb69431c",
+        "title": "DevOps Guru",
+        "path": "/shapes/aws/machine-learning/DevOps-Guru.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "71c568e6-f12e-4bbd-b82a-a43d851bcb68",
+        "title": "Elastic Inference",
+        "path": "/shapes/aws/machine-learning/Elastic-Inference.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "479c2e97-77bc-4c0a-be31-2361048c83f7",
+        "title": "Forecast",
+        "path": "/shapes/aws/machine-learning/Forecast.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "1c479842-5d68-4203-b26a-dbeb33d1f972",
+        "title": "Fraud Detector",
+        "path": "/shapes/aws/machine-learning/Fraud-Detector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3deecf7d-87d2-4ff3-9535-6680e42b8a86",
+        "title": "HealthLake",
+        "path": "/shapes/aws/machine-learning/HealthLake.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "33a03da8-d7be-4f45-ba47-0b970b5f9ad5",
+        "title": "Kendra",
+        "path": "/shapes/aws/machine-learning/Kendra.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "bfad926c-e1ef-4873-b2d4-f391fddd8f28",
+        "title": "Lex",
+        "path": "/shapes/aws/machine-learning/Lex.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "87a03051-1880-4b4e-b910-9b73f11b0aec",
+        "title": "Lookout for Equipment",
+        "path": "/shapes/aws/machine-learning/Lookout-for-Equipment.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d9823042-c50f-47c7-a824-158a26d55198",
+        "title": "Lookout for Metrics",
+        "path": "/shapes/aws/machine-learning/Lookout-for-Metrics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "acb3af7a-83f5-4da2-946d-bbd152b88e31",
+        "title": "Lookout for Vision",
+        "path": "/shapes/aws/machine-learning/Lookout-for-Vision.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6bdc19fa-4ac3-40d5-9502-3cc8a6ba63c4",
+        "title": "Monitron",
+        "path": "/shapes/aws/machine-learning/Monitron.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3604e5e3-88ea-41b3-bda8-da80518353d3",
+        "title": "Neuron",
+        "path": "/shapes/aws/machine-learning/Neuron.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "432fc033-6f92-4d6f-af12-86ea200f5842",
+        "title": "Omics",
+        "path": "/shapes/aws/machine-learning/Omics.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "bf1c8615-714f-42b7-9113-a4dd2afd7122",
+        "title": "Panorama",
+        "path": "/shapes/aws/machine-learning/Panorama.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4188441f-8332-4227-9eaf-3f0b1a9ef033",
+        "title": "Personalize",
+        "path": "/shapes/aws/machine-learning/Personalize.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "561aa1fa-a61a-49cd-a902-1503c496a4a8",
+        "title": "Polly",
+        "path": "/shapes/aws/machine-learning/Polly.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c25a3495-5d22-415f-8897-8670903af017",
+        "title": "Rekognition",
+        "path": "/shapes/aws/machine-learning/Rekognition.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "635e96f1-2195-45c7-b224-fe7f3b0e0ff9",
+        "title": "SageMaker Ground Truth",
+        "path": "/shapes/aws/machine-learning/SageMaker-Ground-Truth.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "56688964-8a10-4f19-9eba-be1ad5ab3d2b",
+        "title": "SageMaker Studio Lab",
+        "path": "/shapes/aws/machine-learning/SageMaker-Studio-Lab.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "67134c90-aa3a-4f43-a3d4-30eb8539e09a",
+        "title": "SageMaker",
+        "path": "/shapes/aws/machine-learning/SageMaker.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "33060e53-a1c6-4e30-b8bc-61b84e10d12f",
+        "title": "TensorFlow on AWS",
+        "path": "/shapes/aws/machine-learning/TensorFlow-on-AWS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "32f4c4f3-940b-4c65-a012-3239fa1cf48f",
+        "title": "Textract",
+        "path": "/shapes/aws/machine-learning/Textract.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7ca13698-8716-46db-80c9-76031b99a14b",
+        "title": "TorchServe",
+        "path": "/shapes/aws/machine-learning/TorchServe.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5c9aaa6f-1545-46a1-a750-7b7e341e8a09",
+        "title": "Transcribe",
+        "path": "/shapes/aws/machine-learning/Transcribe.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c8f819bf-21a0-4ca3-b90b-71cfff2d2fe4",
+        "title": "Translate",
+        "path": "/shapes/aws/machine-learning/Translate.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "1af1d6f7-2b98-4598-a6d7-228de32693ca",
+        "title": "AppConfig",
+        "path": "/shapes/aws/management-governance/AppConfig.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f771d489-5fd3-48b2-b39c-edb04e8db58b",
+        "title": "Application Auto Scaling",
+        "path": "/shapes/aws/management-governance/Application-Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "75637ebe-f111-4a8a-a0ea-914525c797bb",
+        "title": "Auto Scaling",
+        "path": "/shapes/aws/management-governance/Auto-Scaling.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "55bc4455-b057-4f76-8844-4b58d25cf427",
+        "title": "Backint Agent",
+        "path": "/shapes/aws/management-governance/Backint-Agent.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "39ed9ee1-dace-404e-beeb-5a5339bf08b4",
+        "title": "Chatbot",
+        "path": "/shapes/aws/management-governance/Chatbot.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "319ef9de-ac6f-41df-945c-9fb74c711b4b",
+        "title": "CloudFormation",
+        "path": "/shapes/aws/management-governance/CloudFormation.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fc4a55bc-ca44-43fe-916b-a4ab9ac09aee",
+        "title": "CloudTrail",
+        "path": "/shapes/aws/management-governance/CloudTrail.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "893a506d-8eb3-4af2-80a3-000d400618f2",
+        "title": "CloudWatch",
+        "path": "/shapes/aws/management-governance/CloudWatch.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d24a66f4-9fe6-4251-94b0-931602ed7a00",
+        "title": "Config",
+        "path": "/shapes/aws/management-governance/Config.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4318b0f1-6af1-48f2-95a3-63d67a72e23e",
+        "title": "Control Tower",
+        "path": "/shapes/aws/management-governance/Control-Tower.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "1ee5834a-be30-446f-93ad-15f14474cca4",
+        "title": "Distro for OpenTelemetry",
+        "path": "/shapes/aws/management-governance/Distro-for-OpenTelemetry.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8d016930-4e17-40b0-a6f1-a0dac08868b9",
+        "title": "Fault Injection Simulator",
+        "path": "/shapes/aws/management-governance/Fault-Injection-Simulator.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e6459b93-2156-4ed4-a02f-cb86101920eb",
+        "title": "Launch Wizard",
+        "path": "/shapes/aws/management-governance/Launch-Wizard.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "243ddb4d-f700-4862-a573-9afad1866c5f",
+        "title": "License Manager",
+        "path": "/shapes/aws/management-governance/License-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3d900292-6ca3-4a36-8229-7a9cbb0337a7",
+        "title": "Managed Grafana",
+        "path": "/shapes/aws/management-governance/Managed-Grafana.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f553d7d3-9884-4378-b706-38d235e2643a",
+        "title": "Managed Service for Prometheus",
+        "path": "/shapes/aws/management-governance/Managed-Service-for-Prometheus.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8997d67e-f459-4545-b45d-ea42ecc524e7",
+        "title": "Management Console",
+        "path": "/shapes/aws/management-governance/Management-Console.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "29477345-4913-4277-b8b1-46b6f1eaa765",
+        "title": "OpsWorks",
+        "path": "/shapes/aws/management-governance/OpsWorks.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2be0de23-65ed-47f8-bb61-a9e90814fb91",
+        "title": "Organizations",
+        "path": "/shapes/aws/management-governance/Organizations.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4bd99c55-a210-4043-a589-fe36b88bc298",
+        "title": "Personal Health Dashboard",
+        "path": "/shapes/aws/management-governance/Personal-Health-Dashboard.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "94944219-cad8-494c-997b-9430cd485e56",
+        "title": "Proton",
+        "path": "/shapes/aws/management-governance/Proton.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "9740eb26-145a-4b6f-9cf0-b2323ba932b5",
+        "title": "Resilience Hub",
+        "path": "/shapes/aws/management-governance/Resilience-Hub.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "aa0851f4-b9d3-4131-b399-f0ca66351dc1",
+        "title": "Resource Explorer",
+        "path": "/shapes/aws/management-governance/Resource-Explorer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c9758c24-749e-43a1-b978-17f81d943c01",
+        "title": "Service Catalog",
+        "path": "/shapes/aws/management-governance/Service-Catalog.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b71f25e4-2b21-41c0-a407-914a6def4d2e",
+        "title": "Service Management Connector",
+        "path": "/shapes/aws/management-governance/Service-Management-Connector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "43895375-2671-4bec-87e5-a2498abc4e30",
+        "title": "Systems Manager",
+        "path": "/shapes/aws/management-governance/Systems-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3e3b3b7a-ecc0-485f-8606-44a60624db28",
+        "title": "Trusted Advisor",
+        "path": "/shapes/aws/management-governance/Trusted-Advisor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b0205f53-0720-4d9b-a980-efa7952589e4",
+        "title": "Well Architected Tool",
+        "path": "/shapes/aws/management-governance/Well-Architected-Tool.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0fb45cb6-32a9-42d4-8cd8-16a75b9330a4",
+        "title": "Elastic Transcoder",
+        "path": "/shapes/aws/media-services/Elastic-Transcoder.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "30a36e19-af3a-4dc7-886f-f646a96bb585",
+        "title": "Elemental Appliances & Software",
+        "path": "/shapes/aws/media-services/Elemental-Appliances-&-Software.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "857c486c-17c8-430e-a7d3-bc0a22f94612",
+        "title": "Elemental Conductor",
+        "path": "/shapes/aws/media-services/Elemental-Conductor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e4105386-69d8-4bcb-8fb9-0603b0baab1c",
+        "title": "Elemental Delta",
+        "path": "/shapes/aws/media-services/Elemental-Delta.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "88d33291-d1ff-4549-9465-c5ecb9bff56d",
+        "title": "Elemental Link",
+        "path": "/shapes/aws/media-services/Elemental-Link.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "33c78520-0888-453e-a08e-748527b16d19",
+        "title": "Elemental Live",
+        "path": "/shapes/aws/media-services/Elemental-Live.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2796c8ff-6f43-4b67-8954-e3d0941904bc",
+        "title": "Elemental MediaConnect",
+        "path": "/shapes/aws/media-services/Elemental-MediaConnect.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "322a09dd-a060-4351-a14f-3e1cd3fa0807",
+        "title": "Elemental MediaConvert",
+        "path": "/shapes/aws/media-services/Elemental-MediaConvert.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ef6264fe-c3e2-4321-9935-3c8eea42a4d3",
+        "title": "Elemental MediaLive",
+        "path": "/shapes/aws/media-services/Elemental-MediaLive.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "59ee55f3-d256-4dbe-b0eb-66b7d74db662",
+        "title": "Elemental MediaPackage",
+        "path": "/shapes/aws/media-services/Elemental-MediaPackage.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "806c94e2-995e-4563-a1bd-fb74d16aeb16",
+        "title": "Elemental MediaStore",
+        "path": "/shapes/aws/media-services/Elemental-MediaStore.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "70537f52-18e8-4945-b40a-45b34185e883",
+        "title": "Elemental MediaTailor",
+        "path": "/shapes/aws/media-services/Elemental-MediaTailor.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d4ec216d-cae8-4825-92f1-f3ee39507ade",
+        "title": "Elemental Server",
+        "path": "/shapes/aws/media-services/Elemental-Server.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "86a80199-786a-4a5b-bb8c-a01a06db64bf",
+        "title": "Interactive Video Service",
+        "path": "/shapes/aws/media-services/Interactive-Video-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d089b290-a830-4f90-9790-dae998271d0a",
+        "title": "Kinesis Video Streams",
+        "path": "/shapes/aws/media-services/Kinesis-Video-Streams.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "6285a516-f7dc-4954-9137-b5ca552f731e",
+        "title": "Nimble Studio",
+        "path": "/shapes/aws/media-services/Nimble-Studio.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8f8c8b4b-1965-4dd2-91d1-45497e7e6635",
+        "title": "Application Discovery Service",
+        "path": "/shapes/aws/migration-transfer/Application-Discovery-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "379ed0da-6fa4-40ac-a9c2-1df13211ce5c",
+        "title": "Application Migration Service",
+        "path": "/shapes/aws/migration-transfer/Application-Migration-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e74ffff0-639e-49c7-b5fa-b17defcff64a",
+        "title": "DataSync",
+        "path": "/shapes/aws/migration-transfer/DataSync.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "30034ef7-9a93-45ae-906e-aaebd7fc4066",
+        "title": "Mainframe Modernization",
+        "path": "/shapes/aws/migration-transfer/Mainframe-Modernization.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "9f695071-89c6-47d7-a89c-cc2fd8c82532",
+        "title": "Migration Evaluator",
+        "path": "/shapes/aws/migration-transfer/Migration-Evaluator.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e48a1913-9e86-4b56-a721-4893b1a00ac8",
+        "title": "Migration Hub",
+        "path": "/shapes/aws/migration-transfer/Migration-Hub.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "df4e8ff5-6b52-459c-bd69-1f4ef12551d2",
+        "title": "Server Migration Service",
+        "path": "/shapes/aws/migration-transfer/Server-Migration-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "effbcdac-2915-4b42-8403-797809cd503c",
+        "title": "Transfer Family",
+        "path": "/shapes/aws/migration-transfer/Transfer-Family.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "75012bd7-78c5-4912-ba61-781ac188fcc9",
+        "title": "App Mesh",
+        "path": "/shapes/aws/networking-content-delivery/App-Mesh.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "825c2c56-c818-4856-9b2b-af1cb915819a",
+        "title": "Client VPN",
+        "path": "/shapes/aws/networking-content-delivery/Client-VPN.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c01d447a-0cc6-4cf6-8bb3-805787caab93",
+        "title": "Cloud Directory",
+        "path": "/shapes/aws/networking-content-delivery/Cloud-Directory.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e465f211-05ff-4a8c-a151-0263895feaf8",
+        "title": "Cloud Map",
+        "path": "/shapes/aws/networking-content-delivery/Cloud-Map.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e2483e5d-3c13-493e-b006-e06d6f1f2333",
+        "title": "Cloud WAN",
+        "path": "/shapes/aws/networking-content-delivery/Cloud-WAN.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a4ec5dc6-80b9-4c9b-b94f-bb318b6c8ae8",
+        "title": "CloudFront",
+        "path": "/shapes/aws/networking-content-delivery/CloudFront.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ad666514-4d67-4ded-a65f-2c38f295bca5",
+        "title": "Direct Connect",
+        "path": "/shapes/aws/networking-content-delivery/Direct-Connect.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5b001270-287d-470d-a3ee-6f84ee789fdd",
+        "title": "Elastic Load Balancing",
+        "path": "/shapes/aws/networking-content-delivery/Elastic-Load-Balancing.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a9b16cfc-1a4f-4bc1-9b95-8f13a8339e0c",
+        "title": "Global Accelerator",
+        "path": "/shapes/aws/networking-content-delivery/Global-Accelerator.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "26281ae6-aca3-44a5-8798-d68fa6f7d0d8",
+        "title": "Private 5G",
+        "path": "/shapes/aws/networking-content-delivery/Private-5G.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e66324de-18ad-430d-8db2-61782321888d",
+        "title": "PrivateLink",
+        "path": "/shapes/aws/networking-content-delivery/PrivateLink.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e3f27f70-703b-4569-845e-3f6773906e89",
+        "title": "Route 53",
+        "path": "/shapes/aws/networking-content-delivery/Route-53.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f19fc5e9-417e-4858-94f4-82b15a0a48a3",
+        "title": "Site to Site VPN",
+        "path": "/shapes/aws/networking-content-delivery/Site-to-Site-VPN.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e5b2d0fd-63fe-4103-9f92-9c6bf032d575",
+        "title": "Transit Gateway",
+        "path": "/shapes/aws/networking-content-delivery/Transit-Gateway.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f3a65a3a-8ff8-4546-92f1-f660fa3e38d3",
+        "title": "Verified Access",
+        "path": "/shapes/aws/networking-content-delivery/Verified-Access.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e84f8200-96b2-4591-9bd0-f0ab0357bcfc",
+        "title": "Virtual Private Cloud",
+        "path": "/shapes/aws/networking-content-delivery/Virtual-Private-Cloud.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "65b73a05-92d0-4792-9fed-c4ec3dc44f21",
+        "title": "VPC Lattice",
+        "path": "/shapes/aws/networking-content-delivery/VPC-Lattice.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "c9d594e3-8b3e-4d70-86d5-e929a2f839eb",
+        "title": "Braket",
+        "path": "/shapes/aws/quantum-technologies/Braket.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4785b5ec-a10a-4615-aa83-57d56a56e742",
+        "title": "RoboMaker",
+        "path": "/shapes/aws/robotics/RoboMaker.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "169ca421-d828-45bf-bcc5-e7b51b185f44",
+        "title": "Ground Station",
+        "path": "/shapes/aws/satellite/Ground-Station.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "eb49aa9a-d785-4bad-8305-87e44ecfba31",
+        "title": "Artifact",
+        "path": "/shapes/aws/security-identity-compliance/Artifact.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "37075c24-ffaa-4487-b9c7-3a3849ab95db",
+        "title": "Audit Manager",
+        "path": "/shapes/aws/security-identity-compliance/Audit-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "69b014d5-b8e2-4429-b994-da92b8433420",
+        "title": "Certificate Manager",
+        "path": "/shapes/aws/security-identity-compliance/Certificate-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d3113612-c6f7-4fef-9718-bd0a31cba2d2",
+        "title": "Cloud Directory",
+        "path": "/shapes/aws/security-identity-compliance/Cloud-Directory.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "0a7e550e-6775-4fa7-bdb7-cfeda2c4d8a0",
+        "title": "CloudHSM",
+        "path": "/shapes/aws/security-identity-compliance/CloudHSM.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b9618b23-dd06-46c3-ab08-01b9cf89ede9",
+        "title": "Cognito",
+        "path": "/shapes/aws/security-identity-compliance/Cognito.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a76cb0e0-dbe9-4027-b9ae-84eb3990016b",
+        "title": "Detective",
+        "path": "/shapes/aws/security-identity-compliance/Detective.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "1cf01ba7-fca3-4390-87e8-350ad10376ea",
+        "title": "Directory Service",
+        "path": "/shapes/aws/security-identity-compliance/Directory-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "b288f5e7-7d77-4dee-bcb1-78ac4e09c6b2",
+        "title": "Firewall Manager",
+        "path": "/shapes/aws/security-identity-compliance/Firewall-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2b3fac25-da37-435b-a647-911de8b9dab2",
+        "title": "GuardDuty",
+        "path": "/shapes/aws/security-identity-compliance/GuardDuty.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7e8abed5-c819-4284-9fa7-c13ce9fb8ffe",
+        "title": "IAM Identity Center",
+        "path": "/shapes/aws/security-identity-compliance/IAM-Identity-Center.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "754b17f3-be4b-4fa0-a108-2530326dcf6f",
+        "title": "Identity and Access Management",
+        "path": "/shapes/aws/security-identity-compliance/Identity-and-Access-Management.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4391965e-b252-4107-b95a-2e5fca2d1dbb",
+        "title": "Inspector",
+        "path": "/shapes/aws/security-identity-compliance/Inspector.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "627e6abb-5ef4-4c5e-85dc-b6555b3267be",
+        "title": "Key Management Service",
+        "path": "/shapes/aws/security-identity-compliance/Key-Management-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "f4201530-28f6-497d-989c-80ef28ec32df",
+        "title": "Macie",
+        "path": "/shapes/aws/security-identity-compliance/Macie.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "77c025e1-3c9f-4f6a-a2d5-64d9349a0a59",
+        "title": "Network Firewall",
+        "path": "/shapes/aws/security-identity-compliance/Network-Firewall.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3f0c94e0-6c60-4c61-a78c-83a88a91cac5",
+        "title": "Private Certificate Authority",
+        "path": "/shapes/aws/security-identity-compliance/Private-Certificate-Authority.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "fe5b8eba-1082-4640-8433-e636cc166a53",
+        "title": "Resource Access Manager",
+        "path": "/shapes/aws/security-identity-compliance/Resource-Access-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "ce71e4e7-59b5-45ac-8572-2258f1483534",
+        "title": "Secrets Manager",
+        "path": "/shapes/aws/security-identity-compliance/Secrets-Manager.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d1c558df-18d4-4ec2-9240-72a22c56d8d2",
+        "title": "Security Hub",
+        "path": "/shapes/aws/security-identity-compliance/Security-Hub.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "07873f6f-c619-402a-b2b5-8ce036b837e4",
+        "title": "Security Lake",
+        "path": "/shapes/aws/security-identity-compliance/Security-Lake.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "142bb959-fc8b-490e-aefd-d1dd61dcf0a0",
+        "title": "Shield",
+        "path": "/shapes/aws/security-identity-compliance/Shield.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "5a7c05d3-567b-4426-b762-886b216b3211",
+        "title": "Signer",
+        "path": "/shapes/aws/security-identity-compliance/Signer.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8412c691-fa22-4be2-964a-7e8d0f5e4574",
+        "title": "Verified Permissions",
+        "path": "/shapes/aws/security-identity-compliance/Verified-Permissions.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "79c64a2d-ac00-47f3-805f-fb6d38043617",
+        "title": "WAF",
+        "path": "/shapes/aws/security-identity-compliance/WAF.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "3560ecf8-59b8-40de-862f-ed626c9786de",
+        "title": "Backup",
+        "path": "/shapes/aws/storage/Backup.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "14674480-30b3-4dff-a19c-bd1838574409",
+        "title": "EFS",
+        "path": "/shapes/aws/storage/EFS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "06bca5fa-de4d-46f3-bb20-d1a813a75c9a",
+        "title": "Elastic Block Store",
+        "path": "/shapes/aws/storage/Elastic-Block-Store.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "a2daf382-4592-4398-9c0d-dcac884ce924",
+        "title": "Elastic Disaster Recovery",
+        "path": "/shapes/aws/storage/Elastic-Disaster-Recovery.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d2639961-fef4-4e24-a5c3-e8220f78c0c3",
+        "title": "File Cache",
+        "path": "/shapes/aws/storage/File-Cache.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "51ffa735-631b-4d60-a1fb-d0eaf11239cc",
+        "title": "FSx for Lustre",
+        "path": "/shapes/aws/storage/FSx-for-Lustre.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "60568a17-5a80-44b5-8084-d9c414eaff9c",
+        "title": "FSx for NetApp ONTAP",
+        "path": "/shapes/aws/storage/FSx-for-NetApp-ONTAP.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "cf8410f3-1ad8-474d-b480-c54cc5a66133",
+        "title": "FSx for OpenZFS",
+        "path": "/shapes/aws/storage/FSx-for-OpenZFS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "2f510f33-9736-4e06-a067-d26b08658acb",
+        "title": "FSx for WFS",
+        "path": "/shapes/aws/storage/FSx-for-WFS.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "7ef462d3-53d0-4156-94d8-0f876a9eb213",
+        "title": "FSx",
+        "path": "/shapes/aws/storage/FSx.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "8bc4feae-1a6c-4c10-8f19-607e6c94a077",
+        "title": "S3 on Outposts",
+        "path": "/shapes/aws/storage/S3-on-Outposts.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "43be222e-5ea3-454b-a4ce-4b3fe0c84e59",
+        "title": "Simple Storage Service Glacier",
+        "path": "/shapes/aws/storage/Simple-Storage-Service-Glacier.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "64064159-8ef5-42af-9a73-b5db5506137e",
+        "title": "Simple Storage Service",
+        "path": "/shapes/aws/storage/Simple-Storage-Service.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "72cee99a-6b50-43d9-88d7-39c356796a91",
+        "title": "Snowball Edge",
+        "path": "/shapes/aws/storage/Snowball-Edge.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "d49a87ee-8c8b-4c28-ab42-9b3838bba540",
+        "title": "Snowball",
+        "path": "/shapes/aws/storage/Snowball.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "e7bcd8b2-7342-4e4f-be0a-e2e31aec17f6",
+        "title": "Snowcone",
+        "path": "/shapes/aws/storage/Snowcone.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "596f636f-b572-4a97-8150-dd73bee2dba4",
+        "title": "Snowmobile",
+        "path": "/shapes/aws/storage/Snowmobile.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "62a8fae8-0ee5-4686-9065-cdf7c5e1677f",
+        "title": "Storage Gateway",
+        "path": "/shapes/aws/storage/Storage-Gateway.svg",
+        "textPosition": "inside"
+    },
+    {
+        "id": "4cf1d200-1537-4be7-a654-5da291a4b0d4",
+        "title": "Sumerian",
+        "path": "/shapes/aws/vr-ar/Sumerian.svg",
+        "textPosition": "inside"
+    }
+]
