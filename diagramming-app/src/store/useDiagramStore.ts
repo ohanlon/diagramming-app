@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DiagramState, Shape, Connector, Point } from '../types';
@@ -66,6 +65,7 @@ interface DiagramStoreActions {
   setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
   setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
   setSelectedTextColor: (color: string) => void;
+  groupShapes: (ids: string[]) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -649,8 +649,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             return state;
           }
 
-          const newLayers = { ...activeSheet.layers };
-          delete newLayers[id];
+          const newLayers = Object.fromEntries(
+            Object.entries(activeSheet.layers).filter(([layerId]) => layerId !== id)
+          );
 
           const newLayerIds = activeSheet.layerIds.filter((layerId) => layerId !== id);
 
@@ -908,6 +909,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             zoom: 1,
             pan: { x: 0, y: 0 },
             clipboard: null,
+            selectedFont: initialState.sheets[defaultSheetId].selectedFont,
+            selectedFontSize: initialState.sheets[defaultSheetId].selectedFontSize,
+            selectedTextColor: initialState.sheets[defaultSheetId].selectedTextColor,
           };
 
           return {
@@ -929,8 +933,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             return state;
           }
 
-          const newSheets = { ...state.sheets };
-          delete newSheets[id];
+          const newSheets = Object.fromEntries(
+            Object.entries(state.sheets).filter(([sheetId]) => sheetId !== id)
+          );
 
           const newActiveSheetId = id === state.activeSheetId ? sheetIds.filter(sheetId => sheetId !== id)[0] : state.activeSheetId;
 
@@ -1274,13 +1279,82 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           };
         });
       },
+
+      groupShapes: (ids: string[]) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const shapesToGroup = ids.map(id => activeSheet.shapesById[id]).filter(Boolean);
+          if (shapesToGroup.length < 2) return state; // Need at least two shapes to group
+
+          // Calculate bounding box of selected shapes
+          let minX = Infinity;
+          let minY = Infinity;
+          let maxX = -Infinity;
+          let maxY = -Infinity;
+
+          shapesToGroup.forEach((shape: Shape) => {
+            minX = Math.min(minX, shape.x);
+            minY = Math.min(minY, shape.y);
+            maxX = Math.max(maxX, shape.x + shape.width);
+            maxY = Math.max(maxY, shape.y + shape.height);
+          });
+
+          const groupWidth = maxX - minX;
+          const groupHeight = maxY - minY;
+
+          const groupId = uuidv4();
+          const newGroupShape: Shape = {
+            id: groupId,
+            type: 'Group',
+            x: minX,
+            y: minY,
+            width: groupWidth,
+            height: groupHeight,
+            text: '', // Groups don't have text
+            color: 'transparent', // Groups are transparent
+            layerId: activeSheet.activeLayerId,
+            textOffsetX: 0,
+            textOffsetY: 0,
+            textWidth: 0,
+            textHeight: 0,
+          };
+
+          const newShapesById = { ...activeSheet.shapesById, [groupId]: newGroupShape };
+          const newShapeIds = [...activeSheet.shapeIds, groupId];
+          const newSelectedShapeIds = [groupId];
+
+          shapesToGroup.forEach((shape: Shape) => {
+            newShapesById[shape.id] = {
+              ...shape,
+              parentId: groupId,
+              x: shape.x - minX, // Make coordinates relative to group
+              y: shape.y - minY, // Make coordinates relative to group
+            };
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: newShapesById,
+                shapeIds: newShapeIds,
+                selectedShapeIds: newSelectedShapeIds,
+              },
+            },
+          };
+        });
+      },
     }),
     {
       name: 'diagram-storage-v2', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
       partialize: (state) => {
         const newState = { ...state };
-        delete newState.history;
+        (newState as Partial<DiagramState>).history = undefined;
         return newState;
       },
     }

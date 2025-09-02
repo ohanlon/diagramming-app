@@ -1,8 +1,10 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider, Menu } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined, MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined, MoreHoriz as MoreHorizIcon, GroupAdd } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { googleFonts, fontSizes } from './Fonts';
+import ColorPicker from '../ColorPicker/ColorPicker';
 
 interface ToolDefinition {
   id: string;
@@ -10,44 +12,8 @@ interface ToolDefinition {
   width: number;
 }
 
-const googleFonts = [
-  { name: 'Open Sans', value: 'Open Sans' },
-  { name: 'Roboto', value: 'Roboto' },
-  { name: 'Lato', value: 'Lato' },
-  { name: 'Montserrat', value: 'Montserrat' },
-  { name: 'Oswald', value: 'Oswald' },
-  { name: 'Playfair Display', value: 'Playfair Display' },
-  { name: 'Arial', value: 'Arial' },
-  { name: 'Verdana', value: 'Verdana' },
-  { name: 'Alex Brush', value: 'Alex Brush' },
-  { name: 'Pacifico', value: 'Pacifico' },
-  { name: 'Indie Flower', value: 'Indie Flower' },
-  { name: 'Dancing Script', value: 'Dancing Script' },
-  { name: 'Great Vibes', value: 'Great Vibes' },
-  { name: 'Caveat', value: 'Caveat' },
-  { name: 'Satisfy', value: 'Satisfy' },
-  { name: 'Cookie', value: 'Cookie' },
-  { name: 'Lobster', value: 'Lobster' },
-  { name: 'Kaushan Script', value: 'Kaushan Script' },
-  { name: 'Allura', value: 'Allura' },
-  { name: 'Sacramento', value: 'Sacramento' },
-  { name: 'Yellowtail', value: 'Yellowtail' },
-  { name: 'Abhaya Libre', value: 'Abhaya Libre' },
-  { name: 'Merriweather', value: 'Merriweather' },
-  { name: 'Crimson Text', value: 'Crimson Text' },
-  { name: 'Aboreto', value: 'Aboreto' },
-  { name: 'Alegreya', value: 'Alegreya' },
-  { name: 'Bitter', value: 'Bitter' },
-  { name: 'Cardo', value: 'Cardo' },
-  { name: 'Cormorant Garamond', value: 'Cormorant Garamond' },
-];
-
-const fontSizes = [6, 7, 8, 9, 10, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96];
-
-import ColorPicker from '../ColorPicker/ColorPicker';
-
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor, groupShapes } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const [colorPickerAnchorEl, setColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -112,6 +78,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'cut', element: <Tooltip title="Cut"><span><IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0} sx={{ borderRadius: 0 }}><ContentCut /></IconButton></span></Tooltip>, width: 48 },
     { id: 'copy', element: <Tooltip title="Copy"><span><IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0} sx={{ borderRadius: 0 }}><ContentCopy /></IconButton></span></Tooltip>, width: 48 },
     { id: 'paste', element: <Tooltip title="Paste"><span><IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0} sx={{ borderRadius: 0 }}><ContentPaste /></IconButton></span></Tooltip>, width: 48 },
+    { id: 'group', element: <Tooltip title="Group"><span><IconButton color="inherit" onClick={() => groupShapes(activeSheet.selectedShapeIds)} data-testid="group-button" disabled={activeSheet.selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}><GroupAdd /></IconButton></span></Tooltip>, width: 48 },
     { id: 'divider-3', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
     { id: 'font-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="font-select-label" id="font-select" value={activeSheet.selectedFont || googleFonts[0].value} displayEmpty autoWidth onChange={handleFontChange} inputProps={{ 'data-testid': 'selectFont' }}>{googleFonts.slice().sort((a, b) => a.name.localeCompare(b.name)).map((font) => (<MenuItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>{font.name}</MenuItem>))}</Select></FormControl>, width: 120 }, // Approximate width
     { id: 'font-size-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="font-size-select-label" id="font-size-select" value={String(activeSheet.selectedFontSize || 10)} displayEmpty autoWidth onChange={handleFontSizeChange} inputProps={{ 'data-testid': 'selectFontSize' }}>{fontSizes.map((size) => (<MenuItem key={size} value={size}>{size}</MenuItem>))}</Select></FormControl>, width: 80 }, // Approximate width
@@ -128,7 +95,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'align-left', element: <Tooltip title="Align Left"><span><IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}><AlignHorizontalLeft /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-center', element: <Tooltip title="Align Center"><span><IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}><AlignHorizontalCenter /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-right', element: <Tooltip title="Align Right"><span><IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}><AlignHorizontalRight /></IconButton></span></Tooltip>, width: 48 },
-  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo]);
+  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo, groupShapes]);
 
   useEffect(() => {
     const toolbarElement = toolbarRef.current;

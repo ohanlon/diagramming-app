@@ -1,0 +1,11 @@
+[
+  {
+    "id": "4c6dfc72-644f-4e1d-8dda-cfb3cfc59560",
+    "name": "AWS",
+    "path": "/shapes/aws/index.json"
+  },
+  {
+    "name": "Flowchart",
+    "path": "/shapes/architecture/index.json"
+  }
+]

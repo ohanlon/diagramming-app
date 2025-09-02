@@ -10,11 +10,9 @@ export type Layer = {
   isLocked: boolean; // Optional: for preventing interaction
 };
 
-export type ShapeType = string;
-
 export type Shape = {
   id: string;
-  type: ShapeType;
+  type: string;
   x: number;
   y: number;
   width: number;
@@ -39,7 +37,10 @@ export type Shape = {
   horizontalAlign?: 'left' | 'center' | 'right';
   textPosition?: 'inside' | 'outside';
   textColor?: string;
+  parentId?: string; // New: ID of the parent group shape
 };
+
+export type ShapeType = 'Group' | string;
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
 
@@ -76,6 +77,11 @@ export type DiagramState = {
     past: HistoryState[];
     future: HistoryState[];
   };
+};
+
+export type HistoryState = {
+  sheets: Record<string, Sheet>;
+  activeSheetId: string;
 };
 
 export type ShapeStoreShape = {
