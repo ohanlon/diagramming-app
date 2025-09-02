@@ -206,13 +206,18 @@ const Canvas: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (contextMenuRef.current && contextMenuRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement;
+
+      // If the click is inside the context menu, do nothing.
+      // The menu items have their own click handlers.
+      if (target.closest('.MuiMenu-paper')) { // .MuiMenu-paper is a stable class for the menu container
         return;
       }
 
-      const target = event.target as HTMLElement;
+      // If the click is on a shape, the context menu for that shape will be opened
+      // by its own onContextMenu handler, so we don't need to close it here.
+      // We only close it if the click is outside of any shape and outside the menu.
       const isShapeClick = target.closest('g[data-node-id]');
-
       if (contextMenu && !isShapeClick) {
         handleCloseContextMenu();
       }

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DiagramState, Shape, Connector, Point } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { act } from 'react';
 
 
 
@@ -504,13 +505,12 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
-          const currentIdx = activeSheet.shapeIds.indexOf(id);
-          if (currentIdx === -1 || currentIdx === activeSheet.shapeIds.length - 1)
-            return state;
-
           const newShapeIds = [...activeSheet.shapeIds];
-          const [shapeId] = newShapeIds.splice(currentIdx, 1);
-          newShapeIds.splice(currentIdx + 1, 0, shapeId);
+          const currentIdx = newShapeIds.indexOf(id);
+          if (currentIdx < 0 || currentIdx === newShapeIds.length - 1) return state;
+
+          // Swap with the next element
+          [newShapeIds[currentIdx], newShapeIds[currentIdx + 1]] = [newShapeIds[currentIdx + 1], newShapeIds[currentIdx]];
 
           return {
             sheets: {
@@ -530,12 +530,12 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
-          const currentIdx = activeSheet.shapeIds.indexOf(id);
-          if (currentIdx === -1 || currentIdx === 0) return state;
-
           const newShapeIds = [...activeSheet.shapeIds];
-          const [shapeId] = newShapeIds.splice(currentIdx, 1);
-          newShapeIds.splice(currentIdx - 1, 0, shapeId);
+          const currentIdx = newShapeIds.indexOf(id);
+          if (currentIdx <= 0) return state;
+
+          // Swap with the previous element
+          [newShapeIds[currentIdx], newShapeIds[currentIdx - 1]] = [newShapeIds[currentIdx - 1], newShapeIds[currentIdx]];
 
           return {
             sheets: {
