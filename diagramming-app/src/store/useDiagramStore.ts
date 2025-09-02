@@ -126,6 +126,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
+          const newShape = JSON.parse(JSON.stringify(shape));
+
           return {
             sheets: {
               ...state.sheets,
@@ -133,10 +135,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [shape.id]: { ...shape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: shape.textPosition === 'inside' ? 0 : shape.height + 5, textWidth: shape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor },
+                  [newShape.id]: { ...newShape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 5, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor },
                 },
-                shapeIds: [...activeSheet.shapeIds, shape.id],
-                selectedShapeIds: [shape.id],
+                shapeIds: [...activeSheet.shapeIds, newShape.id],
+                selectedShapeIds: [newShape.id],
               },
             },
           };
