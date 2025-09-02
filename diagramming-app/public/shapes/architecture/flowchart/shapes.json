@@ -2,73 +2,73 @@
   {
     "id": "5add9643-63b1-4d80-a880-96ff7545c63c",
     "title": "Start",
-    "path": "/shapes/flowchart/start.svg",
+    "path": "/shapes/architecture/flowchart/start.svg",
     "textPosition": "inside"
   },
   {
     "id": "1d458151-0088-4667-bc0d-eb2f42fcd453",
     "title": "End",
-    "path": "/shapes/flowchart/end.svg",
+    "path": "/shapes/architecture/flowchart/end.svg",
     "textPosition": "inside"
   },
   {
     "id": "ccbb2c87-b180-4605-bb75-2e3b1b2ec1ac",
     "title": "Process",
-    "path": "/shapes/flowchart/process.svg",
+    "path": "/shapes/architecture/flowchart/process.svg",
     "textPosition": "inside"
   },
   {
     "id": "315fb05d-ddf7-46b6-8e46-9dfab913f26a",
     "title": "Decision",
-    "path": "/shapes/flowchart/decision.svg",
+    "path": "/shapes/architecture/flowchart/decision.svg",
     "textPosition": "inside"
   },
   {
     "id": "1de3dd1c-8353-4185-9d4b-85783e50b30e",
     "title": "Input/Output",
-    "path": "/shapes/flowchart/input-output.svg",
+    "path": "/shapes/architecture/flowchart/input-output.svg",
     "textPosition": "inside"
   },
   {
     "id": "c31989de-623e-4989-b176-bb957cdc9f34",
     "title": "+",
-    "path": "/shapes/flowchart/plus.svg",
+    "path": "/shapes/architecture/flowchart/plus.svg",
     "textPosition": "inside"
   },
   {
     "id": "fd513a2d-2b1b-4eaa-be8a-dd1b5a10fc90",
     "title": "Subroutine",
-    "path": "/shapes/flowchart/subroutine.svg",
+    "path": "/shapes/architecture/flowchart/subroutine.svg",
     "textPosition": "inside"
   },
   {
     "id": "d4c91fbe-7f13-4206-902c-f94e41385b77",
     "title": "Terminator",
-    "path": "/shapes/flowchart/terminator.svg",
+    "path": "/shapes/architecture/flowchart/terminator.svg",
     "textPosition": "inside"
   },
   {
     "id": "dc16e589-1602-47a4-be8e-9de3da126b20",
     "title": "Data",
-    "path": "/shapes/flowchart/data.svg",
+    "path": "/shapes/architecture/flowchart/data.svg",
     "textPosition": "inside"
   },
   {
     "id": "ef508d27-1ea2-48a4-b0e6-10961dbbdeaf",
     "title": "Delay",
-    "path": "/shapes/flowchart/delay.svg",
+    "path": "/shapes/architecture/flowchart/delay.svg",
     "textPosition": "inside"
   },
   {
     "id": "c44be2bd-9bb7-4661-bc3b-c73af65bad2b",
     "title": "Manual Operation",
-    "path": "/shapes/flowchart/manual-operation.svg",
+    "path": "/shapes/architecture/flowchart/manual-operation.svg",
     "textPosition": "inside"
   },
   {
     "id": "65cd5a02-68bd-4c6a-ad41-6e5a2e3591c4",
     "title": "Initialization",
-    "path": "/shapes/flowchart/initialization.svg",
+    "path": "/shapes/architecture/flowchart/initialization.svg",
     "textPosition": "inside"
   }
 ]
