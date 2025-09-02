@@ -55,7 +55,8 @@ const ShapeStore: React.FC = () => {
 
   useEffect(() => {
     if (selectedIndexEntry) {
-      setSelectedShapes(selectedIndexEntry.shapes);
+      // Deep copy the shapes to prevent any mutation of the original data
+      setSelectedShapes(JSON.parse(JSON.stringify(selectedIndexEntry.shapes)));
     } else {
       setSelectedShapes([]);
     }
@@ -71,6 +72,14 @@ const ShapeStore: React.FC = () => {
           try {
             const svgResponse = await fetch(shape.path);
             let svgContent = await svgResponse.text();
+            const uniqueSuffix = shape.id.replace(/-/g, '');
+
+            // Make all IDs within the SVG unique by appending the shape's ID.
+            // This prevents ID collisions when multiple SVGs are on the page.
+            svgContent = svgContent.replace(/id="([^"]+)"/g, (_, id) => `id="${id}_${uniqueSuffix}"`);
+            svgContent = svgContent.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}_${uniqueSuffix})`);
+            svgContent = svgContent.replace(/xlink:href="#([^"]+)"/g, (_, id) => `xlink:href="#${id}_${uniqueSuffix}"`);
+
             const svgTagRegex = /<svg([^>]*)>/;
             const match = svgTagRegex.exec(svgContent);
             if (match && match[1]) {

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DiagramState, Shape, Connector, Point } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-import { act } from 'react';
+
 
 
 
@@ -127,7 +127,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
-          const newShape = JSON.parse(JSON.stringify(shape));
+          const newShape = { ...shape };
 
           return {
             sheets: {
