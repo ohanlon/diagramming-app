@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Card, Tooltip, Autocomplete, TextField } from '@mui/material';
+import { Box, Typography, Grid, Card, Tooltip, Autocomplete, TextField, IconButton } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 interface Shape {
   id: string;
@@ -24,9 +25,8 @@ interface IndexEntry {
 
 const ShapeStore: React.FC = () => {
   const [indexEntries, setIndexEntries] = useState<IndexEntry[]>([]);
-  const [selectedIndexEntry, setSelectedIndexEntry] = useState<IndexEntry | null>(null);
-  const [selectedShapes, setSelectedShapes] = useState<Shape[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [pinnedEntries, setPinnedEntries] = useState<IndexEntry[]>([]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -54,18 +54,9 @@ const ShapeStore: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedIndexEntry) {
-      // Deep copy the shapes to prevent any mutation of the original data
-      setSelectedShapes(JSON.parse(JSON.stringify(selectedIndexEntry.shapes)));
-    } else {
-      setSelectedShapes([]);
-    }
-  }, [selectedIndexEntry]);
-
-  useEffect(() => {
-    const fetchShapeSvgs = async () => {
-      const shapesToFetch = selectedShapes.filter((shape) => !shape.shape);
-      if (shapesToFetch.length === 0) return;
+    const fetchShapeSvgs = async (shapes: Shape[]) => {
+      const shapesToFetch = shapes.filter((shape) => !shape.shape);
+      if (shapesToFetch.length === 0) return shapes;
 
       const shapesWithSvg = await Promise.all(
         shapesToFetch.map(async (shape) => {
@@ -74,8 +65,6 @@ const ShapeStore: React.FC = () => {
             let svgContent = await svgResponse.text();
             const uniqueSuffix = shape.id.replace(/-/g, '');
 
-            // Make all IDs within the SVG unique by appending the shape's ID.
-            // This prevents ID collisions when multiple SVGs are on the page.
             svgContent = svgContent.replace(/id="([^"]+)"/g, (_, id) => `id="${id}_${uniqueSuffix}"`);
             svgContent = svgContent.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}_${uniqueSuffix})`);
             svgContent = svgContent.replace(/xlink:href="#([^"]+)"/g, (_, id) => `xlink:href="#${id}_${uniqueSuffix}"`);
@@ -96,74 +85,90 @@ const ShapeStore: React.FC = () => {
         })
       );
 
-      setSelectedShapes((prevShapes) =>
-        prevShapes.map((shape) => {
-          const newShape = shapesWithSvg.find((s) => s.id === shape.id);
-          return newShape || shape;
-        })
-      );
+      return shapes.map((shape) => shapesWithSvg.find((s) => s.id === shape.id) || shape);
     };
 
-    if (selectedShapes.length > 0) {
-      fetchShapeSvgs();
+    if (pinnedEntries.length > 0) {
+      pinnedEntries.forEach(entry => {
+        if (entry.shapes.some(shape => !shape.shape)) { // Check if shapes need fetching
+          fetchShapeSvgs(entry.shapes).then(shapes => {
+            setPinnedEntries(prev => prev.map(p => p.id === entry.id ? { ...p, shapes } : p));
+          });
+        }
+      });
     }
-  }, [selectedShapes]);
+  }, [pinnedEntries]);
+
+  const handleUnpin = (entry: IndexEntry) => {
+    setPinnedEntries(pinnedEntries.filter(e => e.id !== entry.id));
+  };
 
   const filteredIndexEntries = indexEntries.filter((entry) =>
     entry.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider' }}>
+    <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 12.5em)' }}>
       <Autocomplete
         options={filteredIndexEntries}
         getOptionLabel={(option) => option.name}
-        value={selectedIndexEntry}
+        value={null}
         onChange={(event, newValue) => {
-          setSelectedIndexEntry(newValue);
+          if (newValue && !pinnedEntries.find(entry => entry.id === newValue.id)) {
+            setPinnedEntries([...pinnedEntries, newValue]);
+          }
         }}
         inputValue={searchTerm}
         onInputChange={(event, newInputValue) => {
           setSearchTerm(newInputValue);
         }}
         renderInput={(params) => <TextField {...params} label="Search Categories" variant="outlined" size="small" />}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, flexShrink: 0 }}
       />
 
-      {selectedIndexEntry && (
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h6" gutterBottom>{selectedIndexEntry.name}</Typography>
-          <Grid container spacing={0.625}>
-            {selectedShapes.map((shape) => (
-              <Grid
-                key={shape.id}
-                sx={{
-                  flexBasis: '15%',
-                  maxWidth: '20%',
-                  padding: '4px',
-                }}
-              >
-                <Tooltip title={shape.title} placement="top">
-                  <Card
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData('shapeType', shape.title);
-                      if (shape.shape) {
-                        e.dataTransfer.setData('svgContent', shape.shape);
-                      }
-                      e.dataTransfer.setData('textPosition', shape.textPosition);
-                    }}
-                    sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    data-testid={shape.id}
-                  >
-                    {shape.shape && <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />}
-                  </Card>
-                </Tooltip>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }}>
+        {pinnedEntries.map(entry => (
+          <Box key={entry.id} sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h6" gutterBottom>{entry.name}</Typography>
+              <Tooltip title="Unpin Category">
+                <IconButton onClick={() => handleUnpin(entry)} size="small">
+                  <Close />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Grid container spacing={0.625}>
+              {entry.shapes.map((shape) => (
+                <Grid
+                  key={shape.id}
+                  sx={{
+                    flexBasis: '15%',
+                    maxWidth: '20%',
+                    padding: '4px',
+                  }}
+                >
+                  <Tooltip title={shape.title} placement="top">
+                    <Card
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('shapeType', shape.title);
+                        if (shape.shape) {
+                          e.dataTransfer.setData('svgContent', shape.shape);
+                        }
+                        e.dataTransfer.setData('textPosition', shape.textPosition);
+                      }}
+                      sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      data-testid={shape.id}
+                    >
+                      {shape.shape && <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />}
+                    </Card>
+                  </Tooltip>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 };
