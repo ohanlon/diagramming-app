@@ -113,6 +113,7 @@ const ShapeStore: React.FC = () => {
         options={filteredIndexEntries}
         getOptionLabel={(option) => option.name}
         value={null}
+        filterOptions={(x) => x}
         onChange={(event, newValue) => {
           if (newValue && !pinnedEntries.find(entry => entry.id === newValue.id)) {
             setPinnedEntries([...pinnedEntries, newValue]);
