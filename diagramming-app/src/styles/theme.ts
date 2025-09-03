@@ -10,6 +10,7 @@ const theme = createTheme({
     fontFamily: 'Roboto, sans-serif',
     h3: { fontWeight: 600 },
     h4: { fontWeight: 600 },
+    h6: { fontSize: '1rem' },
   },
   components: {
     MuiButton: {
