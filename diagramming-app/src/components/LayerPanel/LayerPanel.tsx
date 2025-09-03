@@ -102,7 +102,6 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
           <Close />
         </IconButton>
       </Box>
-      <Button onClick={handleAddLayer} startIcon={<Add />} fullWidth data-testid="add-layer-button">Add Layer</Button>
       <List dense>
         {layerIds.map((id: string) => {
           const layer = layers[id];
@@ -144,6 +143,7 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
           );
         })}
       </List>
+      <Button onClick={handleAddLayer} startIcon={<Add />} fullWidth data-testid="add-layer-button">Add Layer</Button>
     </Paper>
   );
 };

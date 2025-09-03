@@ -341,12 +341,26 @@ const Canvas: React.FC = () => {
   const handleMouseDown = (e: React.MouseEvent) => {
     const target = e.target as SVGElement;
     if (e.button === 0 && target.dataset.id === 'canvas-background') {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsPanning(true);
-      setStartPan({ x: e.clientX - activeSheet.pan.x, y: e.clientY - activeSheet.pan.y });
-      if (canvasRef.current) {
-        canvasRef.current.style.cursor = 'grabbing';
+      if (e.ctrlKey || e.metaKey) {
+        // Panning with Ctrl/Cmd + Left Click
+        e.preventDefault();
+        e.stopPropagation();
+        setIsPanning(true);
+        setStartPan({ x: e.clientX - activeSheet.pan.x, y: e.clientY - activeSheet.pan.y });
+        if (canvasRef.current) {
+          canvasRef.current.style.cursor = 'grabbing';
+        }
+      } else {
+        // Selection with Left Click
+        setIsSelecting(true);
+        const svgRect = svgRef.current?.getBoundingClientRect();
+        if (!svgRect) return;
+        const x = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
+        const y = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
+        setSelectionStartPoint({ x, y });
+        setSelectionRect({ x, y, width: 0, height: 0 });
+        setSelectedShapes([]);
+        deselectAllTextBlocks();
       }
     }
   };
