@@ -16,7 +16,7 @@ const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
-  const [startPan] = useState({ x: 0, y: 0 });
+  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
   const [isDrawingConnector, setIsDrawingConnector] = useState(false);
   const [startConnectorPoint, setStartConnectorPoint] = useState<Point | null>(null);
   const [startConnectorNodeId, setStartConnectorNodeId] = useState<string | null>(null);
@@ -73,6 +73,9 @@ const Canvas: React.FC = () => {
 
     if (isPanning) {
       setIsPanning(false);
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = 'grab';
+      }
     }
     else if (isDrawingConnector) {
       setIsDrawingConnector(false);
@@ -166,22 +169,32 @@ const Canvas: React.FC = () => {
   const handleWheel = useCallback((e: WheelEvent) => {
     if (!activeSheet) return;
     e.preventDefault();
-    const svgRect = svgRef.current?.getBoundingClientRect();
-    if (!svgRect) return;
 
-    const mouseX = e.clientX - svgRect.left;
-    const mouseY = e.clientY - svgRect.top;
+    if (e.ctrlKey) {
+      const svgRect = svgRef.current?.getBoundingClientRect();
+      if (!svgRect) return;
 
-    const zoomAmount = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    const newZoom = Math.max(0.1, Math.min(5, activeSheet.zoom * zoomAmount));
+      const mouseX = e.clientX - svgRect.left;
+      const mouseY = e.clientY - svgRect.top;
 
-    const newPanX = mouseX - ((mouseX - activeSheet.pan.x) * (newZoom / activeSheet.zoom));
-    const newPanY = mouseY - ((mouseY - activeSheet.pan.y) * (newZoom / activeSheet.zoom));
+      const zoomAmount = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      const newZoom = Math.max(0.1, Math.min(5, activeSheet.zoom * zoomAmount));
 
-    requestAnimationFrame(() => {
-      setZoom(newZoom);
-      setPan({ x: newPanX, y: newPanY });
-    });
+      const newPanX = mouseX - ((mouseX - activeSheet.pan.x) * (newZoom / activeSheet.zoom));
+      const newPanY = mouseY - ((mouseY - activeSheet.pan.y) * (newZoom / activeSheet.zoom));
+
+      requestAnimationFrame(() => {
+        setZoom(newZoom);
+        setPan({ x: newPanX, y: newPanY });
+      });
+    } else {
+      requestAnimationFrame(() => {
+        setPan({
+          x: activeSheet.pan.x - e.deltaX,
+          y: activeSheet.pan.y - e.deltaY,
+        });
+      });
+    }
   }, [activeSheet, setZoom, setPan]);
 
   const handleCloseContextMenu = useCallback(() => {
@@ -326,16 +339,15 @@ const Canvas: React.FC = () => {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === svgRef.current) {
-      setIsSelecting(true);
-      const svgRect = svgRef.current?.getBoundingClientRect();
-      if (!svgRect) return;
-      const x = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
-      const y = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
-      setSelectionStartPoint({ x, y });
-      setSelectionRect({ x, y, width: 0, height: 0 });
-      setSelectedShapes([]);
-      deselectAllTextBlocks();
+    const target = e.target as SVGElement;
+    if (e.button === 0 && target.dataset.id === 'canvas-background') {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsPanning(true);
+      setStartPan({ x: e.clientX - activeSheet.pan.x, y: e.clientY - activeSheet.pan.y });
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = 'grabbing';
+      }
     }
   };
 
@@ -378,8 +390,10 @@ const Canvas: React.FC = () => {
     return startShape && endShape && activeSheet.layers[startShape.layerId]?.isVisible && activeSheet.layers[endShape.layerId]?.isVisible;
   });
 
+  const backgroundSize = 100000;
+
   return (
-    <div ref={canvasRef} className="canvas-container">
+    <div ref={canvasRef} className="canvas-container" style={{ backgroundColor: '#f9f9f9', cursor: 'grab' }}>
       <svg
         ref={svgRef}
         className={`canvas-svg ${isPanning ? 'panning' : ''} ${isDrawingConnector ? 'drawing-connector' : ''}`}
@@ -388,7 +402,20 @@ const Canvas: React.FC = () => {
         onMouseDown={handleMouseDown}
         onContextMenu={(e) => e.preventDefault()}
       >
+        <defs>
+          <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1" fill="#ddd" />
+          </pattern>
+        </defs>
         <g transform={`translate(${activeSheet.pan.x}, ${activeSheet.pan.y}) scale(${activeSheet.zoom})`}>
+        <rect
+            data-id="canvas-background"
+            x={-backgroundSize / 2}
+            y={-backgroundSize / 2}
+            width={backgroundSize}
+            height={backgroundSize}
+            fill="url(#grid-pattern)"
+          />
           {visibleShapes.map((shape) => (
             <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
           ))}
