@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { Paper, Typography, List, ListItemText, IconButton, TextField, Button, Box, ListItemButton } from '@mui/material';
+import { Paper, Typography, List, ListItemText, IconButton, TextField, Button, Box, ListItemButton, Divider } from '@mui/material';
 import { Add, Close, Delete, Edit, Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface LayerPanelProps {
@@ -102,6 +102,7 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
           <Close />
         </IconButton>
       </Box>
+      <Divider />
       <List dense>
         {layerIds.map((id: string) => {
           const layer = layers[id];
@@ -143,6 +144,7 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
           );
         })}
       </List>
+      <Divider />
       <Button onClick={handleAddLayer} startIcon={<Add />} fullWidth data-testid="add-layer-button">Add Layer</Button>
     </Paper>
   );
