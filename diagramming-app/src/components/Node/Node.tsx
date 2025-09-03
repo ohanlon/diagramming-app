@@ -19,7 +19,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
-  
+
   const [resizeHandleType, setResizeHandleType] = useState<string | null>(null);
   const initialMousePos = useRef({ x: 0, y: 0 });
   const initialResizeStates = useRef<{ [key: string]: { x: number; y: number; width: number; height: number } }>({});
@@ -45,40 +45,40 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     let newMainHeight = mainInitialState.height;
 
     switch (resizeHandleType) {
-        case 'top-left':
-            newMainX += dx;
-            newMainY += dy;
-            newMainWidth -= dx;
-            newMainHeight -= dy;
-            break;
-        case 'top':
-            newMainY += dy;
-            newMainHeight -= dy;
-            break;
-        case 'top-right':
-            newMainY += dy;
-            newMainWidth += dx;
-            newMainHeight -= dy;
-            break;
-        case 'left':
-            newMainX += dx;
-            newMainWidth -= dx;
-            break;
-        case 'right':
-            newMainWidth += dx;
-            break;
-        case 'bottom-left':
-            newMainX += dx;
-            newMainWidth -= dx;
-            newMainHeight += dy;
-            break;
-        case 'bottom':
-            newMainHeight += dy;
-            break;
-        case 'bottom-right':
-            newMainWidth += dx;
-            newMainHeight += dy;
-            break;
+      case 'top-left':
+        newMainX += dx;
+        newMainY += dy;
+        newMainWidth -= dx;
+        newMainHeight -= dy;
+        break;
+      case 'top':
+        newMainY += dy;
+        newMainHeight -= dy;
+        break;
+      case 'top-right':
+        newMainY += dy;
+        newMainWidth += dx;
+        newMainHeight -= dy;
+        break;
+      case 'left':
+        newMainX += dx;
+        newMainWidth -= dx;
+        break;
+      case 'right':
+        newMainWidth += dx;
+        break;
+      case 'bottom-left':
+        newMainX += dx;
+        newMainWidth -= dx;
+        newMainHeight += dy;
+        break;
+      case 'bottom':
+        newMainHeight += dy;
+        break;
+      case 'bottom-right':
+        newMainWidth += dx;
+        newMainHeight += dy;
+        break;
     }
 
     newMainWidth = Math.max(10, newMainWidth);
@@ -92,32 +92,32 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     }
 
     if (Object.keys(initialResizeStates.current).length > 1) {
-        const widthRatio = newMainWidth / mainInitialState.width;
-        const heightRatio = newMainHeight / mainInitialState.height;
+      const widthRatio = newMainWidth / mainInitialState.width;
+      const heightRatio = newMainHeight / mainInitialState.height;
 
-        const newDimensions = Object.entries(initialResizeStates.current).map(([shapeId, initialState]) => {
-            let newWidth = initialState.width * widthRatio;
-            let newHeight = initialState.height * heightRatio;
-            let newX = initialState.x;
-            let newY = initialState.y;
+      const newDimensions = Object.entries(initialResizeStates.current).map(([shapeId, initialState]) => {
+        let newWidth = initialState.width * widthRatio;
+        let newHeight = initialState.height * heightRatio;
+        let newX = initialState.x;
+        let newY = initialState.y;
 
-            newWidth = Math.max(10, newWidth);
-            newHeight = Math.max(10, newHeight);
+        newWidth = Math.max(10, newWidth);
+        newHeight = Math.max(10, newHeight);
 
-            if (resizeHandleType?.includes('left')) {
-              newX = initialState.x + initialState.width - newWidth;
-            }
-            if (resizeHandleType?.includes('top')) {
-              newY = initialState.y + initialState.height - newHeight;
-            }
+        if (resizeHandleType?.includes('left')) {
+          newX = initialState.x + initialState.width - newWidth;
+        }
+        if (resizeHandleType?.includes('top')) {
+          newY = initialState.y + initialState.height - newHeight;
+        }
 
-            return { id: shapeId, x: newX, y: newY, width: newWidth, height: newHeight };
-        });
+        return { id: shapeId, x: newX, y: newY, width: newWidth, height: newHeight };
+      });
 
-        updateShapeDimensionsMultiple(newDimensions);
+      updateShapeDimensionsMultiple(newDimensions);
 
     } else {
-        updateShapeDimensions(id, newMainX, newMainY, newMainWidth, newMainHeight);
+      updateShapeDimensions(id, newMainX, newMainY, newMainWidth, newMainHeight);
     }
   }, [isResizing, resizeHandleType, zoom, id, updateShapeDimensions, updateShapeDimensionsMultiple, activeSheet]);
 
@@ -127,13 +127,13 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     setResizeHandleType(null);
 
     if (Object.keys(initialResizeStates.current).length > 1) {
-        const finalDimensions = activeSheet.selectedShapeIds.map(shapeId => {
-            const shape = activeSheet.shapesById[shapeId];
-            return { id: shapeId, x: shape.x, y: shape.y, width: shape.width, height: shape.height };
-        });
-        recordShapeResizeMultiple(finalDimensions);
+      const finalDimensions = activeSheet.selectedShapeIds.map(shapeId => {
+        const shape = activeSheet.shapesById[shapeId];
+        return { id: shapeId, x: shape.x, y: shape.y, width: shape.width, height: shape.height };
+      });
+      recordShapeResizeMultiple(finalDimensions);
     } else {
-        recordShapeResize(id, x, y, width, height);
+      recordShapeResize(id, x, y, width, height);
     }
     initialResizeStates.current = {};
   }, [isResizing, id, x, y, width, height, recordShapeResize, recordShapeResizeMultiple, activeSheet]);
@@ -143,7 +143,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     // No longer using isEditingText state directly here
   }, [isInteractive]);
 
-  
+
 
   useEffect(() => {
     if (isResizing) {
@@ -196,19 +196,19 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     initialMousePos.current = { x: e.clientX, y: e.clientY };
 
     if (isSelected && selectedShapeIds.length > 1) {
-        initialResizeStates.current = selectedShapeIds.reduce((acc: { [key: string]: { x: number; y: number; width: number; height: number } }, shapeId: string) => {
-            const shape = shapesById[shapeId];
-            if (shape) {
-                acc[shapeId] = { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
-            }
-            return acc;
-        }, {} as { [key: string]: { x: number; y: number; width: number; height: number } });
+      initialResizeStates.current = selectedShapeIds.reduce((acc: { [key: string]: { x: number; y: number; width: number; height: number } }, shapeId: string) => {
+        const shape = shapesById[shapeId];
+        if (shape) {
+          acc[shapeId] = { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
+        }
+        return acc;
+      }, {} as { [key: string]: { x: number; y: number; width: number; height: number } });
     } else {
-        initialResizeStates.current = { [id]: { x, y, width, height } };
+      initialResizeStates.current = { [id]: { x, y, width, height } };
     }
   };
 
-  
+
 
   const handleNodeContextMenu = (e: React.MouseEvent) => {
     if (!isInteractive) return;
@@ -227,20 +227,20 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       stroke: isSelected ? 'blue' : 'black',
       strokeWidth: isSelected ? 2 : 1,
     };
-  
+
     if (svgContent) {
       const scaledSvgContent = svgContent.replace(
         /<svg([^>]*)>/,
         `<svg$1 width="100%" height="100%">`
       );
-  
+
       return (
         <foreignObject x={0} y={0} width={width} height={height}>
           <div dangerouslySetInnerHTML={{ __html: scaledSvgContent }} style={{ width: '100%', height: '100%' }} />
         </foreignObject>
       );
     }
-  
+
     switch (type) {
       case 'rectangle':
         return <rect {...commonProps} rx={5} ry={5} />;
@@ -279,7 +279,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     { x: 0, y: height / 2, type: 'left' },
   ];
 
-  
+  const strokeColor = "#1a79eeff";
 
   return (
     <g
@@ -292,7 +292,6 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     >
       {renderShape()}
 
-      
 
       {text && (
         <TextResizer
@@ -319,14 +318,10 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
 
       {isSelected && isInteractive && (type !== 'text' || svgContent) && (
         <>
-          <rect x={-5} y={-5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'top-left')} />
-          <rect x={width / 2 - 5} y={-5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="ns-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'top')} />
-          <rect x={width - 5} y={-5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="nesw-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')} />
-          <rect x={-5} y={height / 2 - 5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="ew-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'left')} />
-          <rect x={width - 5} y={height / 2 - 5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="ew-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'right')} />
-          <rect x={-5} y={height - 5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="nesw-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')} />
-          <rect x={width / 2 - 5} y={height - 5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="ns-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom')} />
-          <rect x={width - 5} y={height - 5} width={10} height={10} fill="blue" stroke="red" strokeWidth="2" cursor="nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')} />
+          <rect x={-5} y={-5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'top-left')} />
+          <rect x={width - 5} y={-5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nesw-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')} />
+          <rect x={-5} y={height - 5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nesw-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')} />
+          <rect x={width - 5} y={height - 5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')} />
 
           {anchorPoints.map((point, index) => (
             <circle
@@ -334,9 +329,9 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
               cx={point.x}
               cy={point.y}
               r={5}
-              fill="green"
-              stroke="red"
-              strokeWidth="2"
+              fill="#9bbfeaff"
+              stroke={strokeColor}
+              strokeWidth="1"
               cursor="crosshair"
               onMouseDown={(e) => {
                 e.stopPropagation();
