@@ -27,6 +27,8 @@
   justify-content: center;
   user-select: none; /* Prevent text selection during drag/resize */
   outline: none; /* Remove outline for contentEditable */
+  padding: 3px;
+  box-sizing: border-box;
 }
 
 .text-content[contenteditable="true"] {
@@ -95,4 +97,14 @@
   bottom: -5px;
   right: -5px;
   cursor: nwse-resize;
+}
+
+.overflow-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
 }

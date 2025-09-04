@@ -10,7 +10,7 @@
     "id": "4817c4ff-9216-4d7e-ba75-e2020088b5c6",
     "title": "Quantum Ledger Database",
     "path": "/shapes/aws/blockchain/Quantum-Ledger-Database.svg",
-    "textPosition": "inside",
-    "autosize": true
+    "textPosition": "outside",
+    "autosize": false
   }
 ]

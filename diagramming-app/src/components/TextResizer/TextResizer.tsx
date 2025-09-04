@@ -21,6 +21,7 @@ interface TextResizerProps {
   verticalAlign?: 'top' | 'middle' | 'bottom';
   horizontalAlign?: 'left' | 'center' | 'right';
   textColor?: string;
+  autosize?: boolean;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -41,8 +42,12 @@ const TextResizer: React.FC<TextResizerProps> = ({
   verticalAlign,
   horizontalAlign,
   textColor,
+  autosize,
 }) => {
-  const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText } = useDiagramStore();
+  const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText, updateShapeHeight, sheets, activeSheetId } = useDiagramStore();
+  const shape = sheets[activeSheetId].shapesById[shapeId];
+  const textPosition = shape?.textPosition || 'outside';
+
   const [currentTextOffsetX, setCurrentTextOffsetX] = useState(initialTextOffsetX);
   const [currentTextOffsetY, setCurrentTextOffsetY] = useState(initialTextOffsetY);
   const [currentTextWidth, setCurrentTextWidth] = useState(initialTextWidth);
@@ -52,16 +57,41 @@ const TextResizer: React.FC<TextResizerProps> = ({
   const [resizeHandleType, setResizeHandleType] = useState<string | null>(null);
   const initialMousePos = useRef({ x: 0, y: 0 });
   const initialTextRect = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const [isOverflowing, setIsOverflowing] = useState(false);
   
   const textRef = useRef<HTMLDivElement>(null);
+
+  const checkOverflow = useCallback(() => {
+    if (textRef.current) {
+      const { scrollHeight, clientHeight } = textRef.current;
+      setIsOverflowing(scrollHeight > clientHeight);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (autosize && textRef.current) {
+      const PADDING = 6; // 3px padding on each side
+      const newHeight = textRef.current.scrollHeight + PADDING;
+
+      if (textPosition === 'inside') {
+        updateShapeHeight(shapeId, newHeight);
+      } else {
+        setCurrentTextHeight(newHeight);
+        updateShapeTextDimensions(shapeId, currentTextWidth, newHeight);
+      }
+    }
+    checkOverflow();
+  }, [text, fontSize, autosize, shapeId, updateShapeHeight, checkOverflow, textPosition, currentTextWidth, updateShapeTextDimensions]);
 
   // Update state when props change (e.g., when shape is moved or resized by other means)
   useEffect(() => {
     setCurrentTextOffsetX(initialTextOffsetX);
     setCurrentTextOffsetY(initialTextOffsetY);
     setCurrentTextWidth(initialTextWidth);
-    setCurrentTextHeight(initialTextHeight);
-  }, [initialTextOffsetX, initialTextOffsetY, initialTextWidth, initialTextHeight]);
+    if (!autosize) {
+        setCurrentTextHeight(initialTextHeight);
+    }
+  }, [initialTextOffsetX, initialTextOffsetY, initialTextWidth, initialTextHeight, autosize]);
 
   const snapToGrid = useCallback((value: number, gridSize: number) => {
     return Math.round(value / gridSize) * gridSize;
@@ -171,8 +201,9 @@ const TextResizer: React.FC<TextResizerProps> = ({
       setIsResizingText(false);
       setResizeHandleType(null);
       updateShapeTextDimensions(shapeId, currentTextWidth, currentTextHeight);
+      checkOverflow();
     }
-  }, [isDraggingText, isResizingText, shapeId, currentTextOffsetX, currentTextOffsetY, currentTextWidth, currentTextHeight, updateShapeTextPosition, updateShapeTextDimensions]);
+  }, [isDraggingText, isResizingText, shapeId, currentTextOffsetX, currentTextOffsetY, currentTextWidth, currentTextHeight, updateShapeTextPosition, updateShapeTextDimensions, checkOverflow]);
 
   useEffect(() => {
     if (isDraggingText || isResizingText) {
@@ -237,6 +268,10 @@ const TextResizer: React.FC<TextResizerProps> = ({
       >
         {text}
       </div>
+
+      {isOverflowing && !autosize && (
+        <div className="overflow-indicator">...</div>
+      )}
 
       {isSelected && isInteractive && (
         <>

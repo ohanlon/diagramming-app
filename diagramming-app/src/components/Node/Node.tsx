@@ -313,6 +313,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           verticalAlign={verticalAlign}
           horizontalAlign={horizontalAlign}
           textColor={textColor}
+          autosize={shape.autosize}
         />
       )}
 

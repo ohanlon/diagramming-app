@@ -10,6 +10,11 @@
         "path": "/shapes/aws/compute/shapes.json"
     },
     {
+        "id": "0a4cefef-e851-4376-bcce-dead082ab19b",
+        "name": "Blockchain",
+        "path": "/shapes/aws/blockchain/shapes.json"
+    },
+    {
         "id": "f853b075-270d-4ef1-b8e0-d0739ab20bcd",
         "name": "Database",
         "path": "/shapes/aws/database/shapes.json"

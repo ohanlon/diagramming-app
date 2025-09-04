@@ -19,6 +19,7 @@ interface DiagramStoreActions {
     newWidth: number,
     newHeight: number
   ) => void;
+  updateShapeHeight: (id: string, height: number) => void;
   updateShapeDimensionsMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => void;
   recordShapeResize: (
     id: string,
@@ -237,6 +238,28 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         });
       },
 
+      updateShapeHeight: (id, height) =>
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const shape = activeSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: {
+                  ...activeSheet.shapesById,
+                  [id]: { ...shape, height },
+                },
+              },
+            },
+          };
+        }),
+
       updateShapeDimensions: (id, newX, newY, newWidth, newHeight) =>
         set((state) => {
           const activeSheet = state.sheets[state.activeSheetId];
@@ -252,19 +275,12 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [id]: {
-                    ...shape,
-                    x: newX,
-                    y: newY,
-                    width: newWidth,
-                    height: newHeight,
-                  },
+                  [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight },
                 },
               },
             },
           };
         }),
-
       recordShapeResize: (id, finalX, finalY, finalWidth, finalHeight) => {
         addHistory(get, set);
         set((state) => {
