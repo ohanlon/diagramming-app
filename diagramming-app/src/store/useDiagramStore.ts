@@ -137,7 +137,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [newShape.id]: { ...newShape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 5, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor },
+                  [newShape.id]: { ...newShape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor, autosize: true },
                 },
                 shapeIds: [...activeSheet.shapeIds, newShape.id],
                 selectedShapeIds: [newShape.id],

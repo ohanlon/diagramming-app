@@ -44,9 +44,10 @@ const TextResizer: React.FC<TextResizerProps> = ({
   textColor,
   autosize,
 }) => {
-  const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText, updateShapeHeight, sheets, activeSheetId } = useDiagramStore();
+  const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText, updateShapeHeight, updateShapeDimensions, sheets, activeSheetId } = useDiagramStore();
   const shape = sheets[activeSheetId].shapesById[shapeId];
   const textPosition = shape?.textPosition || 'outside';
+  const { x, y, width, height, textWidth, textHeight } = shape || {};
 
   const [currentTextOffsetX, setCurrentTextOffsetX] = useState(initialTextOffsetX);
   const [currentTextOffsetY, setCurrentTextOffsetY] = useState(initialTextOffsetY);
@@ -69,26 +70,40 @@ const TextResizer: React.FC<TextResizerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (autosize && textRef.current) {
-      const PADDING = 6; // 3px padding on each side
-      const newHeight = textRef.current.scrollHeight + PADDING;
+    if (autosize && textRef.current && shape) {
+        const PADDING_HORIZONTAL = 10;
+        const PADDING_VERTICAL = 6;
 
-      if (textPosition === 'inside') {
-        updateShapeHeight(shapeId, newHeight);
-      } else {
-        setCurrentTextHeight(newHeight);
-        updateShapeTextDimensions(shapeId, currentTextWidth, newHeight);
-      }
+        textRef.current.style.whiteSpace = 'nowrap';
+        const newWidth = Math.round(textRef.current.scrollWidth + PADDING_HORIZONTAL);
+        textRef.current.style.whiteSpace = 'normal';
+
+        textRef.current.style.width = `${newWidth}px`;
+        const newHeight = Math.round(textRef.current.scrollHeight + PADDING_VERTICAL);
+        textRef.current.style.width = 'auto';
+
+        if (textPosition === 'inside') {
+            if (newWidth !== Math.round(width) || newHeight !== Math.round(height)) {
+                updateShapeDimensions(shapeId, x, y, newWidth, newHeight);
+            }
+        } else {
+            if (newWidth !== Math.round(textWidth) || newHeight !== Math.round(textHeight)) {
+                setCurrentTextWidth(newWidth);
+                setCurrentTextHeight(newHeight);
+                updateShapeTextDimensions(shapeId, newWidth, newHeight);
+            }
+        }
     }
     checkOverflow();
-  }, [text, fontSize, autosize, shapeId, updateShapeHeight, checkOverflow, textPosition, currentTextWidth, updateShapeTextDimensions]);
+}, [text, fontSize, fontFamily, isBold, isItalic, autosize, shapeId, checkOverflow, textPosition, x, y, updateShapeDimensions, updateShapeTextDimensions]);
+
 
   // Update state when props change (e.g., when shape is moved or resized by other means)
   useEffect(() => {
     setCurrentTextOffsetX(initialTextOffsetX);
     setCurrentTextOffsetY(initialTextOffsetY);
-    setCurrentTextWidth(initialTextWidth);
     if (!autosize) {
+        setCurrentTextWidth(initialTextWidth);
         setCurrentTextHeight(initialTextHeight);
     }
   }, [initialTextOffsetX, initialTextOffsetY, initialTextWidth, initialTextHeight, autosize]);
