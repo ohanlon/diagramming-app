@@ -3,54 +3,54 @@
         "id": "25677e83-d1d7-4a33-a175-ed2a45e64375",
         "title": "ECS Anywhere",
         "path": "/shapes/aws/containers/ECS-Anywhere.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "554808b0-b335-49d5-ad69-b73544694972",
         "title": "EKS Anywhere",
         "path": "/shapes/aws/containers/EKS-Anywhere.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "836b05fc-95bd-4f58-bd81-919f8b11eae0",
         "title": "EKS Cloud",
         "path": "/shapes/aws/containers/EKS-Cloud.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "bdc0ec0a-f16b-401f-a648-9934e113ce64",
         "title": "EKS Distro",
         "path": "/shapes/aws/containers/EKS-Distro.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "6a19e73d-12e3-43d7-a7c2-c33ccd15140c",
         "title": "Elastic Container Registry",
         "path": "/shapes/aws/containers/Elastic-Container-Registry.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "d8ded97f-2bfa-4e1b-af13-2ba72a38a87a",
         "title": "Elastic Container Service",
         "path": "/shapes/aws/containers/Elastic-Container-Service.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "953c4c45-7bd0-403f-80ea-07c7134f7735",
         "title": "Elastic Kubernetes Service",
         "path": "/shapes/aws/containers/Elastic-Kubernetes-Service.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "6b125c4b-a84a-4bdb-b835-39de5d144ac6",
         "title": "Fargate",
         "path": "/shapes/aws/containers/Fargate.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "8a24a94a-2a40-42fe-840c-df5d722393e4",
         "title": "Red Hat OpenShift Service on AWS",
         "path": "/shapes/aws/containers/Red-Hat-OpenShift-Service-on-AWS.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     }
 ]

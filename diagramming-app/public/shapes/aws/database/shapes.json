@@ -3,7 +3,7 @@
         "id": "6dd2a02e-95f1-4867-90f3-cdb197e33979",
         "title": "Amazon Aurora",
         "path": "/shapes/aws/database/aurora.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "86afe37f-a4b5-4ed4-885f-bd6ec91165c6",

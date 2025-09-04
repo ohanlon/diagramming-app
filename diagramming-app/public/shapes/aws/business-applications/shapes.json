@@ -3,84 +3,84 @@
         "id": "b4b9c576-3636-4f34-b65c-d97189be8134",
         "title": "Alexa For Business",
         "path": "/shapes/aws/business-applications/Alexa-For-Business.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "a3a68a3b-d3bd-46ea-bb0f-a0b3a3df2296",
         "title": "Chime SDK",
         "path": "/shapes/aws/business-applications/Chime-SDK.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "babf15ca-fce9-450d-b48e-40f1fb0a035f",
         "title": "Chime Voice Connector",
         "path": "/shapes/aws/business-applications/Chime-Voice-Connector.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "99224bd5-dba2-49c0-9f61-7be1e9b15a23",
         "title": "Chime",
         "path": "/shapes/aws/business-applications/Chime.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "83234f51-fe0a-4cda-a601-8442ec059d97",
         "title": "Connect",
         "path": "/shapes/aws/business-applications/Connect.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "cc72fc36-d662-40a0-9e50-431b23623f1a",
         "title": "Honeycode",
         "path": "/shapes/aws/business-applications/Honeycode.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "65bc69bd-330b-4f54-900b-6b57aab73dbc",
         "title": "Pinpoint APIs",
         "path": "/shapes/aws/business-applications/Pinpoint-APIs.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "609fa541-74eb-4f28-a582-bb288ef63e47",
         "title": "Pinpoint",
         "path": "/shapes/aws/business-applications/Pinpoint.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "5f526f0e-ff77-4e4d-90f9-249265378f48",
         "title": "Simple Email Service",
         "path": "/shapes/aws/business-applications/Simple-Email-Service.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "6b428537-6488-4bc3-8eac-4cf95383e794",
         "title": "Supply Chain",
         "path": "/shapes/aws/business-applications/Supply-Chain.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "d94c02f0-0610-449b-976f-682f036d8189",
         "title": "Wickr",
         "path": "/shapes/aws/business-applications/Wickr.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "a5209fad-85ae-4ce2-98b9-699d099949d7",
         "title": "WorkDocs SDK",
         "path": "/shapes/aws/business-applications/WorkDocs-SDK.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "c01b33fb-63e8-4221-8650-1409e81a9d64",
         "title": "WorkDocs",
         "path": "/shapes/aws/business-applications/WorkDocs.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "ed7e9023-af7b-4dc0-abed-2e7289a519b6",
         "title": "WorkMail",
         "path": "/shapes/aws/business-applications/WorkMail.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     }
 ]

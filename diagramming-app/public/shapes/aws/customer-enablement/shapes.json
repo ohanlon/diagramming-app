@@ -3,42 +3,42 @@
         "id": "fe746bae-8e12-4f5c-ba85-135020f8185d",
         "title": "Activate",
         "path": "/shapes/aws/customer-enablement/Activate.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "4594e369-0772-4465-b3a4-453a3670b074",
         "title": "IQ",
         "path": "/shapes/aws/customer-enablement/IQ.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "85438e19-3996-4c68-bc8a-2a54fed89ce9",
         "title": "Managed Services",
         "path": "/shapes/aws/customer-enablement/Managed-Services.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "f69eeb9d-f60f-4d06-a373-3d873bd0db5c",
         "title": "Professional Services",
         "path": "/shapes/aws/customer-enablement/Professional-Services.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "e76b41ab-91be-48d0-9f5b-97c47af5e280",
         "title": "rePost",
         "path": "/shapes/aws/customer-enablement/rePost.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "e955050f-8d31-4457-b9da-eb86b7e68b91",
         "title": "Support",
         "path": "/shapes/aws/customer-enablement/Support.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     },
     {
         "id": "5cf0987e-221c-4dab-b131-7da3a2b36b24",
         "title": "Training Certification",
         "path": "/shapes/aws/customer-enablement/Training-Certification.svg",
-        "textPosition": "inside"
+        "textPosition": "outside"
     }
 ]
