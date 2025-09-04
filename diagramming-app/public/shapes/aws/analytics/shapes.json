@@ -1,128 +1,149 @@
 [
-    {
-        "id": "00555e73-f84f-4e25-a9c1-4b86ba216d43",
-        "title": "Athena",
-        "path": "/shapes/aws/analytics/Athena.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "2c8ad24d-3a47-4bff-a65a-93cb8cbff2c2",
-        "title": "Clean Rooms",
-        "path": "/shapes/aws/analytics/Clean-Rooms.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "8294d5bf-d218-4074-b0a2-2132864c8230",
-        "title": "CloudSearch",
-        "path": "/shapes/aws/analytics/CloudSearch.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "2c46a710-8fbd-44c1-9534-7b2beecc8bfd",
-        "title": "Data Exchange",
-        "path": "/shapes/aws/analytics/Data-Exchange.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "304f0598-d137-40f9-9865-8700d80ef023",
-        "title": "Data Pipeline",
-        "path": "/shapes/aws/analytics/Data-Pipeline.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "96de73e7-0707-43c5-b812-0bd2f2acb9c9",
-        "title": "DataZone",
-        "path": "/shapes/aws/analytics/DataZone.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "0d236702-63b0-49bd-9268-20a253041797",
-        "title": "EMR",
-        "path": "/shapes/aws/analytics/EMR.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "24a23349-a129-4738-8ad6-1d51e4878e0b",
-        "title": "FinSpace",
-        "path": "/shapes/aws/analytics/FinSpace.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "3cfdb1d9-42ca-48ff-a6f6-33b2288f09af",
-        "title": "Glue DataBrew",
-        "path": "/shapes/aws/analytics/Glue-DataBrew.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "4f3afbad-1535-4697-9e3b-f2d92004f2f2",
-        "title": "Glue Elastic Views",
-        "path": "/shapes/aws/analytics/Glue-Elastic-Views.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "b3261e7c-d28f-4d3e-9186-e9ff9ef8b361",
-        "title": "Glue",
-        "path": "/shapes/aws/analytics/Glue.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "b3f9a50a-8589-4796-8a7c-8cb95deec261",
-        "title": "Kinesis Data Analytics",
-        "path": "/shapes/aws/analytics/Kinesis-Data-Analytics.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "f6e45e5f-b0db-48a2-98c5-bb7f487f3848",
-        "title": "Kinesis Data Streams",
-        "path": "/shapes/aws/analytics/Kinesis-Data-Streams.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "9e3a3303-3b71-4b02-b5a0-f8dc87c0583f",
-        "title": "Kinesis Firehose",
-        "path": "/shapes/aws/analytics/Kinesis-Firehose.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "84a9c96f-be00-4358-97cc-4a23afec5e4a",
-        "title": "Kinesis Video Streams",
-        "path": "/shapes/aws/analytics/Kinesis-Video-Streams.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "c27c7ac3-5f43-4b67-a460-d22f85de23ad",
-        "title": "Kinesis",
-        "path": "/shapes/aws/analytics/Kinesis.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "bcfaa8b6-8217-43e9-a3bd-776e33c05f57",
-        "title": "Lake Formation",
-        "path": "/shapes/aws/analytics/Lake-Formation.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "b7413f4a-7eed-47f5-b5a3-c89289a82974",
-        "title": "Managed Streaming for Apache Kafka",
-        "path": "/shapes/aws/analytics/Managed-Streaming-for-Apache-Kafka.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "971cd38c-158c-4575-9c36-657d9c7c4a93",
-        "title": "OpenSearch Service",
-        "path": "/shapes/aws/analytics/OpenSearch-Service.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "78b46c6d-b8cb-453e-aede-dfd88f2bcce5",
-        "title": "QuickSight",
-        "path": "/shapes/aws/analytics/QuickSight.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "687701ae-114e-43b0-a91b-9f71f4e23971",
-        "title": "Redshift",
-        "path": "/shapes/aws/analytics/Redshift.svg",
-        "textPosition": "outside"
-    }
+  {
+    "id": "00555e73-f84f-4e25-a9c1-4b86ba216d43",
+    "title": "Athena",
+    "path": "/shapes/aws/analytics/Athena.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "2c8ad24d-3a47-4bff-a65a-93cb8cbff2c2",
+    "title": "Clean Rooms",
+    "path": "/shapes/aws/analytics/Clean-Rooms.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "8294d5bf-d218-4074-b0a2-2132864c8230",
+    "title": "CloudSearch",
+    "path": "/shapes/aws/analytics/CloudSearch.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "2c46a710-8fbd-44c1-9534-7b2beecc8bfd",
+    "title": "Data Exchange",
+    "path": "/shapes/aws/analytics/Data-Exchange.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "304f0598-d137-40f9-9865-8700d80ef023",
+    "title": "Data Pipeline",
+    "path": "/shapes/aws/analytics/Data-Pipeline.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "96de73e7-0707-43c5-b812-0bd2f2acb9c9",
+    "title": "DataZone",
+    "path": "/shapes/aws/analytics/DataZone.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "0d236702-63b0-49bd-9268-20a253041797",
+    "title": "EMR",
+    "path": "/shapes/aws/analytics/EMR.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "24a23349-a129-4738-8ad6-1d51e4878e0b",
+    "title": "FinSpace",
+    "path": "/shapes/aws/analytics/FinSpace.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "3cfdb1d9-42ca-48ff-a6f6-33b2288f09af",
+    "title": "Glue DataBrew",
+    "path": "/shapes/aws/analytics/Glue-DataBrew.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "4f3afbad-1535-4697-9e3b-f2d92004f2f2",
+    "title": "Glue Elastic Views",
+    "path": "/shapes/aws/analytics/Glue-Elastic-Views.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "b3261e7c-d28f-4d3e-9186-e9ff9ef8b361",
+    "title": "Glue",
+    "path": "/shapes/aws/analytics/Glue.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "b3f9a50a-8589-4796-8a7c-8cb95deec261",
+    "title": "Kinesis Data Analytics",
+    "path": "/shapes/aws/analytics/Kinesis-Data-Analytics.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "f6e45e5f-b0db-48a2-98c5-bb7f487f3848",
+    "title": "Kinesis Data Streams",
+    "path": "/shapes/aws/analytics/Kinesis-Data-Streams.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "9e3a3303-3b71-4b02-b5a0-f8dc87c0583f",
+    "title": "Kinesis Firehose",
+    "path": "/shapes/aws/analytics/Kinesis-Firehose.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "84a9c96f-be00-4358-97cc-4a23afec5e4a",
+    "title": "Kinesis Video Streams",
+    "path": "/shapes/aws/analytics/Kinesis-Video-Streams.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "c27c7ac3-5f43-4b67-a460-d22f85de23ad",
+    "title": "Kinesis",
+    "path": "/shapes/aws/analytics/Kinesis.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "bcfaa8b6-8217-43e9-a3bd-776e33c05f57",
+    "title": "Lake Formation",
+    "path": "/shapes/aws/analytics/Lake-Formation.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "b7413f4a-7eed-47f5-b5a3-c89289a82974",
+    "title": "Managed Streaming for Apache Kafka",
+    "path": "/shapes/aws/analytics/Managed-Streaming-for-Apache-Kafka.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "971cd38c-158c-4575-9c36-657d9c7c4a93",
+    "title": "OpenSearch Service",
+    "path": "/shapes/aws/analytics/OpenSearch-Service.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "78b46c6d-b8cb-453e-aede-dfd88f2bcce5",
+    "title": "QuickSight",
+    "path": "/shapes/aws/analytics/QuickSight.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "687701ae-114e-43b0-a91b-9f71f4e23971",
+    "title": "Redshift",
+    "path": "/shapes/aws/analytics/Redshift.svg",
+    "textPosition": "outside",
+    "autosize": true
+  }
 ]

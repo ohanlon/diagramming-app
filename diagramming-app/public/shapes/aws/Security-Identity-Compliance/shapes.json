@@ -1,152 +1,177 @@
 [
-    {
-        "id": "eb49aa9a-d785-4bad-8305-87e44ecfba31",
-        "title": "Artifact",
-        "path": "/shapes/aws/security-identity-compliance/Artifact.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "37075c24-ffaa-4487-b9c7-3a3849ab95db",
-        "title": "Audit Manager",
-        "path": "/shapes/aws/security-identity-compliance/Audit-Manager.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "69b014d5-b8e2-4429-b994-da92b8433420",
-        "title": "Certificate Manager",
-        "path": "/shapes/aws/security-identity-compliance/Certificate-Manager.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "d3113612-c6f7-4fef-9718-bd0a31cba2d2",
-        "title": "Cloud Directory",
-        "path": "/shapes/aws/security-identity-compliance/Cloud-Directory.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "0a7e550e-6775-4fa7-bdb7-cfeda2c4d8a0",
-        "title": "CloudHSM",
-        "path": "/shapes/aws/security-identity-compliance/CloudHSM.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "b9618b23-dd06-46c3-ab08-01b9cf89ede9",
-        "title": "Cognito",
-        "path": "/shapes/aws/security-identity-compliance/Cognito.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "a76cb0e0-dbe9-4027-b9ae-84eb3990016b",
-        "title": "Detective",
-        "path": "/shapes/aws/security-identity-compliance/Detective.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "1cf01ba7-fca3-4390-87e8-350ad10376ea",
-        "title": "Directory Service",
-        "path": "/shapes/aws/security-identity-compliance/Directory-Service.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "b288f5e7-7d77-4dee-bcb1-78ac4e09c6b2",
-        "title": "Firewall Manager",
-        "path": "/shapes/aws/security-identity-compliance/Firewall-Manager.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "2b3fac25-da37-435b-a647-911de8b9dab2",
-        "title": "GuardDuty",
-        "path": "/shapes/aws/security-identity-compliance/GuardDuty.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "7e8abed5-c819-4284-9fa7-c13ce9fb8ffe",
-        "title": "IAM Identity Center",
-        "path": "/shapes/aws/security-identity-compliance/IAM-Identity-Center.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "754b17f3-be4b-4fa0-a108-2530326dcf6f",
-        "title": "Identity and Access Management",
-        "path": "/shapes/aws/security-identity-compliance/Identity-and-Access-Management.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "4391965e-b252-4107-b95a-2e5fca2d1dbb",
-        "title": "Inspector",
-        "path": "/shapes/aws/security-identity-compliance/Inspector.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "627e6abb-5ef4-4c5e-85dc-b6555b3267be",
-        "title": "Key Management Service",
-        "path": "/shapes/aws/security-identity-compliance/Key-Management-Service.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "f4201530-28f6-497d-989c-80ef28ec32df",
-        "title": "Macie",
-        "path": "/shapes/aws/security-identity-compliance/Macie.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "77c025e1-3c9f-4f6a-a2d5-64d9349a0a59",
-        "title": "Network Firewall",
-        "path": "/shapes/aws/security-identity-compliance/Network-Firewall.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "3f0c94e0-6c60-4c61-a78c-83a88a91cac5",
-        "title": "Private Certificate Authority",
-        "path": "/shapes/aws/security-identity-compliance/Private-Certificate-Authority.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "fe5b8eba-1082-4640-8433-e636cc166a53",
-        "title": "Resource Access Manager",
-        "path": "/shapes/aws/security-identity-compliance/Resource-Access-Manager.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "ce71e4e7-59b5-45ac-8572-2258f1483534",
-        "title": "Secrets Manager",
-        "path": "/shapes/aws/security-identity-compliance/Secrets-Manager.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "d1c558df-18d4-4ec2-9240-72a22c56d8d2",
-        "title": "Security Hub",
-        "path": "/shapes/aws/security-identity-compliance/Security-Hub.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "07873f6f-c619-402a-b2b5-8ce036b837e4",
-        "title": "Security Lake",
-        "path": "/shapes/aws/security-identity-compliance/Security-Lake.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "142bb959-fc8b-490e-aefd-d1dd61dcf0a0",
-        "title": "Shield",
-        "path": "/shapes/aws/security-identity-compliance/Shield.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "5a7c05d3-567b-4426-b762-886b216b3211",
-        "title": "Signer",
-        "path": "/shapes/aws/security-identity-compliance/Signer.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "8412c691-fa22-4be2-964a-7e8d0f5e4574",
-        "title": "Verified Permissions",
-        "path": "/shapes/aws/security-identity-compliance/Verified-Permissions.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "79c64a2d-ac00-47f3-805f-fb6d38043617",
-        "title": "WAF",
-        "path": "/shapes/aws/security-identity-compliance/WAF.svg",
-        "textPosition": "outside"
-    }
+  {
+    "id": "eb49aa9a-d785-4bad-8305-87e44ecfba31",
+    "title": "Artifact",
+    "path": "/shapes/aws/security-identity-compliance/Artifact.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "37075c24-ffaa-4487-b9c7-3a3849ab95db",
+    "title": "Audit Manager",
+    "path": "/shapes/aws/security-identity-compliance/Audit-Manager.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "69b014d5-b8e2-4429-b994-da92b8433420",
+    "title": "Certificate Manager",
+    "path": "/shapes/aws/security-identity-compliance/Certificate-Manager.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "d3113612-c6f7-4fef-9718-bd0a31cba2d2",
+    "title": "Cloud Directory",
+    "path": "/shapes/aws/security-identity-compliance/Cloud-Directory.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "0a7e550e-6775-4fa7-bdb7-cfeda2c4d8a0",
+    "title": "CloudHSM",
+    "path": "/shapes/aws/security-identity-compliance/CloudHSM.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "b9618b23-dd06-46c3-ab08-01b9cf89ede9",
+    "title": "Cognito",
+    "path": "/shapes/aws/security-identity-compliance/Cognito.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "a76cb0e0-dbe9-4027-b9ae-84eb3990016b",
+    "title": "Detective",
+    "path": "/shapes/aws/security-identity-compliance/Detective.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "1cf01ba7-fca3-4390-87e8-350ad10376ea",
+    "title": "Directory Service",
+    "path": "/shapes/aws/security-identity-compliance/Directory-Service.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "b288f5e7-7d77-4dee-bcb1-78ac4e09c6b2",
+    "title": "Firewall Manager",
+    "path": "/shapes/aws/security-identity-compliance/Firewall-Manager.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "2b3fac25-da37-435b-a647-911de8b9dab2",
+    "title": "GuardDuty",
+    "path": "/shapes/aws/security-identity-compliance/GuardDuty.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "7e8abed5-c819-4284-9fa7-c13ce9fb8ffe",
+    "title": "IAM Identity Center",
+    "path": "/shapes/aws/security-identity-compliance/IAM-Identity-Center.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "754b17f3-be4b-4fa0-a108-2530326dcf6f",
+    "title": "Identity and Access Management",
+    "path": "/shapes/aws/security-identity-compliance/Identity-and-Access-Management.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "4391965e-b252-4107-b95a-2e5fca2d1dbb",
+    "title": "Inspector",
+    "path": "/shapes/aws/security-identity-compliance/Inspector.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "627e6abb-5ef4-4c5e-85dc-b6555b3267be",
+    "title": "Key Management Service",
+    "path": "/shapes/aws/security-identity-compliance/Key-Management-Service.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "f4201530-28f6-497d-989c-80ef28ec32df",
+    "title": "Macie",
+    "path": "/shapes/aws/security-identity-compliance/Macie.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "77c025e1-3c9f-4f6a-a2d5-64d9349a0a59",
+    "title": "Network Firewall",
+    "path": "/shapes/aws/security-identity-compliance/Network-Firewall.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "3f0c94e0-6c60-4c61-a78c-83a88a91cac5",
+    "title": "Private Certificate Authority",
+    "path": "/shapes/aws/security-identity-compliance/Private-Certificate-Authority.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "fe5b8eba-1082-4640-8433-e636cc166a53",
+    "title": "Resource Access Manager",
+    "path": "/shapes/aws/security-identity-compliance/Resource-Access-Manager.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "ce71e4e7-59b5-45ac-8572-2258f1483534",
+    "title": "Secrets Manager",
+    "path": "/shapes/aws/security-identity-compliance/Secrets-Manager.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "d1c558df-18d4-4ec2-9240-72a22c56d8d2",
+    "title": "Security Hub",
+    "path": "/shapes/aws/security-identity-compliance/Security-Hub.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "07873f6f-c619-402a-b2b5-8ce036b837e4",
+    "title": "Security Lake",
+    "path": "/shapes/aws/security-identity-compliance/Security-Lake.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "142bb959-fc8b-490e-aefd-d1dd61dcf0a0",
+    "title": "Shield",
+    "path": "/shapes/aws/security-identity-compliance/Shield.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "5a7c05d3-567b-4426-b762-886b216b3211",
+    "title": "Signer",
+    "path": "/shapes/aws/security-identity-compliance/Signer.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "8412c691-fa22-4be2-964a-7e8d0f5e4574",
+    "title": "Verified Permissions",
+    "path": "/shapes/aws/security-identity-compliance/Verified-Permissions.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "79c64a2d-ac00-47f3-805f-fb6d38043617",
+    "title": "WAF",
+    "path": "/shapes/aws/security-identity-compliance/WAF.svg",
+    "textPosition": "outside",
+    "autosize": true
+  }
 ]

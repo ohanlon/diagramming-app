@@ -1,20 +1,23 @@
 [
-    {
-        "id": "a94014bf-3c39-41b9-a3b2-4914a404e24e",
-        "title": "Amplify",
-        "path": "/shapes/aws/front-end-web-mobile/Amplify.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "8378ba72-96fb-4bad-a393-f15f2e54b91b",
-        "title": "Device Farm",
-        "path": "/shapes/aws/front-end-web-mobile/Device-Farm.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "091bf063-5fbb-48d0-953e-361ff240fab7",
-        "title": "Location Service",
-        "path": "/shapes/aws/front-end-web-mobile/Location-Service.svg",
-        "textPosition": "outside"
-    }
+  {
+    "id": "a94014bf-3c39-41b9-a3b2-4914a404e24e",
+    "title": "Amplify",
+    "path": "/shapes/aws/front-end-web-mobile/Amplify.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "8378ba72-96fb-4bad-a393-f15f2e54b91b",
+    "title": "Device Farm",
+    "path": "/shapes/aws/front-end-web-mobile/Device-Farm.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "091bf063-5fbb-48d0-953e-361ff240fab7",
+    "title": "Location Service",
+    "path": "/shapes/aws/front-end-web-mobile/Location-Service.svg",
+    "textPosition": "outside",
+    "autosize": true
+  }
 ]

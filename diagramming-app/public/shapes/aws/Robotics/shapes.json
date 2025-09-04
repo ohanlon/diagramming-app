@@ -1,8 +1,9 @@
 [
-    {
-        "id": "4785b5ec-a10a-4615-aa83-57d56a56e742",
-        "title": "RoboMaker",
-        "path": "/shapes/aws/robotics/RoboMaker.svg",
-        "textPosition": "outside"
-    }
+  {
+    "id": "4785b5ec-a10a-4615-aa83-57d56a56e742",
+    "title": "RoboMaker",
+    "path": "/shapes/aws/robotics/RoboMaker.svg",
+    "textPosition": "outside",
+    "autosize": true
+  }
 ]

@@ -1,32 +1,37 @@
 [
-    {
-        "id": "a9d7e5e7-810e-4f66-ae67-9700ebe135f5",
-        "title": "GameKit",
-        "path": "/shapes/aws/games/GameKit.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "61a9ea53-a169-4115-a86e-02a09f593b2f",
-        "title": "GameLift",
-        "path": "/shapes/aws/games/GameLift.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "ca5d9f99-3151-43e0-a64d-6b22aef14821",
-        "title": "GameSparks",
-        "path": "/shapes/aws/games/GameSparks.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "68619ae9-06a7-44c1-955d-a06f1363308b",
-        "title": "Lumberyard",
-        "path": "/shapes/aws/games/Lumberyard.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "a7a194be-fe43-41c9-ae02-ee28d12c28c6",
-        "title": "Open 3D Engine",
-        "path": "/shapes/aws/games/Open-3D-Engine.svg",
-        "textPosition": "outside"
-    }
+  {
+    "id": "a9d7e5e7-810e-4f66-ae67-9700ebe135f5",
+    "title": "GameKit",
+    "path": "/shapes/aws/games/GameKit.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "61a9ea53-a169-4115-a86e-02a09f593b2f",
+    "title": "GameLift",
+    "path": "/shapes/aws/games/GameLift.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "ca5d9f99-3151-43e0-a64d-6b22aef14821",
+    "title": "GameSparks",
+    "path": "/shapes/aws/games/GameSparks.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "68619ae9-06a7-44c1-955d-a06f1363308b",
+    "title": "Lumberyard",
+    "path": "/shapes/aws/games/Lumberyard.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "a7a194be-fe43-41c9-ae02-ee28d12c28c6",
+    "title": "Open 3D Engine",
+    "path": "/shapes/aws/games/Open-3D-Engine.svg",
+    "textPosition": "outside",
+    "autosize": true
+  }
 ]

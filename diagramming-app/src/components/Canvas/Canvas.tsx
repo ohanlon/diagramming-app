@@ -257,6 +257,7 @@ const Canvas: React.FC = () => {
     const shapeType = e.dataTransfer.getData('shapeType');
     const svgContent = e.dataTransfer.getData('svgContent');
     const textPosition = e.dataTransfer.getData('textPosition') as 'inside' | 'outside';
+    const autosize = e.dataTransfer.getData('autosize') === 'true';
     if (!shapeType) return;
 
     const svgRect = svgRef.current?.getBoundingClientRect();
@@ -294,6 +295,7 @@ const Canvas: React.FC = () => {
       textWidth: width,
       textHeight: 20,
       textPosition: textPosition,
+      autosize: autosize,
     };
     addShape(newShape);
   };

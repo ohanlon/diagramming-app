@@ -8,6 +8,7 @@ interface Shape {
   path: string;
   textPosition: 'inside' | 'outside';
   shape?: string;
+  autosize?: boolean;
 }
 
 interface CatalogEntry {
@@ -156,6 +157,7 @@ const ShapeStore: React.FC = () => {
                           e.dataTransfer.setData('svgContent', shape.shape);
                         }
                         e.dataTransfer.setData('textPosition', shape.textPosition);
+                        e.dataTransfer.setData('autosize', String(shape.autosize));
                       }}
                       sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       data-testid={shape.id}

@@ -38,6 +38,7 @@ export type Shape = {
   textPosition?: 'inside' | 'outside';
   textColor?: string;
   parentId?: string; // New: ID of the parent group shape
+  autosize?: boolean;
 };
 
 export type ShapeType = 'Group' | string;

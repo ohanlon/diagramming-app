@@ -1,44 +1,51 @@
 [
-    {
-        "id": "10d56037-ff32-4367-a98f-2cef99a42fb0",
-        "title": "Application Cost Profiler",
-        "path": "/shapes/aws/cloud-financial-management/Application-Cost-Profiler.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "5e302d80-0509-4dc2-bc49-7e41f0e50093",
-        "title": "Billing Conductor",
-        "path": "/shapes/aws/cloud-financial-management/Billing-Conductor.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "40a3e5bd-9ac8-4a90-90fb-5c9bd440d0ec",
-        "title": "Budgets",
-        "path": "/shapes/aws/cloud-financial-management/Budgets.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "5d1846a6-127d-4745-a3cd-eacd85c62f0c",
-        "title": "Cost and Usage Report",
-        "path": "/shapes/aws/cloud-financial-management/Cost-and-Usage-Report.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "6d31683f-eb8a-4202-9460-78157368b6f9",
-        "title": "Cost Explorer",
-        "path": "/shapes/aws/cloud-financial-management/Cost-Explorer.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "3e7ba08e-1d86-45f2-b183-f4850a83055b",
-        "title": "Reserved Instance Reporting",
-        "path": "/shapes/aws/cloud-financial-management/Reserved-Instance-Reporting.svg",
-        "textPosition": "outside"
-    },
-    {
-        "id": "e4698a11-eceb-498a-8bc2-f8d9e93a692c",
-        "title": "Savings Plans",
-        "path": "/shapes/aws/cloud-financial-management/Savings-Plans.svg",
-        "textPosition": "outside"
-    }
+  {
+    "id": "10d56037-ff32-4367-a98f-2cef99a42fb0",
+    "title": "Application Cost Profiler",
+    "path": "/shapes/aws/cloud-financial-management/Application-Cost-Profiler.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "5e302d80-0509-4dc2-bc49-7e41f0e50093",
+    "title": "Billing Conductor",
+    "path": "/shapes/aws/cloud-financial-management/Billing-Conductor.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "40a3e5bd-9ac8-4a90-90fb-5c9bd440d0ec",
+    "title": "Budgets",
+    "path": "/shapes/aws/cloud-financial-management/Budgets.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "5d1846a6-127d-4745-a3cd-eacd85c62f0c",
+    "title": "Cost and Usage Report",
+    "path": "/shapes/aws/cloud-financial-management/Cost-and-Usage-Report.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "6d31683f-eb8a-4202-9460-78157368b6f9",
+    "title": "Cost Explorer",
+    "path": "/shapes/aws/cloud-financial-management/Cost-Explorer.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "3e7ba08e-1d86-45f2-b183-f4850a83055b",
+    "title": "Reserved Instance Reporting",
+    "path": "/shapes/aws/cloud-financial-management/Reserved-Instance-Reporting.svg",
+    "textPosition": "outside",
+    "autosize": true
+  },
+  {
+    "id": "e4698a11-eceb-498a-8bc2-f8d9e93a692c",
+    "title": "Savings Plans",
+    "path": "/shapes/aws/cloud-financial-management/Savings-Plans.svg",
+    "textPosition": "outside",
+    "autosize": true
+  }
 ]
