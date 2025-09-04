@@ -22,6 +22,7 @@ interface TextResizerProps {
   horizontalAlign?: 'left' | 'center' | 'right';
   textColor?: string;
   autosize?: boolean;
+  shapeWidth: number;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -43,11 +44,12 @@ const TextResizer: React.FC<TextResizerProps> = ({
   horizontalAlign,
   textColor,
   autosize,
+  shapeWidth,
 }) => {
   const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText, updateShapeHeight, updateShapeDimensions, sheets, activeSheetId } = useDiagramStore();
   const shape = sheets[activeSheetId].shapesById[shapeId];
   const textPosition = shape?.textPosition || 'outside';
-  const { x, y, width, height, textWidth, textHeight } = shape || {};
+  const { x, y, width, height, textWidth, textHeight, isTextPositionManuallySet, textOffsetY: shapeTextOffsetY } = shape || {};
 
   const [currentTextOffsetX, setCurrentTextOffsetX] = useState(initialTextOffsetX);
   const [currentTextOffsetY, setCurrentTextOffsetY] = useState(initialTextOffsetY);
@@ -82,6 +84,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
         const newHeight = Math.round(textRef.current.scrollHeight + PADDING_VERTICAL);
         textRef.current.style.width = 'auto';
 
+        // Update text dimensions
         if (textPosition === 'inside') {
             if (newWidth !== Math.round(width) || newHeight !== Math.round(height)) {
                 updateShapeDimensions(shapeId, x, y, newWidth, newHeight);
@@ -93,9 +96,25 @@ const TextResizer: React.FC<TextResizerProps> = ({
                 updateShapeTextDimensions(shapeId, newWidth, newHeight);
             }
         }
+
+        // Calculate and update textOffsetX based on alignment if not manually set
+        if (textPosition === 'outside' && !isTextPositionManuallySet) {
+            let newTextOffsetX;
+            if (horizontalAlign === 'center') {
+                newTextOffsetX = (shapeWidth / 2) - (newWidth / 2);
+            } else if (horizontalAlign === 'left') {
+                newTextOffsetX = 0;
+            } else { // right
+                newTextOffsetX = shapeWidth - newWidth;
+            }
+            // Only update if it's different to prevent unnecessary re-renders
+            if (newTextOffsetX !== Math.round(initialTextOffsetX)) {
+                updateShapeTextPosition(shapeId, newTextOffsetX, shapeTextOffsetY);
+            }
+        }
     }
     checkOverflow();
-}, [text, fontSize, fontFamily, isBold, isItalic, autosize, shapeId, checkOverflow, textPosition, x, y, updateShapeDimensions, updateShapeTextDimensions]);
+}, [text, fontSize, fontFamily, isBold, isItalic, autosize, shapeId, checkOverflow, textPosition, x, y, updateShapeDimensions, updateShapeTextDimensions, horizontalAlign, shapeWidth, isTextPositionManuallySet, initialTextOffsetX, shapeTextOffsetY, updateShapeTextPosition]);
 
 
   // Update state when props change (e.g., when shape is moved or resized by other means)

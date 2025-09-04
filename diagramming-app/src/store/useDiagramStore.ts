@@ -137,7 +137,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [newShape.id]: { ...newShape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor, autosize: true },
+                  [newShape.id]: { ...newShape, layerId: activeSheet.activeLayerId, fontSize: activeSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: activeSheet.selectedTextColor, autosize: true, isTextPositionManuallySet: false },
                 },
                 shapeIds: [...activeSheet.shapeIds, newShape.id],
                 selectedShapeIds: [newShape.id],
@@ -369,7 +369,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [id]: { ...activeSheet.shapesById[id], text },
+                                    [id]: { ...activeSheet.shapesById[id], text, isTextPositionManuallySet: false },
                 },
               },
             },
@@ -996,7 +996,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           activeSheet.selectedShapeIds.forEach((id) => {
             const shape = newShapesById[id];
             if (shape) {
-              newShapesById[id] = { ...shape, fontFamily: font };
+                            newShapesById[id] = { ...shape, fontFamily: font, isTextPositionManuallySet: false };
             }
           });
 
@@ -1023,7 +1023,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           activeSheet.selectedShapeIds.forEach((id) => {
             const shape = newShapesById[id];
             if (shape) {
-              newShapesById[id] = { ...shape, fontSize: size };
+                            newShapesById[id] = { ...shape, fontSize: size, isTextPositionManuallySet: false };
             }
           });
 
@@ -1056,7 +1056,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 shapesById: {
                   ...activeSheet.shapesById,
-                  [id]: { ...shape, textOffsetX, textOffsetY },
+                                    [id]: { ...shape, textOffsetX, textOffsetY, isTextPositionManuallySet: true },
                 },
               },
             },
@@ -1255,7 +1255,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           activeSheet.selectedShapeIds.forEach((id) => {
             const shape = newShapesById[id];
             if (shape) {
-              newShapesById[id] = { ...shape, horizontalAlign: alignment };
+                            newShapesById[id] = { ...shape, horizontalAlign: alignment, isTextPositionManuallySet: false };
             }
           });
 

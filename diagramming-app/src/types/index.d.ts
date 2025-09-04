@@ -39,6 +39,7 @@ export type Shape = {
   textColor?: string;
   parentId?: string; // New: ID of the parent group shape
   autosize?: boolean;
+  isTextPositionManuallySet?: boolean;
 };
 
 export type ShapeType = 'Group' | string;
