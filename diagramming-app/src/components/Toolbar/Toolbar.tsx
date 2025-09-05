@@ -22,6 +22,7 @@ const ToolbarComponent: React.FC = () => {
   const [colorPickerAnchorEl, setColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
   const [shapeColorPickerAnchorEl, setShapeColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
   const [currentShapeColor, setCurrentShapeColor] = useState('#000000');
+  const [currentTextColor, setCurrentTextColor] = useState('#000000');
 
   const handleColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
     setColorPickerAnchorEl(event.currentTarget);
@@ -112,13 +113,19 @@ const ToolbarComponent: React.FC = () => {
             color = path.getAttribute('fill') || '#000000';
           }
         }
-        setCurrentShapeColor(findClosestColor(color, shapeColors));
+        setCurrentShapeColor(findClosestColor(color, shapeColors.map(c => c.value)));
       }
       else {
-        setCurrentShapeColor(findClosestColor(firstShape.color, shapeColors));
+        setCurrentShapeColor(findClosestColor(firstShape.color, shapeColors.map(c => c.value)));
       }
+
+      if (firstShape.textColor) {
+        setCurrentTextColor(firstShape.textColor);
+      }
+
     } else {
         setCurrentShapeColor('#000000');
+        setCurrentTextColor('#000000');
     }
   }, [selectedShapes, hasSelectedShapes]);
 
@@ -164,7 +171,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'bold', element: <Tooltip title="Bold"><span><IconButton sx={{ bgcolor: isBoldActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}><FormatBold /></IconButton></span></Tooltip>, width: 48 },
     { id: 'italic', element: <Tooltip title="Italic"><span><IconButton sx={{ bgcolor: isItalicActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}><FormatItalic /></IconButton></span></Tooltip>, width: 48 },
     { id: 'underline', element: <Tooltip title="Underline"><span><IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}><FormatUnderlined /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'text-color', element: <Tooltip title="Text Color"><IconButton onClick={handleColorPickerClick} sx={{ color: 'inherit', borderRadius: 0 }}><FormatColorTextOutlined /></IconButton></Tooltip>, width: 48 },
+    { id: 'text-color', element: <Tooltip title="Text Color"><IconButton onClick={handleColorPickerClick} sx={{ color: 'inherit', borderRadius: 0 }}><FormatColorTextOutlined sx={{ color: currentTextColor }}/></IconButton></Tooltip>, width: 48 },
     { id: 'shape-color', element: <Tooltip title="Shape Color"><IconButton onClick={handleShapeColorPickerClick} sx={{ color: 'inherit', borderRadius: '50%' }}><FormatColorFill sx={{ color: currentShapeColor }} /></IconButton></Tooltip>, width: 48 },
     { id: 'divider-5', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
     { id: 'align-top', element: <Tooltip title="Align Top"><span><IconButton sx={{ bgcolor: isVerticalAlignTopActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('top')} data-testid="align-top-button" disabled={!hasSelectedShapes}><VerticalAlignTop /></IconButton></span></Tooltip>, width: 48 },
@@ -174,7 +181,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'align-left', element: <Tooltip title="Align Left"><span><IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}><AlignHorizontalLeft /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-center', element: <Tooltip title="Align Center"><span><IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}><AlignHorizontalCenter /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-right', element: <Tooltip title="Align Right"><span><IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}><AlignHorizontalRight /></IconButton></span></Tooltip>, width: 48 },
-  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo, groupShapes, currentShapeColor, setSelectedShapeColor, updateShapeSvgContent]);
+  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo, groupShapes, currentShapeColor, setSelectedShapeColor, updateShapeSvgContent, currentTextColor]);
 
   useEffect(() => {
     const toolbarElement = toolbarRef.current;
