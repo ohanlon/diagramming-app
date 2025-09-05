@@ -181,7 +181,41 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
-          const newShape = { ...shape };
+          let newShape = { ...shape };
+
+          if (newShape.svgContent) {
+            const uniqueSuffix = newShape.id.replace(/-/g, '');
+            let svgContent = newShape.svgContent;
+            svgContent = svgContent.replace(/id="([^"]+)"/g, (_, id) => `id="${id}_${uniqueSuffix}"`);
+            svgContent = svgContent.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}_${uniqueSuffix})`);
+            svgContent = svgContent.replace(/xlink:href="#([^"]+)"/g, (_, id) => `xlink:href="#${id}_${uniqueSuffix}"`);
+            newShape.svgContent = svgContent;
+
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(newShape.svgContent, 'image/svg+xml');
+            const svgElement = svgDoc.documentElement;
+
+            const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
+            if (gradients.length > 0) {
+              gradients.forEach(gradient => {
+                const stops = Array.from(gradient.querySelectorAll('stop'));
+                stops.forEach(stop => {
+                  stop.setAttribute('stop-color', newShape.color);
+                });
+              });
+            } else {
+              const paths = Array.from(svgElement.querySelectorAll('path'));
+              paths.forEach(path => {
+                if (path.getAttribute('fill')) {
+                  path.setAttribute('fill', newShape.color);
+                }
+              });
+            }
+
+            const serializer = new XMLSerializer();
+            const newSvgContent = serializer.serializeToString(svgElement);
+            newShape.svgContent = newSvgContent;
+          }
 
           return {
             sheets: {

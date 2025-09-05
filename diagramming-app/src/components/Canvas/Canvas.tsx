@@ -10,7 +10,7 @@ import { calculateBezierPath } from '../../utils/calculateBezierPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setSelectedShapeColor } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -263,6 +263,24 @@ const Canvas: React.FC = () => {
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+    const svgElement = svgDoc.documentElement;
+
+    let color = '#000000'; // default color
+    const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
+    if (gradients.length > 0) {
+      const lastStop = gradients[0].querySelector('stop[offset="100%"]') || gradients[0].querySelector('stop:last-child');
+      if (lastStop) {
+        color = lastStop.getAttribute('stop-color') || '#000000';
+      }
+    } else {
+      const path = svgElement.querySelector('path');
+      if (path) {
+        color = path.getAttribute('fill') || '#000000';
+      }
+    }
+
     const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
     let minX = 0;
     let minY = 0;
@@ -284,7 +302,7 @@ const Canvas: React.FC = () => {
       width: width,
       height: height,
       text: shapeType,
-      color: '#f0f0f0',
+      color: color,
       layerId: activeSheet.activeLayerId,
       svgContent: svgContent,
       minX: minX,

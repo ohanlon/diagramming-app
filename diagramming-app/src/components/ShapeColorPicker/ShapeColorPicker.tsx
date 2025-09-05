@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Box } from '@mui/material';
+import { Box, MenuItem, Tooltip } from '@mui/material';
 import { colors } from './colors';
 
 interface ShapeColorPickerProps {
@@ -8,24 +8,23 @@ interface ShapeColorPickerProps {
 }
 
 const ShapeColorPicker: React.FC<ShapeColorPickerProps> = ({ selectedColor, onColorSelect }) => {
+  const getBorder = (colorValue: string) => {
+    if (colorValue === selectedColor) {
+      return '2px solid blue';
+    } else {
+      return '1px solid #ccc';
+    }
+  };
+
   return (
-    <Box sx={{ p: 1 }}>
-      <Grid container spacing={1}>
-        {colors.map((color) => (
-          <Grid item key={color}>
-            <Box
-              sx={{
-                width: 24,
-                height: 24,
-                backgroundColor: color,
-                cursor: 'pointer',
-                border: selectedColor === color ? '2px solid #000' : '1px solid #ccc',
-              }}
-              onClick={() => onColorSelect(color)}
-            />
-          </Grid>
-        ))}
-      </Grid>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '15em' }}>
+      {colors.map((color) => (
+        <Tooltip title={color.name} placement="top" key={color.value}>
+          <MenuItem onClick={() => onColorSelect(color.value)} sx={{ p: 0 }}>
+            <Box sx={{ width: 20, height: 20, backgroundColor: color.value, m: 0.5, border: getBorder(color.value) }} />
+          </MenuItem>
+        </Tooltip>
+      ))}
     </Box>
   );
 };

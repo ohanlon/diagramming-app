@@ -64,11 +64,6 @@ const ShapeStore: React.FC = () => {
           try {
             const svgResponse = await fetch(shape.path);
             let svgContent = await svgResponse.text();
-            const uniqueSuffix = shape.id.replace(/-/g, '');
-
-            svgContent = svgContent.replace(/id="([^"]+)"/g, (_, id) => `id="${id}_${uniqueSuffix}"`);
-            svgContent = svgContent.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}_${uniqueSuffix})`);
-            svgContent = svgContent.replace(/xlink:href="#([^"]+)"/g, (_, id) => `xlink:href="#${id}_${uniqueSuffix}"`);
 
             const svgTagRegex = /<svg([^>]*)>/;
             const match = svgTagRegex.exec(svgContent);
