@@ -4,7 +4,7 @@
         "name": "Analytics",
         "path": "/shapes/aws/analytics/shapes.json"
     },
-        {
+    {
         "id": "0a4cefef-e851-4376-bcce-dead082ab19b",
         "name": "Blockchain",
         "path": "/shapes/aws/blockchain/shapes.json"
@@ -32,8 +32,8 @@
     {
         "id": "5f28fc4b-1620-4e6e-8b31-336bf6bb234c",
         "name": "Customer Enablement",
-        "path": "/shapes/aws/customer-enablement/sh,apes.json"
-    }
+        "path": "/shapes/aws/customer-enablement/shapes.json"
+    },
     {
         "id": "f853b075-270d-4ef1-b8e0-d0739ab20bcd",
         "name": "Database",
@@ -80,6 +80,7 @@
         "path": "/shapes/aws/management-governance/shapes.json"
     },
     {
+        "id": "3d9b0234-74c9-4f72-9e6c-5c92f74afdb1",
         "name": "Media Services",
         "path": "/shapes/aws/media-services/shapes.json"
     },
