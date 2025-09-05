@@ -70,6 +70,7 @@ export type Sheet = {
   selectedFont: string; // New: The currently selected font for this sheet
   selectedFontSize: number; // New: The currently selected font size for this sheet
   selectedTextColor: string;
+  selectedShapeColor: string;
 };
 
 export type DiagramState = {

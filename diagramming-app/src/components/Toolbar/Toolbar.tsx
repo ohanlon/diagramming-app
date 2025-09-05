@@ -1,10 +1,13 @@
 import { AppBar, Toolbar, IconButton, Tooltip, FormControl, MenuItem, type SelectChangeEvent, Divider, Menu } from '@mui/material';
 import Select from '@mui/material/Select';
-import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined, MoreHoriz as MoreHorizIcon, GroupAdd } from '@mui/icons-material';
+import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined, MoreHoriz as MoreHorizIcon, GroupAdd, FormatColorFill } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { googleFonts, fontSizes } from './Fonts';
 import ColorPicker from '../ColorPicker/ColorPicker';
+import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
+import { colors as shapeColors } from '../ShapeColorPicker/colors';
+import { findClosestColor } from '../../utils/colorUtils';
 
 interface ToolDefinition {
   id: string;
@@ -13,10 +16,12 @@ interface ToolDefinition {
 }
 
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor, groupShapes } = useDiagramStore();
+  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor, groupShapes, setSelectedShapeColor, updateShapeSvgContent } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const [colorPickerAnchorEl, setColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [shapeColorPickerAnchorEl, setShapeColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [currentShapeColor, setCurrentShapeColor] = useState('#000000');
 
   const handleColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
     setColorPickerAnchorEl(event.currentTarget);
@@ -24,6 +29,14 @@ const ToolbarComponent: React.FC = () => {
 
   const handleColorPickerClose = () => {
     setColorPickerAnchorEl(null);
+  };
+
+  const handleShapeColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
+    setShapeColorPickerAnchorEl(event.currentTarget);
+  };
+
+  const handleShapeColorPickerClose = () => {
+    setShapeColorPickerAnchorEl(null);
   };
 
   const [moreMenuAnchorEl, setMoreMenuAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -41,8 +54,73 @@ const ToolbarComponent: React.FC = () => {
     handleColorPickerClose();
   };
 
+  const handleShapeColorSelect = (color: string) => {
+    setSelectedShapeColor(color);
+    const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
+    selectedShapes.forEach(shape => {
+      if (shape.svgContent) {
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(shape.svgContent, 'image/svg+xml');
+        const svgElement = svgDoc.documentElement;
+
+        const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
+        if (gradients.length > 0) {
+          gradients.forEach(gradient => {
+            const stops = Array.from(gradient.querySelectorAll('stop'));
+            stops.forEach(stop => {
+              stop.setAttribute('stop-color', color);
+            });
+          });
+        } else {
+          const paths = Array.from(svgElement.querySelectorAll('path'));
+          paths.forEach(path => {
+            if (path.getAttribute('fill')) {
+              path.setAttribute('fill', color);
+            }
+          });
+        }
+
+        const serializer = new XMLSerializer();
+        const newSvgContent = serializer.serializeToString(svgElement);
+        updateShapeSvgContent(shape.id, newSvgContent);
+      }
+    });
+    handleShapeColorPickerClose();
+  };
+
   const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
   const hasSelectedShapes = selectedShapes.length > 0;
+
+  useEffect(() => {
+    if (hasSelectedShapes) {
+      const firstShape = selectedShapes[0];
+      if (firstShape.svgContent) {
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(firstShape.svgContent, 'image/svg+xml');
+        const svgElement = svgDoc.documentElement;
+
+        let color = '#000000';
+        const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
+        if (gradients.length > 0) {
+          const lastStop = gradients[0].querySelector('stop[offset="100%"]') || gradients[0].querySelector('stop:last-child');
+          if (lastStop) {
+            color = lastStop.getAttribute('stop-color') || '#000000';
+          }
+        } else {
+          const path = svgElement.querySelector('path');
+          if (path) {
+            color = path.getAttribute('fill') || '#000000';
+          }
+        }
+        setCurrentShapeColor(findClosestColor(color, shapeColors));
+      }
+      else {
+        setCurrentShapeColor(findClosestColor(firstShape.color, shapeColors));
+      }
+    } else {
+        setCurrentShapeColor('#000000');
+    }
+  }, [selectedShapes, hasSelectedShapes]);
 
   const isBoldActive = hasSelectedShapes && selectedShapes.some(shape => shape.isBold);
   const isItalicActive = hasSelectedShapes && selectedShapes.some(shape => shape.isItalic);
@@ -87,6 +165,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'italic', element: <Tooltip title="Italic"><span><IconButton sx={{ bgcolor: isItalicActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}><FormatItalic /></IconButton></span></Tooltip>, width: 48 },
     { id: 'underline', element: <Tooltip title="Underline"><span><IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}><FormatUnderlined /></IconButton></span></Tooltip>, width: 48 },
     { id: 'text-color', element: <Tooltip title="Text Color"><IconButton onClick={handleColorPickerClick} sx={{ color: 'inherit', borderRadius: 0 }}><FormatColorTextOutlined /></IconButton></Tooltip>, width: 48 },
+    { id: 'shape-color', element: <Tooltip title="Shape Color"><IconButton onClick={handleShapeColorPickerClick} sx={{ color: 'inherit', borderRadius: '50%' }}><FormatColorFill sx={{ color: currentShapeColor }} /></IconButton></Tooltip>, width: 48 },
     { id: 'divider-5', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
     { id: 'align-top', element: <Tooltip title="Align Top"><span><IconButton sx={{ bgcolor: isVerticalAlignTopActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('top')} data-testid="align-top-button" disabled={!hasSelectedShapes}><VerticalAlignTop /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-middle', element: <Tooltip title="Align Middle"><span><IconButton sx={{ bgcolor: isVerticalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('middle')} data-testid="align-middle-button" disabled={!hasSelectedShapes}><VerticalAlignCenter /></IconButton></span></Tooltip>, width: 48 },
@@ -95,7 +174,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'align-left', element: <Tooltip title="Align Left"><span><IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}><AlignHorizontalLeft /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-center', element: <Tooltip title="Align Center"><span><IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}><AlignHorizontalCenter /></IconButton></span></Tooltip>, width: 48 },
     { id: 'align-right', element: <Tooltip title="Align Right"><span><IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}><AlignHorizontalRight /></IconButton></span></Tooltip>, width: 48 },
-  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo, groupShapes]);
+  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo, groupShapes, currentShapeColor, setSelectedShapeColor, updateShapeSvgContent]);
 
   useEffect(() => {
     const toolbarElement = toolbarRef.current;
@@ -180,6 +259,13 @@ const ToolbarComponent: React.FC = () => {
           onClose={handleColorPickerClose}
         >
           <ColorPicker selectedColor={activeSheet.selectedTextColor} onColorSelect={handleColorSelect} selectedShapes={selectedShapes} />
+        </Menu>
+        <Menu
+          anchorEl={shapeColorPickerAnchorEl}
+          open={Boolean(shapeColorPickerAnchorEl)}
+          onClose={handleShapeColorPickerClose}
+        >
+          <ShapeColorPicker selectedColor={currentShapeColor} onColorSelect={handleShapeColorSelect} />
         </Menu>
       </Toolbar>
     </AppBar>

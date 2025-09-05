@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 interface DiagramStoreActions {
+  updateShapeSvgContent: (id: string, svgContent: string) => void;
+  setSelectedShapeColor: (color: string) => void;
   addShape: (shape: Shape) => void;
   updateShapePosition: (id: string, newX: number, newY: number) => void;
   updateShapePositions: (positions: { id: string; x: number; y: number }[]) => void;
@@ -98,6 +100,7 @@ const initialState: DiagramState = {
       selectedFont: 'Open Sans',
       selectedFontSize: 10, // Default font size
       selectedTextColor: '#000000',
+      selectedShapeColor: '#000000',
     },
   },
   activeSheetId: defaultSheetId,
@@ -121,6 +124,56 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      updateShapeSvgContent: (id, svgContent) => {
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const shape = activeSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                shapesById: {
+                  ...activeSheet.shapesById,
+                  [id]: { ...shape, svgContent },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedShapeColor: (color) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newShapesById = { ...activeSheet.shapesById };
+          activeSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, color };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                selectedShapeColor: color,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
 
       addShape: (shape) => {
         addHistory(get, set);
