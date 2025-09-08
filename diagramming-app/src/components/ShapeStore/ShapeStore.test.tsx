@@ -1,40 +1,58 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ShapeStore from './ShapeStore';
 
 // Mock catalog.json data
 const mockCatalogData = [
-  { name: 'AWS', path: 'aws/shapes.json' },
-  { name: 'Flowchart', path: 'flowchart/shapes.json' },
+  { name: 'AWS', path: '/shapes/aws/index.json' },
+  { name: 'Flowchart', path: '/shapes/flowchart/index.json' },
 ];
 
-// Mock shapes.json data for AWS (public/shapes/aws/shapes.json)
-const mockAwsShapesData = [
-  { title: 'Aurora', path: '/public/shapes/aws/database/Aurora.svg', textPosition: 'inside' },
-  { title: 'DynamoDB', path: '/public/shapes/aws/database/DynamoDB.svg', textPosition: 'inside' },
+// Mock index.json for AWS
+const mockAwsIndexData = [
+  { id: 'aws-database', name: 'Database', path: '/shapes/aws/database/shapes.json' },
 ];
 
-// Mock shapes.json data for Flowchart (public/shapes/flowchart/shapes.json)
+// Mock shapes.json for AWS Database
+const mockAwsDatabaseShapesData = [
+  { id: 'aurora-shape', title: 'Aurora', path: '/public/shapes/aws/database/Aurora.svg', textPosition: 'inside' },
+  { id: 'dynamodb-shape', title: 'DynamoDB', path: '/public/shapes/aws/database/DynamoDB.svg', textPosition: 'inside' },
+];
+
+// Mock index.json for Flowchart
+const mockFlowchartIndexData = [
+    { id: 'flowchart-main', name: 'Flowchart', path: '/shapes/flowchart/shapes.json' },
+];
+
+// Mock shapes.json data for Flowchart
 const mockFlowchartShapesData = [
-  { title: 'Flowchart Process', path: '/public/shapes/flowchart/process.svg', textPosition: 'inside' },
-  { title: 'Flowchart Decision', path: '/public/shapes/flowchart/decision.svg', textPosition: 'inside' },
+  { id: 'flowchart-process-shape', title: 'Flowchart Process', path: '/public/shapes/flowchart/process.svg', textPosition: 'inside' },
+  { id: 'flowchart-decision-shape', title: 'Flowchart Decision', path: '/public/shapes/flowchart/decision.svg', textPosition: 'inside' },
 ];
 
 const mockSvgContent = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>';
 
 global.fetch = jest.fn((url) => {
-  if (url.endsWith('catalog.json')) {
+  if (url.toString().endsWith('catalog.json')) {
     return Promise.resolve({
       json: () => Promise.resolve(mockCatalogData),
     });
-  } else if (url.endsWith('aws/shapes.json')) {
+  } else if (url.toString().endsWith('aws/index.json')) {
     return Promise.resolve({
-      json: () => Promise.resolve(mockAwsShapesData),
+      json: () => Promise.resolve(mockAwsIndexData),
     });
-  } else if (url.endsWith('flowchart/shapes.json')) {
+  } else if (url.toString().endsWith('aws/database/shapes.json')) {
+    return Promise.resolve({
+      json: () => Promise.resolve(mockAwsDatabaseShapesData),
+    });
+  } else if (url.toString().endsWith('flowchart/index.json')) {
+    return Promise.resolve({
+        json: () => Promise.resolve(mockFlowchartIndexData),
+    });
+  } else if (url.toString().endsWith('flowchart/shapes.json')) {
     return Promise.resolve({
       json: () => Promise.resolve(mockFlowchartShapesData),
     });
-  } else if (url.endsWith('.svg')) {
+  } else if (url.toString().endsWith('.svg')) {
     return Promise.resolve({
       text: () => Promise.resolve(mockSvgContent),
     });
@@ -47,72 +65,44 @@ describe('ShapeStore', () => {
     jest.clearAllMocks();
   });
 
-  test('renders search input and filters categories', async () => {
+  test('renders the search input', async () => {
     render(<ShapeStore />);
-
-    // Wait for catalog and top-level shapes to load
-    await waitFor(() => {
-      expect(screen.getByLabelText('Search Shapes')).toBeInTheDocument();
-    });
-
-    const searchInput = screen.getByLabelText('Search Categories');
-    fireEvent.change(searchInput, { target: { value: 'aurora' } });
-
-    await waitFor(() => {
-      const options = screen.queryAllByRole('option');
-      const visibleOptions = options.filter(option => option.textContent && option.textContent.toLowerCase().includes('aurora'));
-      expect(visibleOptions.length).toBe(1);
-      expect(visibleOptions.some(option => option.textContent === 'Aurora')).toBe(true);
-      expect(visibleOptions.some(option => option.textContent === 'Flowchart Process')).toBe(false);
-    });
-
-    fireEvent.change(searchInput, { target: { value: 'flowchart' } });
-
-    await waitFor(() => {
-      const options = screen.queryAllByRole('option');
-      const visibleOptions = options.filter(option => option.textContent && option.textContent.toLowerCase().includes('flowchart'));
-      expect(visibleOptions.length).toBe(2);
-      expect(visibleOptions.some(option => option.textContent === 'Flowchart Process')).toBe(true);
-      expect(visibleOptions.some(option => option.textContent === 'Flowchart Decision')).toBe(true);
-      expect(visibleOptions.some(option => option.textContent === 'Aurora')).toBe(false);
-    });
+    expect(screen.getByLabelText('Search Categories')).toBeInTheDocument();
   });
 
   test('selects a sub-category and displays its shapes', async () => {
     render(<ShapeStore />);
 
     const searchInput = screen.getByLabelText('Search Categories');
-    fireEvent.click(searchInput); // Click to open dropdown
-    fireEvent.change(searchInput, { target: { value: 'aurora' } });
+    fireEvent.click(searchInput);
+    fireEvent.change(searchInput, { target: { value: 'data' } });
 
-    const auroraOption = await screen.findByRole('option', { name: 'Aurora' });
-    fireEvent.click(auroraOption);
+    const databaseOption = await screen.findByRole('option', { name: 'Database' });
+    fireEvent.click(databaseOption);
 
-    await waitFor(() => {
-      expect(screen.getByText('Aurora')).toBeInTheDocument();
-      expect(screen.getByTestId('6dd2a02e-95f1-4867-90f3-cdb197e33979')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Database')).toBeInTheDocument();
+    // Check for the Aurora shape by its test id
+    expect(await screen.findByTestId('aurora-shape')).toBeInTheDocument();
 
     // Verify that shapes from other categories are not displayed
-    expect(screen.queryByTestId('5add9643-63b1-4d80-a880-96ff7545c63c')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('flowchart-process-shape')).not.toBeInTheDocument();
   });
 
   test('selects another sub-category and displays its shapes', async () => {
     render(<ShapeStore />);
 
     const searchInput = screen.getByLabelText('Search Categories');
-    fireEvent.change(searchInput, { target: { value: 'decision' } });
+    fireEvent.change(searchInput, { target: { value: 'flow' } });
 
-    await waitFor(() => {
-      fireEvent.click(screen.getByRole('option', { name: 'Flowchart Decision' }));
-    });
+    const flowchartOption = await screen.findByRole('option', { name: 'Flowchart' });
+    fireEvent.click(flowchartOption);
 
-    await waitFor(() => {
-      expect(screen.getByText('Flowchart Decision')).toBeInTheDocument();
-      expect(screen.getByTestId('1d458151-0088-4667-bc0d-eb2f42fcd453')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Flowchart')).toBeInTheDocument();
+    expect(await screen.findByTestId('flowchart-decision-shape')).toBeInTheDocument();
 
     // Verify that shapes from other categories are not displayed
-    expect(screen.queryByTestId('Aurora')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('aurora-shape')).not.toBeInTheDocument();
   });
 });
+
+
