@@ -113,7 +113,7 @@ main.tsx
 
 \- Do not generate UI without context. Ask clarifying questions if needed.
 
-
+\- Do not make a change unless you are at least 90% confident that the change will work.
 
 7\. \*\*Avoid\*\*
 

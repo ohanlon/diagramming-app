@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Card, Tooltip, Autocomplete, TextField, IconButton } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  Tooltip,
+  Autocomplete,
+  TextField,
+  IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
+import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOutlined as PushPinOutlinedIcon } from '@mui/icons-material';
 
 interface Shape {
   id: string;
@@ -27,7 +39,9 @@ interface IndexEntry {
 const ShapeStore: React.FC = () => {
   const [indexEntries, setIndexEntries] = useState<IndexEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [pinnedEntries, setPinnedEntries] = useState<IndexEntry[]>([]);
+  const [pinnedCategoryIds, setPinnedCategoryIds] = useState<string[]>([]);
+  const [visibleCategories, setVisibleCategories] = useState<IndexEntry[]>([]);
+  const [expanded, setExpanded] = useState<string | false>(false);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -47,6 +61,20 @@ const ShapeStore: React.FC = () => {
           }
         }
         setIndexEntries(allIndexEntries);
+
+        const storedPinnedIds = localStorage.getItem('pinnedShapeCategoryIds');
+        let initialPinnedIds: string[] = [];
+        if (storedPinnedIds) {
+          initialPinnedIds = JSON.parse(storedPinnedIds);
+        }
+        setPinnedCategoryIds(initialPinnedIds);
+
+        // Initialize visible categories with pinned ones
+        const initialVisibleCategories = allIndexEntries.filter(entry =>
+          initialPinnedIds.includes(entry.id)
+        );
+        setVisibleCategories(initialVisibleCategories);
+
       } catch (error) {
         console.error('Failed to load shapes:', error);
       }
@@ -84,34 +112,56 @@ const ShapeStore: React.FC = () => {
       return shapes.map((shape) => shapesWithSvg.find((s) => s.id === shape.id) || shape);
     };
 
-    if (pinnedEntries.length > 0) {
-      pinnedEntries.forEach(entry => {
+    if (visibleCategories.length > 0) {
+      visibleCategories.forEach(entry => {
         if (entry.shapes.some(shape => !shape.shape)) { // Check if shapes need fetching
           fetchShapeSvgs(entry.shapes).then(shapes => {
-            setPinnedEntries(prev => prev.map(p => p.id === entry.id ? { ...p, shapes } : p));
+            setVisibleCategories(prev => prev.map(p => p.id === entry.id ? { ...p, shapes } : p));
           });
         }
       });
     }
-  }, [pinnedEntries]);
+  }, [visibleCategories]);
 
-  const handleUnpin = (entry: IndexEntry) => {
-    setPinnedEntries(pinnedEntries.filter(e => e.id !== entry.id));
+  useEffect(() => {
+    localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
+  }, [pinnedCategoryIds]);
+
+  const handlePinToggle = (entry: IndexEntry) => {
+    setPinnedCategoryIds(prevPinnedIds => {
+      const isPinned = prevPinnedIds.includes(entry.id);
+      if (isPinned) {
+        return prevPinnedIds.filter(id => id !== entry.id);
+      } else {
+        return [...prevPinnedIds, entry.id];
+      }
+    });
+  };
+
+  const handleRemoveCategory = (entry: IndexEntry) => {
+    setVisibleCategories(prevVisibleCategories => prevVisibleCategories.filter(cat => cat.id !== entry.id));
+  };
+
+  const handleAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
   };
 
   const filteredIndexEntries = indexEntries.filter((entry) =>
-    entry.name.toLowerCase().includes(searchTerm.toLowerCase())
+    entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    !pinnedCategoryIds.includes(entry.id) && // Exclude already pinned categories
+    !visibleCategories.some(vc => vc.id === entry.id) // Exclude already visible categories
   );
 
   return (
     <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 12.5em)' }}>
       <Autocomplete
-        options={filteredIndexEntries}
+        options={indexEntries.filter(entry => !visibleCategories.some(vc => vc.id === entry.id))}
         getOptionLabel={(option) => option.name}
         value={null}
         onChange={(event, newValue) => {
-          if (newValue && !pinnedEntries.find(entry => entry.id === newValue.id)) {
-            setPinnedEntries([...pinnedEntries, newValue]);
+          if (newValue) {
+            setVisibleCategories(prev => [...prev, newValue]);
+            setPinnedCategoryIds(prev => [...prev, newValue.id]);
           }
           setSearchTerm('');
         }}
@@ -124,47 +174,73 @@ const ShapeStore: React.FC = () => {
       />
 
       <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }}>
-        {pinnedEntries.map(entry => (
-          <Box key={entry.id} sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6" gutterBottom>{entry.name}</Typography>
-              <Tooltip title="Unpin Category">
-                <IconButton onClick={() => handleUnpin(entry)} size="small">
-                  <Close />
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <Grid container spacing={0.625}>
-              {entry.shapes.map((shape) => (
-                <Grid
-                  key={shape.id}
-                  sx={{
-                    flexBasis: '15%',
-                    maxWidth: '20%',
-                    padding: '4px',
-                  }}
-                >
-                  <Tooltip title={shape.title} placement="top">
-                    <Card
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData('shapeType', shape.title);
-                        if (shape.shape) {
-                          e.dataTransfer.setData('svgContent', shape.shape);
-                        }
-                        e.dataTransfer.setData('textPosition', shape.textPosition);
-                        e.dataTransfer.setData('autosize', String(shape.autosize));
-                      }}
-                      sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      data-testid={shape.id}
-                    >
-                      {shape.shape && <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />}
-                    </Card>
+        {visibleCategories.map(entry => (
+          <Accordion
+            key={entry.id}
+            expanded={expanded === entry.id}
+            onChange={handleAccordionChange(entry.id)}
+            sx={{ mb: 1, '&:before': { display: 'none' } }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls={`${entry.id}-content`}
+              id={`${entry.id}-header`}
+              sx={{
+                minHeight: 48,
+                '& .MuiAccordionSummary-content': {
+                  margin: '12px 0',
+                },
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <Typography variant="subtitle1">{entry.name}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Tooltip title={pinnedCategoryIds.includes(entry.id) ? "Unpin Category" : "Pin Category"}>
+                    <IconButton onClick={(e) => { e.stopPropagation(); handlePinToggle(entry); }} size="small">
+                      {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: 12 }} /> : <PushPinOutlinedIcon sx={{ fontSize: 12 }} />}
+                    </IconButton>
                   </Tooltip>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
+                  <Tooltip title="Remove Category">
+                    <IconButton onClick={(e) => { e.stopPropagation(); handleRemoveCategory(entry); }} size="small">
+                      <Close sx={{ fontSize: 12 }} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Grid container spacing={0.625}>
+                {entry.shapes.map((shape) => (
+                  <Grid
+                    key={shape.id}
+                    sx={{
+                      flexBasis: '15%',
+                      maxWidth: '20%',
+                      padding: '4px',
+                    }}
+                  >
+                    <Tooltip title={shape.title} placement="top">
+                      <Card
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('shapeType', shape.title);
+                          if (shape.shape) {
+                            e.dataTransfer.setData('svgContent', shape.shape);
+                          }
+                          e.dataTransfer.setData('textPosition', shape.textPosition);
+                          e.dataTransfer.setData('autosize', String(shape.autosize));
+                        }}
+                        sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        data-testid={shape.id}
+                      >
+                        {shape.shape && <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />}
+                      </Card>
+                    </Tooltip>
+                  </Grid>
+                ))}
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
         ))}
       </Box>
     </Box>
