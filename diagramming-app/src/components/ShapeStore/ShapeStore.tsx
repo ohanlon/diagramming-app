@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './ShapeStore.less';
 import {
   Box,
   Typography,
@@ -195,9 +196,9 @@ const ShapeStore: React.FC = () => {
                   <Grid
                     key={shape.id}
                     sx={{
-                      flexBasis: '15%',
+                      // flexBasis: '15%',
                       maxWidth: '20%',
-                      padding: '4px',
+                      padding: '6px',
                     }}
                   >
                     <Tooltip title={shape.title} placement="top">
@@ -214,7 +215,8 @@ const ShapeStore: React.FC = () => {
                         sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         data-testid={shape.id}
                       >
-                        {shape.shape && <div dangerouslySetInnerHTML={{ __html: shape.shape }} style={{ width: '100%', height: '100%' }} />}
+
+                        {shape.shape && <div className="shape-thumbnail-container" dangerouslySetInnerHTML={{ __html: shape.shape }} />}
                       </Card>
                     </Tooltip>
                   </Grid>
