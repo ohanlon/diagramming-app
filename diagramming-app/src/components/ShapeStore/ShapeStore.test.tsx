@@ -55,7 +55,7 @@ describe('ShapeStore', () => {
       expect(screen.getByLabelText('Search Shapes')).toBeInTheDocument();
     });
 
-    const searchInput = screen.getByLabelText('Search Shapes');
+    const searchInput = screen.getByLabelText('Search Categories');
     fireEvent.change(searchInput, { target: { value: 'aurora' } });
 
     await waitFor(() => {
@@ -81,7 +81,7 @@ describe('ShapeStore', () => {
   test('selects a sub-category and displays its shapes', async () => {
     render(<ShapeStore />);
 
-    const searchInput = screen.getByLabelText('Search Shapes');
+    const searchInput = screen.getByLabelText('Search Categories');
     fireEvent.click(searchInput); // Click to open dropdown
     fireEvent.change(searchInput, { target: { value: 'aurora' } });
 
@@ -100,7 +100,7 @@ describe('ShapeStore', () => {
   test('selects another sub-category and displays its shapes', async () => {
     render(<ShapeStore />);
 
-    const searchInput = screen.getByLabelText('Search Shapes');
+    const searchInput = screen.getByLabelText('Search Categories');
     fireEvent.change(searchInput, { target: { value: 'decision' } });
 
     await waitFor(() => {
