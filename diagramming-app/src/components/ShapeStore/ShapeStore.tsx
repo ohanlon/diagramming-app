@@ -179,12 +179,12 @@ const ShapeStore: React.FC = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', visibility: hoveredAccordionId === entry.id ? 'visible' : 'hidden' }}>
                   <Tooltip title={pinnedCategoryIds.includes(entry.id) ? "Unpin Category" : "Pin Category"}>
                     <IconButton component="span" onClick={(e) => { e.stopPropagation(); handlePinToggle(entry); }} size="small">
-                      {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: 12 }} /> : <PushPinOutlinedIcon sx={{ fontSize: 12 }} />}
+                      {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: '1em'}} /> : <PushPinOutlinedIcon sx={{ fontSize: '1em' }} />}
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Remove Category">
                     <IconButton component="span" onClick={(e) => { e.stopPropagation(); handleRemoveCategory(entry); }} size="small">
-                      <Close sx={{ fontSize: 12 }} />
+                      <Close sx={{ fontSize: '1em' }} />
                     </IconButton>
                   </Tooltip>
                 </Box>
