@@ -181,7 +181,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           const activeSheet = state.sheets[state.activeSheetId];
           if (!activeSheet) return state;
 
-          let newShape = { ...shape };
+          const newShape = { ...shape };
 
           if (newShape.svgContent) {
             const uniqueSuffix = newShape.id.replace(/-/g, '');

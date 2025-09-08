@@ -46,7 +46,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
   autosize,
   shapeWidth,
 }) => {
-  const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText, updateShapeHeight, updateShapeDimensions, sheets, activeSheetId } = useDiagramStore();
+  const { updateShapeTextPosition, updateShapeTextDimensions, updateShapeText, updateShapeDimensions, sheets, activeSheetId } = useDiagramStore();
   const shape = sheets[activeSheetId].shapesById[shapeId];
   const textPosition = shape?.textPosition || 'outside';
   const { x, y, width, height, textWidth, textHeight, isTextPositionManuallySet, textOffsetY: shapeTextOffsetY } = shape || {};

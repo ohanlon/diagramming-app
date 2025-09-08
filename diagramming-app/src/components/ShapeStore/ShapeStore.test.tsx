@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import ShapeStore from './ShapeStore';
 
 // Mock catalog.json data
@@ -159,7 +159,7 @@ describe('ShapeStore', () => {
     (localStorage.setItem as jest.Mock).mockClear();
 
     // Verify it's initially pinned
-    let pinIcon = databaseAccordionSummary.closest('.MuiAccordionSummary-root')?.querySelector('[data-testid="PushPinIcon"]');
+    const pinIcon = databaseAccordionSummary.closest('.MuiAccordionSummary-root')?.querySelector('[data-testid="PushPinIcon"]');
     expect(pinIcon).toBeInTheDocument();
 
     // Click the pin icon to unpin
@@ -172,7 +172,7 @@ describe('ShapeStore', () => {
     await act(async () => {}); // Flush any pending effects
 
     // Verify it's now unpinned (icon changed)
-    let unpinIcon = databaseAccordionSummary.closest('.MuiAccordionSummary-root')?.querySelector('[data-testid="PushPinOutlinedIcon"]');
+    const unpinIcon = databaseAccordionSummary.closest('.MuiAccordionSummary-root')?.querySelector('[data-testid="PushPinOutlinedIcon"]');
     expect(unpinIcon).toBeInTheDocument();
     expect(pinIcon).not.toBeInTheDocument(); // Old pin icon should be gone
 

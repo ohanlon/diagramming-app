@@ -77,7 +77,25 @@ const ShapeStore: React.FC = () => {
           for (const subEntry of index) {
             const shapesResponse = await fetch(subEntry.path);
             const shapesInFile: Shape[] = await shapesResponse.json();
-            allIndexEntries.push({ ...subEntry, shapes: shapesInFile });
+
+            // New logic: Fetch SVG content for each shape
+            const shapesWithSvgContent: Shape[] = await Promise.all(
+              shapesInFile.map(async (shape) => {
+                if (shape.path) { // Ensure path exists
+                  try {
+                    const svgResponse = await fetch(shape.path);
+                    const svgContent = await svgResponse.text();
+                    return { ...shape, shape: svgContent }; // Assign SVG content to 'shape' property
+                  } catch (svgError) {
+                    console.error(`Failed to load SVG for ${shape.path}:`, svgError);
+                    return shape; // Return original shape if SVG fetch fails
+                  }
+                }
+                return shape; // Return original shape if no path
+              })
+            );
+
+            allIndexEntries.push({ ...subEntry, shapes: shapesWithSvgContent });
           }
         }
         setIndexEntries(allIndexEntries);
@@ -102,13 +120,16 @@ const ShapeStore: React.FC = () => {
     fetchAllData();
   }, []);
 
-  
+  useEffect(() => {
+    localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
+  }, [pinnedCategoryIds]);
 
-  const filteredIndexEntries = indexEntries.filter((entry) =>
-    entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    !pinnedCategoryIds.includes(entry.id) && // Exclude already pinned categories
-    !visibleCategories.some(vc => vc.id === entry.id) // Exclude already visible categories
-  );
+
+  // const filteredIndexEntries = indexEntries.filter((entry) =>
+  //   entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+  //   !pinnedCategoryIds.includes(entry.id) && // Exclude already pinned categories
+  //   !visibleCategories.some(vc => vc.id === entry.id) // Exclude already visible categories
+  // );
 
   return (
     <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 12.5em)' }}>
@@ -156,13 +177,13 @@ const ShapeStore: React.FC = () => {
                 <Typography variant="subtitle1">{entry.name}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', visibility: hoveredAccordionId === entry.id ? 'visible' : 'hidden' }}>
                   <Tooltip title={pinnedCategoryIds.includes(entry.id) ? "Unpin Category" : "Pin Category"}>
-                    <IconButton onClick={(e) => { e.stopPropagation(); handlePinToggle(entry); }} size="small">
-                      {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: 16 }} /> : <PushPinOutlinedIcon sx={{ fontSize: 16 }} />}
+                    <IconButton component="span" onClick={(e) => { e.stopPropagation(); handlePinToggle(entry); }} size="small">
+                      {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: 12 }} /> : <PushPinOutlinedIcon sx={{ fontSize: 12 }} />}
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Remove Category">
-                    <IconButton onClick={(e) => { e.stopPropagation(); handleRemoveCategory(entry); }} size="small">
-                      <Close sx={{ fontSize: 16 }} />
+                    <IconButton component="span" onClick={(e) => { e.stopPropagation(); handleRemoveCategory(entry); }} size="small">
+                      <Close sx={{ fontSize: 12 }} />
                     </IconButton>
                   </Tooltip>
                 </Box>
