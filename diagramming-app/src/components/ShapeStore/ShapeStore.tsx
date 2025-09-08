@@ -41,7 +41,27 @@ const ShapeStore: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [pinnedCategoryIds, setPinnedCategoryIds] = useState<string[]>([]);
   const [visibleCategories, setVisibleCategories] = useState<IndexEntry[]>([]);
+  const [hoveredAccordionId, setHoveredAccordionId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | false>(false);
+
+  const handlePinToggle = (entry: IndexEntry) => {
+    setPinnedCategoryIds(prevPinnedIds => {
+      const isPinned = prevPinnedIds.includes(entry.id);
+      if (isPinned) {
+        return prevPinnedIds.filter(id => id !== entry.id);
+      } else {
+        return [...prevPinnedIds, entry.id];
+      }
+    });
+  };
+
+  const handleRemoveCategory = (entry: IndexEntry) => {
+    setVisibleCategories(prevVisibleCategories => prevVisibleCategories.filter(cat => cat.id !== entry.id));
+  };
+
+  const handleAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -82,69 +102,7 @@ const ShapeStore: React.FC = () => {
     fetchAllData();
   }, []);
 
-  useEffect(() => {
-    const fetchShapeSvgs = async (shapes: Shape[]) => {
-      const shapesToFetch = shapes.filter((shape) => !shape.shape);
-      if (shapesToFetch.length === 0) return shapes;
-
-      const shapesWithSvg = await Promise.all(
-        shapesToFetch.map(async (shape) => {
-          try {
-            const svgResponse = await fetch(shape.path);
-            let svgContent = await svgResponse.text();
-
-            const svgTagRegex = /<svg([^>]*)>/;
-            const match = svgTagRegex.exec(svgContent);
-            if (match && match[1]) {
-              let attributes = match[1];
-              attributes = attributes.replace(/\swidth="[^"]*"/g, '');
-              attributes = attributes.replace(/\sheight="[^"]*"/g, '');
-              svgContent = `<svg${attributes}>${svgContent.substring(match[0].length)}`;
-            }
-            return { ...shape, shape: svgContent };
-          } catch (error) {
-            console.error(`Failed to load SVG for ${shape.title}:`, error);
-            return shape;
-          }
-        })
-      );
-
-      return shapes.map((shape) => shapesWithSvg.find((s) => s.id === shape.id) || shape);
-    };
-
-    if (visibleCategories.length > 0) {
-      visibleCategories.forEach(entry => {
-        if (entry.shapes.some(shape => !shape.shape)) { // Check if shapes need fetching
-          fetchShapeSvgs(entry.shapes).then(shapes => {
-            setVisibleCategories(prev => prev.map(p => p.id === entry.id ? { ...p, shapes } : p));
-          });
-        }
-      });
-    }
-  }, [visibleCategories]);
-
-  useEffect(() => {
-    localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
-  }, [pinnedCategoryIds]);
-
-  const handlePinToggle = (entry: IndexEntry) => {
-    setPinnedCategoryIds(prevPinnedIds => {
-      const isPinned = prevPinnedIds.includes(entry.id);
-      if (isPinned) {
-        return prevPinnedIds.filter(id => id !== entry.id);
-      } else {
-        return [...prevPinnedIds, entry.id];
-      }
-    });
-  };
-
-  const handleRemoveCategory = (entry: IndexEntry) => {
-    setVisibleCategories(prevVisibleCategories => prevVisibleCategories.filter(cat => cat.id !== entry.id));
-  };
-
-  const handleAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : false);
-  };
+  
 
   const filteredIndexEntries = indexEntries.filter((entry) =>
     entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -185,6 +143,8 @@ const ShapeStore: React.FC = () => {
               expandIcon={<ExpandMoreIcon />}
               aria-controls={`${entry.id}-content`}
               id={`${entry.id}-header`}
+              onMouseEnter={() => setHoveredAccordionId(entry.id)}
+              onMouseLeave={() => setHoveredAccordionId(null)}
               sx={{
                 minHeight: 48,
                 '& .MuiAccordionSummary-content': {
@@ -194,7 +154,7 @@ const ShapeStore: React.FC = () => {
             >
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <Typography variant="subtitle1">{entry.name}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', visibility: hoveredAccordionId === entry.id ? 'visible' : 'hidden' }}>
                   <Tooltip title={pinnedCategoryIds.includes(entry.id) ? "Unpin Category" : "Pin Category"}>
                     <IconButton onClick={(e) => { e.stopPropagation(); handlePinToggle(entry); }} size="small">
                       {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: 12 }} /> : <PushPinOutlinedIcon sx={{ fontSize: 12 }} />}

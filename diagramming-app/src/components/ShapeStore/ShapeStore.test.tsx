@@ -91,6 +91,8 @@ describe('ShapeStore', () => {
   test('renders the search input and initially no categories are visible', async () => {
     await act(async () => {
       render(<ShapeStore />);
+      await Promise.resolve(); // Flushes microtasks
+      await Promise.resolve(); // Flushes microtasks again, just in case
     });
     expect(screen.getByLabelText('Search Categories')).toBeInTheDocument();
     // Initially, no categories should be visible unless pre-pinned in localStorage
@@ -101,6 +103,8 @@ describe('ShapeStore', () => {
   test('selects a category from search, pins it, and displays its shapes in an accordion', async () => {
     await act(async () => {
       render(<ShapeStore />);
+      await Promise.resolve(); // Flushes microtasks
+      await Promise.resolve(); // Flushes microtasks again, just in case
     });
 
     const searchInput = screen.getByLabelText('Search Categories');
@@ -111,6 +115,7 @@ describe('ShapeStore', () => {
     await act(async () => {
       fireEvent.click(databaseOption);
     });
+    await act(async () => {}); // Flush any pending effects
 
     // Verify category is now visible as an accordion
     const databaseAccordionSummary = await screen.findByText('Database');
@@ -143,6 +148,8 @@ describe('ShapeStore', () => {
 
     await act(async () => {
       render(<ShapeStore />);
+      await Promise.resolve(); // Flushes microtasks
+      await Promise.resolve(); // Flushes microtasks again, just in case
     });
 
     const databaseAccordionSummary = await screen.findByText('Database');
@@ -162,6 +169,7 @@ describe('ShapeStore', () => {
     await act(async () => {
       fireEvent.click(pinIconButton!);
     });
+    await act(async () => {}); // Flush any pending effects
 
     // Verify it's now unpinned (icon changed)
     let unpinIcon = databaseAccordionSummary.closest('.MuiAccordionSummary-root')?.querySelector('[data-testid="PushPinOutlinedIcon"]');
@@ -183,6 +191,8 @@ describe('ShapeStore', () => {
 
     await act(async () => {
       render(<ShapeStore />);
+      await Promise.resolve(); // Flushes microtasks
+      await Promise.resolve(); // Flushes microtasks again, just in case
     });
 
     // Clear setItem calls after initial render to only track subsequent calls
@@ -217,6 +227,8 @@ describe('ShapeStore', () => {
 
     await act(async () => {
       render(<ShapeStore />);
+      await Promise.resolve(); // Flushes microtasks
+      await Promise.resolve(); // Flushes microtasks again, just in case
     });
 
     // Verify both categories are visible and pinned
