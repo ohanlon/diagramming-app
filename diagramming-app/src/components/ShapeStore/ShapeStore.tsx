@@ -113,6 +113,7 @@ const ShapeStore: React.FC = () => {
           if (newValue && !pinnedEntries.find(entry => entry.id === newValue.id)) {
             setPinnedEntries([...pinnedEntries, newValue]);
           }
+          setSearchTerm('');
         }}
         inputValue={searchTerm}
         onInputChange={(event, newInputValue) => {
