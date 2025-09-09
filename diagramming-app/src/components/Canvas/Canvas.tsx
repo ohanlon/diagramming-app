@@ -6,7 +6,7 @@ import ContextMenu from '../ContextMenu/ContextMenu';
 import type { Point, AnchorType } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { getAnchorPoint } from '../../utils/getAnchorPoint';
-import { calculateBezierPath } from '../../utils/calculateBezierPath';
+import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
@@ -459,7 +459,41 @@ const Canvas: React.FC = () => {
           {isDrawingConnector && startConnectorPoint && currentMousePoint && (
             <path
               className="connector-path"
-              d={calculateBezierPath(startConnectorPoint, currentMousePoint)}
+              d={(() => {
+                if (!startConnectorNodeId || !startConnectorPoint || !currentMousePoint) return '';
+                const startShape = activeSheet.shapesById[startConnectorNodeId];
+                if (!startShape) return '';
+
+                // Create a dummy target shape at the current mouse point
+                const dummyTargetShape = {
+                  id: 'dummy',
+                  x: currentMousePoint.x,
+                  y: currentMousePoint.y,
+                  width: 1, // Minimal width/height for a point
+                  height: 1,
+                  type: 'dummy',
+                  text: '',
+                  color: '',
+                  layerId: '',
+                  svgContent: '',
+                  minX: 0,
+                  minY: 0,
+                  fontFamily: '',
+                  textOffsetX: 0,
+                  textOffsetY: 0,
+                  textWidth: 0,
+                  textHeight: 0,
+                  textPosition: 'inside',
+                  autosize: false,
+                };
+
+                const { path } = calculateOrthogonalPath(
+                  startShape,
+                  dummyTargetShape,
+                  Object.values(activeSheet.shapesById) // Pass all shapes for potential future obstacle avoidance
+                );
+                return path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+              })()}
             />
           )}
 

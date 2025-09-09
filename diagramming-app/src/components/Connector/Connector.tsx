@@ -1,23 +1,8 @@
 
 import React, { memo } from 'react';
-import type { Connector, Point, Shape, AnchorType } from '../../types';
-import { calculateBezierPath } from '../../utils/calculateBezierPath';
+import type { Connector } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
-
-// Helper function to get the absolute point of an anchor on a shape
-const getPointFromAnchorType = (shape: Shape, anchorType: AnchorType): Point => {
-  const { x, y, width, height } = shape;
-  switch (anchorType) {
-    case 'top':
-      return { x: x + width / 2, y: y };
-    case 'right':
-      return { x: x + width, y: y + height / 2 };
-    case 'bottom':
-      return { x: x + width / 2, y: y + height };
-    case 'left':
-      return { x: x, y: y + height / 2 };
-  }
-};
+import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
 
 interface ConnectorProps {
   connector: Connector;
@@ -30,7 +15,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
   if (!activeSheet) return null; // Should not happen if Canvas is rendering correctly
 
   const { shapesById } = activeSheet;
-  const { startNodeId, endNodeId, startAnchorType, endAnchorType } = connector;
+  const { startNodeId, endNodeId } = connector;
 
   const startNode = shapesById[startNodeId];
   const endNode = shapesById[endNodeId];
@@ -39,19 +24,23 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
     return null; // Don't render if either node is missing
   }
 
-  // Calculate dynamic start and end points for the connector based on anchor types
-  const startPoint = getPointFromAnchorType(startNode, startAnchorType);
-  const endPoint = getPointFromAnchorType(endNode, endAnchorType);
+  // Calculate orthogonal path
+  const { path, arrowDirection } = calculateOrthogonalPath(
+    startNode,
+    endNode,
+    Object.values(shapesById) // Pass all shapes for obstacle avoidance
+  );
 
-  const d = calculateBezierPath(startPoint, endPoint);
+  // Generate SVG path 'd' attribute from points
+  const d = path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
   let markerId = "arrowhead-right"; // Default
 
-  if (endAnchorType === 'top') {
-    markerId = "arrowhead-down";
-  } else if (endAnchorType === 'bottom') {
+  if (arrowDirection === 'top') {
     markerId = "arrowhead-up";
-  } else if (endAnchorType === 'left') {
+  } else if (arrowDirection === 'bottom') {
+    markerId = "arrowhead-down";
+  } else if (arrowDirection === 'left') {
     markerId = "arrowhead-left";
   }
 

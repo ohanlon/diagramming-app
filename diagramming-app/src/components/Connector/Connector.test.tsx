@@ -33,8 +33,6 @@ describe('ConnectorComponent', () => {
     id: 'conn-1',
     startNodeId: 'node-1',
     endNodeId: 'node-2',
-    startAnchorType: 'right',
-    endAnchorType: 'left',
   };
 
   test('renders connector path', () => {
