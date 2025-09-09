@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import Node from '../Node/Node';
 import ConnectorComponent from '../Connector/Connector';
@@ -7,6 +7,7 @@ import type { Point, AnchorType } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { getAnchorPoint } from '../../utils/getAnchorPoint';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
+import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
@@ -29,6 +30,11 @@ const Canvas: React.FC = () => {
   const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
 
+  const debouncedSetCurrentMousePoint = useMemo(
+    () => debounce(setCurrentMousePoint, 20),
+    []
+  );
+
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!activeSheet) return;
 
@@ -41,7 +47,7 @@ const Canvas: React.FC = () => {
     if (isPanning) {
       setPan({ x: e.clientX - startPan.x, y: e.clientY - startPan.y });
     } else if (isDrawingConnector) {
-      setCurrentMousePoint({ x: mouseX, y: mouseY });
+      debouncedSetCurrentMousePoint({ x: mouseX, y: mouseY });
     } else if (isSelecting && selectionStartPoint) {
       const x = Math.min(selectionStartPoint.x, mouseX);
       const y = Math.min(selectionStartPoint.y, mouseY);
@@ -439,6 +445,54 @@ const Canvas: React.FC = () => {
           <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="#ddd" />
           </pattern>
+
+          {/* Arrowhead pointing right (default) */}
+          <marker
+            id="arrowhead-right"
+            markerWidth="10"
+            markerHeight="7"
+            refX="10"
+            refY="3.5"
+            orient="0"
+          >
+            <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+          </marker>
+
+          {/* Arrowhead pointing down */}
+          <marker
+            id="arrowhead-down"
+            markerWidth="10"
+            markerHeight="10"
+            refX="5"
+            refY="10"
+            orient="0"
+          >
+            <polygon points="0 0, 10 0, 5 10" transform="rotate(90 5 5)" fill="black" />
+          </marker>
+
+          {/* Arrowhead pointing up */}
+          <marker
+            id="arrowhead-up"
+            markerWidth="10"
+            markerHeight="10"
+            refX="5"
+            refY="0"
+            orient="0"
+          >
+            <polygon points="0 10, 10 10, 5 0" transform="rotate(90 5 5)" fill="black" />
+          </marker>
+
+          {/* Arrowhead pointing left */}
+          <marker
+            id="arrowhead-left"
+            markerWidth="10"
+            markerHeight="7"
+            refX="0"
+            refY="3.5"
+            orient="180"
+          >
+            <polygon points="10 0, 0 3.5, 10 7" fill="black" />
+          </marker>
         </defs>
         <g transform={`translate(${activeSheet.pan.x}, ${activeSheet.pan.y}) scale(${activeSheet.zoom})`}>
         <rect
@@ -490,7 +544,9 @@ const Canvas: React.FC = () => {
                 const { path } = calculateOrthogonalPath(
                   startShape,
                   dummyTargetShape,
-                  Object.values(activeSheet.shapesById) // Pass all shapes for potential future obstacle avoidance
+                  [], // Pass an empty array for obstacles during real-time drawing
+                  startConnectorAnchorType!,
+                  getAnchorPoint(dummyTargetShape, currentMousePoint!).type
                 );
                 return path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
               })()}

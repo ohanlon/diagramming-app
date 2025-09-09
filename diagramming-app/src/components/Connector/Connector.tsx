@@ -28,7 +28,9 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
   const { path, arrowDirection } = calculateOrthogonalPath(
     startNode,
     endNode,
-    Object.values(shapesById) // Pass all shapes for obstacle avoidance
+    Object.values(shapesById), // Pass all shapes for obstacle avoidance
+    connector.startAnchorType,
+    connector.endAnchorType
   );
 
   // Generate SVG path 'd' attribute from points
@@ -46,55 +48,6 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
 
   return (
     <g>
-      <defs>
-        {/* Arrowhead pointing right (default) */}
-        <marker
-          id="arrowhead-right"
-          markerWidth="10"
-          markerHeight="7"
-          refX="10"
-          refY="3.5"
-          orient="0"
-        >
-          <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-        </marker>
-
-        {/* Arrowhead pointing down */}
-        <marker
-          id="arrowhead-down"
-          markerWidth="10"
-          markerHeight="10"
-          refX="5"
-          refY="10"
-          orient="0"
-        >
-          <polygon points="0 0, 10 0, 5 10" transform="rotate(90 5 5)" fill="black" />
-        </marker>
-
-        {/* Arrowhead pointing up */}
-        <marker
-          id="arrowhead-up"
-          markerWidth="10"
-          markerHeight="10"
-          refX="5"
-          refY="0"
-          orient="0"
-        >
-          <polygon points="0 10, 10 10, 5 0" transform="rotate(90 5 5)" fill="black" />
-        </marker>
-
-        {/* Arrowhead pointing left */}
-        <marker
-          id="arrowhead-left"
-          markerWidth="10"
-          markerHeight="7"
-          refX="0"
-          refY="3.5"
-          orient="180"
-        >
-          <polygon points="10 0, 0 3.5, 10 7" fill="black" />
-        </marker>
-      </defs>
       <path
         d={d}
         stroke="black"
