@@ -8,7 +8,7 @@ interface OrthogonalPathResult {
 }
 
 // --- Grid and A* Pathfinding Constants and Helpers ---
-const GRID_SIZE = 10; // Each grid cell is 10x10 pixels
+const GRID_SIZE = 20; // Each grid cell is 20x20 pixels
 const OBSTACLE_PADDING = 5; // Padding around shapes to consider as obstacles
 
 // Converts canvas coordinates to grid coordinates
@@ -69,14 +69,92 @@ const getObstacleGridCells = (shape: Shape): Set<string> => {
   return cells;
 };
 
+// --- Min-Priority Queue for A* ---
+class MinPriorityQueue<T> {
+  private heap: T[] = [];
+  private compare: (a: T, b: T) => number;
+
+  constructor(compare: (a: T, b: T) => number) {
+    this.compare = compare;
+  }
+
+  push(item: T): void {
+    this.heap.push(item);
+    this.bubbleUp();
+  }
+
+  pop(): T | undefined {
+    if (this.isEmpty()) return undefined;
+    const min = this.heap[0];
+    const last = this.heap.pop();
+    if (this.heap.length > 0 && last !== undefined) {
+      this.heap[0] = last;
+      this.sinkDown();
+    }
+    return min;
+  }
+
+  isEmpty(): boolean {
+    return this.heap.length === 0;
+  }
+
+  private bubbleUp(): void {
+    let index = this.heap.length - 1;
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      if (this.compare(this.heap[index], this.heap[parentIndex]) < 0) {
+        [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
+        index = parentIndex;
+      } else {
+        break;
+      }
+    }
+  }
+
+  private sinkDown(): void {
+    let index = 0;
+    const length = this.heap.length;
+    const element = this.heap[0];
+
+    while (true) {
+      let leftChildIndex = 2 * index + 1;
+      let rightChildIndex = 2 * index + 2;
+      let leftChild, rightChild;
+      let swap = null;
+
+      if (leftChildIndex < length) {
+        leftChild = this.heap[leftChildIndex];
+        if (this.compare(leftChild, element) < 0) {
+          swap = leftChildIndex;
+        }
+      }
+
+      if (rightChildIndex < length) {
+        rightChild = this.heap[rightChildIndex];
+        if (
+          (swap === null && this.compare(rightChild, element) < 0) ||
+          (swap !== null && this.compare(rightChild, leftChild!) < 0)
+        ) {
+          swap = rightChildIndex;
+        }
+      }
+
+      if (swap === null) break;
+      [this.heap[index], this.heap[swap]] = [this.heap[swap], this.heap[index]];
+      index = swap;
+    }
+  }
+}
+
 // --- A* Pathfinding Algorithm ---
 const findPathAStar = (
   startGrid: Point,
   endGrid: Point,
   gridObstacles: Set<string>
 ): Point[] => {
-  const openList: GridNode[] = [];
-  const closedList: Set<string> = new Set();
+  const openList = new MinPriorityQueue<GridNode>((a, b) => a.f - b.f);
+  const openListMap = new Map<string, GridNode>(); // For O(1) lookups
+  const closedList = new Map<string, GridNode>(); // For O(1) lookups
 
   const startNode: GridNode = {
     x: startGrid.x,
@@ -87,16 +165,20 @@ const findPathAStar = (
     parent: null,
   };
   openList.push(startNode);
+  openListMap.set(`${startNode.x},${startNode.y}`, startNode);
 
-  while (openList.length > 0) {
-    openList.sort((a, b) => a.f - b.f);
-    const currentNode = openList.shift()!;
-
+  while (!openList.isEmpty()) {
+    const currentNode = openList.pop()!;
     const currentKey = `${currentNode.x},${currentNode.y}`;
-    if (closedList.has(currentKey)) {
+
+    // If we've already processed this node with a better path, skip
+    if (closedList.has(currentKey) && closedList.get(currentKey)!.f <= currentNode.f) {
       continue;
     }
-    closedList.add(currentKey);
+
+    // Remove from openListMap and add to closedList
+    openListMap.delete(currentKey);
+    closedList.set(currentKey, currentNode);
 
     if (currentNode.x === endGrid.x && currentNode.y === endGrid.y) {
       const path: Point[] = [];
@@ -118,28 +200,36 @@ const findPathAStar = (
     for (const neighborGrid of neighbors) {
       const neighborKey = `${neighborGrid.x},${neighborGrid.y}`;
 
+      // Skip if obstacle or already processed with a better path
       if (gridObstacles.has(neighborKey) || closedList.has(neighborKey)) {
         continue;
       }
 
       const newG = currentNode.g + 1;
-      let neighborNode = openList.find(node => node.x === neighborGrid.x && node.y === neighborGrid.y);
+      const existingNeighbor = openListMap.get(neighborKey);
 
-      if (!neighborNode || newG < neighborNode.g) {
-        if (!neighborNode) {
-          neighborNode = {
-            x: neighborGrid.x,
-            y: neighborGrid.y,
-            g: newG,
-            h: heuristic(neighborGrid, endGrid),
-            f: newG + heuristic(neighborGrid, endGrid),
-            parent: currentNode,
-          };
+      if (!existingNeighbor || newG < existingNeighbor.g) {
+        const neighborNode: GridNode = existingNeighbor || {
+          x: neighborGrid.x,
+          y: neighborGrid.y,
+          h: heuristic(neighborGrid, endGrid),
+          parent: null, // Will be set below
+          g: 0, // Will be set below
+          f: 0, // Will be set below
+        };
+
+        neighborNode.g = newG;
+        neighborNode.f = newG + neighborNode.h;
+        neighborNode.parent = currentNode;
+
+        if (!existingNeighbor) {
           openList.push(neighborNode);
+          openListMap.set(neighborKey, neighborNode);
         } else {
-          neighborNode.g = newG;
-          neighborNode.f = newG + neighborNode.h;
-          neighborNode.parent = currentNode;
+          // If already in openList, update its priority (re-add to maintain heap property)
+          // A simple re-push is fine for this basic PQ, but a more robust PQ would have a decrease-key operation.
+          // For now, we rely on the closedList check to ignore outdated entries.
+          openList.push(neighborNode);
         }
       }
     }
@@ -156,13 +246,15 @@ const simplifyPath = (path: Point[]): Point[] => {
   let prevPoint = path[0];
   let currentPoint = path[1];
 
+  const EPSILON = 0.001; // Tolerance for floating point comparisons
+
   for (let i = 2; i < path.length; i++) {
     const nextPoint = path[i];
 
-    // Check if the three points are collinear (horizontal or vertical)
+    // Check if the three points are collinear (horizontal or vertical) within a small tolerance
     if (
-      (prevPoint.x === currentPoint.x && currentPoint.x === nextPoint.x) || // Vertical
-      (prevPoint.y === currentPoint.y && currentPoint.y === nextPoint.y)    // Horizontal
+      (Math.abs(prevPoint.x - currentPoint.x) < EPSILON && Math.abs(currentPoint.x - nextPoint.x) < EPSILON) || // Vertical
+      (Math.abs(prevPoint.y - currentPoint.y) < EPSILON && Math.abs(currentPoint.y - nextPoint.y) < EPSILON)    // Horizontal
     ) {
       // If collinear, skip the currentPoint (it's redundant)
       currentPoint = nextPoint;
@@ -181,17 +273,15 @@ const simplifyPath = (path: Point[]): Point[] => {
 export const calculateOrthogonalPath = (
   sourceShape: Shape,
   targetShape: Shape,
-  allShapes: Shape[]
+  allShapes: Shape[],
+  startAnchorType: AnchorType,
+  endAnchorType: AnchorType
 ): OrthogonalPathResult => {
   const sourceConnectionPoints = getConnectionPoints(sourceShape);
   const targetConnectionPoints = getConnectionPoints(targetShape);
 
-  const possibleAnchorTypes: AnchorType[] = ['top', 'right', 'bottom', 'left'];
-
-  let bestPath: Point[] = [];
-  let bestCost = Infinity;
-  let bestSourceAnchor: AnchorType = 'right';
-  let bestTargetAnchor: AnchorType = 'left';
+  const startPoint = sourceConnectionPoints[startAnchorType];
+  const endPoint = targetConnectionPoints[endAnchorType];
 
   // Collect all obstacle grid cells
   const gridObstacles: Set<string> = new Set();
@@ -202,56 +292,20 @@ export const calculateOrthogonalPath = (
     }
   });
 
-  for (const startAnchor of possibleAnchorTypes) {
-    for (const endAnchor of possibleAnchorTypes) {
-      const startPoint = sourceConnectionPoints[startAnchor];
-      const endPoint = targetConnectionPoints[endAnchor];
+  const startGrid = toGridCoords(startPoint);
+  const endGrid = toGridCoords(endPoint);
 
-      const startGrid = toGridCoords(startPoint);
-      const endGrid = toGridCoords(endPoint);
+  const path = findPathAStar(startGrid, endGrid, gridObstacles);
 
-      const path = findPathAStar(startGrid, endGrid, gridObstacles);
+  let bestPath: Point[] = [];
+  let bestSourceAnchor: AnchorType = startAnchorType;
+  let bestTargetAnchor: AnchorType = endAnchorType;
 
-      if (path.length > 0) {
-        const simplifiedPath = simplifyPath(path);
-
-        // Calculate cost: path length + (number of bends * bend_penalty)
-        let bends = 0;
-        for (let i = 1; i < simplifiedPath.length - 1; i++) {
-          const p1 = simplifiedPath[i - 1];
-          const p2 = simplifiedPath[i];
-          const p3 = simplifiedPath[i + 1];
-
-          // Check for a bend (change in direction)
-          if (!((p1.x === p2.x && p2.x === p3.x) || (p1.y === p2.y && p2.y === p3.y))) {
-            bends++;
-          }
-        }
-
-        const pathLength = simplifiedPath.reduce((acc, p, i, arr) => {
-          if (i === 0) return acc;
-          const prev = arr[i - 1];
-          return acc + Math.sqrt(Math.pow(p.x - prev.x, 2) + Math.pow(p.y - prev.y, 2));
-        }, 0);
-
-        const currentCost = pathLength + (bends * GRID_SIZE * 2); // Penalize bends
-
-        if (currentCost < bestCost) {
-          bestCost = currentCost;
-          bestPath = simplifiedPath;
-          bestSourceAnchor = startAnchor;
-          bestTargetAnchor = endAnchor;
-        }
-      }
-    }
-  }
-
-  // If no path found, return an empty path or a direct line as fallback
-  if (bestPath.length === 0) {
-    // Fallback to a direct line if A* fails for all combinations
-    bestPath = [sourceConnectionPoints.right, targetConnectionPoints.left];
-    bestSourceAnchor = 'right';
-    bestTargetAnchor = 'left';
+  if (path.length > 0) {
+    bestPath = simplifyPath(path);
+  } else {
+    // Fallback to a direct line if A* fails
+    bestPath = [startPoint, endPoint];
   }
 
   // Determine arrow direction based on the last segment of the best path
@@ -277,8 +331,8 @@ export const calculateOrthogonalPath = (
 
   return {
     path: bestPath,
-    sourceConnectionPoint: sourceConnectionPoints[bestSourceAnchor],
-    targetConnectionPoint: targetConnectionPoints[bestTargetAnchor],
+    sourceConnectionPoint: startPoint,
+    targetConnectionPoint: endPoint,
     arrowDirection,
   };
 };
