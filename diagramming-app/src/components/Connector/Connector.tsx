@@ -62,7 +62,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
       <path
         d={d}
         stroke="black"
-        strokeWidth="2"
+        strokeWidth={connector.lineWidth || 2}
         fill="none"
         role="graphics-symbol"
         aria-label="Connector between nodes"

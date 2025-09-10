@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 interface DiagramStoreActions {
+  setSelectedLineWidth: (width: number) => void;
   updateShapeSvgContent: (id: string, svgContent: string) => void;
   setSelectedShapeColor: (color: string) => void;
   addShape: (shape: Shape) => void;
@@ -104,6 +105,7 @@ const initialState: DiagramState = {
       selectedTextColor: '#000000',
       selectedShapeColor: '#000000',
       selectedLineStyle: 'continuous',
+      selectedLineWidth: 1,
       selectedConnectorIds: [],
     },
   },
@@ -1430,6 +1432,37 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               [state.activeSheetId]: {
                 ...activeSheet,
                 selectedLineStyle: style,
+                connectors: newConnectors,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedLineWidth: (width) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newConnectors = { ...activeSheet.connectors };
+          const targetConnectorIds = activeSheet.selectedConnectorIds.length > 0
+            ? activeSheet.selectedConnectorIds
+            : Object.keys(newConnectors);
+
+          targetConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, lineWidth: width };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                selectedLineWidth: width,
                 connectors: newConnectors,
               },
             },

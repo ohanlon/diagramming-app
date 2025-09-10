@@ -55,6 +55,7 @@ export type Connector = {
   startAnchorType: AnchorType;
   endAnchorType: AnchorType;
   lineStyle?: LineStyle;
+  lineWidth?: number;
 };
 
 export type Sheet = {
@@ -76,6 +77,7 @@ export type Sheet = {
   selectedTextColor: string;
   selectedShapeColor: string;
   selectedLineStyle: LineStyle;
+  selectedLineWidth: number;
 };
 
 export type DiagramState = {
