@@ -72,6 +72,7 @@ describe('Toolbar', () => {
           selectedFont: 'Open Sans',
           selectedFontSize: 10,
           selectedTextColor: '#000000',
+          selectedConnectorIds: [],
         },
       },
       activeSheetId: 'sheet-1',

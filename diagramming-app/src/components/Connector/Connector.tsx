@@ -6,10 +6,11 @@ import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
 
 interface ConnectorProps {
   connector: Connector;
+  isSelected: boolean;
 }
 
-const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
-  const { sheets, activeSheetId } = useDiagramStore();
+const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected }) => {
+  const { sheets, activeSheetId, setSelectedConnectors } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   if (!activeSheet) return null; // Should not happen if Canvas is rendering correctly
@@ -50,13 +51,47 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector }) => {
     <g>
       <path
         d={d}
+        stroke="transparent"
+        strokeWidth="12" // Wider transparent stroke for easier clicking
+        fill="none"
+        role="presentation" // This path is for interaction, not visual
+        onClick={() => setSelectedConnectors([connector.id])}
+        onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
+        onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
+      />
+      <path
+        d={d}
         stroke="black"
         strokeWidth="2"
         fill="none"
         role="graphics-symbol"
         aria-label="Connector between nodes"
         markerEnd={`url(#${markerId})`}
+        strokeDasharray={connector.lineStyle === 'dashed' ? '8, 4' : 'none'}
+        onClick={() => setSelectedConnectors([connector.id])}
+        onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
+        onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
       />
+      {isSelected && path.length > 0 && (
+        <>
+          <circle
+            cx={path[0].x}
+            cy={path[0].y}
+            r={8} // Radius of the circle
+            fill="none" // Make it hollow
+            stroke="blue"
+            strokeWidth="2"
+          />
+          <circle
+            cx={path[path.length - 1].x}
+            cy={path[path.length - 1].y}
+            r={8} // Radius of the circle
+            fill="none" // Make it hollow
+            stroke="blue"
+            strokeWidth="2"
+          />
+        </>
+      )}
     </g>
   );
 });

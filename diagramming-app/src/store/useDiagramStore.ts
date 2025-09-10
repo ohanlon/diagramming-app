@@ -35,6 +35,7 @@ interface DiagramStoreActions {
   addConnector: (connector: Connector) => void;
   setSelectedShapes: (ids: string[]) => void;
   toggleShapeSelection: (id: string) => void;
+  setSelectedConnectors: (ids: string[]) => void;
   setZoom: (zoom: number) => void;
   setPan: (pan: Point) => void;
   undo: () => void;
@@ -69,6 +70,7 @@ interface DiagramStoreActions {
   setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
   setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
   setSelectedTextColor: (color: string) => void;
+  setSelectedLineStyle: (style: LineStyle) => void;
   groupShapes: (ids: string[]) => void;
 }
 
@@ -101,6 +103,8 @@ const initialState: DiagramState = {
       selectedFontSize: 10, // Default font size
       selectedTextColor: '#000000',
       selectedShapeColor: '#000000',
+      selectedLineStyle: 'continuous',
+      selectedConnectorIds: [],
     },
   },
   activeSheetId: defaultSheetId,
@@ -476,6 +480,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               [state.activeSheetId]: {
                 ...activeSheet,
                 connectors: { ...activeSheet.connectors, [connector.id]: connector },
+                selectedConnectorIds: [], // Deselect all connectors when a new one is added
               },
             },
           };
@@ -513,6 +518,22 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               [state.activeSheetId]: {
                 ...activeSheet,
                 selectedShapeIds: selectedShapeIds,
+              },
+            },
+          };
+        }),
+
+      setSelectedConnectors: (ids) =>
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                selectedConnectorIds: ids,
               },
             },
           };
@@ -1379,6 +1400,37 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...activeSheet,
                 selectedTextColor: color,
                 shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedLineStyle: (style) => {
+        addHistory(get, set);
+        set((state) => {
+          const activeSheet = state.sheets[state.activeSheetId];
+          if (!activeSheet) return state;
+
+          const newConnectors = { ...activeSheet.connectors };
+          const targetConnectorIds = activeSheet.selectedConnectorIds.length > 0
+            ? activeSheet.selectedConnectorIds
+            : Object.keys(newConnectors);
+
+          targetConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, lineStyle: style };
+            }
+          });
+
+          return {
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...activeSheet,
+                selectedLineStyle: style,
+                connectors: newConnectors,
               },
             },
           };

@@ -46,12 +46,15 @@ export type ShapeType = 'Group' | string;
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
 
+export type LineStyle = 'continuous' | 'dashed';
+
 export type Connector = {
   id: string;
   startNodeId: string;
   endNodeId: string;
   startAnchorType: AnchorType;
   endAnchorType: AnchorType;
+  lineStyle?: LineStyle;
 };
 
 export type Sheet = {
@@ -61,6 +64,7 @@ export type Sheet = {
   shapeIds: string[];
   connectors: Record<string, Connector>;
   selectedShapeIds: string[];
+  selectedConnectorIds: string[];
   layers: Record<string, Layer>;
   layerIds: string[];
   activeLayerId: string;
@@ -71,6 +75,7 @@ export type Sheet = {
   selectedFontSize: number; // New: The currently selected font size for this sheet
   selectedTextColor: string;
   selectedShapeColor: string;
+  selectedLineStyle: LineStyle;
 };
 
 export type DiagramState = {

@@ -507,7 +507,7 @@ const Canvas: React.FC = () => {
             <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
           ))}
           {visibleConnectors.map((connector) => (
-            <ConnectorComponent key={connector.id} connector={connector} />
+            <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} />
           ))}
 
           {isDrawingConnector && startConnectorPoint && currentMousePoint && (
