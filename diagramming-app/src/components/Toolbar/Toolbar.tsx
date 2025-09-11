@@ -37,17 +37,23 @@ const ToolbarComponent: React.FC = () => {
   const [currentLineWidth, setCurrentLineWidth] = useState<number>(activeSheet.selectedLineWidth);
 
   useEffect(() => {
+    if (!activeSheet || activeSheet.selectedConnectorIds === undefined) return;
+
     if (activeSheet.selectedConnectorIds.length > 0) {
       const firstSelectedConnector = activeSheet.connectors[activeSheet.selectedConnectorIds[0]];
       if (firstSelectedConnector) {
         setCurrentLineStyle(firstSelectedConnector.lineStyle || 'continuous');
         setCurrentLineWidth(firstSelectedConnector.lineWidth || 1);
+      } else {
+        // If for some reason the connector doesn't exist, reset to default values
+        setCurrentLineStyle(activeSheet.selectedLineStyle);
+        setCurrentLineWidth(activeSheet.selectedLineWidth);
       }
     } else {
       setCurrentLineStyle(activeSheet.selectedLineStyle);
       setCurrentLineWidth(activeSheet.selectedLineWidth);
     }
-  }, [activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth]);
+  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth]);
 
   const handleColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
     setColorPickerAnchorEl(event.currentTarget);
