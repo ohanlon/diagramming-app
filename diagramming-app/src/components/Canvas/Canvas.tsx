@@ -254,7 +254,7 @@ const Canvas: React.FC = () => {
     return <div>No active sheet found.</div>;
   }
 
-  const { shapesById, shapeIds, connectors, selectedShapeIds } = activeSheet;
+  const { shapesById, shapeIds = [], connectors, selectedShapeIds } = activeSheet;
   const selectedFont = activeSheet.selectedFont;
 
   const handleDrop = (e: React.DragEvent) => {
@@ -423,7 +423,7 @@ const Canvas: React.FC = () => {
     .map(id => shapesById[id])
     .filter(shape => shape && activeSheet.layers[shape.layerId]?.isVisible);
 
-  const visibleConnectors = Object.values(connectors).filter(connector => {
+  const visibleConnectors = Object.values(connectors || {}).filter(connector => {
     const startShape = shapesById[connector.startNodeId];
     const endShape = shapesById[connector.endNodeId];
     return startShape && endShape && activeSheet.layers[startShape.layerId]?.isVisible && activeSheet.layers[endShape.layerId]?.isVisible;
@@ -503,10 +503,10 @@ const Canvas: React.FC = () => {
             height={backgroundSize}
             fill="url(#grid-pattern)"
           />
-          {visibleShapes.map((shape) => (
+          {(visibleShapes || []).map((shape) => (
             <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
           ))}
-          {visibleConnectors.map((connector) => (
+          {(visibleConnectors || []).map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} />
           ))}
 

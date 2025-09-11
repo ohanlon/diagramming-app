@@ -261,7 +261,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
               ...currentSheet.shapesById,
               [newShape.id]: { ...newShape, layerId: currentSheet.activeLayerId, fontSize: currentSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: currentSheet.selectedTextColor, autosize: true, isTextPositionManuallySet: false },
             },
-            shapeIds: [...currentSheet.shapeIds, newShape.id],
+            shapeIds: [...(currentSheet.shapeIds || []), newShape.id],
             selectedShapeIds: [newShape.id],
           },
         },
@@ -1050,6 +1050,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
         id: newSheetId,
         name: newSheetName,
         shapesById: {},
+        shapeIds: [],
         connectors: {},
         selectedShapeIds: [],
         layers: {
