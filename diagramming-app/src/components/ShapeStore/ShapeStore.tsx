@@ -60,7 +60,7 @@ const ShapeStore: React.FC = () => {
     setVisibleCategories(prevVisibleCategories => prevVisibleCategories.filter(cat => cat.id !== entry.id));
   };
 
-  const handleAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+  const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
 
@@ -138,7 +138,7 @@ const ShapeStore: React.FC = () => {
         options={indexEntries.filter(entry => !visibleCategories.some(vc => vc.id === entry.id))}
         getOptionLabel={(option) => option.name}
         value={null}
-        onChange={(event, newValue) => {
+        onChange={(_event, newValue) =>{
           if (newValue) {
             setVisibleCategories(prev => [...prev, newValue]);
             setPinnedCategoryIds(prev => [...prev, newValue.id]);
@@ -146,7 +146,7 @@ const ShapeStore: React.FC = () => {
           setSearchTerm('');
         }}
         inputValue={searchTerm}
-        onInputChange={(event, newInputValue) => {
+        onInputChange={(_event, newInputValue) =>{
           setSearchTerm(newInputValue);
         }}
         renderInput={(params) => <TextField {...params} label="Search Categories" variant="outlined" size="small" />}

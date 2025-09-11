@@ -3,7 +3,7 @@ import { useDiagramStore } from '../../store/useDiagramStore';
 import Node from '../Node/Node';
 import ConnectorComponent from '../Connector/Connector';
 import ContextMenu from '../ContextMenu/ContextMenu';
-import type { Point, AnchorType } from '../../types';
+import type { Point, AnchorType, Shape } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { getAnchorPoint } from '../../utils/getAnchorPoint';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
@@ -31,7 +31,7 @@ const Canvas: React.FC = () => {
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
 
   const debouncedSetCurrentMousePoint = useMemo(
-    () => debounce(setCurrentMousePoint, 20),
+    () => debounce((point: Point | null) => setCurrentMousePoint(point), 20),
     []
   );
 
@@ -519,7 +519,7 @@ const Canvas: React.FC = () => {
                 if (!startShape) return '';
 
                 // Create a dummy target shape at the current mouse point
-                const dummyTargetShape = {
+                const dummyTargetShape: Shape = {
                   id: 'dummy',
                   x: currentMousePoint.x,
                   y: currentMousePoint.y,
@@ -529,22 +529,31 @@ const Canvas: React.FC = () => {
                   text: '',
                   color: '',
                   layerId: '',
-                  svgContent: '',
-                  minX: 0,
-                  minY: 0,
-                  fontFamily: '',
+                  svgContent: undefined,
+                  minX: undefined,
+                  minY: undefined,
+                  fontFamily: undefined,
+                  fontSize: undefined,
                   textOffsetX: 0,
                   textOffsetY: 0,
                   textWidth: 0,
                   textHeight: 0,
+                  isTextSelected: undefined,
+                  isBold: undefined,
+                  isItalic: undefined,
+                  isUnderlined: undefined,
+                  verticalAlign: undefined,
+                  horizontalAlign: undefined,
                   textPosition: 'inside',
+                  textColor: undefined,
+                  parentId: undefined,
                   autosize: false,
+                  isTextPositionManuallySet: undefined,
                 };
 
                 const { path } = calculateOrthogonalPath(
                   startShape,
                   dummyTargetShape,
-                  [], // Pass an empty array for obstacles during real-time drawing
                   startConnectorAnchorType!,
                   getAnchorPoint(dummyTargetShape, currentMousePoint!).type
                 );

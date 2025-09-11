@@ -10,11 +10,13 @@ import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
 import { colors as shapeColors } from '../ShapeColorPicker/colors';
 import { findClosestColor } from '../../utils/colorUtils';
 
-type LineStyle = 'continuous' | 'dashed';
+type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash';
 
 const lineStyles: { name: string, value: LineStyle }[] = [
   { name: 'Continuous', value: 'continuous' },
   { name: 'Dashed', value: 'dashed' },
+  { name: 'Long Dash', value: 'long-dash' },
+  { name: 'Dot Dash', value: 'dot-dash' },
 ];
 
 interface ToolDefinition {

@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react';
+import { useEffect, type RefObject } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 export const useAutosize = (

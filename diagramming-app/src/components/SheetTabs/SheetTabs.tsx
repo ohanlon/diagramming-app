@@ -56,7 +56,7 @@ const SheetTabs: React.FC = () => {
     <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2.8em' }}>
       <Tabs
         value={activeSheetId}
-        onChange={(event, newValue) => setActiveSheet(newValue)}
+        onChange={(_event, newValue) => setActiveSheet(newValue)}
         variant="scrollable"
         scrollButtons="auto"
         aria-label="sheet tabs"

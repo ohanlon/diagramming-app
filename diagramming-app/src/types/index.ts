@@ -46,7 +46,7 @@ export type ShapeType = 'Group' | string;
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
 
-export type LineStyle = 'continuous' | 'dashed';
+export type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash';
 
 export type Connector = {
   id: string;

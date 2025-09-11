@@ -21,7 +21,6 @@ const getConnectionPoints = (shape: Shape): { [key in AnchorType]: Point } => {
 export const calculateOrthogonalPath = (
   sourceShape: Shape,
   targetShape: Shape,
-  allShapes: Shape[],
   startAnchorType: AnchorType,
   endAnchorType: AnchorType
 ): OrthogonalPathResult => {
