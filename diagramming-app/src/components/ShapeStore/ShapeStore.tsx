@@ -142,6 +142,7 @@ const ShapeStore: React.FC = () => {
           if (newValue) {
             setVisibleCategories(prev => [...prev, newValue]);
             setPinnedCategoryIds(prev => [...prev, newValue.id]);
+            setExpanded(newValue.id);
           }
           setSearchTerm('');
         }}
@@ -174,9 +175,23 @@ const ShapeStore: React.FC = () => {
                 },
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <Typography variant="subtitle1">{entry.name}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', visibility: hoveredAccordionId === entry.id ? 'visible' : 'hidden' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Tooltip title={entry.name}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      flex: '1 1 auto',
+                    minWidth: 0,
+                      width: '6.25rem'
+                    }}
+                  >
+                    {entry.name}
+                  </Typography>
+                </Tooltip>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                   <Tooltip title={pinnedCategoryIds.includes(entry.id) ? "Unpin Category" : "Pin Category"}>
                     <IconButton component="span" onClick={(e) => { e.stopPropagation(); handlePinToggle(entry); }} size="small">
                       {pinnedCategoryIds.includes(entry.id) ? <PushPinIcon sx={{ fontSize: '1em'}} /> : <PushPinOutlinedIcon sx={{ fontSize: '1em' }} />}
