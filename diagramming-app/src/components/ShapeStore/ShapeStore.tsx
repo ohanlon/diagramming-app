@@ -42,7 +42,6 @@ const ShapeStore: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [pinnedCategoryIds, setPinnedCategoryIds] = useState<string[]>([]);
   const [visibleCategories, setVisibleCategories] = useState<IndexEntry[]>([]);
-  const [hoveredAccordionId, setHoveredAccordionId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handlePinToggle = (entry: IndexEntry) => {
@@ -166,8 +165,6 @@ const ShapeStore: React.FC = () => {
               expandIcon={<ExpandMoreIcon />}
               aria-controls={`${entry.id}-content`}
               id={`${entry.id}-header`}
-              onMouseEnter={() => setHoveredAccordionId(entry.id)}
-              onMouseLeave={() => setHoveredAccordionId(null)}
               sx={{
                 minHeight: 48,
                 '& .MuiAccordionSummary-content': {

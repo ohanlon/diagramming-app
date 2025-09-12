@@ -116,58 +116,31 @@ const initialState: DiagramState = {
   },
 };
 
-// Function to add a new state to the history
-const addHistory = (
-  get: () => DiagramState & DiagramStoreActions,
-  set: (state: Partial<DiagramState & DiagramStoreActions>) => void
-) => {
-  const { history, sheets, activeSheetId } = get();
-  const newPast = [...history.past, { sheets, activeSheetId }];
-  set({ history: { past: newPast, future: [] } });
+const addHistory = (set: any) => {
+  set((state: DiagramState) => {
+    const { history, sheets, activeSheetId } = state;
+    const newPast = [...history.past, { sheets, activeSheetId }];
+    return {
+      ...state,
+      history: { past: newPast, future: [] },
+    };
+  });
 };
 
-// Define actions separately
-const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>) => void, get: () => DiagramState & DiagramStoreActions): DiagramStoreActions => ({
-  // setSelectedLineWidth: (width: number) => {
-  //   addHistory(get, set);
-  //   set((state: DiagramState & DiagramStoreActions) => {
-  //     const currentSheet = state.sheets[state.activeSheetId];
-  //     if (!currentSheet) return {};
-
-  //     const newConnectors = { ...currentSheet.connectors };
-  //     const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
-  //       ? currentSheet.selectedConnectorIds
-  //       : Object.keys(newConnectors);
-
-  //     targetConnectorIds.forEach((connectorId: string) => {
-  //       const connector = newConnectors[connectorId];
-  //       if (connector) {
-  //         newConnectors[connectorId] = { ...connector, lineWidth: width };
-  //       }
-  //     });
-
-  //     return {
-  //       sheets: {
-  //         ...state.sheets,
-  //         [state.activeSheetId]: {
-  //           ...currentSheet,
-  //           selectedLineWidth: width,
-  //           connectors: newConnectors,
-  //         },
-  //       },
-  //     };
-  //   });
-  // },
-
-  updateShapeSvgContent: (id: string, svgContent: string) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
+  persist(
+    (set) => ({
+      ...initialState,
+        updateShapeSvgContent: (id: string, svgContent: string) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -183,10 +156,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedShapeColor: (color: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -197,6 +170,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -211,10 +185,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   addShape: (shape: Shape) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShape = { ...shape };
 
@@ -253,6 +227,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       }
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -270,14 +245,15 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapePosition: (id: string, newX: number, newY: number) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -293,12 +269,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   recordShapeMove: (id: string, newX: number, newY: number) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -314,9 +291,9 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapePositions: (positions: { id: string; x: number; y: number }[]) =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       positions.forEach(({ id, x, y }: { id: string; x: number; y: number }) => {
@@ -326,6 +303,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
         }
       });
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -337,10 +315,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
     }),
 
   recordShapeMoves: (positions: { id: string; x: number; y: number }[]) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       positions.forEach(({ id, x, y }: { id: string; x: number; y: number }) => {
@@ -350,6 +328,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
         }
       });
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -362,14 +341,15 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapeHeight: (id: string, height: number) =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -384,14 +364,15 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
     }),
 
   updateShapeDimensions: (id: string, newX: number, newY: number, newWidth: number, newHeight: number) =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -405,12 +386,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       };
     }),
   recordShapeResize: (id: string, finalX: number, finalY: number, finalWidth: number, finalHeight: number) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -432,9 +414,9 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapeDimensionsMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       dimensions.forEach(({ id, x, y, width, height }: { id: string; x: number; y: number; width: number; height: number }) => {
@@ -444,6 +426,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
         }
       });
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -455,10 +438,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
     }),
 
   recordShapeResizeMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       dimensions.forEach(({ id, x, y, width, height }: { id: string; x: number; y: number; width: number; height: number }) => {
@@ -468,6 +451,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
         }
       });
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -480,12 +464,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapeText: (id: string, text: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -501,12 +486,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   addConnector: (connector: Connector) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -520,11 +506,12 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedShapes: (ids: string[]) =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -536,15 +523,16 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
     }),
 
   toggleShapeSelection: (id: string) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const selectedShapeIds = currentSheet.selectedShapeIds.includes(id)
         ? currentSheet.selectedShapeIds.filter((shapeId: string) => shapeId !== id)
         : [...currentSheet.selectedShapeIds, id];
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -557,11 +545,12 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedConnectors: (ids: string[]) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -574,11 +563,12 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setZoom: (zoom: number) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -591,11 +581,12 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setPan: (pan: Point) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -608,9 +599,9 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   undo: () =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const { past, future } = state.history;
-      if (past.length === 0) return {};
+      if (past.length === 0) return state;
 
       const previousState = past[past.length - 1];
       const newPast = past.slice(0, past.length - 1);
@@ -621,6 +612,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       };
 
       return {
+        ...state,
         sheets: previousState.sheets,
         activeSheetId: previousState.activeSheetId,
         history: {
@@ -631,9 +623,9 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
     }),
 
   redo: () =>
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const { past, future } = state.history;
-      if (future.length === 0) return {};
+      if (future.length === 0) return state;
 
       const nextState = future[0];
       const newFuture = future.slice(1);
@@ -644,6 +636,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       };
 
       return {
+        ...state,
         sheets: nextState.sheets,
         activeSheetId: nextState.activeSheetId,
         history: {
@@ -654,19 +647,20 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
     }),
 
   bringForward: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapeIds = [...currentSheet.shapeIds];
       const currentIdx = newShapeIds.indexOf(id);
-      if (currentIdx < 0 || currentIdx === newShapeIds.length - 1) return {};
+      if (currentIdx < 0 || currentIdx === newShapeIds.length - 1) return state;
 
       // Swap with the next element
       [newShapeIds[currentIdx], newShapeIds[currentIdx + 1]] = [newShapeIds[currentIdx + 1], newShapeIds[currentIdx]];
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -679,19 +673,20 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   sendBackward: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapeIds = [...currentSheet.shapeIds];
       const currentIdx = newShapeIds.indexOf(id);
-      if (currentIdx <= 0) return {};
+      if (currentIdx <= 0) return state;
 
       // Swap with the previous element
       [newShapeIds[currentIdx], newShapeIds[currentIdx - 1]] = [newShapeIds[currentIdx - 1], newShapeIds[currentIdx]];
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -704,19 +699,20 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   bringToFront: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const currentIdx = currentSheet.shapeIds.indexOf(id);
       if (currentIdx === -1 || currentIdx === currentSheet.shapeIds.length - 1)
-        return {};
+        return state;
 
       const newShapeIds = currentSheet.shapeIds.filter((shapeId: string) => shapeId !== id);
       newShapeIds.push(id);
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -729,18 +725,19 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   sendToBack: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const currentIdx = currentSheet.shapeIds.indexOf(id);
-      if (currentIdx === -1 || currentIdx === 0) return {};
+      if (currentIdx === -1 || currentIdx === 0) return state;
 
       const newShapeIds = currentSheet.shapeIds.filter((shapeId: string) => shapeId !== id);
       newShapeIds.unshift(id);
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -753,7 +750,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   toggleFullscreen: () =>
-    set(() => { // Changed to return empty object
+    set((state: DiagramState) => { // Changed to return empty object
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
       } else {
@@ -761,18 +758,19 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
           document.exitFullscreen();
         }
       }
-      return {};
+      return state;
     }),
 
   addLayer: () => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newLayerId = uuidv4();
       const newLayerName = `Layer ${currentSheet.layerIds.length + 1}`;
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -795,14 +793,14 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   removeLayer: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       if (currentSheet.layerIds.length === 1) {
         console.warn('Cannot remove the last layer.');
-        return {};
+        return state;
       }
 
       const newLayers = Object.fromEntries(
@@ -835,6 +833,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       );
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -853,15 +852,16 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   renameLayer: (id: string, name: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const layer = currentSheet.layers[id];
-      if (!layer) return {};
+      if (!layer) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -874,15 +874,16 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   toggleLayerVisibility: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const layer = currentSheet.layers[id];
-      if (!layer) return {};
+      if (!layer) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -898,13 +899,14 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setActiveLayer: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
-      if (!currentSheet.layers[id]) return {};
+      if (!currentSheet.layers[id]) return state;
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -917,13 +919,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   cutShape: (ids: string[]) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shapesToCut = ids.map((id: string) => currentSheet.shapesById[id]).filter(Boolean);
-      if (shapesToCut.length === 0) return {};
+      if (shapesToCut.length === 0) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       ids.forEach((id: string) => delete newShapesById[id]);
@@ -937,6 +939,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       );
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -954,14 +957,15 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   copyShape: (ids: string[]) => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shapesToCopy = ids.map((id: string) => currentSheet.shapesById[id]).filter(Boolean);
-      if (shapesToCopy.length === 0) return {};
+      if (shapesToCopy.length === 0) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -974,13 +978,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   pasteShape: () => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
-      const { clipboard, selectedShapeIds, shapesById, shapeIds, pan, zoom } = currentSheet;
-      if (!clipboard || clipboard.length === 0) return {};
+      const { clipboard, selectedShapeIds, shapesById, pan, zoom } = currentSheet;
+      if (!clipboard || clipboard.length === 0) return state;
 
       let pasteX = 0;
       let pasteY = 0;
@@ -1026,6 +1030,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
 
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1040,8 +1045,8 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   addSheet: () => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const newSheetId = uuidv4();
       const newSheetName = `Sheet ${Object.keys(state.sheets).length + 1}`;
       const defaultLayerId = uuidv4();
@@ -1076,6 +1081,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       };
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [newSheetId]: newSheet,
@@ -1086,12 +1092,12 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   removeSheet: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const sheetIds = Object.keys(state.sheets);
       if (sheetIds.length === 1) {
         console.warn('Cannot remove the last sheet.');
-        return {};
+        return state;
       }
 
       const newSheets = Object.fromEntries(
@@ -1101,6 +1107,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       const newActiveSheetId = id === state.activeSheetId ? sheetIds.filter((sheetId: string) => sheetId !== id)[0] : state.activeSheetId;
 
       return {
+        ...state,
         sheets: newSheets,
         activeSheetId: newActiveSheetId,
       };
@@ -1108,19 +1115,20 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setActiveSheet: (id: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
-      if (!state.sheets[id]) return {};
-      return { activeSheetId: id };
+    addHistory(set);
+    set((state: DiagramState) => {
+      if (!state.sheets[id]) return state;
+      return { ...state, activeSheetId: id };
     });
   },
 
   renameSheet: (id: string, name: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const sheet = state.sheets[id];
-      if (!sheet) return {};
+      if (!sheet) return state;
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [id]: { ...sheet, name },
@@ -1130,10 +1138,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedFont: (font: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1144,6 +1152,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1157,10 +1166,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedFontSize: (size: number) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1171,6 +1180,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1184,15 +1194,16 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapeTextPosition: (id: string, textOffsetX: number, textOffsetY: number) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1208,15 +1219,16 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1232,9 +1244,9 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   deselectAllTextBlocks: () => {
-    set((state: DiagramState & DiagramStoreActions) => {
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.shapeIds.forEach((id: string) => {
@@ -1245,6 +1257,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1257,15 +1270,16 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   updateShapeIsTextSelected: (id: string, isTextSelected: boolean) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shape = currentSheet.shapesById[id];
-      if (!shape) return {};
+      if (!shape) return state;
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1281,10 +1295,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   toggleBold: () => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1295,6 +1309,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1307,10 +1322,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   toggleItalic: () => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1321,6 +1336,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1333,10 +1349,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   toggleUnderlined: () => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1347,6 +1363,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1363,10 +1380,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1377,6 +1394,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1389,10 +1407,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1403,6 +1421,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1415,10 +1434,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedTextColor: (color: string) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
       currentSheet.selectedShapeIds.forEach((id: string) => {
@@ -1429,6 +1448,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1442,10 +1462,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedLineStyle: (style: LineStyle) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newConnectors = { ...currentSheet.connectors };
       const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
@@ -1460,6 +1480,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1473,10 +1494,10 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   setSelectedLineWidth: (width: number) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const newConnectors = { ...currentSheet.connectors };
       const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
@@ -1491,6 +1512,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
         });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1504,13 +1526,13 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
   },
 
   groupShapes: (ids: string[]) => {
-    addHistory(get, set);
-    set((state: DiagramState & DiagramStoreActions) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return {};
+      if (!currentSheet) return state;
 
       const shapesToGroup = ids.map((id: string) => currentSheet.shapesById[id]).filter(Boolean);
-      if (shapesToGroup.length < 2) return {}; // Need at least two shapes to group
+      if (shapesToGroup.length < 2) return state; // Need at least two shapes to group
 
       // Calculate bounding box of selected shapes
       let minX = Infinity;
@@ -1576,6 +1598,7 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       });
 
       return {
+        ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
@@ -1588,18 +1611,11 @@ const createActions = (set: (state: Partial<DiagramState & DiagramStoreActions>)
       };
     });
   },
-});
-
-export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
-      ...createActions(set, get),
     }),
     {
       name: 'diagram-storage-v2',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state: DiagramState) => {
+      partialize: (state: DiagramState & DiagramStoreActions) => {
         const newState = { ...state };
         (newState as Partial<DiagramState>).history = undefined;
         return newState;
