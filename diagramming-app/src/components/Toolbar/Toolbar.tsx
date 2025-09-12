@@ -3,6 +3,7 @@ import Select from '@mui/material/Select';
 import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatItalic, FormatUnderlined, NoteAdd, VerticalAlignBottom, VerticalAlignCenter, VerticalAlignTop, AlignHorizontalLeft, AlignHorizontalCenter, AlignHorizontalRight, FormatColorTextOutlined, MoreHoriz as MoreHorizIcon, GroupAdd, FormatColorFill } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { debounce } from '../../utils/debounce';
 import { googleFonts, fontSizes } from './Fonts';
 import type { LineStyle } from '../../types';
 import ColorPicker from '../ColorPicker/ColorPicker';
@@ -716,6 +717,13 @@ const ToolbarComponent: React.FC = () => {
 
   
 
+  const handleSetTools = useCallback((newVisibleTools: ToolDefinition[], newHiddenTools: ToolDefinition[]) => {
+    setVisibleTools(newVisibleTools);
+    setHiddenTools(newHiddenTools);
+  }, []);
+
+  const debouncedSetTools = useMemo(() => debounce(handleSetTools, 100), [handleSetTools]);
+
   useEffect(() => {
     const toolbarElement = toolbarRef.current;
     if (!toolbarElement) return;
@@ -742,8 +750,7 @@ const ToolbarComponent: React.FC = () => {
             }
           }
 
-          setVisibleTools(newVisibleTools);
-          setHiddenTools(newHiddenTools);
+          debouncedSetTools(newVisibleTools, newHiddenTools);
         }
       }
     });
@@ -752,8 +759,9 @@ const ToolbarComponent: React.FC = () => {
 
     return () => {
       resizeObserver.unobserve(toolbarElement);
+      debouncedSetTools.cancel && debouncedSetTools.cancel(); // Cancel any pending debounced calls
     };
-  }, [initialTools, moreButtonWidth]);
+  }, [initialTools, moreButtonWidth, debouncedSetTools]);
 
 
 
