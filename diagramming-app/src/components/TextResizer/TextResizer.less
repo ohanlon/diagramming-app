@@ -2,21 +2,20 @@
 .text-resizer-foreign-object {
   position: relative;
   cursor: grab;
-  border: 1px solid transparent; /* Default transparent border */
+  /* border: 1px solid transparent; */ /* Default transparent border */
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .text-resizer-foreign-object.selected {
-  border-color: blue; /* Highlight border when selected */
+  /* border-color: blue; */ /* Highlight border when selected */
 }
 
 .text-resizer-foreign-object.dragging {
-  cursor: grabbing;
-  border-color: lightblue; /* Visual feedback for dragging */
+  /* border-color: lightblue; */ /* Visual feedback for dragging */
 }
 
 .text-resizer-foreign-object.resizing {
-  border-color: lightgreen; /* Visual feedback for resizing */
+  /* border-color: lightgreen; */ /* Visual feedback for resizing */
 }
 
 .text-content {
@@ -32,7 +31,6 @@
 }
 
 .text-content[contenteditable="true"] {
-  border: 1px dashed #ccc; /* Indicate editable state */
   cursor: text;
 }
 
