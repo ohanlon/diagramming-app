@@ -4,19 +4,19 @@ import { Undo, Redo, ContentCut, ContentCopy, ContentPaste, FormatBold, FormatIt
 import { useDiagramStore } from '../../store/useDiagramStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { googleFonts, fontSizes } from './Fonts';
-// import { LineStyle } from '../../types';
+import type { LineStyle } from '../../types';
 import ColorPicker from '../ColorPicker/ColorPicker';
 import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
 import { colors as shapeColors } from '../ShapeColorPicker/colors';
 import { findClosestColor } from '../../utils/colorUtils';
-
-type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash';
 
 const LINE_STYLE_SVG = {
   continuous: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2"/></svg>`,
   dashed: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="5 5"/></svg>`,
   'long-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="10 5"/></svg>`,
   'dot-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="2 3 10 3"/></svg>`,
+  'custom-1': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="16 4 1 4 1 4"/></svg>`,
+  'custom-2': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="40 10 20 10"/></svg>`,
 };
 
 const lineStyles: { name: string, value: LineStyle }[] = [
@@ -24,6 +24,8 @@ const lineStyles: { name: string, value: LineStyle }[] = [
   { name: 'Dashed', value: 'dashed' },
   { name: 'Long Dash', value: 'long-dash' },
   { name: 'Dot Dash', value: 'dot-dash' },
+  { name: 'Custom 1', value: 'custom-1' },
+  { name: 'Custom 2', value: 'custom-2' },
 ];
 
 interface ToolDefinition {
@@ -32,9 +34,435 @@ interface ToolDefinition {
   width: number;
 }
 
+interface GetInitialToolsProps {
+  activeSheet: Sheet;
+  canUndo: boolean;
+  canRedo: boolean;
+  hasSelectedShapes: boolean;
+  isBoldActive: boolean;
+  isItalicActive: boolean;
+  isUnderlinedActive: boolean;
+  isVerticalAlignTopActive: boolean;
+  isVerticalAlignCenterActive: boolean;
+  isVerticalAlignBottomActive: boolean;
+  isHorizontalAlignLeftActive: boolean;
+  isHorizontalAlignCenterActive: boolean;
+  isHorizontalAlignRightActive: boolean;
+  currentTextColor: string;
+  currentShapeColor: string;
+  currentLineStyle: LineStyle;
+  currentLineWidth: number;
+  handleFontChange: (event: SelectChangeEvent<string>) => void;
+  handleFontSizeChange: (event: SelectChangeEvent<string>) => void;
+  handleLineStyleChange: (event: SelectChangeEvent<string>) => void;
+  handleLineWidthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  resetStore: () => void;
+  undo: () => void;
+  redo: () => void;
+  cutShape: (ids: string[]) => void;
+  copyShape: (ids: string[]) => void;
+  pasteShape: () => void;
+  groupShapes: (ids: string[]) => void;
+  setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
+  setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
+  toggleBold: () => void;
+  toggleItalic: () => void;
+  toggleUnderlined: () => void;
+}
+
+const getInitialTools = ({
+  activeSheet,
+  canUndo,
+  canRedo,
+  hasSelectedShapes,
+  isBoldActive,
+  isItalicActive,
+  isUnderlinedActive,
+  isVerticalAlignTopActive,
+  isVerticalAlignCenterActive,
+  isVerticalAlignBottomActive,
+  isHorizontalAlignLeftActive,
+  isHorizontalAlignCenterActive,
+  isHorizontalAlignRightActive,
+  currentTextColor,
+  currentShapeColor,
+  currentLineStyle,
+  currentLineWidth,
+  handleColorPickerClick,
+  handleShapeColorPickerClick,
+  handleFontChange,
+  handleFontSizeChange,
+  handleLineStyleChange,
+  handleLineWidthChange,
+  resetStore,
+  undo,
+  redo,
+  cutShape,
+  copyShape,
+  pasteShape,
+  groupShapes,
+  setVerticalAlign,
+  setHorizontalAlign,
+  toggleBold,
+  toggleItalic,
+  toggleUnderlined,
+}: GetInitialToolsProps): ToolDefinition[] => {
+  const selectedShapeIds = activeSheet.selectedShapeIds;
+
+  return [
+    {
+      id: 'undo',
+      element: (
+        <Tooltip title="Undo">
+          <IconButton onClick={undo} color="inherit" disabled={!canUndo} sx={{ borderRadius: 0 }}>
+            <Undo />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'redo',
+      element: (
+        <Tooltip title="Redo">
+          <IconButton onClick={redo} color="inherit" disabled={!canRedo} sx={{ borderRadius: 0 }}>
+            <Redo />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'divider-1',
+      element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
+      width: 16,
+    },
+    {
+      id: 'cut',
+      element: (
+        <Tooltip title="Cut">
+          <IconButton onClick={() => cutShape(selectedShapeIds)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+            <ContentCut />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'copy',
+      element: (
+        <Tooltip title="Copy">
+          <IconButton onClick={() => copyShape(selectedShapeIds)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+            <ContentCopy />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'paste',
+      element: (
+        <Tooltip title="Paste">
+          <IconButton onClick={pasteShape} color="inherit" sx={{ borderRadius: 0 }}>
+            <ContentPaste />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'divider-2',
+      element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
+      width: 16,
+    },
+    {
+      id: 'font-family',
+      element: (
+        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+          <Select
+            value={activeSheet.selectedFont}
+            onChange={handleFontChange}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Without label' }}
+            sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+          >
+            {googleFonts.map((font) => (
+              <MenuItem key={font} value={font} sx={{ fontFamily: font }}>
+                {font}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      ),
+      width: 140,
+    },
+    {
+      id: 'font-size',
+      element: (
+        <FormControl variant="standard" sx={{ m: 1, minWidth: 60 }}>
+          <Select
+            value={activeSheet.selectedFontSize.toString()}
+            onChange={handleFontSizeChange}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Without label' }}
+            sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+          >
+            {fontSizes.map((size) => (
+              <MenuItem key={size} value={size}>
+                {size}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      ),
+      width: 80,
+    },
+    {
+      id: 'bold',
+      element: (
+        <Tooltip title="Bold">
+          <IconButton onClick={toggleBold} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isBoldActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <FormatBold />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'italic',
+      element: (
+        <Tooltip title="Italic">
+          <IconButton onClick={toggleItalic} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isItalicActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <FormatItalic />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'underline',
+      element: (
+        <Tooltip title="Underline">
+          <IconButton onClick={toggleUnderlined} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isUnderlinedActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <FormatUnderlined />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'text-color',
+      element: (
+        <Tooltip title="Text Color">
+          <IconButton onClick={handleColorPickerClick} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+            <FormatColorTextOutlined sx={{ color: currentTextColor }} />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'shape-color',
+      element: (
+        <Tooltip title="Shape Color">
+          <IconButton onClick={handleShapeColorPickerClick} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+            <FormatColorFill sx={{ color: currentShapeColor }} />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'divider-3',
+      element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
+      width: 16,
+    },
+    {
+      id: 'line-style',
+      element: (
+        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+          <Select
+            value={currentLineStyle}
+            onChange={handleLineStyleChange}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Line Style' }}
+            sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+            renderValue={(selected) => (
+              <span dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[selected] }} />
+            )}
+          >
+            {lineStyles.map((style) => (
+              <MenuItem key={style.value} value={style.value}>
+                <span dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[style.value] }} />
+                <span style={{ marginLeft: '8px' }}>{style.name}</span>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      ),
+      width: 140,
+    },
+    {
+      id: 'line-width',
+      element: (
+        <TextField
+          label="Width"
+          type="number"
+          value={currentLineWidth}
+          onChange={handleLineWidthChange}
+          inputProps={{ min: 1, max: 12, step: 1 }}
+          sx={{ width: 70, margin: '8px' }}
+          variant="standard"
+        />
+      ),
+      width: 90,
+    },
+    {
+      id: 'divider-4',
+      element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
+      width: 16,
+    },
+    {
+      id: 'align-top',
+      element: (
+        <Tooltip title="Align Top">
+          <IconButton onClick={() => setVerticalAlign('top')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignTopActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <VerticalAlignTop />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'align-middle',
+      element: (
+        <Tooltip title="Align Middle">
+          <IconButton onClick={() => setVerticalAlign('middle')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <VerticalAlignCenter />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'align-bottom',
+      element: (
+        <Tooltip title="Align Bottom">
+          <IconButton onClick={() => setVerticalAlign('bottom')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignBottomActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <VerticalAlignBottom />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'divider-5',
+      element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
+      width: 16,
+    },
+    {
+      id: 'align-left',
+      element: (
+        <Tooltip title="Align Left">
+          <IconButton onClick={() => setHorizontalAlign('left')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignLeftActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <AlignHorizontalLeft />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'align-center',
+      element: (
+        <Tooltip title="Align Center">
+          <IconButton onClick={() => setHorizontalAlign('center')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <AlignHorizontalCenter />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'align-right',
+      element: (
+        <Tooltip title="Align Right">
+          <IconButton onClick={() => setHorizontalAlign('right')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignRightActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+            <AlignHorizontalRight />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'divider-6',
+      element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
+      width: 16,
+    },
+    {
+      id: 'group',
+      element: (
+        <Tooltip title="Group">
+          <IconButton onClick={() => groupShapes(selectedShapeIds)} color="inherit" disabled={selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}>
+            <GroupAdd />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'add-note',
+      element: (
+        <Tooltip title="Add Note">
+          <IconButton onClick={() => { /* Implement add note logic */ }} color="inherit" sx={{ borderRadius: 0 }}>
+            <NoteAdd />
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+    {
+      id: 'reset-store',
+      element: (
+        <Tooltip title="Reset Store">
+          <IconButton onClick={resetStore} color="inherit" sx={{ borderRadius: 0 }}>
+            Reset
+          </IconButton>
+        </Tooltip>
+      ),
+      width: 48,
+    },
+  ];
+};
+
 const ToolbarComponent: React.FC = () => {
-  const { undo, redo, setSelectedFont, setSelectedFontSize, history, cutShape, copyShape, pasteShape, sheets, activeSheetId, toggleBold, toggleItalic, toggleUnderlined, resetStore, setVerticalAlign, setHorizontalAlign, setSelectedTextColor, groupShapes, setSelectedShapeColor, updateShapeSvgContent, setSelectedLineStyle, setSelectedLineWidth } = useDiagramStore();
+  const {
+    setSelectedFont,
+    setSelectedFontSize,
+    sheets,
+    activeSheetId,
+    setSelectedTextColor,
+    setSelectedShapeColor,
+    updateShapeSvgContent,
+    setSelectedLineStyle,
+    setSelectedLineWidth,
+    undo,
+    redo,
+    cutShape,
+    copyShape,
+    pasteShape,
+    resetStore,
+    toggleBold,
+    toggleItalic,
+    toggleUnderlined,
+    setVerticalAlign,
+    setHorizontalAlign,
+    groupShapes,
+    history, // Add history here
+  } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
+  const canUndo = history.past.length > 0; // Corrected access
+  const canRedo = history.future.length > 0; // Corrected access
+
 
   const [colorPickerAnchorEl, setColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
   const [shapeColorPickerAnchorEl, setShapeColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -46,33 +474,32 @@ const ToolbarComponent: React.FC = () => {
   useEffect(() => {
     if (!activeSheet || activeSheet.selectedConnectorIds === undefined) return;
 
+    let newLineStyle = activeSheet.selectedLineStyle;
+    let newLineWidth = activeSheet.selectedLineWidth;
+
     if (activeSheet.selectedConnectorIds.length > 0) {
       const firstSelectedConnector = activeSheet.connectors[activeSheet.selectedConnectorIds[0]];
       if (firstSelectedConnector) {
-        setCurrentLineStyle(firstSelectedConnector.lineStyle || 'continuous');
-        setCurrentLineWidth(firstSelectedConnector.lineWidth || 1);
-      } else {
-        // If for some reason the connector doesn't exist, reset to default values
-        setCurrentLineStyle(activeSheet.selectedLineStyle);
-        setCurrentLineWidth(activeSheet.selectedLineWidth);
+        newLineStyle = firstSelectedConnector.lineStyle || 'continuous';
+        newLineWidth = firstSelectedConnector.lineWidth || 1;
       }
-    } else {
-      setCurrentLineStyle(activeSheet.selectedLineStyle);
-      setCurrentLineWidth(activeSheet.selectedLineWidth);
     }
-  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth]);
 
-  const handleColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
-    setColorPickerAnchorEl(event.currentTarget);
-  };
+    if (currentLineStyle !== newLineStyle) {
+      setCurrentLineStyle(newLineStyle);
+    }
+    if (currentLineWidth !== newLineWidth) {
+      setCurrentLineWidth(newLineWidth);
+    }
+  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, currentLineStyle, currentLineWidth]);
+
+  
 
   const handleColorPickerClose = () => {
     setColorPickerAnchorEl(null);
   };
 
-  const handleShapeColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
-    setShapeColorPickerAnchorEl(event.currentTarget);
-  };
+  
 
   const handleShapeColorPickerClose = () => {
     setShapeColorPickerAnchorEl(null);
@@ -199,53 +626,94 @@ const ToolbarComponent: React.FC = () => {
   }, [setSelectedLineWidth]);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const initialTools = useMemo(() => {
+    const handleColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
+      setColorPickerAnchorEl(event.currentTarget);
+    };
+
+    const handleShapeColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
+      setShapeColorPickerAnchorEl(event.currentTarget);
+    };
+
+    return getInitialTools({
+      activeSheet,
+      canUndo,
+      canRedo,
+      hasSelectedShapes,
+      isBoldActive,
+      isItalicActive,
+      isUnderlinedActive,
+      isVerticalAlignTopActive,
+      isVerticalAlignCenterActive,
+      isVerticalAlignBottomActive,
+      isHorizontalAlignLeftActive,
+      isHorizontalAlignCenterActive,
+      isHorizontalAlignRightActive,
+      currentTextColor,
+      currentShapeColor,
+      currentLineStyle,
+      currentLineWidth,
+      handleColorPickerClick,
+      handleShapeColorPickerClick,
+      handleFontChange,
+      handleFontSizeChange,
+      handleLineStyleChange,
+      handleLineWidthChange,
+      resetStore,
+      undo,
+      redo,
+      cutShape,
+      copyShape,
+      pasteShape,
+      groupShapes,
+      setVerticalAlign,
+      setHorizontalAlign,
+      toggleBold,
+      toggleItalic,
+      toggleUnderlined,
+    });
+  }, [
+    activeSheet,
+    canUndo,
+    canRedo,
+    hasSelectedShapes,
+    isBoldActive,
+    isItalicActive,
+    isUnderlinedActive,
+    isVerticalAlignTopActive,
+    isVerticalAlignCenterActive,
+    isVerticalAlignBottomActive,
+    isHorizontalAlignLeftActive,
+    isHorizontalAlignCenterActive,
+    isHorizontalAlignRightActive,
+    currentTextColor,
+    currentShapeColor,
+    currentLineStyle,
+    currentLineWidth,
+    handleFontChange,
+    handleFontSizeChange,
+    handleLineStyleChange,
+    handleLineWidthChange,
+    resetStore,
+    undo,
+    redo,
+    cutShape,
+    copyShape,
+    pasteShape,
+    groupShapes,
+    setVerticalAlign,
+    setHorizontalAlign,
+    toggleBold,
+    toggleItalic,
+    toggleUnderlined,
+    setColorPickerAnchorEl,
+    setShapeColorPickerAnchorEl,
+  ]);
   const [visibleTools, setVisibleTools] = useState<ToolDefinition[]>([]);
   const [hiddenTools, setHiddenTools] = useState<ToolDefinition[]>([]);
   const [moreButtonWidth, setMoreButtonWidth] = useState(0);
 
-  const initialTools: ToolDefinition[] = useMemo(() => [
-    { id: 'new-diagram', element: <Tooltip title="New Diagram"><IconButton color="inherit" onClick={resetStore} data-testid="new-diagram-button" sx={{ borderRadius: 0 }}><NoteAdd /></IconButton></Tooltip>, width: 48 },
-    { id: 'divider-1', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 }, // Approximate width for divider
-    { id: 'undo', element: <Tooltip title="Undo"><span><IconButton color="inherit" onClick={undo} data-testid="undo-button" disabled={history.past.length === 0} sx={{ borderRadius: 0 }}><Undo /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'redo', element: <Tooltip title="Redo"><span><IconButton color="inherit" onClick={redo} data-testid="redo-button" disabled={history.future.length === 0} sx={{ borderRadius: 0 }}><Redo /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'divider-2', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
-    { id: 'cut', element: <Tooltip title="Cut"><span><IconButton color="inherit" onClick={() => cutShape(activeSheet.selectedShapeIds)} data-testid="cut-button" disabled={activeSheet.selectedShapeIds.length === 0} sx={{ borderRadius: 0 }}><ContentCut /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'copy', element: <Tooltip title="Copy"><span><IconButton color="inherit" onClick={() => copyShape(activeSheet.selectedShapeIds)} data-testid="copy-button" disabled={activeSheet.selectedShapeIds.length === 0} sx={{ borderRadius: 0 }}><ContentCopy /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'paste', element: <Tooltip title="Paste"><span><IconButton color="inherit" onClick={() => pasteShape()} data-testid="paste-button" disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0} sx={{ borderRadius: 0 }}><ContentPaste /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'group', element: <Tooltip title="Group"><span><IconButton color="inherit" onClick={() => groupShapes(activeSheet.selectedShapeIds)} data-testid="group-button" disabled={activeSheet.selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}><GroupAdd /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'divider-3', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
-    { id: 'font-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="font-select-label" id="font-select" value={activeSheet.selectedFont || googleFonts[0].value} displayEmpty autoWidth onChange={handleFontChange} inputProps={{ 'data-testid': 'selectFont' }}>{googleFonts.slice().sort((a, b) => a.name.localeCompare(b.name)).map((font) => (<MenuItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>{font.name}</MenuItem>))}</Select></FormControl>, width: 120 }, // Approximate width
-    { id: 'font-size-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="font-size-select-label" id="font-size-select" value={String(activeSheet.selectedFontSize || 10)} displayEmpty autoWidth onChange={handleFontSizeChange} inputProps={{ 'data-testid': 'selectFontSize' }}>{fontSizes.map((size) => (<MenuItem key={size} value={size}>{size}</MenuItem>))}</Select></FormControl>, width: 80 }, // Approximate width
-    { id: 'divider-4', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
-    { id: 'bold', element: <Tooltip title="Bold"><span><IconButton sx={{ bgcolor: isBoldActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleBold} data-testid="bold-button" disabled={!hasSelectedShapes}><FormatBold /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'italic', element: <Tooltip title="Italic"><span><IconButton sx={{ bgcolor: isItalicActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleItalic} data-testid="italic-button" disabled={!hasSelectedShapes}><FormatItalic /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'underline', element: <Tooltip title="Underline"><span><IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}><FormatUnderlined /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'text-color', element: <Tooltip title="Text Color"><IconButton onClick={handleColorPickerClick} sx={{ color: 'inherit', borderRadius: 0 }}><FormatColorTextOutlined sx={{ color: currentTextColor }}/></IconButton></Tooltip>, width: 48 },
-    { id: 'shape-color', element: <Tooltip title="Shape Color"><IconButton onClick={handleShapeColorPickerClick} sx={{ color: 'inherit', borderRadius: '50%' }}><FormatColorFill sx={{ color: currentShapeColor }} /></IconButton></Tooltip>, width: 48 },
-    { id: 'line-style-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="line-style-select-label" id="line-style-select" value={currentLineStyle} displayEmpty autoWidth onChange={handleLineStyleChange} inputProps={{ 'data-testid': 'selectLineStyle' }} sx={{width: 130}}>{lineStyles.map((style) => (<MenuItem key={style.value} value={style.value}><div dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[style.value] }} /></MenuItem>))}</Select></FormControl>, width: 120 }, // Approximate width
-    { id: 'line-width-spinner', element: <Tooltip title="Line Width"><TextField
-      label="Line Width"
-      type="number"
-      size="small"
-      value={currentLineWidth}
-      onChange={handleLineWidthChange}
-      inputProps={{
-        min: 1,
-        max: 12,
-        step: 1,
-        'data-testid': 'line-width-spinner',
-      }}
-      sx={{ width: '80px', m: 1 }}
-    /></Tooltip>, width: 100 },
-    { id: 'divider-5', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
-    { id: 'align-top', element: <Tooltip title="Align Top"><span><IconButton sx={{ bgcolor: isVerticalAlignTopActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('top')} data-testid="align-top-button" disabled={!hasSelectedShapes}><VerticalAlignTop /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'align-middle', element: <Tooltip title="Align Middle"><span><IconButton sx={{ bgcolor: isVerticalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('middle')} data-testid="align-middle-button" disabled={!hasSelectedShapes}><VerticalAlignCenter /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'align-bottom', element: <Tooltip title="Align Bottom"><span><IconButton sx={{ bgcolor: isVerticalAlignBottomActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setVerticalAlign('bottom')} data-testid="align-bottom-button" disabled={!hasSelectedShapes}><VerticalAlignBottom /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'divider-6', element: <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />, width: 16 },
-    { id: 'align-left', element: <Tooltip title="Align Left"><span><IconButton sx={{ bgcolor: isHorizontalAlignLeftActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('left')} data-testid="align-left-button" disabled={!hasSelectedShapes}><AlignHorizontalLeft /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'align-center', element: <Tooltip title="Align Center"><span><IconButton sx={{ bgcolor: isHorizontalAlignCenterActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('center')} data-testid="align-center-button" disabled={!hasSelectedShapes}><AlignHorizontalCenter /></IconButton></span></Tooltip>, width: 48 },
-    { id: 'align-right', element: <Tooltip title="Align Right"><span><IconButton sx={{ bgcolor: isHorizontalAlignRightActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={() => setHorizontalAlign('right')} data-testid="align-right-button" disabled={!hasSelectedShapes}><AlignHorizontalRight /></IconButton></span></Tooltip>, width: 48 },
-  ], [activeSheet.clipboard, activeSheet.selectedFont, activeSheet.selectedFontSize, activeSheet.selectedShapeIds, copyShape, cutShape, handleFontChange, handleFontSizeChange, handleLineStyleChange, handleLineWidthChange, hasSelectedShapes, history.future.length, history.past.length, isBoldActive, isHorizontalAlignCenterActive, isHorizontalAlignLeftActive, isHorizontalAlignRightActive, isItalicActive, isUnderlinedActive, isVerticalAlignBottomActive, isVerticalAlignCenterActive, isVerticalAlignTopActive, pasteShape, redo, resetStore, setHorizontalAlign, setVerticalAlign, toggleBold, toggleItalic, toggleUnderlined, undo, groupShapes, currentShapeColor, currentTextColor, currentLineStyle, currentLineWidth]);
+  
 
   useEffect(() => {
     const toolbarElement = toolbarRef.current;
