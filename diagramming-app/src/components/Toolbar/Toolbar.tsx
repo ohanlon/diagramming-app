@@ -626,15 +626,16 @@ const ToolbarComponent: React.FC = () => {
   }, [setSelectedLineWidth]);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
+
+  const handleColorPickerClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    setColorPickerAnchorEl(event.currentTarget);
+  }, [setColorPickerAnchorEl]);
+
+  const handleShapeColorPickerClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    setShapeColorPickerAnchorEl(event.currentTarget);
+  }, [setShapeColorPickerAnchorEl]);
+
   const initialTools = useMemo(() => {
-    const handleColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
-      setColorPickerAnchorEl(event.currentTarget);
-    };
-
-    const handleShapeColorPickerClick = (event: React.MouseEvent<HTMLElement>) => {
-      setShapeColorPickerAnchorEl(event.currentTarget);
-    };
-
     return getInitialTools({
       activeSheet,
       canUndo,
@@ -690,6 +691,8 @@ const ToolbarComponent: React.FC = () => {
     currentShapeColor,
     currentLineStyle,
     currentLineWidth,
+    handleColorPickerClick,
+    handleShapeColorPickerClick,
     handleFontChange,
     handleFontSizeChange,
     handleLineStyleChange,
@@ -706,8 +709,6 @@ const ToolbarComponent: React.FC = () => {
     toggleBold,
     toggleItalic,
     toggleUnderlined,
-    setColorPickerAnchorEl,
-    setShapeColorPickerAnchorEl,
   ]);
   const [visibleTools, setVisibleTools] = useState<ToolDefinition[]>([]);
   const [hiddenTools, setHiddenTools] = useState<ToolDefinition[]>([]);
