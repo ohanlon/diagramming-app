@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Sheet, DiagramState, HistoryState, LineStyle, Shape, Connector, Point } from '../types';
+import type { Sheet, DiagramState, HistoryState, LineStyle, Shape, Connector, Point, Layer } from '../types';
 import { v4 as uuidv4 } from 'uuid';
-
-
 
 
 interface DiagramStoreActions {
@@ -116,7 +114,7 @@ const initialState: DiagramState = {
   },
 };
 
-const addHistory = (set: any) => {
+const addHistory = (set: (fn: (state: DiagramState & DiagramStoreActions) => DiagramState & DiagramStoreActions) => void) => {
   set((state: DiagramState) => {
     const { history, sheets, activeSheetId } = state;
     const newPast = [...history.past, { sheets, activeSheetId }];
@@ -419,10 +417,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      dimensions.forEach(({ id, x, y, width, height }: { id: string; x: number; y: number; width: number; height: number }) => {
+      dimensions.forEach(({ id, x, y }: { id: string; x: number; y: number; width: number; height: number }) => {
         const shape = newShapesById[id];
         if (shape) {
-          newShapesById[id] = { ...shape, x, y, width, height };
+          newShapesById[id] = { ...shape, x, y };
         }
       });
       return {
@@ -779,7 +777,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       }
 
       const newLayers = Object.fromEntries(
-        Object.entries(currentSheet.layers).filter(([layerId]: [string, any]) => layerId !== id)
+        Object.entries(currentSheet.layers).filter(([layerId]: [string, Layer]) => layerId !== id)
       );
 
       const newLayerIds = currentSheet.layerIds.filter((layerId: string) => layerId !== id);
@@ -791,7 +789,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
 
       const newShapesById = Object.fromEntries(
         Object.entries(currentSheet.shapesById).filter(
-          ([_id, shape]: [string, Shape]) => shape.layerId !== id
+          ([, shape]: [string, Shape]) => shape.layerId !== id
         )
       );
       const newShapeIds = currentSheet.shapeIds.filter(
@@ -799,7 +797,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       );
       const newConnectors = Object.fromEntries(
         Object.entries(currentSheet.connectors).filter(
-          ([_id, conn]: [string, Connector]) =>
+          ([, conn]: [string, Connector]) =>
             newShapesById[conn.startNodeId] && newShapesById[conn.endNodeId]
         )
       );
@@ -909,7 +907,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
 
       const newConnectors = Object.fromEntries(
         Object.entries(currentSheet.connectors).filter(
-          ([_id, conn]: [string, Connector]) => !ids.includes(conn.startNodeId) && !ids.includes(conn.endNodeId)
+          ([, conn]: [string, Connector]) => !ids.includes(conn.startNodeId) && !ids.includes(conn.endNodeId)
         )
       );
 
@@ -1024,7 +1022,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     set((state: DiagramState) => {
       const newSheetId = uuidv4();
       const newSheetName = `Sheet ${Object.keys(state.sheets).length + 1}`;
-      const defaultLayerId = uuidv4();
+      const defaultLayerId = uuidv4(); // This is fine here, as it's a local variable for newSheet
 
       const newSheet: Sheet = { // Explicitly type newSheet as Sheet
         id: newSheetId,
@@ -1076,7 +1074,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       }
 
       const newSheets = Object.fromEntries(
-        Object.entries(state.sheets).filter(([sheetId]: [string, any]) => sheetId !== id)
+        Object.entries(state.sheets).filter(([sheetId]: [string, Sheet]) => sheetId !== id)
       );
 
       const newActiveSheetId = id === state.activeSheetId ? sheetIds.filter((sheetId: string) => sheetId !== id)[0] : state.activeSheetId;
@@ -1224,7 +1222,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.shapeIds.forEach((id: string) => {
+      currentSheet.selectedShapeIds.forEach((id: string) => {
         const shape = newShapesById[id];
         if (shape) {
           newShapesById[id] = { ...shape, isTextSelected: false };
@@ -1590,11 +1588,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     {
       name: 'diagram-storage-v2',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state: DiagramState & DiagramStoreActions) => {
-        const newState = { ...state };
-        (newState as Partial<DiagramState>).history = undefined;
-        return newState;
-      },
+      
     }
   )
 );
