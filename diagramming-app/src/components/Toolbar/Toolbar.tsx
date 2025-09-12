@@ -581,15 +581,15 @@ const ToolbarComponent: React.FC = () => {
         }
         setCurrentShapeColor(findClosestColor(color, shapeColors.map(c => c.value)));
       }
-      else {
+      else if (currentShapeColor !== findClosestColor(firstShape.color, shapeColors.map(c => c.value))) {
         setCurrentShapeColor(findClosestColor(firstShape.color, shapeColors.map(c => c.value)));
       }
 
-      if (firstShape.textColor) {
+      if (firstShape.textColor && currentTextColor !== firstShape.textColor) {
         setCurrentTextColor(firstShape.textColor);
       }
 
-    } else {
+    } else if (currentShapeColor !== '#000000' || currentTextColor !== '#000000') {
         setCurrentShapeColor('#000000');
         setCurrentTextColor('#000000');
     }
