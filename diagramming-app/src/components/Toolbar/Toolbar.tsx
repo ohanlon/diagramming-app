@@ -188,8 +188,8 @@ const getInitialTools = ({
             sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
           >
             {googleFonts.map((font) => (
-              <MenuItem key={font} value={font} sx={{ fontFamily: font }}>
-                {font}
+              <MenuItem key={font.value} value={font.value} sx={{ fontFamily: font.value }}>
+                {font.name}
               </MenuItem>
             ))}
           </Select>
