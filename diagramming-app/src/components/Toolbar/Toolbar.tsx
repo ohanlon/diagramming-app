@@ -12,6 +12,13 @@ import { findClosestColor } from '../../utils/colorUtils';
 
 type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash';
 
+const LINE_STYLE_SVG = {
+  continuous: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2"/></svg>`,
+  dashed: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="5 5"/></svg>`,
+  'long-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="10 5"/></svg>`,
+  'dot-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="2 3 10 3"/></svg>`,
+};
+
 const lineStyles: { name: string, value: LineStyle }[] = [
   { name: 'Continuous', value: 'continuous' },
   { name: 'Dashed', value: 'dashed' },
@@ -215,7 +222,7 @@ const ToolbarComponent: React.FC = () => {
     { id: 'underline', element: <Tooltip title="Underline"><span><IconButton sx={{ bgcolor: isUnderlinedActive ? '#A0A0A0' : 'transparent', color: 'inherit', borderRadius: 0 }} onClick={toggleUnderlined} data-testid="underline-button" disabled={!hasSelectedShapes}><FormatUnderlined /></IconButton></span></Tooltip>, width: 48 },
     { id: 'text-color', element: <Tooltip title="Text Color"><IconButton onClick={handleColorPickerClick} sx={{ color: 'inherit', borderRadius: 0 }}><FormatColorTextOutlined sx={{ color: currentTextColor }}/></IconButton></Tooltip>, width: 48 },
     { id: 'shape-color', element: <Tooltip title="Shape Color"><IconButton onClick={handleShapeColorPickerClick} sx={{ color: 'inherit', borderRadius: '50%' }}><FormatColorFill sx={{ color: currentShapeColor }} /></IconButton></Tooltip>, width: 48 },
-    { id: 'line-style-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="line-style-select-label" id="line-style-select" value={currentLineStyle} displayEmpty autoWidth onChange={handleLineStyleChange} inputProps={{ 'data-testid': 'selectLineStyle' }} sx={{width: '10em'}}>{lineStyles.map((style) => (<MenuItem key={style.value} value={style.value}>{style.name}</MenuItem>))}</Select></FormControl>, width: 120 }, // Approximate width
+    { id: 'line-style-select', element: <FormControl sx={{ m: 1, minWidth: 40 }} size="small"><Select labelId="line-style-select-label" id="line-style-select" value={currentLineStyle} displayEmpty autoWidth onChange={handleLineStyleChange} inputProps={{ 'data-testid': 'selectLineStyle' }} sx={{width: 130}}>{lineStyles.map((style) => (<MenuItem key={style.value} value={style.value}><div dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[style.value] }} /></MenuItem>))}</Select></FormControl>, width: 120 }, // Approximate width
     { id: 'line-width-spinner', element: <Tooltip title="Line Width"><TextField
       label="Line Width"
       type="number"

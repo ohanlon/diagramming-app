@@ -229,7 +229,32 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     };
 
     if (svgContent) {
-      const scaledSvgContent = svgContent.replace(
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+      const svgElement = svgDoc.documentElement;
+
+      // Apply shape color to SVG content
+      const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
+      if (gradients.length > 0) {
+        gradients.forEach(gradient => {
+          const stops = Array.from(gradient.querySelectorAll('stop'));
+          stops.forEach(stop => {
+            stop.setAttribute('stop-color', color);
+          });
+        });
+      } else {
+        const paths = Array.from(svgElement.querySelectorAll('path'));
+        paths.forEach(path => {
+          if (path.getAttribute('fill')) {
+            path.setAttribute('fill', color);
+          }
+        });
+      }
+
+      const serializer = new XMLSerializer();
+      const coloredSvgContent = serializer.serializeToString(svgElement);
+
+      const scaledSvgContent = coloredSvgContent.replace(
         /<svg([^>]*)>/,
         `<svg$1 width="100%" height="100%">`
       );

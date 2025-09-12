@@ -22,6 +22,7 @@ interface Shape {
   textPosition: 'inside' | 'outside';
   shape?: string;
   autosize?: boolean;
+  color?: string; // Add color property
 }
 
 interface CatalogEntry {
