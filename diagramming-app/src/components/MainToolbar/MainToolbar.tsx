@@ -20,31 +20,29 @@ const MainToolbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
-      <Toolbar variant="dense">
-        <Button
-          id="file-button"
-          aria-controls={anchorEl ? 'file-menu' : undefined}
-          aria-haspopup="true"
-          aria-expanded={anchorEl ? 'true' : undefined}
-          onClick={handleClick}
-          sx={{ color: 'black' }}
-        >
-          File
-        </Button>
-        <Menu
-          id="file-menu"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          MenuListProps={{
-            'aria-labelledby': 'file-button',
-          }}
-        >
-          <MenuItem onClick={handleNewDocument}>New document</MenuItem>
-        </Menu>
-      </Toolbar>
-    </AppBar>
+    <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+      <Button
+        id="file-button"
+        aria-controls={anchorEl ? 'file-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={anchorEl ? 'true' : undefined}
+        onClick={handleClick}
+        sx={{ color: 'black' }}
+      >
+        File
+      </Button>
+      <Menu
+        id="file-menu"
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'file-button',
+        }}
+      >
+        <MenuItem onClick={handleNewDocument}>New document</MenuItem>
+      </Menu>
+    </Toolbar>
   );
 };
 

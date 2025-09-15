@@ -6,7 +6,7 @@ import LayerPanel from './components/LayerPanel/LayerPanel';
 import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { AppBar, Box } from '@mui/material';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
@@ -21,8 +21,11 @@ function App() {
         overflow: 'hidden',
       }}
     >
+          <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+
       <MainToolbar />
       <ToolbarComponent />
+      </AppBar>
       <Box sx={{ display: 'flex', flexGrow: 1, minHeight: 0 }}>
         <ShapeStore />
         <Canvas />

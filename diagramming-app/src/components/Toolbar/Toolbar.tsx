@@ -69,13 +69,13 @@ const ToolbarComponent: React.FC = () => {
     }
   }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, currentLineStyle, currentLineWidth]);
 
-  
+
 
   const handleColorPickerClose = () => {
     setColorPickerAnchorEl(null);
   };
 
-  
+
 
   const handleShapeColorPickerClose = () => {
     setShapeColorPickerAnchorEl(null);
@@ -168,8 +168,8 @@ const ToolbarComponent: React.FC = () => {
       }
 
     } else if (currentShapeColor !== '#000000' || currentTextColor !== '#000000') {
-        setCurrentShapeColor('#000000');
-        setCurrentTextColor('#000000');
+      setCurrentShapeColor('#000000');
+      setCurrentTextColor('#000000');
     }
   }, [selectedShapes, hasSelectedShapes]);
 
@@ -338,57 +338,55 @@ const ToolbarComponent: React.FC = () => {
 
 
   return (
-    <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
-      <Toolbar variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }} ref={toolbarRef}>
-        {visibleTools.map(tool => <React.Fragment key={tool.id}>{tool.element}</React.Fragment>)}
-        {hiddenTools.length > 0 && (
-          <>
-            <Tooltip title="More tools">
-              <IconButton
-                id="more-button"
-                aria-controls={moreMenuAnchorEl ? 'more-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={moreMenuAnchorEl ? 'true' : undefined}
-                onClick={handleMoreMenuClick}
-                color="inherit"
-                sx={{ borderRadius: 0 }}
-              >
-                <MoreHorizIcon />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              id="more-menu"
-              anchorEl={moreMenuAnchorEl}
-              open={Boolean(moreMenuAnchorEl)}
-              onClose={handleMoreMenuClose}
-              MenuListProps={{
-                'aria-labelledby': 'more-button',
-              }}
+    <Toolbar disableGutters variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }} ref={toolbarRef}>
+      {visibleTools.map(tool => <React.Fragment key={tool.id}>{tool.element}</React.Fragment>)}
+      {hiddenTools.length > 0 && (
+        <>
+          <Tooltip title="More tools">
+            <IconButton
+              id="more-button"
+              aria-controls={moreMenuAnchorEl ? 'more-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={moreMenuAnchorEl ? 'true' : undefined}
+              onClick={handleMoreMenuClick}
+              color="inherit"
+              sx={{ borderRadius: 0 }}
             >
-              {hiddenTools.map(tool => (
-                <MenuItem key={tool.id} onClick={handleMoreMenuClose}>
-                  {tool.element}
-                </MenuItem>
-              ))}
-            </Menu>
-          </>
-        )}
-        <Menu
-          anchorEl={colorPickerAnchorEl}
-          open={Boolean(colorPickerAnchorEl)}
-          onClose={handleColorPickerClose}
-        >
-          <ColorPicker selectedColor={activeSheet.selectedTextColor} onColorSelect={handleColorSelect} selectedShapes={selectedShapes} />
-        </Menu>
-        <Menu
-          anchorEl={shapeColorPickerAnchorEl}
-          open={Boolean(shapeColorPickerAnchorEl)}
-          onClose={handleShapeColorPickerClose}
-        >
-          <ShapeColorPicker selectedColor={currentShapeColor} onColorSelect={handleShapeColorSelect} />
-        </Menu>
-      </Toolbar>
-    </AppBar>
+              <MoreHorizIcon />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            id="more-menu"
+            anchorEl={moreMenuAnchorEl}
+            open={Boolean(moreMenuAnchorEl)}
+            onClose={handleMoreMenuClose}
+            MenuListProps={{
+              'aria-labelledby': 'more-button',
+            }}
+          >
+            {hiddenTools.map(tool => (
+              <MenuItem key={tool.id} onClick={handleMoreMenuClose}>
+                {tool.element}
+              </MenuItem>
+            ))}
+          </Menu>
+        </>
+      )}
+      <Menu
+        anchorEl={colorPickerAnchorEl}
+        open={Boolean(colorPickerAnchorEl)}
+        onClose={handleColorPickerClose}
+      >
+        <ColorPicker selectedColor={activeSheet.selectedTextColor} onColorSelect={handleColorSelect} selectedShapes={selectedShapes} />
+      </Menu>
+      <Menu
+        anchorEl={shapeColorPickerAnchorEl}
+        open={Boolean(shapeColorPickerAnchorEl)}
+        onClose={handleShapeColorPickerClose}
+      >
+        <ShapeColorPicker selectedColor={currentShapeColor} onColorSelect={handleShapeColorSelect} />
+      </Menu>
+    </Toolbar>
   );
 };
 
