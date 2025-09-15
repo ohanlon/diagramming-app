@@ -22,7 +22,6 @@ import {
   FormatItalic,
   FormatUnderlined,
   GroupAdd,
-  NoteAdd,
   Redo,
   Undo,
   VerticalAlignBottom,
@@ -92,6 +91,7 @@ export interface GetInitialToolsProps {
     toggleUnderlined: () => void;
     handleColorPickerClick: (event: React.MouseEvent<HTMLElement>) => void;
     handleShapeColorPickerClick: (event: React.MouseEvent<HTMLElement>) => void;
+    onToolClick?: () => void;
 }
 
 export const getInitialTools = ({
@@ -118,7 +118,6 @@ export const getInitialTools = ({
     handleFontSizeChange,
     handleLineStyleChange,
     handleLineWidthChange,
-    resetStore,
     undo,
     redo,
     cutShape,
@@ -130,15 +129,21 @@ export const getInitialTools = ({
     toggleBold,
     toggleItalic,
     toggleUnderlined,
+    onToolClick,
 }: GetInitialToolsProps): ToolDefinition[] => {
     const selectedShapeIds = activeSheet.selectedShapeIds;
+
+    const handleClick = (action: () => void) => {
+        action();
+        onToolClick?.();
+    };
 
     return [
         {
             id: 'undo',
             element: (
                 <Tooltip title="Undo">
-                    <IconButton onClick={undo} color="inherit" disabled={!canUndo} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={() => handleClick(undo)} color="inherit" disabled={!canUndo} sx={{ borderRadius: 0 }}>
                         <Undo />
                     </IconButton>
                 </Tooltip>
@@ -149,7 +154,7 @@ export const getInitialTools = ({
             id: 'redo',
             element: (
                 <Tooltip title="Redo">
-                    <IconButton onClick={redo} color="inherit" disabled={!canRedo} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={() => handleClick(redo)} color="inherit" disabled={!canRedo} sx={{ borderRadius: 0 }}>
                         <Redo />
                     </IconButton>
                 </Tooltip>
@@ -165,7 +170,7 @@ export const getInitialTools = ({
             id: 'cut',
             element: (
                 <Tooltip title="Cut">
-                    <IconButton onClick={() => cutShape(selectedShapeIds)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={() => handleClick(() => cutShape(selectedShapeIds))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
                         <ContentCut />
                     </IconButton>
                 </Tooltip>
@@ -176,7 +181,7 @@ export const getInitialTools = ({
             id: 'copy',
             element: (
                 <Tooltip title="Copy">
-                    <IconButton onClick={() => copyShape(selectedShapeIds)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={() => handleClick(() => copyShape(selectedShapeIds))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
                         <ContentCopy />
                     </IconButton>
                 </Tooltip>
@@ -187,7 +192,7 @@ export const getInitialTools = ({
             id: 'paste',
             element: (
                 <Tooltip title="Paste">
-                    <IconButton onClick={pasteShape} color="inherit" sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={() => handleClick(pasteShape)} color="inherit" sx={{ borderRadius: 0 }}>
                         <ContentPaste />
                     </IconButton>
                 </Tooltip>
@@ -245,7 +250,7 @@ export const getInitialTools = ({
             id: 'bold',
             element: (
                 <Tooltip title="Bold">
-                    <IconButton onClick={toggleBold} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isBoldActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(toggleBold)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isBoldActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <FormatBold />
                     </IconButton>
                 </Tooltip>
@@ -256,7 +261,7 @@ export const getInitialTools = ({
             id: 'italic',
             element: (
                 <Tooltip title="Italic">
-                    <IconButton onClick={toggleItalic} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isItalicActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(toggleItalic)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isItalicActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <FormatItalic />
                     </IconButton>
                 </Tooltip>
@@ -267,7 +272,7 @@ export const getInitialTools = ({
             id: 'underline',
             element: (
                 <Tooltip title="Underline">
-                    <IconButton onClick={toggleUnderlined} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isUnderlinedActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(toggleUnderlined)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isUnderlinedActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <FormatUnderlined />
                     </IconButton>
                 </Tooltip>
@@ -278,7 +283,7 @@ export const getInitialTools = ({
             id: 'text-color',
             element: (
                 <Tooltip title="Text Color">
-                    <IconButton onClick={handleColorPickerClick} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={(e) => handleClick(() => handleColorPickerClick(e))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
                         <FormatColorTextOutlined sx={{ color: currentTextColor }} />
                     </IconButton>
                 </Tooltip>
@@ -289,7 +294,7 @@ export const getInitialTools = ({
             id: 'shape-color',
             element: (
                 <Tooltip title="Shape Color">
-                    <IconButton onClick={handleShapeColorPickerClick} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={(e) => handleClick(() => handleShapeColorPickerClick(e))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
                         <FormatColorFill sx={{ color: currentShapeColor }} />
                     </IconButton>
                 </Tooltip>
@@ -348,7 +353,7 @@ export const getInitialTools = ({
             id: 'align-top',
             element: (
                 <Tooltip title="Align Top">
-                    <IconButton onClick={() => setVerticalAlign('top')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignTopActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(() => setVerticalAlign('top'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignTopActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <VerticalAlignTop />
                     </IconButton>
                 </Tooltip>
@@ -359,7 +364,7 @@ export const getInitialTools = ({
             id: 'align-middle',
             element: (
                 <Tooltip title="Align Middle">
-                    <IconButton onClick={() => setVerticalAlign('middle')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(() => setVerticalAlign('middle'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <VerticalAlignCenter />
                     </IconButton>
                 </Tooltip>
@@ -370,7 +375,7 @@ export const getInitialTools = ({
             id: 'align-bottom',
             element: (
                 <Tooltip title="Align Bottom">
-                    <IconButton onClick={() => setVerticalAlign('bottom')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignBottomActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(() => setVerticalAlign('bottom'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignBottomActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <VerticalAlignBottom />
                     </IconButton>
                 </Tooltip>
@@ -386,7 +391,7 @@ export const getInitialTools = ({
             id: 'align-left',
             element: (
                 <Tooltip title="Align Left">
-                    <IconButton onClick={() => setHorizontalAlign('left')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignLeftActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(() => setHorizontalAlign('left'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignLeftActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <AlignHorizontalLeft />
                     </IconButton>
                 </Tooltip>
@@ -397,7 +402,7 @@ export const getInitialTools = ({
             id: 'align-center',
             element: (
                 <Tooltip title="Align Center">
-                    <IconButton onClick={() => setHorizontalAlign('center')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(() => setHorizontalAlign('center'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <AlignHorizontalCenter />
                     </IconButton>
                 </Tooltip>
@@ -408,7 +413,7 @@ export const getInitialTools = ({
             id: 'align-right',
             element: (
                 <Tooltip title="Align Right">
-                    <IconButton onClick={() => setHorizontalAlign('right')} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignRightActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(() => setHorizontalAlign('right'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignRightActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
                         <AlignHorizontalRight />
                     </IconButton>
                 </Tooltip>
@@ -424,7 +429,7 @@ export const getInitialTools = ({
             id: 'group',
             element: (
                 <Tooltip title="Group">
-                    <IconButton onClick={() => groupShapes(selectedShapeIds)} color="inherit" disabled={selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}>
+                    <IconButton onClick={() => handleClick(() => groupShapes(selectedShapeIds))} color="inherit" disabled={selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}>
                         <GroupAdd />
                     </IconButton>
                 </Tooltip>

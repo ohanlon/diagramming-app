@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, IconButton, Tooltip, type SelectChangeEvent, Menu, MenuItem } from '@mui/material';
+import { Toolbar, IconButton, Tooltip, type SelectChangeEvent, Menu, MenuItem } from '@mui/material';
 import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -171,7 +171,7 @@ const ToolbarComponent: React.FC = () => {
       setCurrentShapeColor('#000000');
       setCurrentTextColor('#000000');
     }
-  }, [selectedShapes, hasSelectedShapes]);
+  }, [selectedShapes, hasSelectedShapes, currentShapeColor, currentTextColor]);
 
   const isBoldActive = hasSelectedShapes && selectedShapes.some(shape => shape.isBold);
   const isItalicActive = hasSelectedShapes && selectedShapes.some(shape => shape.isItalic);
@@ -251,6 +251,7 @@ const ToolbarComponent: React.FC = () => {
       toggleBold,
       toggleItalic,
       toggleUnderlined,
+      onToolClick: handleMoreMenuClose,
     });
   }, [
     activeSheet,
@@ -331,7 +332,7 @@ const ToolbarComponent: React.FC = () => {
 
     return () => {
       resizeObserver.unobserve(toolbarElement);
-      debouncedSetTools.cancel && debouncedSetTools.cancel(); // Cancel any pending debounced calls
+      if (debouncedSetTools.cancel) { debouncedSetTools.cancel(); } // Cancel any pending debounced calls
     };
   }, [initialTools, debouncedSetTools]);
 
@@ -366,7 +367,7 @@ const ToolbarComponent: React.FC = () => {
           >
             {hiddenTools.map(tool => (
               <MenuItem key={tool.id} onClick={handleMoreMenuClose}>
-                {tool.element}
+                <React.Fragment>{tool.element}</React.Fragment>
               </MenuItem>
             ))}
           </Menu>

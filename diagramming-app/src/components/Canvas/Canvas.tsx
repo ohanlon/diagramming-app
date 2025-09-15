@@ -88,7 +88,7 @@ const Canvas: React.FC = () => {
             }
         }
     }
-  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
+  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, debouncedSetCurrentMousePoint, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
 
   const handleMouseUp = useCallback((e: MouseEvent) => {
     if (!activeSheet) return;

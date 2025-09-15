@@ -5,7 +5,7 @@
  * @param delay - Delay in milliseconds before execution.
  * @returns A new throttled function that will execute after `delay` ms.
  */
-export function debounce<T extends (...args: any[]) => void>(
+export function debounce<T extends (...args: unknown[]) => void>(
   func: T,
   delay: number
 ): (...args: Parameters<T>) => void {
