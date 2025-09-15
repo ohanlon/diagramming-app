@@ -71,6 +71,7 @@ interface DiagramStoreActions {
   setSelectedTextColor: (color: string) => void;
   setSelectedLineStyle: (style: LineStyle) => void;
   groupShapes: (ids: string[]) => void;
+  setConnectorDragTargetShapeId: (shapeId: string | null) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -105,6 +106,7 @@ const initialState: DiagramState = {
       selectedLineStyle: 'continuous',
       selectedLineWidth: 1,
       selectedConnectorIds: [],
+      connectorDragTargetShapeId: null,
     },
   },
   activeSheetId: defaultSheetId,
@@ -129,6 +131,23 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   persist(
     (set) => ({
       ...initialState,
+      setConnectorDragTargetShapeId: (shapeId: string | null) => {
+        set((state: DiagramState) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                connectorDragTargetShapeId: shapeId,
+              },
+            },
+          };
+        });
+      },
         updateShapeSvgContent: (id: string, svgContent: string) => {
     set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
@@ -1051,6 +1070,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         selectedLineStyle: initialState.sheets[defaultSheetId].selectedLineStyle,
         selectedLineWidth: initialState.sheets[defaultSheetId].selectedLineWidth,
         selectedConnectorIds: initialState.sheets[defaultSheetId].selectedConnectorIds,
+        connectorDragTargetShapeId: null,
       };
 
       return {

@@ -1,6 +1,12 @@
 @import "../../styles/variables.less";
 
+.anchor-points-container {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+}
 
-
-
-
+.anchor-points-container.visible {
+  opacity: 1;
+  pointer-events: auto;
+}

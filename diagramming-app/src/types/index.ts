@@ -78,6 +78,7 @@ export type Sheet = {
   selectedShapeColor: string;
   selectedLineStyle: LineStyle;
   selectedLineWidth: number;
+  connectorDragTargetShapeId: string | null;
 };
 
 export type DiagramState = {

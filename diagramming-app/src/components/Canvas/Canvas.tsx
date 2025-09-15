@@ -11,7 +11,7 @@ import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -48,6 +48,23 @@ const Canvas: React.FC = () => {
       setPan({ x: e.clientX - startPan.x, y: e.clientY - startPan.y });
     } else if (isDrawingConnector) {
       debouncedSetCurrentMousePoint({ x: mouseX, y: mouseY });
+
+      const previewConnector = svgRef.current?.querySelector('.connector-path');
+      if (previewConnector) (previewConnector as SVGPathElement).style.display = 'none';
+
+      const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+
+      if (previewConnector) (previewConnector as SVGPathElement).style.display = '';
+
+      const targetNodeG = targetElement?.closest('g[data-node-id]');
+      let hoveredShapeId: string | null = null;
+      if (targetNodeG) {
+        hoveredShapeId = targetNodeG.getAttribute('data-node-id');
+      }
+
+      if (hoveredShapeId !== connectorDragTargetShapeId) {
+        setConnectorDragTargetShapeId(hoveredShapeId);
+      }
     } else if (isSelecting && selectionStartPoint) {
       const x = Math.min(selectionStartPoint.x, mouseX);
       const y = Math.min(selectionStartPoint.y, mouseY);
@@ -71,7 +88,7 @@ const Canvas: React.FC = () => {
             }
         }
     }
-  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition]);
+  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
 
   const handleMouseUp = useCallback((e: MouseEvent) => {
     if (!activeSheet) return;
@@ -83,6 +100,7 @@ const Canvas: React.FC = () => {
       }
     }
     else if (isDrawingConnector) {
+      setConnectorDragTargetShapeId(null);
       setIsDrawingConnector(false);
       setStartConnectorPoint(null);
       setStartConnectorNodeId(null);
@@ -169,7 +187,7 @@ const Canvas: React.FC = () => {
     setIsSelecting(false);
     setSelectionStartPoint(null);
     setSelectionRect(null);
-  }, [activeSheet, isPanning, isDrawingConnector, startConnectorNodeId, startConnectorAnchorType, addConnector, isSelecting, selectionRect, setSelectedShapes, isMouseDownOnShape, recordShapeMoves]);
+  }, [activeSheet, isPanning, isDrawingConnector, startConnectorNodeId, startConnectorAnchorType, addConnector, isSelecting, selectionRect, setSelectedShapes, isMouseDownOnShape, recordShapeMoves, setConnectorDragTargetShapeId]);
 
   const handleWheel = useCallback((e: WheelEvent) => {
     if (!activeSheet) return;
@@ -504,7 +522,7 @@ const Canvas: React.FC = () => {
             fill="url(#grid-pattern)"
           />
           {(visibleShapes || []).map((shape) => (
-            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
+            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
           ))}
           {(visibleConnectors || []).map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} />

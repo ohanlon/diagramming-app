@@ -9,12 +9,13 @@ interface NodeProps {
   zoom: number;
   isInteractive: boolean;
   isSelected: boolean;
+  isConnectorDragTarget: boolean;
   onConnectorStart: (nodeId: string, point: Point, anchorType: AnchorType) => void;
   onContextMenu: (e: React.MouseEvent, id: string) => void;
   onNodeMouseDown: (e: React.MouseEvent, id: string) => void;
 }
 
-const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, onConnectorStart, onContextMenu, onNodeMouseDown }) => {
+const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown }) => {
   const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
@@ -305,6 +306,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   ];
 
   const strokeColor = "#1a79eeff";
+  const showAnchors = isSelected || isConnectorDragTarget;
 
   return (
     <g
@@ -349,7 +351,10 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           <rect x={width - 5} y={-5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nesw-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')} />
           <rect x={-5} y={height - 5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nesw-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')} />
           <rect x={width - 5} y={height - 5} rx={2} ry={2} width={10} height={10} fill="white" stroke={strokeColor} strokeWidth="1" cursor="nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')} />
-
+        </>
+      )}
+      {isInteractive && (type !== 'text' || svgContent) && (
+        <g className={`anchor-points-container ${showAnchors ? 'visible' : ''}`}>
           {anchorPoints.map((point, index) => (
             <circle
               key={index}
@@ -366,7 +371,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
               }}
             />
           ))}
-        </>
+        </g>
       )}
     </g>
   );
