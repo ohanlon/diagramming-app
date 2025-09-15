@@ -295,7 +295,6 @@ const getInitialTools = ({
             {lineStyles.map((style) => (
               <MenuItem key={style.value} value={style.value}>
                 <span dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[style.value] }} />
-                <span style={{ marginLeft: '8px' }}>{style.name}</span>
               </MenuItem>
             ))}
           </Select>
