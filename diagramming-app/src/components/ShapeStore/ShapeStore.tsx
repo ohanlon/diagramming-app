@@ -12,6 +12,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  createFilterOptions,
 } from '@mui/material';
 import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOutlined as PushPinOutlinedIcon } from '@mui/icons-material';
 
@@ -42,6 +43,11 @@ interface SearchableShape {
   shape: Shape;
   category: IndexEntry;
 }
+
+const filterOptions = createFilterOptions<SearchableShape>({
+  matchFrom: 'any',
+  stringify: (option) => `${option.shape.title} ${option.category.name}`,
+});
 
 const ShapeStore: React.FC = () => {
   const [indexEntries, setIndexEntries] = useState<IndexEntry[]>([]);
@@ -146,6 +152,7 @@ const ShapeStore: React.FC = () => {
         options={searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
         getOptionLabel={(option) => option.shape.title}
         groupBy={(option) => option.category.name}
+        filterOptions={filterOptions}
         renderOption={(props, option) => (
           <Box component="li" {...props} key={option.shape.id}>
             {option.shape.shape && <div className="shape-thumbnail-container" style={{ width: 24, height: 24, marginRight: 8 }} dangerouslySetInnerHTML={{ __html: option.shape.shape }} />}
@@ -168,7 +175,7 @@ const ShapeStore: React.FC = () => {
         onInputChange={(_event, newInputValue) => {
           setSearchTerm(newInputValue);
         }}
-        renderInput={(params) => <TextField {...params} label="Search Shapes" variant="outlined" size="small" />}
+        renderInput={(params) => <TextField {...params} label="Search Shapes & Categories" variant="outlined" size="small" />}
         sx={{ mb: 2, flexShrink: 0 }}
       />
 
