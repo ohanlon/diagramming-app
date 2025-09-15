@@ -21,10 +21,9 @@ function App() {
         overflow: 'hidden',
       }}
     >
-          <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
-
-      <MainToolbar />
-      <ToolbarComponent />
+      <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+        <MainToolbar />
+        <ToolbarComponent />
       </AppBar>
       <Box sx={{ display: 'flex', flexGrow: 1, minHeight: 0 }}>
         <ShapeStore />

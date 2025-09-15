@@ -71,6 +71,7 @@ interface DiagramStoreActions {
   setSelectedTextColor: (color: string) => void;
   setSelectedLineStyle: (style: LineStyle) => void;
   groupShapes: (ids: string[]) => void;
+  deleteSelected: () => void;
   setConnectorDragTargetShapeId: (shapeId: string | null) => void;
 }
 
@@ -1599,6 +1600,52 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             shapesById: newShapesById,
             shapeIds: newShapeIds,
             selectedShapeIds: newSelectedShapeIds,
+          },
+        },
+      };
+    });
+  },
+  deleteSelected: () => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const { selectedShapeIds, selectedConnectorIds, shapesById, shapeIds, connectors } = currentSheet;
+
+      if (selectedShapeIds.length === 0 && (!selectedConnectorIds || selectedConnectorIds.length === 0)) {
+        return state;
+      }
+
+      const newShapesById = { ...shapesById };
+      selectedShapeIds.forEach((id: string) => delete newShapesById[id]);
+
+      const newShapeIds = shapeIds.filter((id: string) => !selectedShapeIds.includes(id));
+
+      const newConnectors = { ...connectors };
+      if (selectedConnectorIds) {
+        selectedConnectorIds.forEach((id: string) => delete newConnectors[id]);
+      }
+
+
+      // Also remove connectors attached to deleted shapes
+      Object.values(newConnectors).forEach((conn: Connector) => {
+        if (selectedShapeIds.includes(conn.startNodeId) || selectedShapeIds.includes(conn.endNodeId)) {
+          delete newConnectors[conn.id];
+        }
+      });
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            shapesById: newShapesById,
+            shapeIds: newShapeIds,
+            connectors: newConnectors,
+            selectedShapeIds: [],
+            selectedConnectorIds: [],
           },
         },
       };

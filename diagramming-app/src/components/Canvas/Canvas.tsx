@@ -11,7 +11,7 @@ import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -267,6 +267,20 @@ const Canvas: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [contextMenu, handleCloseContextMenu]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete') {
+        deleteSelected();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [deleteSelected]);
 
   if (!activeSheet) {
     return <div>No active sheet found.</div>;
