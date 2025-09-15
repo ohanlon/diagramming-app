@@ -1,3 +1,4 @@
+import MainToolbar from './components/MainToolbar/MainToolbar';
 import ShapeStore from './components/ShapeStore/ShapeStore';
 import Canvas from './components/Canvas/Canvas';
 import ToolbarComponent from './components/Toolbar/Toolbar';
@@ -5,7 +6,7 @@ import LayerPanel from './components/LayerPanel/LayerPanel';
 import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
@@ -20,6 +21,8 @@ function App() {
         overflow: 'hidden',
       }}
     >
+      <MainToolbar />
+      <Divider />
       <ToolbarComponent />
       <Box sx={{ display: 'flex', flexGrow: 1 }}>
         <ShapeStore />

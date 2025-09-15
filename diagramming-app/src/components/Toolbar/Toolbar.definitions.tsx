@@ -442,16 +442,5 @@ export const getInitialTools = ({
         //     ),
         //     width: 48,
         // },
-        {
-            id: 'reset-store',
-            element: (
-                <Tooltip title="Reset Store">
-                    <IconButton onClick={resetStore} color="inherit" sx={{ borderRadius: 0 }}>
-                        Reset
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
     ];
 };
