@@ -6,7 +6,7 @@ import LayerPanel from './components/LayerPanel/LayerPanel';
 import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState } from 'react';
-import { Box, Divider } from '@mui/material';
+import { Box } from '@mui/material';
 
 function App() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
@@ -22,9 +22,8 @@ function App() {
       }}
     >
       <MainToolbar />
-      <Divider />
       <ToolbarComponent />
-      <Box sx={{ display: 'flex', flexGrow: 1 }}>
+      <Box sx={{ display: 'flex', flexGrow: 1, minHeight: 0 }}>
         <ShapeStore />
         <Canvas />
       </Box>

@@ -20,7 +20,7 @@ const MainToolbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" sx={{ padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+    <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
       <Toolbar variant="dense">
         <Button
           id="file-button"
