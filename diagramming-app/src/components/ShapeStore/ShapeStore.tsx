@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './ShapeStore.less';
 import {
   Box,
@@ -36,6 +36,11 @@ interface IndexEntry {
   name: string;
   path: string;
   shapes: Shape[];
+}
+
+interface SearchableShape {
+  shape: Shape;
+  category: IndexEntry;
 }
 
 const ShapeStore: React.FC = () => {
@@ -79,7 +84,6 @@ const ShapeStore: React.FC = () => {
             const shapesResponse = await fetch(subEntry.path);
             const shapesInFile: Shape[] = await shapesResponse.json();
 
-            // New logic: Fetch SVG content for each shape
             const shapesWithSvgContent: Shape[] = await Promise.all(
               shapesInFile.map(async (shape) => {
                 if (shape.path) { // Ensure path exists
@@ -108,7 +112,6 @@ const ShapeStore: React.FC = () => {
         }
         setPinnedCategoryIds(initialPinnedIds);
 
-        // Initialize visible categories with pinned ones
         const initialVisibleCategories = allIndexEntries.filter(entry =>
           initialPinnedIds.includes(entry.id)
         );
@@ -125,32 +128,47 @@ const ShapeStore: React.FC = () => {
     localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
   }, [pinnedCategoryIds]);
 
-
-  // const filteredIndexEntries = indexEntries.filter((entry) =>
-  //   entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-  //   !pinnedCategoryIds.includes(entry.id) && // Exclude already pinned categories
-  //   !visibleCategories.some(vc => vc.id === entry.id) // Exclude already visible categories
-  // );
+  const searchableShapes = useMemo<SearchableShape[]>(() => {
+    const allShapes: SearchableShape[] = [];
+    indexEntries.forEach(category => {
+      if (category.shapes) {
+        category.shapes.forEach(shape => {
+          allShapes.push({ shape, category });
+        });
+      }
+    });
+    return allShapes;
+  }, [indexEntries]);
 
   return (
     <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 12.5em)' }}>
       <Autocomplete
-        options={indexEntries.filter(entry => !visibleCategories.some(vc => vc.id === entry.id))}
-        getOptionLabel={(option) => option.name}
+        options={searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
+        getOptionLabel={(option) => option.shape.title}
+        groupBy={(option) => option.category.name}
+        renderOption={(props, option) => (
+          <Box component="li" {...props} key={option.shape.id}>
+            {option.shape.shape && <div className="shape-thumbnail-container" style={{ width: 24, height: 24, marginRight: 8 }} dangerouslySetInnerHTML={{ __html: option.shape.shape }} />}
+            {option.shape.title}
+          </Box>
+        )}
         value={null}
-        onChange={(_event, newValue) =>{
+        onChange={(_event, newValue) => {
           if (newValue) {
-            setVisibleCategories(prev => [...prev, newValue]);
-            setPinnedCategoryIds(prev => [...prev, newValue.id]);
-            setExpanded(newValue.id);
+            const categoryToAdd = indexEntries.find(entry => entry.id === newValue.category.id);
+            if (categoryToAdd && !visibleCategories.some(vc => vc.id === categoryToAdd.id)) {
+              setVisibleCategories(prev => [...prev, categoryToAdd]);
+              setPinnedCategoryIds(prev => [...prev, categoryToAdd.id]);
+              setExpanded(categoryToAdd.id);
+            }
           }
           setSearchTerm('');
         }}
         inputValue={searchTerm}
-        onInputChange={(_event, newInputValue) =>{
+        onInputChange={(_event, newInputValue) => {
           setSearchTerm(newInputValue);
         }}
-        renderInput={(params) => <TextField {...params} label="Search Categories" variant="outlined" size="small" />}
+        renderInput={(params) => <TextField {...params} label="Search Shapes" variant="outlined" size="small" />}
         sx={{ mb: 2, flexShrink: 0 }}
       />
 
