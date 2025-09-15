@@ -329,12 +329,11 @@ export const getInitialTools = ({
             id: 'line-width',
             element: (
                 <TextField
-                    label="Width"
                     type="number"
                     value={currentLineWidth}
                     onChange={handleLineWidthChange}
                     inputProps={{ min: 1, max: 12, step: 1 }}
-                    sx={{ width: 70, margin: '8px' }}
+                    sx={{ width: 40, margin: '8px' }}
                     variant="standard"
                 />
             ),
@@ -432,17 +431,17 @@ export const getInitialTools = ({
             ),
             width: 48,
         },
-        {
-            id: 'add-note',
-            element: (
-                <Tooltip title="Add Note">
-                    <IconButton onClick={() => { /* Implement add note logic */ }} color="inherit" sx={{ borderRadius: 0 }}>
-                        <NoteAdd />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
+        // {
+        //     id: 'add-note',
+        //     element: (
+        //         <Tooltip title="Add Note">
+        //             <IconButton onClick={() => { /* Implement add note logic */ }} color="inherit" sx={{ borderRadius: 0 }}>
+        //                 <NoteAdd />
+        //             </IconButton>
+        //         </Tooltip>
+        //     ),
+        //     width: 48,
+        // },
         {
             id: 'reset-store',
             element: (
