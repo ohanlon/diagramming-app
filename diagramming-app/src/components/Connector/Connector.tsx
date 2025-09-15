@@ -66,7 +66,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         role="graphics-symbol"
         aria-label="Connector between nodes"
         markerEnd={`url(#${markerId})`}
-        strokeDasharray={connector.lineStyle === 'dashed' ? '8, 4' : connector.lineStyle === 'long-dash' ? '16 8' : connector.lineStyle === 'dot-dash' ? '8 4 1 4' : 'none'}
+        strokeDasharray={connector.lineStyle === 'dashed' ? '8, 4' : connector.lineStyle === 'long-dash' ? '16 8' : connector.lineStyle === 'dot-dash' ? '8 4 1 4' : connector.lineStyle === 'custom-1' ? '16 4 1 4 1 4' : connector.lineStyle === 'custom-2' ? '40 10 20 10' : 'none'}
         onClick={() => setSelectedConnectors([connector.id])}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}

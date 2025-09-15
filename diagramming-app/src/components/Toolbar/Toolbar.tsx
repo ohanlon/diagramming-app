@@ -555,7 +555,7 @@ const ToolbarComponent: React.FC = () => {
     handleShapeColorPickerClose();
   };
 
-  const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
+  const selectedShapes = useMemo(() => activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean), [activeSheet.selectedShapeIds, activeSheet.shapesById]);
   const hasSelectedShapes = selectedShapes.length > 0;
 
   useEffect(() => {
@@ -579,7 +579,10 @@ const ToolbarComponent: React.FC = () => {
             color = path.getAttribute('fill') || '#000000';
           }
         }
-        setCurrentShapeColor(findClosestColor(color, shapeColors.map(c => c.value)));
+        const newColor = findClosestColor(color, shapeColors.map(c => c.value));
+        if (currentShapeColor !== newColor) {
+          setCurrentShapeColor(newColor);
+        }
       }
       else if (currentShapeColor !== findClosestColor(firstShape.color, shapeColors.map(c => c.value))) {
         setCurrentShapeColor(findClosestColor(firstShape.color, shapeColors.map(c => c.value)));
@@ -713,9 +716,6 @@ const ToolbarComponent: React.FC = () => {
   ]);
   const [visibleTools, setVisibleTools] = useState<ToolDefinition[]>([]);
   const [hiddenTools, setHiddenTools] = useState<ToolDefinition[]>([]);
-  const [moreButtonWidth, setMoreButtonWidth] = useState(0);
-
-  
 
   const handleSetTools = useCallback((newVisibleTools: ToolDefinition[], newHiddenTools: ToolDefinition[]) => {
     setVisibleTools(newVisibleTools);
@@ -728,11 +728,6 @@ const ToolbarComponent: React.FC = () => {
     const toolbarElement = toolbarRef.current;
     if (!toolbarElement) return;
 
-    const moreButton = toolbarElement.querySelector('#more-button');
-    if (moreButton) {
-      setMoreButtonWidth(moreButton.clientWidth);
-    }
-
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
         if (entry.target === toolbarElement) {
@@ -740,6 +735,8 @@ const ToolbarComponent: React.FC = () => {
           let currentWidth = 0;
           const newVisibleTools: ToolDefinition[] = [];
           const newHiddenTools: ToolDefinition[] = [];
+          const moreButton = toolbarElement.querySelector('#more-button');
+          const moreButtonWidth = moreButton?.clientWidth ?? 0;
 
           for (const tool of initialTools) {
             if (currentWidth + tool.width <= availableWidth - moreButtonWidth) {
@@ -761,7 +758,7 @@ const ToolbarComponent: React.FC = () => {
       resizeObserver.unobserve(toolbarElement);
       debouncedSetTools.cancel && debouncedSetTools.cancel(); // Cancel any pending debounced calls
     };
-  }, [initialTools, moreButtonWidth, debouncedSetTools]);
+  }, [initialTools, debouncedSetTools]);
 
 
 

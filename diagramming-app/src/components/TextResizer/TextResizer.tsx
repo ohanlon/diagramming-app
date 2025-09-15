@@ -72,49 +72,51 @@ const TextResizer: React.FC<TextResizerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (autosize && textRef.current && shape) {
-        const PADDING_HORIZONTAL = 10;
-        const PADDING_VERTICAL = 6;
+    if (autosize && textRef.current) {
+      const PADDING_HORIZONTAL = 10;
+      const PADDING_VERTICAL = 6;
 
-        textRef.current.style.whiteSpace = 'nowrap';
-        const newWidth = Math.round(textRef.current.scrollWidth + PADDING_HORIZONTAL);
-        textRef.current.style.whiteSpace = 'normal';
+      const state = useDiagramStore.getState();
+      const shape = state.sheets[state.activeSheetId].shapesById[shapeId];
+      if (!shape) return;
 
-        textRef.current.style.width = `${newWidth}px`;
-        const newHeight = Math.round(textRef.current.scrollHeight + PADDING_VERTICAL);
-        textRef.current.style.width = 'auto';
+      const { x, y, width, height, textWidth, textHeight, isTextPositionManuallySet, textOffsetY: shapeTextOffsetY, textPosition, textOffsetX } = shape;
 
-        // Update text dimensions
-        if (textPosition === 'inside') {
-            if (newWidth !== Math.round(width) || newHeight !== Math.round(height)) {
-                updateShapeDimensions(shapeId, x, y, newWidth, newHeight);
-            }
+      textRef.current.style.whiteSpace = 'nowrap';
+      const newWidth = Math.round(textRef.current.scrollWidth + PADDING_HORIZONTAL);
+      textRef.current.style.whiteSpace = 'normal';
+
+      textRef.current.style.width = `${newWidth}px`;
+      const newHeight = Math.round(textRef.current.scrollHeight + PADDING_VERTICAL);
+      textRef.current.style.width = 'auto';
+
+      if (textPosition === 'inside') {
+        if (newWidth !== Math.round(width) || newHeight !== Math.round(height)) {
+          updateShapeDimensions(shapeId, x, y, newWidth, newHeight);
+        }
+      } else {
+        if (newWidth !== Math.round(textWidth) || newHeight !== Math.round(textHeight)) {
+          updateShapeTextDimensions(shapeId, newWidth, newHeight);
+        }
+      }
+
+      if (textPosition === 'outside' && !isTextPositionManuallySet) {
+        let newTextOffsetX;
+        if (horizontalAlign === 'center') {
+          newTextOffsetX = (shapeWidth / 2) - (newWidth / 2);
+        } else if (horizontalAlign === 'left') {
+          newTextOffsetX = 0;
         } else {
-            if (newWidth !== Math.round(textWidth) || newHeight !== Math.round(textHeight)) {
-                setCurrentTextWidth(newWidth);
-                setCurrentTextHeight(newHeight);
-                updateShapeTextDimensions(shapeId, newWidth, newHeight);
-            }
+          newTextOffsetX = shapeWidth - newWidth;
         }
 
-        // Calculate and update textOffsetX based on alignment if not manually set
-        if (textPosition === 'outside' && !isTextPositionManuallySet) {
-            let newTextOffsetX;
-            if (horizontalAlign === 'center') {
-                newTextOffsetX = (shapeWidth / 2) - (newWidth / 2);
-            } else if (horizontalAlign === 'left') {
-                newTextOffsetX = 0;
-            } else { // right
-                newTextOffsetX = shapeWidth - newWidth;
-            }
-            // Only update if it's different to prevent unnecessary re-renders
-            if (newTextOffsetX !== Math.round(initialTextOffsetX)) {
-                updateShapeTextPosition(shapeId, newTextOffsetX, shapeTextOffsetY);
-            }
+        if (typeof textOffsetX === 'number' && Math.round(newTextOffsetX) !== Math.round(textOffsetX)) {
+          updateShapeTextPosition(shapeId, newTextOffsetX, shapeTextOffsetY);
         }
+      }
     }
     checkOverflow();
-}, [text, fontSize, fontFamily, isBold, isItalic, autosize, shapeId, checkOverflow, textPosition, x, y, updateShapeDimensions, updateShapeTextDimensions, horizontalAlign, shapeWidth, isTextPositionManuallySet, initialTextOffsetX, shapeTextOffsetY, updateShapeTextPosition]);
+  }, [text, fontSize, fontFamily, isBold, isItalic, autosize, shapeId, horizontalAlign, shapeWidth, checkOverflow, updateShapeDimensions, updateShapeTextDimensions, updateShapeTextPosition]);
 
 
   // Update state when props change (e.g., when shape is moved or resized by other means)
