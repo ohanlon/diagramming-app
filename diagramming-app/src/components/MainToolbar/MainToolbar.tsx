@@ -140,14 +140,14 @@ const MainToolbar: React.FC = () => {
           <ListItemIcon>
             <UndoOutlined fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Undo</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Undo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Z</Typography>
         </MenuItem>
         <MenuItem onClick={handleRedo} disabled={history.future.length === 0}>
           <ListItemIcon>
             <RedoOutlined fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Redo</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Redo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Y</Typography>
         </MenuItem>
         <Divider />
@@ -155,21 +155,21 @@ const MainToolbar: React.FC = () => {
           <ListItemIcon>
             <ContentCut fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Cut</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Cut</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+X</Typography>
         </MenuItem>
         <MenuItem onClick={handleCopy} disabled={activeSheet.selectedShapeIds.length === 0}>
           <ListItemIcon>
             <ContentCopy fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Copy</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Copy</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+C</Typography>
         </MenuItem>
         <MenuItem onClick={handlePaste} disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
           <ListItemIcon>
             <ContentPaste fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Paste</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Paste</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+V</Typography>
         </MenuItem>
       </Menu>
@@ -183,14 +183,14 @@ const MainToolbar: React.FC = () => {
         onClose={handleSelectMenuClose}
       >
         <MenuItem onClick={handleSelectAll}>
-          <ListItemText>All</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>All</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+A</Typography>
         </MenuItem>
         <MenuItem onClick={handleSelectShapes}>
-          <ListItemText>Shapes</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Shapes</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleSelectLines}>
-          <ListItemText>Lines</ListItemText>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Lines</ListItemText>
         </MenuItem>
       </Menu>
     </Toolbar>
