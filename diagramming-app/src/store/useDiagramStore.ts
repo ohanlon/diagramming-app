@@ -73,6 +73,9 @@ interface DiagramStoreActions {
   groupShapes: (ids: string[]) => void;
   deleteSelected: () => void;
   setConnectorDragTargetShapeId: (shapeId: string | null) => void;
+  selectAll: () => void;
+  selectShapes: () => void;
+  selectConnectors: () => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -1648,6 +1651,73 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             connectors: newConnectors,
             selectedShapeIds: [],
             selectedConnectorIds: [],
+          },
+        },
+      };
+    });
+  },
+
+  selectAll: () => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const allShapeIds = Object.keys(currentSheet.shapesById);
+      const allConnectorIds = Object.keys(currentSheet.connectors);
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: allShapeIds,
+            selectedConnectorIds: allConnectorIds,
+          },
+        },
+      };
+    });
+  },
+
+  selectShapes: () => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const allShapeIds = Object.keys(currentSheet.shapesById);
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: allShapeIds,
+            selectedConnectorIds: [],
+          },
+        },
+      };
+    });
+  },
+
+  selectConnectors: () => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const allConnectorIds = Object.keys(currentSheet.connectors);
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: [],
+            selectedConnectorIds: allConnectorIds,
           },
         },
       };

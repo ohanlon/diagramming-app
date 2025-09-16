@@ -6,8 +6,9 @@ import { useDiagramStore } from '../../store/useDiagramStore';
 const MainToolbar: React.FC = () => {
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [newMenuAnchorEl, setNewMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, activeSheetId, sheets } = useDiagramStore();
+  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -25,6 +26,14 @@ const MainToolbar: React.FC = () => {
 
   const handleEditMenuClose = () => {
     setEditMenuAnchorEl(null);
+  };
+
+  const handleSelectMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setSelectMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleSelectMenuClose = () => {
+    setSelectMenuAnchorEl(null);
   };
 
   const handleNewSubMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -67,6 +76,21 @@ const MainToolbar: React.FC = () => {
   const handlePaste = () => {
     pasteShape();
     handleEditMenuClose();
+  };
+
+  const handleSelectAll = () => {
+    selectAll();
+    handleSelectMenuClose();
+  };
+
+  const handleSelectShapes = () => {
+    selectShapes();
+    handleSelectMenuClose();
+  };
+
+  const handleSelectLines = () => {
+    selectConnectors();
+    handleSelectMenuClose();
   };
 
   return (
@@ -131,6 +155,26 @@ const MainToolbar: React.FC = () => {
         <MenuItem onClick={handlePaste}>
           <ListItemText>Paste</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+V</Typography>
+        </MenuItem>
+      </Menu>
+
+      <Button onClick={handleSelectMenuOpen} sx={{ color: 'black' }}>
+        Select
+      </Button>
+      <Menu
+        anchorEl={selectMenuAnchorEl}
+        open={Boolean(selectMenuAnchorEl)}
+        onClose={handleSelectMenuClose}
+      >
+        <MenuItem onClick={handleSelectAll}>
+          <ListItemText>All</ListItemText>
+          <Typography variant="body2" color="text.secondary">Ctrl+A</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleSelectShapes}>
+          <ListItemText>Shapes</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleSelectLines}>
+          <ListItemText>Lines</ListItemText>
         </MenuItem>
       </Menu>
     </Toolbar>

@@ -11,7 +11,7 @@ import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -294,6 +294,9 @@ const Canvas: React.FC = () => {
       } else if (e.ctrlKey && e.key === 'v') {
         e.preventDefault();
         pasteShape();
+      } else if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        selectAll();
       }
     };
 
@@ -302,7 +305,7 @@ const Canvas: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, activeSheet]);
+  }, [deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, activeSheet, selectAll]);
 
   if (!activeSheet) {
     return <div>No active sheet found.</div>;
