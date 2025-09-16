@@ -114,7 +114,15 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
               key={layer.id}
               selected={layer.id === activeLayerId}
               onClick={() => setActiveLayer(layer.id)}
+              sx={{ paddingLeft: 0 }} // Remove default padding to align bar to the edge
             >
+              <Box
+                sx={{
+                  ml: 0.5,
+                  width: 4,
+                  height: '100%',
+                  backgroundColor: layer.id === activeLayerId ? 'blue' : 'transparent',
+                }}>&nbsp;</Box>
               {isEditing ? (
                 <TextField
                   inputRef={inputRef}
@@ -125,9 +133,10 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
                   size="small"
                   variant="standard"
                   fullWidth
+                  sx={{ ml: '0.5rem' }} // Add left margin to TextField
                 />
               ) : (
-                <ListItemText primary={layer.name} />
+                <ListItemText primary={layer.name} sx={{ ml: '8px', }} /> // Add left margin to ListItemText
               )}
               <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
                 <IconButton onClick={() => toggleLayerVisibility(layer.id)} size="small">
