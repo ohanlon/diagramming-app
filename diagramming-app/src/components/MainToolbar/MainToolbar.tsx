@@ -8,7 +8,7 @@ const MainToolbar: React.FC = () => {
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [newMenuAnchorEl, setNewMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets } = useDiagramStore();
+  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, history } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -136,35 +136,35 @@ const MainToolbar: React.FC = () => {
         open={Boolean(editMenuAnchorEl)}
         onClose={handleEditMenuClose}
       >
-        <MenuItem onClick={handleUndo}>
+        <MenuItem onClick={handleUndo} disabled={history.past.length === 0}>
           <ListItemIcon>
             <UndoOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText>Undo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Z</Typography>
         </MenuItem>
-        <MenuItem onClick={handleRedo}>
+        <MenuItem onClick={handleRedo} disabled={history.future.length === 0}>
           <ListItemIcon>
             <RedoOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText>Redo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Y</Typography>
         </MenuItem>
-        <MenuItem onClick={handleCut}>
+        <MenuItem onClick={handleCut} disabled={activeSheet.selectedShapeIds.length === 0}>
           <ListItemIcon>
             <ContentCut fontSize="small" />
           </ListItemIcon>
           <ListItemText>Cut</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+X</Typography>
         </MenuItem>
-        <MenuItem onClick={handleCopy}>
+        <MenuItem onClick={handleCopy} disabled={activeSheet.selectedShapeIds.length === 0}>
           <ListItemIcon>
             <ContentCopy fontSize="small" />
           </ListItemIcon>
           <ListItemText>Copy</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+C</Typography>
         </MenuItem>
-        <MenuItem onClick={handlePaste}>
+        <MenuItem onClick={handlePaste} disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
           <ListItemIcon>
             <ContentPaste fontSize="small" />
           </ListItemIcon>
