@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography } from '@mui/material';
-import { ArrowRight } from '@mui/icons-material';
+import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon } from '@mui/material';
+import { ArrowRight, ContentCopy, ContentCut, ContentPaste, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const MainToolbar: React.FC = () => {
@@ -137,22 +137,37 @@ const MainToolbar: React.FC = () => {
         onClose={handleEditMenuClose}
       >
         <MenuItem onClick={handleUndo}>
+          <ListItemIcon>
+            <UndoOutlined fontSize="small" />
+          </ListItemIcon>
           <ListItemText>Undo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Z</Typography>
         </MenuItem>
         <MenuItem onClick={handleRedo}>
+          <ListItemIcon>
+            <RedoOutlined fontSize="small" />
+          </ListItemIcon>
           <ListItemText>Redo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Y</Typography>
         </MenuItem>
         <MenuItem onClick={handleCut}>
+          <ListItemIcon>
+            <ContentCut fontSize="small" />
+          </ListItemIcon>
           <ListItemText>Cut</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+X</Typography>
         </MenuItem>
         <MenuItem onClick={handleCopy}>
+          <ListItemIcon>
+            <ContentCopy fontSize="small" />
+          </ListItemIcon>
           <ListItemText>Copy</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+C</Typography>
         </MenuItem>
         <MenuItem onClick={handlePaste}>
+          <ListItemIcon>
+            <ContentPaste fontSize="small" />
+          </ListItemIcon>
           <ListItemText>Paste</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+V</Typography>
         </MenuItem>
