@@ -514,10 +514,10 @@ const Canvas: React.FC = () => {
             fill="url(#grid-pattern)"
           />
           {(visibleShapes || []).map((shape) => (
-            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} />
+            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
           ))}
           {(visibleConnectors || []).map((connector) => (
-            <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} />
+            <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
           ))}
 
           {isDrawingConnector && startConnectorPoint && currentMousePoint && (

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
-import type { Shape, Point, AnchorType } from '../../types';
+import type { Shape, Point, AnchorType, Layer } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import './Node.less';
 import TextResizer from '../TextResizer/TextResizer';
@@ -13,9 +13,11 @@ interface NodeProps {
   onConnectorStart: (nodeId: string, point: Point, anchorType: AnchorType) => void;
   onContextMenu: (e: React.MouseEvent, id: string) => void;
   onNodeMouseDown: (e: React.MouseEvent, id: string) => void;
+  activeLayerId: string;
+  layers: { [id: string]: Layer };
 }
 
-const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown }) => {
+const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown, activeLayerId, layers }) => {
   const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
@@ -163,6 +165,8 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   if (!activeSheet) return null;
 
   const { selectedShapeIds, shapesById } = activeSheet;
+
+  const isFaded = shape.layerId !== activeLayerId || !layers[shape.layerId]?.isVisible;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isInteractive) return;
@@ -315,7 +319,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleNodeContextMenu}
-      style={{ cursor: isInteractive ? 'grab' : 'default' }}
+      style={{ cursor: isInteractive ? 'grab' : 'default', opacity: isFaded ? 0.6 : 1 }}
     >
       {renderShape()}
 

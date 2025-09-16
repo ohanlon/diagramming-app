@@ -1,15 +1,17 @@
 
 import React, { memo } from 'react';
-import type { Connector } from '../../types';
+import type { Connector, Layer } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
 
 interface ConnectorProps {
   connector: Connector;
   isSelected: boolean;
+  activeLayerId: string;
+  layers: { [id: string]: Layer };
 }
 
-const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected }) => {
+const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected, activeLayerId, layers }) => {
   const { sheets, activeSheetId, setSelectedConnectors } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
@@ -25,6 +27,8 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     return null; // Don't render if either node is missing
   }
 
+  const isFaded = startNode.layerId !== activeLayerId || !layers[startNode.layerId]?.isVisible;
+
   // Calculate orthogonal path
   const { path, arrowAngle } = calculateOrthogonalPath(
     startNode,
@@ -39,7 +43,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   const lastPoint = path[path.length - 1];
 
   return (
-    <g>
+    <g style={{ opacity: isFaded ? 0.6 : 1 }}>
       <path
         d={d}
         stroke="transparent"

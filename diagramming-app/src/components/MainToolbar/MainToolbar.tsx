@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon } from '@mui/material';
+import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
 import { ArrowRight, ContentCopy, ContentCut, ContentPaste, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
@@ -150,6 +150,7 @@ const MainToolbar: React.FC = () => {
           <ListItemText>Redo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Y</Typography>
         </MenuItem>
+        <Divider />
         <MenuItem onClick={handleCut} disabled={activeSheet.selectedShapeIds.length === 0}>
           <ListItemIcon>
             <ContentCut fontSize="small" />

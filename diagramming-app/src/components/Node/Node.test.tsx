@@ -27,6 +27,15 @@ describe('Node', () => {
           offset: { x: 0, y: 0 },
           selectedShapeIds: [],
           shapesById: {},
+          layers: {
+            'layer-1': {
+              id: 'layer-1',
+              name: 'Layer 1',
+              isVisible: true,
+              isLocked: false,
+            },
+          },
+          activeLayerId: 'layer-1',
         },
       },
       activeSheetId: 'sheet-1',
@@ -66,6 +75,16 @@ describe('Node', () => {
           isSelected={false}
           onConnectorStart={jest.fn()}
           onContextMenu={jest.fn()}
+          onNodeMouseDown={jest.fn()}
+          activeLayerId="layer-1"
+          layers={{
+            'layer-1': {
+              id: 'layer-1',
+              name: 'Layer 1',
+              isVisible: true,
+              isLocked: false,
+            },
+          }}
         />
       </svg>
     );
