@@ -1,0 +1,147 @@
+[
+    {
+        "id": "14faf6c8-16a8-4c39-8781-0cc197f832fd",
+        "name": "Ai Machine Learning",
+        "path": "/public/shapes/azure/ai_machine_learning/shapes.json"
+    },
+    {
+        "id": "9cc5fb5b-3eb5-440e-a2dd-d593f34678d9",
+        "name": "Analytics",
+        "path": "/public/shapes/azure/analytics/shapes.json"
+    },
+    {
+        "id": "d5bf62fc-1eef-4988-87ea-9bd5eec84ff6",
+        "name": "App Services",
+        "path": "/public/shapes/azure/app_services/shapes.json"
+    },
+    {
+        "id": "eaec2ab8-b7b5-4590-8d3c-79d4bf0c1f4d",
+        "name": "Azure Ecosystem",
+        "path": "/public/shapes/azure/azure_ecosystem/shapes.json"
+    },
+    {
+        "id": "b2404c13-bbe6-46b9-9477-3401b80b5300",
+        "name": "Azure Stack",
+        "path": "/public/shapes/azure/azure_stack/shapes.json"
+    },
+    {
+        "id": "732a86a9-8a02-4111-bee4-67e6a2833233",
+        "name": "Blockchain",
+        "path": "/public/shapes/azure/blockchain/shapes.json"
+    },
+    {
+        "id": "1709f438-d4a6-443d-8bec-7dc1465ded73",
+        "name": "Compute",
+        "path": "/public/shapes/azure/compute/shapes.json"
+    },
+    {
+        "id": "fb94278a-7e8a-434e-b468-ac4abf24e813",
+        "name": "Containers",
+        "path": "/public/shapes/azure/containers/shapes.json"
+    },
+    {
+        "id": "0fcb6f20-a157-4cdb-b0f9-f993dea51d62",
+        "name": "Databases",
+        "path": "/public/shapes/azure/databases/shapes.json"
+    },
+    {
+        "id": "36361346-fb1d-4843-8bee-ee55e5fccc26",
+        "name": "Devops",
+        "path": "/public/shapes/azure/devops/shapes.json"
+    },
+    {
+        "id": "f85d0b13-057e-4fb5-b6e8-cb18068bee96",
+        "name": "General",
+        "path": "/public/shapes/azure/general/shapes.json"
+    },
+    {
+        "id": "4d2714f8-5c3e-4710-9641-020fa95efe0a",
+        "name": "Hybrid Multicloud",
+        "path": "/public/shapes/azure/hybrid_multicloud/shapes.json"
+    },
+    {
+        "id": "33909afb-035c-4a18-95e1-b9d284a25005",
+        "name": "Identity",
+        "path": "/public/shapes/azure/identity/shapes.json"
+    },
+    {
+        "id": "1f0736e0-76d6-4c2e-8949-4a78187691c4",
+        "name": "Integration",
+        "path": "/public/shapes/azure/integration/shapes.json"
+    },
+    {
+        "id": "b18fce7f-cace-47a5-b68c-88d176835c2b",
+        "name": "Intune",
+        "path": "/public/shapes/azure/intune/shapes.json"
+    },
+    {
+        "id": "730d5514-06e5-4af4-99fe-bda8319fa54e",
+        "name": "Iot",
+        "path": "/public/shapes/azure/iot/shapes.json"
+    },
+    {
+        "id": "d0f52141-d38f-46b4-89e4-d01104c8264d",
+        "name": "Management Governance",
+        "path": "/public/shapes/azure/management_governance/shapes.json"
+    },
+    {
+        "id": "f1a4a3a8-1022-4685-b0c5-207bad2d893d",
+        "name": "Menu",
+        "path": "/public/shapes/azure/menu/shapes.json"
+    },
+    {
+        "id": "be208af2-e90c-4795-9f56-796a6880c94e",
+        "name": "Migrate",
+        "path": "/public/shapes/azure/migrate/shapes.json"
+    },
+    {
+        "id": "c9c6ad62-77d9-4524-bbf8-dacc9afedd38",
+        "name": "Migration",
+        "path": "/public/shapes/azure/migration/shapes.json"
+    },
+    {
+        "id": "d41ccc46-8d95-429a-a2c0-baad8cb72ebc",
+        "name": "Mixed Reality",
+        "path": "/public/shapes/azure/mixed_reality/shapes.json"
+    },
+    {
+        "id": "7a96ce36-eeb1-4e58-91a5-341564f507ba",
+        "name": "Mobile",
+        "path": "/public/shapes/azure/mobile/shapes.json"
+    },
+    {
+        "id": "9629a2b5-2407-45eb-9227-894466b090e8",
+        "name": "Monitor",
+        "path": "/public/shapes/azure/monitor/shapes.json"
+    },
+    {
+        "id": "7e376ed7-83bd-47d1-a19f-0b869038daff",
+        "name": "Networking",
+        "path": "/public/shapes/azure/networking/shapes.json"
+    },
+    {
+        "id": "09728ce8-41b7-4994-a5a5-5bdd9c02721e",
+        "name": "New Icons",
+        "path": "/public/shapes/azure/new icons/shapes.json"
+    },
+    {
+        "id": "6bd515fb-500e-4ab1-a6fd-201bf1bdb435",
+        "name": "Other",
+        "path": "/public/shapes/azure/other/shapes.json"
+    },
+    {
+        "id": "643f34f1-0f0a-48e9-84ea-64a8428faf0f",
+        "name": "Security",
+        "path": "/public/shapes/azure/security/shapes.json"
+    },
+    {
+        "id": "0139cc88-18bb-4f09-97f3-d8ba62e86ce2",
+        "name": "Storage",
+        "path": "/public/shapes/azure/storage/shapes.json"
+    },
+    {
+        "id": "0682317a-4a72-4796-ad7a-c5e77a5b1839",
+        "name": "Web",
+        "path": "/public/shapes/azure/web/shapes.json"
+    }
+]

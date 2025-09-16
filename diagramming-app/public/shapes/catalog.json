@@ -5,6 +5,11 @@
     "path": "/shapes/aws/index.json"
   },
   {
+    "id": "f7f1136a-ef47-408b-b55e-60528baf801e",
+    "name": "Azure",
+    "path": "/shapes/azure/index.json"
+  },
+  {
     "id": "1a529804-75b0-4f7b-99dd-2dcf95eb6695",
     "name": "Flowchart",
     "path": "/shapes/architecture/index.json"

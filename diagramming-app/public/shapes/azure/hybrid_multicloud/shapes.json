@@ -1,0 +1,32 @@
+[
+    {
+        "id": "14f4687b-8447-4623-9278-8c50aa492181",
+        "name": "Azure Operator 5G Core",
+        "path": "/public/shapes/azure/hybrid_multicloud/03248-icon-service-Azure-Operator-5G-Core.svg"
+    },
+    {
+        "id": "9b71353e-2d70-4c54-8f91-2c3a12778d7c",
+        "name": "Azure Operator Nexus",
+        "path": "/public/shapes/azure/hybrid_multicloud/03324-icon-service-Azure-Operator-Nexus.svg"
+    },
+    {
+        "id": "b8a48a4e-8f36-408b-b5ef-687433f50263",
+        "name": "Azure Operator Insights",
+        "path": "/public/shapes/azure/hybrid_multicloud/03333-icon-service-Azure-Operator-Insights.svg"
+    },
+    {
+        "id": "f8f8d7f7-3381-4469-89b5-6afe9f0a8b4f",
+        "name": "Azure Operator Service Manager",
+        "path": "/public/shapes/azure/hybrid_multicloud/03334-icon-service-Azure-Operator-Service-Manager.svg"
+    },
+    {
+        "id": "b626e8ca-2480-412e-99b9-7c5ea95caab7",
+        "name": "Azure Programmable Connectivity",
+        "path": "/public/shapes/azure/hybrid_multicloud/03347-icon-service-Azure-Programmable-Connectivity.svg"
+    },
+    {
+        "id": "5e147b2a-45dc-4f32-b321-9c7aa1e4d759",
+        "name": "Azure Monitor Pipeline",
+        "path": "/public/shapes/azure/hybrid_multicloud/03585-icon-service-Azure-Monitor-Pipeline.svg"
+    }
+]

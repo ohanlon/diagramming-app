@@ -1,0 +1,17 @@
+[
+    {
+        "id": "becdaac3-ff96-472e-94ff-370d858addca",
+        "name": "Collaborative Service",
+        "path": "/public/shapes/azure/azure_ecosystem/01038-icon-service-Collaborative-Service.svg"
+    },
+    {
+        "id": "35c1cf7c-f28b-4928-bb2b-3bf8af3eef78",
+        "name": "Applens",
+        "path": "/public/shapes/azure/azure_ecosystem/02354-icon-service-Applens.svg"
+    },
+    {
+        "id": "452cfe45-c03e-45d2-a17c-be1fd9557ff8",
+        "name": "Azure Hybrid Center",
+        "path": "/public/shapes/azure/azure_ecosystem/02573-icon-service-Azure-Hybrid-Center.svg"
+    }
+]

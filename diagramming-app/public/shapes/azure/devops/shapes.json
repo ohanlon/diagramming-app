@@ -1,0 +1,72 @@
+[
+    {
+        "id": "8e1e8160-6cb3-4a3f-8ade-e263837f16c8",
+        "name": "Application Insights",
+        "path": "/public/shapes/azure/devops/00012-icon-service-Application-Insights.svg"
+    },
+    {
+        "id": "5cc58647-fb55-4fba-8bf9-588d05eb0d7a",
+        "name": "Change Analysis",
+        "path": "/public/shapes/azure/devops/00563-icon-service-Change-Analysis.svg"
+    },
+    {
+        "id": "b369a81a-5b74-4386-8008-8be8702a6e0c",
+        "name": "CloudTest",
+        "path": "/public/shapes/azure/devops/02373-icon-service-CloudTest.svg"
+    },
+    {
+        "id": "f3ac68ae-ee13-4b7b-a08a-8a6300b2d51e",
+        "name": "Load Testing",
+        "path": "/public/shapes/azure/devops/02423-icon-service-Load-Testing.svg"
+    },
+    {
+        "id": "ec6bfca1-8b75-4e2e-877e-934508f08d43",
+        "name": "Lab Accounts",
+        "path": "/public/shapes/azure/devops/02761-icon-service-Lab-Accounts.svg"
+    },
+    {
+        "id": "25d2dbf3-c68b-4bcd-800d-694d6e1c7934",
+        "name": "DevOps Starter",
+        "path": "/public/shapes/azure/devops/03339-icon-service-DevOps-Starter.svg"
+    },
+    {
+        "id": "8d0db46e-6ed5-49d1-9060-94d780452d29",
+        "name": "Managed DevOps Pools",
+        "path": "/public/shapes/azure/devops/03393-icon-service-Managed-DevOps-Pools.svg"
+    },
+    {
+        "id": "2f076b63-3583-465c-aaa5-4f3a4f6014b2",
+        "name": "Code Optimization",
+        "path": "/public/shapes/azure/devops/03455-icon-service-Code-Optimization.svg"
+    },
+    {
+        "id": "d07a08f2-ee55-409d-87d0-4fad27c9187e",
+        "name": "Workspace Gateway",
+        "path": "/public/shapes/azure/devops/03623-icon-service-Workspace-Gateway.svg"
+    },
+    {
+        "id": "6fcc7d8a-7744-486c-9491-ad8b63c50e03",
+        "name": "API Management Services",
+        "path": "/public/shapes/azure/devops/10042-icon-service-API-Management-Services.svg"
+    },
+    {
+        "id": "fae0cb17-f2a6-4bf6-aaba-fe8257c6fc82",
+        "name": "API Connections",
+        "path": "/public/shapes/azure/devops/10048-icon-service-API-Connections.svg"
+    },
+    {
+        "id": "c18ab52e-d0b7-4f6e-b1a5-1a33ea9e5cab",
+        "name": "Azure DevOps",
+        "path": "/public/shapes/azure/devops/10261-icon-service-Azure-DevOps.svg"
+    },
+    {
+        "id": "660fe23a-93e0-4109-acdf-3a6ede298fdb",
+        "name": "DevTest Labs",
+        "path": "/public/shapes/azure/devops/10264-icon-service-DevTest-Labs.svg"
+    },
+    {
+        "id": "bd284e57-5eb2-4a0c-987c-b99c0a4e4700",
+        "name": "Lab Services",
+        "path": "/public/shapes/azure/devops/10265-icon-service-Lab-Services.svg"
+    }
+]

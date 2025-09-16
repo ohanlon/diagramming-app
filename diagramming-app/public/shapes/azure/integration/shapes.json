@@ -1,0 +1,147 @@
+[
+    {
+        "id": "f0a1bb79-80e6-4014-bee4-226ef9ec91cf",
+        "name": "SQL Data Warehouses",
+        "path": "/public/shapes/azure/integration/00036-icon-service-SQL-Data-Warehouses.svg"
+    },
+    {
+        "id": "d2512ea6-f527-4321-87a5-63b0f71da099",
+        "name": "Integration Service Environments",
+        "path": "/public/shapes/azure/integration/00555-icon-service-Integration-Service-Environments.svg"
+    },
+    {
+        "id": "46da3ee5-762a-4213-90d1-2617aff6b27b",
+        "name": "Azure Databox Gateway",
+        "path": "/public/shapes/azure/integration/00691-icon-service-Azure-Databox-Gateway.svg"
+    },
+    {
+        "id": "5e575c95-49a9-41d4-9b34-c28b8e1906bc",
+        "name": "Partner Topic",
+        "path": "/public/shapes/azure/integration/02072-icon-service-Partner-Topic.svg"
+    },
+    {
+        "id": "50115b27-9f93-41ea-acd4-30b131e03c27",
+        "name": "System Topic",
+        "path": "/public/shapes/azure/integration/02073-icon-service-System-Topic.svg"
+    },
+    {
+        "id": "db6cc99c-d155-4022-8146-6f6e2c09b32e",
+        "name": "Partner Registration",
+        "path": "/public/shapes/azure/integration/02265-icon-service-Partner-Registration.svg"
+    },
+    {
+        "id": "3e9d0684-5e2f-4c66-922c-079d914c779c",
+        "name": "Partner Namespace",
+        "path": "/public/shapes/azure/integration/02266-icon-service-Partner-Namespace.svg"
+    },
+    {
+        "id": "7a51aa1e-e4b1-4b89-967c-e80f23888022",
+        "name": "Logic Apps",
+        "path": "/public/shapes/azure/integration/02631-icon-service-Logic-Apps.svg"
+    },
+    {
+        "id": "2a5ff7a3-4d2b-4e33-8c26-df813b8cedaa",
+        "name": "Power Platform",
+        "path": "/public/shapes/azure/integration/03335-icon-service-Power-Platform.svg"
+    },
+    {
+        "id": "bb0f227e-adc2-41ef-bb6f-1592dd21eb27",
+        "name": "Integration Environments",
+        "path": "/public/shapes/azure/integration/03345-icon-service-Integration-Environments.svg"
+    },
+    {
+        "id": "1f14329f-3681-4d15-8a03-bcfc4212dbeb",
+        "name": "Business Process Tracking",
+        "path": "/public/shapes/azure/integration/03637-icon-service-Business-Process-Tracking.svg"
+    },
+    {
+        "id": "a86516a3-2e9d-42d1-9383-73d330428a76",
+        "name": "API Management Services",
+        "path": "/public/shapes/azure/integration/10042-icon-service-API-Management-Services.svg"
+    },
+    {
+        "id": "cd2cf568-1c0d-4bf8-ab08-b6debe8a6fdd",
+        "name": "API Connections",
+        "path": "/public/shapes/azure/integration/10048-icon-service-API-Connections.svg"
+    },
+    {
+        "id": "a946696f-1cf0-4621-a81d-10a959685a6d",
+        "name": "StorSimple Device Managers",
+        "path": "/public/shapes/azure/integration/10089-icon-service-StorSimple-Device-Managers.svg"
+    },
+    {
+        "id": "716108bf-2a12-479a-b657-0a0b80090a42",
+        "name": "Azure Stack Edge",
+        "path": "/public/shapes/azure/integration/10095-icon-service-Azure-Stack-Edge.svg"
+    },
+    {
+        "id": "b2deeddd-db59-4520-a0fa-2794babb83bf",
+        "name": "Data Factories",
+        "path": "/public/shapes/azure/integration/10126-icon-service-Data-Factories.svg"
+    },
+    {
+        "id": "61f26afe-c2b1-4e4f-aeae-d2a7a9224a43",
+        "name": "Azure SQL Server Stretch Databases",
+        "path": "/public/shapes/azure/integration/10137-icon-service-Azure-SQL-Server-Stretch-Databases.svg"
+    },
+    {
+        "id": "0620f01f-4aa5-4e65-99ef-9da24fe3628e",
+        "name": "Event Grid Topics",
+        "path": "/public/shapes/azure/integration/10206-icon-service-Event-Grid-Topics.svg"
+    },
+    {
+        "id": "90f7f6f1-626b-4b02-8e72-918f816b6b3c",
+        "name": "Relays",
+        "path": "/public/shapes/azure/integration/10209-icon-service-Relays.svg"
+    },
+    {
+        "id": "c05be43f-e2c1-47ec-853f-8e1461e82e0c",
+        "name": "Azure API for FHIR",
+        "path": "/public/shapes/azure/integration/10212-icon-service-Azure-API-for-FHIR.svg"
+    },
+    {
+        "id": "b7b58b2b-4642-4353-a27e-e7afd46fc067",
+        "name": "Software as a Service",
+        "path": "/public/shapes/azure/integration/10213-icon-service-Software-as-a-Service.svg"
+    },
+    {
+        "id": "7cdf3764-2d60-4752-9401-ac2995b4a87a",
+        "name": "Event Grid Domains",
+        "path": "/public/shapes/azure/integration/10215-icon-service-Event-Grid-Domains.svg"
+    },
+    {
+        "id": "397ff96a-158a-40d2-a405-fa54ba073a1c",
+        "name": "Azure Data Catalog",
+        "path": "/public/shapes/azure/integration/10216-icon-service-Azure-Data-Catalog.svg"
+    },
+    {
+        "id": "1795a171-214f-4169-9e47-063c2468b142",
+        "name": "Integration Accounts",
+        "path": "/public/shapes/azure/integration/10218-icon-service-Integration-Accounts.svg"
+    },
+    {
+        "id": "5e1ae655-edca-4eff-ad8f-f9ce2da35e3e",
+        "name": "App Configuration",
+        "path": "/public/shapes/azure/integration/10219-icon-service-App-Configuration.svg"
+    },
+    {
+        "id": "2993b9cd-1515-4368-95c8-c7ea5cc96870",
+        "name": "SendGrid Accounts",
+        "path": "/public/shapes/azure/integration/10220-icon-service-SendGrid-Accounts.svg"
+    },
+    {
+        "id": "0d09c4fa-5d70-4241-b134-67a530cbefb3",
+        "name": "Event Grid Subscriptions",
+        "path": "/public/shapes/azure/integration/10221-icon-service-Event-Grid-Subscriptions.svg"
+    },
+    {
+        "id": "63948a8f-be89-40ac-8362-1fcee6114b1e",
+        "name": "Logic Apps Custom Connector",
+        "path": "/public/shapes/azure/integration/10363-icon-service-Logic-Apps-Custom-Connector.svg"
+    },
+    {
+        "id": "1c79fa7c-6bb6-4a65-a898-5380ad4c31f5",
+        "name": "Azure Service Bus",
+        "path": "/public/shapes/azure/integration/10836-icon-service-Azure-Service-Bus.svg"
+    }
+]

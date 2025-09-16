@@ -1,0 +1,92 @@
+[
+    {
+        "id": "09208492-e49e-4a4f-afcf-d24f81b51658",
+        "name": "Device Security Apple",
+        "path": "/public/shapes/azure/intune/00399-icon-service-Device-Security-Apple.svg"
+    },
+    {
+        "id": "479c511f-e9c6-40a9-b6b3-41a1cf714398",
+        "name": "Device Security Google",
+        "path": "/public/shapes/azure/intune/00399-icon-service-Device-Security-Google.svg"
+    },
+    {
+        "id": "a5532981-2910-4c03-bf93-8a5195345ef0",
+        "name": "Device Security Windows",
+        "path": "/public/shapes/azure/intune/00399-icon-service-Device-Security-Windows.svg"
+    },
+    {
+        "id": "6e4b2d8e-623a-4d85-b0d0-b72e466a016b",
+        "name": "Intune",
+        "path": "/public/shapes/azure/intune/10329-icon-service-Intune.svg"
+    },
+    {
+        "id": "cfbd8866-efdd-4b46-beec-bd9b95451852",
+        "name": "eBooks",
+        "path": "/public/shapes/azure/intune/10330-icon-service-eBooks.svg"
+    },
+    {
+        "id": "1fcc82e3-4d0b-46a3-b308-14a0ed414705",
+        "name": "Client Apps",
+        "path": "/public/shapes/azure/intune/10331-icon-service-Client-Apps.svg"
+    },
+    {
+        "id": "1260b200-170e-4b82-9aa9-90eb56700493",
+        "name": "Devices",
+        "path": "/public/shapes/azure/intune/10332-icon-service-Devices.svg"
+    },
+    {
+        "id": "de662aa7-7bcc-43e3-9eca-2197f155e475",
+        "name": "Device Compliance",
+        "path": "/public/shapes/azure/intune/10333-icon-service-Device-Compliance.svg"
+    },
+    {
+        "id": "3bd482fd-5062-4f4a-983f-e8d9349fe1f6",
+        "name": "Software Updates",
+        "path": "/public/shapes/azure/intune/10335-icon-service-Software-Updates.svg"
+    },
+    {
+        "id": "23c82880-4a13-4670-ac9a-b63b37eacdba",
+        "name": "Security Baselines",
+        "path": "/public/shapes/azure/intune/10336-icon-service-Security-Baselines.svg"
+    },
+    {
+        "id": "95663391-6469-488a-a2f3-25528545cec4",
+        "name": "Device Enrollment",
+        "path": "/public/shapes/azure/intune/10337-icon-service-Device-Enrollment.svg"
+    },
+    {
+        "id": "676fdc18-acfb-43be-a1cb-b92e8f08a211",
+        "name": "Device Configuration",
+        "path": "/public/shapes/azure/intune/10338-icon-service-Device-Configuration.svg"
+    },
+    {
+        "id": "2369082a-86f7-4b4e-a7e9-07d05d61c25d",
+        "name": "Exchange Access",
+        "path": "/public/shapes/azure/intune/10339-icon-service-Exchange-Access.svg"
+    },
+    {
+        "id": "2910b9f1-e44d-4df7-9183-a6728e243933",
+        "name": "Entra Identity Roles and Administrators",
+        "path": "/public/shapes/azure/intune/10340-icon-service-Entra-Identity-Roles-and-Administrators.svg"
+    },
+    {
+        "id": "466204b4-58ab-42fc-b32d-355cb679c2cc",
+        "name": "Tenant Status",
+        "path": "/public/shapes/azure/intune/10342-icon-service-Tenant-Status.svg"
+    },
+    {
+        "id": "29814093-7f16-4325-9825-1d68c566ffae",
+        "name": "Intune For Education",
+        "path": "/public/shapes/azure/intune/10343-icon-service-Intune-For-Education.svg"
+    },
+    {
+        "id": "1c786a94-3320-4c8c-93cd-f842736fbc1a",
+        "name": "Intune App Protection",
+        "path": "/public/shapes/azure/intune/10344-icon-service-Intune-App-Protection.svg"
+    },
+    {
+        "id": "3fc633b0-8b48-46d0-8682-7442d6a5ccff",
+        "name": "Mindaro",
+        "path": "/public/shapes/azure/intune/10350-icon-service-Mindaro.svg"
+    }
+]

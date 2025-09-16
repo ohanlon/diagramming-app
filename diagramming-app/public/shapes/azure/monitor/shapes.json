@@ -1,0 +1,57 @@
+[
+    {
+        "id": "22d01970-53fb-41eb-9a9b-1b31da571d23",
+        "name": "Monitor",
+        "path": "/public/shapes/azure/monitor/00001-icon-service-Monitor.svg"
+    },
+    {
+        "id": "5bd50fa7-d1f6-4412-98c2-4f5e9c190912",
+        "name": "Activity Log",
+        "path": "/public/shapes/azure/monitor/00007-icon-service-Activity-Log.svg"
+    },
+    {
+        "id": "08bd10e1-b8e1-4122-aff3-f4c4877d2a43",
+        "name": "Diagnostics Settings",
+        "path": "/public/shapes/azure/monitor/00008-icon-service-Diagnostics-Settings.svg"
+    },
+    {
+        "id": "d7b043c2-e49b-493e-8e29-b2dc5b23e6b5",
+        "name": "Log Analytics Workspaces",
+        "path": "/public/shapes/azure/monitor/00009-icon-service-Log-Analytics-Workspaces.svg"
+    },
+    {
+        "id": "3dd9acb2-a58c-4912-b38d-0e39e549b563",
+        "name": "Application Insights",
+        "path": "/public/shapes/azure/monitor/00012-icon-service-Application-Insights.svg"
+    },
+    {
+        "id": "7256f0ed-dbaa-4472-8d35-bcf08da5d25e",
+        "name": "Metrics",
+        "path": "/public/shapes/azure/monitor/00020-icon-service-Metrics.svg"
+    },
+    {
+        "id": "f1b59512-4435-4a2c-b0ef-da7ba943d959",
+        "name": "Azure Monitors for SAP Solutions",
+        "path": "/public/shapes/azure/monitor/00438-icon-service-Azure-Monitors-for-SAP-Solutions.svg"
+    },
+    {
+        "id": "f24d699a-cce0-4cb1-ae96-619828b34f86",
+        "name": "Change Analysis",
+        "path": "/public/shapes/azure/monitor/00563-icon-service-Change-Analysis.svg"
+    },
+    {
+        "id": "98dfd694-16c9-42a9-8bed-f3bcd65d2070",
+        "name": "Azure Workbooks",
+        "path": "/public/shapes/azure/monitor/02189-icon-service-Azure-Workbooks.svg"
+    },
+    {
+        "id": "d8da5fa4-6b3f-4180-8172-1ee821e37c8c",
+        "name": "Network Watcher",
+        "path": "/public/shapes/azure/monitor/10066-icon-service-Network-Watcher.svg"
+    },
+    {
+        "id": "2f1fbdc3-0449-435f-8382-cd275a7091aa",
+        "name": "Auto Scale",
+        "path": "/public/shapes/azure/monitor/10832-icon-service-Auto-Scale.svg"
+    }
+]

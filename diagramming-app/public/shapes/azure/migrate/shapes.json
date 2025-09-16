@@ -1,0 +1,32 @@
+[
+    {
+        "id": "e3bb437f-5b67-4f01-848e-78e9358fc358",
+        "name": "Cost Management and Billing",
+        "path": "/public/shapes/azure/migrate/00004-icon-service-Cost-Management-and-Billing.svg"
+    },
+    {
+        "id": "f17b499a-44cd-4974-82dd-1af3a7e57dcc",
+        "name": "Recovery Services Vaults",
+        "path": "/public/shapes/azure/migrate/00017-icon-service-Recovery-Services-Vaults.svg"
+    },
+    {
+        "id": "21294357-2375-4754-82b2-d51a0b43406d",
+        "name": "Azure Databox Gateway",
+        "path": "/public/shapes/azure/migrate/00691-icon-service-Azure-Databox-Gateway.svg"
+    },
+    {
+        "id": "09a51226-da8e-4e17-aa2c-b7668dd0cf76",
+        "name": "Data Box",
+        "path": "/public/shapes/azure/migrate/10094-icon-service-Data-Box.svg"
+    },
+    {
+        "id": "f076d7b9-e7c6-470a-95de-28b4db851ff6",
+        "name": "Azure Stack Edge",
+        "path": "/public/shapes/azure/migrate/10095-icon-service-Azure-Stack-Edge.svg"
+    },
+    {
+        "id": "fd0424c7-7e04-4dac-9a9d-82db59a95cb7",
+        "name": "Azure Migrate",
+        "path": "/public/shapes/azure/migrate/10281-icon-service-Azure-Migrate.svg"
+    }
+]
