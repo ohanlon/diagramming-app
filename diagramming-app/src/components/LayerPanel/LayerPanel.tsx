@@ -9,7 +9,7 @@ interface LayerPanelProps {
 }
 
 const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
-  const { sheets, activeSheetId, setActiveLayer, addLayer, removeLayer, renameLayer, toggleLayerVisibility } = useDiagramStore();
+  const { sheets, activeSheetId, setActiveLayer, addLayer, removeLayer, renameLayer, toggleLayerVisibility, reorderLayer } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 280, y: 100 });
@@ -17,6 +17,9 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editedLayerName, setEditedLayerName] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const draggedLayerId = useRef<string | null>(null);
+  const draggedOverLayerId = useRef<string | null>(null);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
@@ -82,6 +85,41 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    draggedLayerId.current = id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target as HTMLElement;
+    const listItem = target.closest('.MuiListItemButton-root');
+    if (listItem) {
+      draggedOverLayerId.current = listItem.dataset.layerId || null;
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedLayerId.current && draggedOverLayerId.current) {
+      const fromIndex = layerIds.indexOf(draggedLayerId.current);
+      const toIndex = layerIds.indexOf(draggedOverLayerId.current);
+
+      if (fromIndex !== -1 && toIndex !== -1) {
+        reorderLayer(fromIndex, toIndex);
+      }
+    }
+    draggedLayerId.current = null;
+    draggedOverLayerId.current = null;
+  };
+
+  const handleDragEnd = () => {
+    draggedLayerId.current = null;
+    draggedOverLayerId.current = null;
+  };
+
   return (
     <Paper
       elevation={3}
@@ -112,9 +150,15 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
           return (
             <ListItemButton
               key={layer.id}
+              data-layer-id={layer.id} // Add data-layer-id for drag and drop
               selected={layer.id === activeLayerId}
               onClick={() => setActiveLayer(layer.id)}
-              sx={{ paddingLeft: 0 }} // Remove default padding to align bar to the edge
+              sx={{ paddingLeft: 0 }}
+              draggable="true"
+              onDragStart={(e) => handleDragStart(e, layer.id)}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
             >
               <Box
                 sx={{

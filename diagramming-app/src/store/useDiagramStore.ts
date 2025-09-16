@@ -53,6 +53,7 @@ interface DiagramStoreActions {
   removeSheet: (id: string) => void;
   setActiveSheet: (id: string) => void;
   renameSheet: (id: string, name: string) => void;
+  reorderLayer: (fromIndex: number, toIndex: number) => void;
   cutShape: (ids: string[]) => void;
   copyShape: (ids: string[]) => void;
   pasteShape: () => void;
@@ -899,17 +900,28 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   setActiveLayer: (id: string) => {
     addHistory(set);
     set((state: DiagramState) => {
+      if (!state.sheets[id]) return state;
+      return { ...state, activeSheetId: id };
+    });
+  },
+
+  reorderLayer: (fromIndex: number, toIndex: number) => {
+    addHistory(set);
+    set((state: DiagramState) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      if (!currentSheet.layers[id]) return state;
+      const newLayerIds = [...currentSheet.layerIds];
+      const [movedLayerId] = newLayerIds.splice(fromIndex, 1);
+      newLayerIds.splice(toIndex, 0, movedLayerId);
+
       return {
         ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
             ...currentSheet,
-            activeLayerId: id,
+            layerIds: newLayerIds,
           },
         },
       };
