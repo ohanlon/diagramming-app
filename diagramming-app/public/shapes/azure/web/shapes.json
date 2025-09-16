@@ -2,96 +2,96 @@
     {
         "id": "2b1d26ec-5221-4a5e-8112-4d3ac48fb98f",
         "name": "App Service Plans",
-        "path": "/public/shapes/azure/web/00046-icon-service-App-Service-Plans.svg"
+        "path": "/shapes/azure/web/00046-icon-service-App-Service-Plans.svg"
     },
     {
         "id": "cd11086e-65f1-48de-acbe-42144531e420",
         "name": "App Service Certificates",
-        "path": "/public/shapes/azure/web/00049-icon-service-App-Service-Certificates.svg"
+        "path": "/shapes/azure/web/00049-icon-service-App-Service-Certificates.svg"
     },
     {
         "id": "1eef48fd-0e93-43cb-acdd-7b51511a1f6b",
         "name": "App Service Domains",
-        "path": "/public/shapes/azure/web/00050-icon-service-App-Service-Domains.svg"
+        "path": "/shapes/azure/web/00050-icon-service-App-Service-Domains.svg"
     },
     {
         "id": "e0b96445-dbf4-458f-8db1-d24212dae612",
         "name": "Static Apps",
-        "path": "/public/shapes/azure/web/01007-icon-service-Static-Apps.svg"
+        "path": "/shapes/azure/web/01007-icon-service-Static-Apps.svg"
     },
     {
         "id": "3570cd0b-d082-4ba6-bfd0-7b8119cf45a5",
         "name": "API Center",
-        "path": "/public/shapes/azure/web/03291-icon-service-API-Center.svg"
+        "path": "/shapes/azure/web/03291-icon-service-API-Center.svg"
     },
     {
         "id": "2a02f7e9-659c-46db-a6fd-c26c1c7694b4",
         "name": "Power Platform",
-        "path": "/public/shapes/azure/web/03335-icon-service-Power-Platform.svg"
+        "path": "/shapes/azure/web/03335-icon-service-Power-Platform.svg"
     },
     {
         "id": "7f0e2f85-c26d-4b9d-b373-27cdb65ddd0b",
         "name": "App Space",
-        "path": "/public/shapes/azure/web/03397-icon-service-App-Space.svg"
+        "path": "/shapes/azure/web/03397-icon-service-App-Space.svg"
     },
     {
         "id": "a41e6e9b-c5b3-41f2-bdb7-d6ff4738b9af",
         "name": "App Space Component",
-        "path": "/public/shapes/azure/web/03595-icon-service-App-Space-Component.svg"
+        "path": "/shapes/azure/web/03595-icon-service-App-Space-Component.svg"
     },
     {
         "id": "10d36aba-831e-4497-acf7-c5ada1c06337",
         "name": "App Services",
-        "path": "/public/shapes/azure/web/10035-icon-service-App-Services.svg"
+        "path": "/shapes/azure/web/10035-icon-service-App-Services.svg"
     },
     {
         "id": "61b89061-aa97-4cd5-9370-2f52aaaf750c",
         "name": "API Management Services",
-        "path": "/public/shapes/azure/web/10042-icon-service-API-Management-Services.svg"
+        "path": "/shapes/azure/web/10042-icon-service-API-Management-Services.svg"
     },
     {
         "id": "ded829b4-8890-4e24-81af-10a7397457ac",
         "name": "Cognitive Search",
-        "path": "/public/shapes/azure/web/10044-icon-service-Cognitive-Search.svg"
+        "path": "/shapes/azure/web/10044-icon-service-Cognitive-Search.svg"
     },
     {
         "id": "fee7d26c-c97a-4d16-a920-db3964593559",
         "name": "App Service Environments",
-        "path": "/public/shapes/azure/web/10047-icon-service-App-Service-Environments.svg"
+        "path": "/shapes/azure/web/10047-icon-service-App-Service-Environments.svg"
     },
     {
         "id": "0ab5af2c-7c99-42cf-95df-a0d761e8591e",
         "name": "API Connections",
-        "path": "/public/shapes/azure/web/10048-icon-service-API-Connections.svg"
+        "path": "/shapes/azure/web/10048-icon-service-API-Connections.svg"
     },
     {
         "id": "d9e11df1-670a-4ced-abb2-58d0789c88b8",
         "name": "SignalR",
-        "path": "/public/shapes/azure/web/10052-icon-service-SignalR.svg"
+        "path": "/shapes/azure/web/10052-icon-service-SignalR.svg"
     },
     {
         "id": "c220b8f6-8aa1-4197-bfee-eaec9f49c2bd",
         "name": "Notification Hub Namespaces",
-        "path": "/public/shapes/azure/web/10053-icon-service-Notification-Hub-Namespaces.svg"
+        "path": "/shapes/azure/web/10053-icon-service-Notification-Hub-Namespaces.svg"
     },
     {
         "id": "ea22c507-3f67-4ca8-8961-c4b22e2f9796",
         "name": "Front Door and CDN Profiles",
-        "path": "/public/shapes/azure/web/10073-icon-service-Front-Door-and-CDN-Profiles.svg"
+        "path": "/shapes/azure/web/10073-icon-service-Front-Door-and-CDN-Profiles.svg"
     },
     {
         "id": "c8df8dc3-5e19-4ffe-a29f-507dd62c2570",
         "name": "Cognitive Services",
-        "path": "/public/shapes/azure/web/10162-icon-service-Cognitive-Services.svg"
+        "path": "/shapes/azure/web/10162-icon-service-Cognitive-Services.svg"
     },
     {
         "id": "f6d69c0e-c23e-4d76-a8cd-66b8a47246eb",
         "name": "Azure Media Service",
-        "path": "/public/shapes/azure/web/10309-icon-service-Azure-Media-Service.svg"
+        "path": "/shapes/azure/web/10309-icon-service-Azure-Media-Service.svg"
     },
     {
         "id": "a21a4cff-e5ad-4c25-b1c7-4813792ae932",
         "name": "Azure Spring Apps",
-        "path": "/public/shapes/azure/web/10370-icon-service-Azure-Spring-Apps.svg"
+        "path": "/shapes/azure/web/10370-icon-service-Azure-Spring-Apps.svg"
     }
 ]

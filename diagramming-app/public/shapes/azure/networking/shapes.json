@@ -2,256 +2,256 @@
     {
         "id": "4b95be6b-5afc-4a4f-be40-b7c22b573811",
         "name": "CDN Profiles",
-        "path": "/public/shapes/azure/networking/00056-icon-service-CDN-Profiles.svg"
+        "path": "/shapes/azure/networking/00056-icon-service-CDN-Profiles.svg"
     },
     {
         "id": "ac20f757-ee78-4a75-b4f5-2999ea74e3a3",
         "name": "Azure Firewall Manager",
-        "path": "/public/shapes/azure/networking/00271-icon-service-Azure-Firewall-Manager.svg"
+        "path": "/shapes/azure/networking/00271-icon-service-Azure-Firewall-Manager.svg"
     },
     {
         "id": "8c256546-56dc-4632-996a-f022dc3c3f94",
         "name": "Azure Firewall Policy",
-        "path": "/public/shapes/azure/networking/00272-icon-service-Azure-Firewall-Policy.svg"
+        "path": "/shapes/azure/networking/00272-icon-service-Azure-Firewall-Policy.svg"
     },
     {
         "id": "87579936-3579-4d3f-be75-312afccbfb4e",
         "name": "Private Link",
-        "path": "/public/shapes/azure/networking/00427-icon-service-Private-Link.svg"
+        "path": "/shapes/azure/networking/00427-icon-service-Private-Link.svg"
     },
     {
         "id": "b4944d8e-3ec6-42d1-937e-a713855a9609",
         "name": "IP Groups",
-        "path": "/public/shapes/azure/networking/00701-icon-service-IP-Groups.svg"
+        "path": "/shapes/azure/networking/00701-icon-service-IP-Groups.svg"
     },
     {
         "id": "17e849f2-19a2-4820-bd29-8806a009658e",
         "name": "Virtual WAN Hub",
-        "path": "/public/shapes/azure/networking/00860-icon-service-Virtual-WAN-Hub.svg"
+        "path": "/shapes/azure/networking/00860-icon-service-Virtual-WAN-Hub.svg"
     },
     {
         "id": "4509ab9e-6068-4c37-8f73-e9301e14c8c3",
         "name": "Private Link Service",
-        "path": "/public/shapes/azure/networking/01105-icon-service-Private-Link-Service.svg"
+        "path": "/shapes/azure/networking/01105-icon-service-Private-Link-Service.svg"
     },
     {
         "id": "3bbff2ab-1295-4ff1-ba03-945764d84ef2",
         "name": "Resource Management Private Link",
-        "path": "/public/shapes/azure/networking/02145-icon-service-Resource-Management-Private-Link.svg"
+        "path": "/shapes/azure/networking/02145-icon-service-Resource-Management-Private-Link.svg"
     },
     {
         "id": "e860024c-593d-4f0e-a77a-12a0d7625bbb",
         "name": "Private Link Services",
-        "path": "/public/shapes/azure/networking/02209-icon-service-Private-Link-Services.svg"
+        "path": "/shapes/azure/networking/02209-icon-service-Private-Link-Services.svg"
     },
     {
         "id": "da588f20-ef91-4286-b28e-c9e668c1cc78",
         "name": "Load Balancer Hub",
-        "path": "/public/shapes/azure/networking/02302-icon-service-Load-Balancer-Hub.svg"
+        "path": "/shapes/azure/networking/02302-icon-service-Load-Balancer-Hub.svg"
     },
     {
         "id": "f62607a8-93ae-48c0-ba84-6a5e180a2ebc",
         "name": "Bastions",
-        "path": "/public/shapes/azure/networking/02422-icon-service-Bastions.svg"
+        "path": "/shapes/azure/networking/02422-icon-service-Bastions.svg"
     },
     {
         "id": "b00528f4-ab6e-4274-a3b1-69975477ff30",
         "name": "Virtual Router",
-        "path": "/public/shapes/azure/networking/02496-icon-service-Virtual-Router.svg"
+        "path": "/shapes/azure/networking/02496-icon-service-Virtual-Router.svg"
     },
     {
         "id": "549870d3-00ab-4315-9410-1f432ced2304",
         "name": "Connected Cache",
-        "path": "/public/shapes/azure/networking/02509-icon-service-Connected-Cache.svg"
+        "path": "/shapes/azure/networking/02509-icon-service-Connected-Cache.svg"
     },
     {
         "id": "24820439-b415-4fb9-84bd-0394c5569c27",
         "name": "Spot VMSS",
-        "path": "/public/shapes/azure/networking/02692-icon-service-Spot-VMSS.svg"
+        "path": "/shapes/azure/networking/02692-icon-service-Spot-VMSS.svg"
     },
     {
         "id": "189a13cb-e306-4be0-a832-55a08fb21459",
         "name": "Spot VM",
-        "path": "/public/shapes/azure/networking/02695-icon-service-Spot-VM.svg"
+        "path": "/shapes/azure/networking/02695-icon-service-Spot-VM.svg"
     },
     {
         "id": "a8ebe524-2bb7-4cb8-9e4a-04f9d42df3da",
         "name": "Subnet",
-        "path": "/public/shapes/azure/networking/02742-icon-service-Subnet.svg"
+        "path": "/shapes/azure/networking/02742-icon-service-Subnet.svg"
     },
     {
         "id": "4d24799c-ee94-4cb4-bc7f-8d097855bcf1",
         "name": "DNS Private Resolver",
-        "path": "/public/shapes/azure/networking/02882-icon-service-DNS-Private-Resolver.svg"
+        "path": "/shapes/azure/networking/02882-icon-service-DNS-Private-Resolver.svg"
     },
     {
         "id": "12d1bd80-76c6-46c8-8144-a37209ad2bd7",
         "name": "Azure Communications Gateway",
-        "path": "/public/shapes/azure/networking/03311-icon-service-Azure-Communications-Gateway.svg"
+        "path": "/shapes/azure/networking/03311-icon-service-Azure-Communications-Gateway.svg"
     },
     {
         "id": "20b2805a-f996-467d-afb3-00aadf4e9727",
         "name": "Application Gateway Containers",
-        "path": "/public/shapes/azure/networking/03328-icon-service-Application-Gateway-Containers.svg"
+        "path": "/shapes/azure/networking/03328-icon-service-Application-Gateway-Containers.svg"
     },
     {
         "id": "787f6529-4e88-46a9-a5e4-50337c3b1178",
         "name": "DNS Security Policy",
-        "path": "/public/shapes/azure/networking/03368-icon-service-DNS-Security-Policy.svg"
+        "path": "/shapes/azure/networking/03368-icon-service-DNS-Security-Policy.svg"
     },
     {
         "id": "2727c777-5c55-410f-be4e-96f5ffa683b4",
         "name": "DNS Multistack",
-        "path": "/public/shapes/azure/networking/03459-icon-service-DNS-Multistack.svg"
+        "path": "/shapes/azure/networking/03459-icon-service-DNS-Multistack.svg"
     },
     {
         "id": "506505f5-b196-4c04-83b9-bd1372645703",
         "name": "ATM Multistack",
-        "path": "/public/shapes/azure/networking/03460-icon-service-ATM-Multistack.svg"
+        "path": "/shapes/azure/networking/03460-icon-service-ATM-Multistack.svg"
     },
     {
         "id": "f92510d8-98fd-41a0-a47c-f7eb744323e1",
         "name": "IP Address manager",
-        "path": "/public/shapes/azure/networking/03461-icon-service-IP-Address-manager.svg"
+        "path": "/shapes/azure/networking/03461-icon-service-IP-Address-manager.svg"
     },
     {
         "id": "479c8e5e-813f-4450-a738-74bf30038734",
         "name": "Virtual Networks",
-        "path": "/public/shapes/azure/networking/10061-icon-service-Virtual-Networks.svg"
+        "path": "/shapes/azure/networking/10061-icon-service-Virtual-Networks.svg"
     },
     {
         "id": "9a9be710-070c-4697-aa27-f87ac7bfc4f2",
         "name": "Load Balancers",
-        "path": "/public/shapes/azure/networking/10062-icon-service-Load-Balancers.svg"
+        "path": "/shapes/azure/networking/10062-icon-service-Load-Balancers.svg"
     },
     {
         "id": "bcb4af93-8bef-4e39-816e-d8eece2b270c",
         "name": "Virtual Network Gateways",
-        "path": "/public/shapes/azure/networking/10063-icon-service-Virtual-Network-Gateways.svg"
+        "path": "/shapes/azure/networking/10063-icon-service-Virtual-Network-Gateways.svg"
     },
     {
         "id": "4209e7c9-87c9-43c7-a242-b5e72b2555c0",
         "name": "DNS Zones",
-        "path": "/public/shapes/azure/networking/10064-icon-service-DNS-Zones.svg"
+        "path": "/shapes/azure/networking/10064-icon-service-DNS-Zones.svg"
     },
     {
         "id": "260cc20a-cf7f-4b84-b298-281cdc4624f9",
         "name": "Traffic Manager Profiles",
-        "path": "/public/shapes/azure/networking/10065-icon-service-Traffic-Manager-Profiles.svg"
+        "path": "/shapes/azure/networking/10065-icon-service-Traffic-Manager-Profiles.svg"
     },
     {
         "id": "6ea842c6-bdcf-4d29-ae4d-0ec690f27ecf",
         "name": "Network Watcher",
-        "path": "/public/shapes/azure/networking/10066-icon-service-Network-Watcher.svg"
+        "path": "/shapes/azure/networking/10066-icon-service-Network-Watcher.svg"
     },
     {
         "id": "e8b87cf5-9914-452f-9af0-d0e1a14e9088",
         "name": "Network Security Groups",
-        "path": "/public/shapes/azure/networking/10067-icon-service-Network-Security-Groups.svg"
+        "path": "/shapes/azure/networking/10067-icon-service-Network-Security-Groups.svg"
     },
     {
         "id": "281a1d6d-df33-4cab-8a0c-7838f3d60c30",
         "name": "Public IP Addresses (Classic)",
-        "path": "/public/shapes/azure/networking/10068-icon-service-Public-IP-Addresses-(Classic).svg"
+        "path": "/shapes/azure/networking/10068-icon-service-Public-IP-Addresses-(Classic).svg"
     },
     {
         "id": "ae0aadb5-d6a5-4c75-90f8-3e8b17242360",
         "name": "Public IP Addresses",
-        "path": "/public/shapes/azure/networking/10069-icon-service-Public-IP-Addresses.svg"
+        "path": "/shapes/azure/networking/10069-icon-service-Public-IP-Addresses.svg"
     },
     {
         "id": "3770d529-1454-4d33-bbf9-91331583ff78",
         "name": "On Premises Data Gateways",
-        "path": "/public/shapes/azure/networking/10070-icon-service-On-Premises-Data-Gateways.svg"
+        "path": "/shapes/azure/networking/10070-icon-service-On-Premises-Data-Gateways.svg"
     },
     {
         "id": "d7679e5c-1e7c-4318-b682-7b95d27ad7a7",
         "name": "Route Filters",
-        "path": "/public/shapes/azure/networking/10071-icon-service-Route-Filters.svg"
+        "path": "/shapes/azure/networking/10071-icon-service-Route-Filters.svg"
     },
     {
         "id": "deda1217-118f-41ec-9229-b65e6198a3e5",
         "name": "DDoS Protection Plans",
-        "path": "/public/shapes/azure/networking/10072-icon-service-DDoS-Protection-Plans.svg"
+        "path": "/shapes/azure/networking/10072-icon-service-DDoS-Protection-Plans.svg"
     },
     {
         "id": "7a26fa1d-40d6-4786-9159-c69b08e2f727",
         "name": "Front Door and CDN Profiles",
-        "path": "/public/shapes/azure/networking/10073-icon-service-Front-Door-and-CDN-Profiles.svg"
+        "path": "/shapes/azure/networking/10073-icon-service-Front-Door-and-CDN-Profiles.svg"
     },
     {
         "id": "1fecd69d-f4d3-4aa4-9d9b-7c51930411cf",
         "name": "Virtual Networks (Classic)",
-        "path": "/public/shapes/azure/networking/10075-icon-service-Virtual-Networks-(Classic).svg"
+        "path": "/shapes/azure/networking/10075-icon-service-Virtual-Networks-(Classic).svg"
     },
     {
         "id": "0cf6cc26-697e-4929-ae15-ac91909683b6",
         "name": "Application Gateways",
-        "path": "/public/shapes/azure/networking/10076-icon-service-Application-Gateways.svg"
+        "path": "/shapes/azure/networking/10076-icon-service-Application-Gateways.svg"
     },
     {
         "id": "3f61458d-52ca-4699-936f-17d6ac2e991d",
         "name": "Local Network Gateways",
-        "path": "/public/shapes/azure/networking/10077-icon-service-Local-Network-Gateways.svg"
+        "path": "/shapes/azure/networking/10077-icon-service-Local-Network-Gateways.svg"
     },
     {
         "id": "c8cbd8a2-4921-4834-9514-a3cb756353b6",
         "name": "ExpressRoute Circuits",
-        "path": "/public/shapes/azure/networking/10079-icon-service-ExpressRoute-Circuits.svg"
+        "path": "/shapes/azure/networking/10079-icon-service-ExpressRoute-Circuits.svg"
     },
     {
         "id": "d86fa025-87cc-48a4-b1eb-fc7e60a8f2a2",
         "name": "Network Interfaces",
-        "path": "/public/shapes/azure/networking/10080-icon-service-Network-Interfaces.svg"
+        "path": "/shapes/azure/networking/10080-icon-service-Network-Interfaces.svg"
     },
     {
         "id": "74db42ae-d590-48a1-898e-1aaaa882a392",
         "name": "Connections",
-        "path": "/public/shapes/azure/networking/10081-icon-service-Connections.svg"
+        "path": "/shapes/azure/networking/10081-icon-service-Connections.svg"
     },
     {
         "id": "d70dee12-cbbd-4106-94c7-405c507c642e",
         "name": "Route Tables",
-        "path": "/public/shapes/azure/networking/10082-icon-service-Route-Tables.svg"
+        "path": "/shapes/azure/networking/10082-icon-service-Route-Tables.svg"
     },
     {
         "id": "d6688ade-5305-4eb4-9d72-525eed4551cf",
         "name": "Firewalls",
-        "path": "/public/shapes/azure/networking/10084-icon-service-Firewalls.svg"
+        "path": "/shapes/azure/networking/10084-icon-service-Firewalls.svg"
     },
     {
         "id": "e5d1db36-429b-4a9e-ab00-f638acebb178",
         "name": "Service Endpoint Policies",
-        "path": "/public/shapes/azure/networking/10085-icon-service-Service-Endpoint-Policies.svg"
+        "path": "/shapes/azure/networking/10085-icon-service-Service-Endpoint-Policies.svg"
     },
     {
         "id": "37081b32-0486-4745-a5c8-dd5f47b3e07d",
         "name": "NAT",
-        "path": "/public/shapes/azure/networking/10310-icon-service-NAT.svg"
+        "path": "/shapes/azure/networking/10310-icon-service-NAT.svg"
     },
     {
         "id": "9acf1643-0ecc-4c51-b302-75a39dfd1d82",
         "name": "Virtual WANs",
-        "path": "/public/shapes/azure/networking/10353-icon-service-Virtual-WANs.svg"
+        "path": "/shapes/azure/networking/10353-icon-service-Virtual-WANs.svg"
     },
     {
         "id": "14c5be33-cd6b-4928-a2d2-0a76c2b55399",
         "name": "Web Application Firewall Policies(WAF)",
-        "path": "/public/shapes/azure/networking/10362-icon-service-Web-Application-Firewall-Policies(WAF).svg"
+        "path": "/shapes/azure/networking/10362-icon-service-Web-Application-Firewall-Policies(WAF).svg"
     },
     {
         "id": "24a2ab76-d5d0-42f3-84f6-82159d25e22f",
         "name": "Proximity Placement Groups",
-        "path": "/public/shapes/azure/networking/10365-icon-service-Proximity-Placement-Groups.svg"
+        "path": "/shapes/azure/networking/10365-icon-service-Proximity-Placement-Groups.svg"
     },
     {
         "id": "9b25b070-3942-45a5-9db3-d29184000de4",
         "name": "Reserved IP Addresses (Classic)",
-        "path": "/public/shapes/azure/networking/10371-icon-service-Reserved-IP-Addresses-(Classic).svg"
+        "path": "/shapes/azure/networking/10371-icon-service-Reserved-IP-Addresses-(Classic).svg"
     },
     {
         "id": "53f085a7-26b8-474c-89be-825fd9774884",
         "name": "Public IP Prefixes",
-        "path": "/public/shapes/azure/networking/10372-icon-service-Public-IP-Prefixes.svg"
+        "path": "/shapes/azure/networking/10372-icon-service-Public-IP-Prefixes.svg"
     }
 ]

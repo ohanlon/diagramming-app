@@ -2,41 +2,41 @@
     {
         "id": "6e82a7e0-d879-4c79-91af-c29d307ef1ad",
         "name": "App Service Plans",
-        "path": "/public/shapes/azure/app_services/00046-icon-service-App-Service-Plans.svg"
+        "path": "/shapes/azure/app_services/00046-icon-service-App-Service-Plans.svg"
     },
     {
         "id": "509e11ba-58af-46f0-8a70-6498045c6747",
         "name": "App Service Certificates",
-        "path": "/public/shapes/azure/app_services/00049-icon-service-App-Service-Certificates.svg"
+        "path": "/shapes/azure/app_services/00049-icon-service-App-Service-Certificates.svg"
     },
     {
         "id": "af1b24fa-0b4d-44dd-a731-c6c5042e56c0",
         "name": "App Service Domains",
-        "path": "/public/shapes/azure/app_services/00050-icon-service-App-Service-Domains.svg"
+        "path": "/shapes/azure/app_services/00050-icon-service-App-Service-Domains.svg"
     },
     {
         "id": "05c387bf-0048-48aa-a7d6-b712c144d69b",
         "name": "CDN Profiles",
-        "path": "/public/shapes/azure/app_services/00056-icon-service-CDN-Profiles.svg"
+        "path": "/shapes/azure/app_services/00056-icon-service-CDN-Profiles.svg"
     },
     {
         "id": "8c75fe34-53a6-4669-88cc-ded32c24af63",
         "name": "App Services",
-        "path": "/public/shapes/azure/app_services/10035-icon-service-App-Services.svg"
+        "path": "/shapes/azure/app_services/10035-icon-service-App-Services.svg"
     },
     {
         "id": "75f2311f-07b3-4fb1-bff6-6276d8ac1a8c",
         "name": "Cognitive Search",
-        "path": "/public/shapes/azure/app_services/10044-icon-service-Cognitive-Search.svg"
+        "path": "/shapes/azure/app_services/10044-icon-service-Cognitive-Search.svg"
     },
     {
         "id": "7b6e3e8f-439d-44b9-858e-33d39b0968ba",
         "name": "Notification Hubs",
-        "path": "/public/shapes/azure/app_services/10045-icon-service-Notification-Hubs.svg"
+        "path": "/shapes/azure/app_services/10045-icon-service-Notification-Hubs.svg"
     },
     {
         "id": "cdd9fc62-4ee0-4543-b5a7-01a7eaa42385",
         "name": "App Service Environments",
-        "path": "/public/shapes/azure/app_services/10047-icon-service-App-Service-Environments.svg"
+        "path": "/shapes/azure/app_services/10047-icon-service-App-Service-Environments.svg"
     }
 ]

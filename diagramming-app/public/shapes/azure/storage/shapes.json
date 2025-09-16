@@ -2,96 +2,96 @@
     {
         "id": "42df8ea5-237d-4c49-8233-ce3ca38292c4",
         "name": "Recovery Services Vaults",
-        "path": "/public/shapes/azure/storage/00017-icon-service-Recovery-Services-Vaults.svg"
+        "path": "/shapes/azure/storage/00017-icon-service-Recovery-Services-Vaults.svg"
     },
     {
         "id": "8345c276-610f-4d74-a8b8-c89eed8bd965",
         "name": "Azure Databox Gateway",
-        "path": "/public/shapes/azure/storage/00691-icon-service-Azure-Databox-Gateway.svg"
+        "path": "/shapes/azure/storage/00691-icon-service-Azure-Databox-Gateway.svg"
     },
     {
         "id": "8a0d03b3-42ea-4cd0-869e-90a2c33f60be",
         "name": "Azure HCP Cache",
-        "path": "/public/shapes/azure/storage/00776-icon-service-Azure-HCP-Cache.svg"
+        "path": "/shapes/azure/storage/00776-icon-service-Azure-HCP-Cache.svg"
     },
     {
         "id": "f7a1be20-5ab7-4eef-b3b0-5f0f89661636",
         "name": "Storage Actions",
-        "path": "/public/shapes/azure/storage/03502-icon-service-Storage-Actions.svg"
+        "path": "/shapes/azure/storage/03502-icon-service-Storage-Actions.svg"
     },
     {
         "id": "93ff4759-9300-4801-a481-9045883aaace",
         "name": "Managed File Shares",
-        "path": "/public/shapes/azure/storage/03549-icon-service-Managed-File-Shares.svg"
+        "path": "/shapes/azure/storage/03549-icon-service-Managed-File-Shares.svg"
     },
     {
         "id": "31945538-5135-4c51-b90c-fd81084fdc9b",
         "name": "Storage Accounts",
-        "path": "/public/shapes/azure/storage/10086-icon-service-Storage-Accounts.svg"
+        "path": "/shapes/azure/storage/10086-icon-service-Storage-Accounts.svg"
     },
     {
         "id": "f24c594c-8f4b-44da-a8d7-c51472878e1e",
         "name": "Storage Accounts (Classic)",
-        "path": "/public/shapes/azure/storage/10087-icon-service-Storage-Accounts-(Classic).svg"
+        "path": "/shapes/azure/storage/10087-icon-service-Storage-Accounts-(Classic).svg"
     },
     {
         "id": "0bbf66a1-800e-4644-a068-9bb960a8621d",
         "name": "StorSimple Device Managers",
-        "path": "/public/shapes/azure/storage/10089-icon-service-StorSimple-Device-Managers.svg"
+        "path": "/shapes/azure/storage/10089-icon-service-StorSimple-Device-Managers.svg"
     },
     {
         "id": "0af23837-630c-4777-a5d1-deb6d8142dfe",
         "name": "Data Lake Storage Gen1",
-        "path": "/public/shapes/azure/storage/10090-icon-service-Data-Lake-Storage-Gen1.svg"
+        "path": "/shapes/azure/storage/10090-icon-service-Data-Lake-Storage-Gen1.svg"
     },
     {
         "id": "681a1e28-eeb3-498c-b8fd-88666e84bbf1",
         "name": "Storage Explorer",
-        "path": "/public/shapes/azure/storage/10091-icon-service-Storage-Explorer.svg"
+        "path": "/shapes/azure/storage/10091-icon-service-Storage-Explorer.svg"
     },
     {
         "id": "5765c5ce-e50b-4a1d-9ccf-8ff4d1d94317",
         "name": "StorSimple Data Managers",
-        "path": "/public/shapes/azure/storage/10092-icon-service-StorSimple-Data-Managers.svg"
+        "path": "/shapes/azure/storage/10092-icon-service-StorSimple-Data-Managers.svg"
     },
     {
         "id": "89b44659-ac80-44d0-8a0c-8c4bc9ced539",
         "name": "Storage Sync Services",
-        "path": "/public/shapes/azure/storage/10093-icon-service-Storage-Sync-Services.svg"
+        "path": "/shapes/azure/storage/10093-icon-service-Storage-Sync-Services.svg"
     },
     {
         "id": "99eff94e-577b-48e3-8a78-df16781fad94",
         "name": "Data Box",
-        "path": "/public/shapes/azure/storage/10094-icon-service-Data-Box.svg"
+        "path": "/shapes/azure/storage/10094-icon-service-Data-Box.svg"
     },
     {
         "id": "3590b298-9a3a-4e69-a6cf-242f16894c3b",
         "name": "Azure Stack Edge",
-        "path": "/public/shapes/azure/storage/10095-icon-service-Azure-Stack-Edge.svg"
+        "path": "/shapes/azure/storage/10095-icon-service-Azure-Stack-Edge.svg"
     },
     {
         "id": "df3905fc-3e7d-4e98-8726-601805cd1b9c",
         "name": "Azure NetApp Files",
-        "path": "/public/shapes/azure/storage/10096-icon-service-Azure-NetApp-Files.svg"
+        "path": "/shapes/azure/storage/10096-icon-service-Azure-NetApp-Files.svg"
     },
     {
         "id": "67ac9c98-9f64-4379-bd18-81e729c99188",
         "name": "Data Share Invitations",
-        "path": "/public/shapes/azure/storage/10097-icon-service-Data-Share-Invitations.svg"
+        "path": "/shapes/azure/storage/10097-icon-service-Data-Share-Invitations.svg"
     },
     {
         "id": "e452107a-e598-4d3a-8835-8ff038241f0c",
         "name": "Data Shares",
-        "path": "/public/shapes/azure/storage/10098-icon-service-Data-Shares.svg"
+        "path": "/shapes/azure/storage/10098-icon-service-Data-Shares.svg"
     },
     {
         "id": "4ee20c3e-e7b3-430c-b579-dbc5c90e8f7c",
         "name": "Import Export Jobs",
-        "path": "/public/shapes/azure/storage/10100-icon-service-Import-Export-Jobs.svg"
+        "path": "/shapes/azure/storage/10100-icon-service-Import-Export-Jobs.svg"
     },
     {
         "id": "e7fbf0e8-a8a8-4da0-a774-9dbef476603a",
         "name": "Azure Fileshares",
-        "path": "/public/shapes/azure/storage/10400-icon-service-Azure-Fileshares.svg"
+        "path": "/shapes/azure/storage/10400-icon-service-Azure-Fileshares.svg"
     }
 ]

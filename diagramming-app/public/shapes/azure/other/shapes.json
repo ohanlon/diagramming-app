@@ -2,671 +2,671 @@
     {
         "id": "63058a8e-b18e-42cf-bb8c-7f90e4796c2a",
         "name": "Azure Virtual Desktop",
-        "path": "/public/shapes/azure/other/00327-icon-service-Azure-Virtual-Desktop.svg"
+        "path": "/shapes/azure/other/00327-icon-service-Azure-Virtual-Desktop.svg"
     },
     {
         "id": "cb8aea0a-4613-4f44-a7e7-4ab32c6b7abb",
         "name": "SSH Keys",
-        "path": "/public/shapes/azure/other/00412-icon-service-SSH-Keys.svg"
+        "path": "/shapes/azure/other/00412-icon-service-SSH-Keys.svg"
     },
     {
         "id": "753d9c40-3dd8-4d64-a8ca-cad61fd135a7",
         "name": "Internet Analyzer Profiles",
-        "path": "/public/shapes/azure/other/00469-icon-service-Internet-Analyzer-Profiles.svg"
+        "path": "/shapes/azure/other/00469-icon-service-Internet-Analyzer-Profiles.svg"
     },
     {
         "id": "1f770de3-ad76-4e05-8cc4-278044571b2d",
         "name": "Azure Cloud Shell",
-        "path": "/public/shapes/azure/other/00559-icon-service-Azure-Cloud-Shell.svg"
+        "path": "/shapes/azure/other/00559-icon-service-Azure-Cloud-Shell.svg"
     },
     {
         "id": "1c30362e-7bbe-489e-b5ea-fbe095019e33",
         "name": "Video Analyzers",
-        "path": "/public/shapes/azure/other/00712-icon-service-Video-Analyzers.svg"
+        "path": "/shapes/azure/other/00712-icon-service-Video-Analyzers.svg"
     },
     {
         "id": "b0cfd8ae-4d3b-48b7-88ca-431ed5858ef0",
         "name": "ExpressRoute Direct",
-        "path": "/public/shapes/azure/other/00903-icon-service-ExpressRoute-Direct.svg"
+        "path": "/shapes/azure/other/00903-icon-service-ExpressRoute-Direct.svg"
     },
     {
         "id": "48e52942-a4e3-4723-97ac-d2425c5ccc71",
         "name": "Cost Export",
-        "path": "/public/shapes/azure/other/00913-icon-service-Cost-Export.svg"
+        "path": "/shapes/azure/other/00913-icon-service-Cost-Export.svg"
     },
     {
         "id": "a0824382-a9c1-47b8-bbf3-030a9d41f9e7",
         "name": "Azure Communication Services",
-        "path": "/public/shapes/azure/other/00968-icon-service-Azure-Communication-Services.svg"
+        "path": "/shapes/azure/other/00968-icon-service-Azure-Communication-Services.svg"
     },
     {
         "id": "8866f232-e053-4f3f-b5b9-9e0a760b35b0",
         "name": "Peering Service",
-        "path": "/public/shapes/azure/other/00970-icon-service-Peering-Service.svg"
+        "path": "/shapes/azure/other/00970-icon-service-Peering-Service.svg"
     },
     {
         "id": "2f4cc9f3-c5e3-4dbd-a763-e59e86435df7",
         "name": "Azure Network Function Manager Functions",
-        "path": "/public/shapes/azure/other/01001-icon-service-Azure-Network-Function-Manager-Functions.svg"
+        "path": "/shapes/azure/other/01001-icon-service-Azure-Network-Function-Manager-Functions.svg"
     },
     {
         "id": "fd319f72-8fc0-4d02-b066-7b4ab3f04ded",
         "name": "Log Analytics Query Pack",
-        "path": "/public/shapes/azure/other/01085-icon-service-Log-Analytics-Query-Pack.svg"
+        "path": "/shapes/azure/other/01085-icon-service-Log-Analytics-Query-Pack.svg"
     },
     {
         "id": "65aeb86f-a135-4d9d-a9b5-20c7a8ebe208",
         "name": "Arc Kubernetes",
-        "path": "/public/shapes/azure/other/01088-icon-service-Arc-Kubernetes.svg"
+        "path": "/shapes/azure/other/01088-icon-service-Arc-Kubernetes.svg"
     },
     {
         "id": "a34ea79a-3cc7-4cd2-ad8a-50cb021dfa75",
         "name": "Azure VMware Solution",
-        "path": "/public/shapes/azure/other/01219-icon-service-Azure-VMware-Solution.svg"
+        "path": "/shapes/azure/other/01219-icon-service-Azure-VMware-Solution.svg"
     },
     {
         "id": "ceb0a1d5-c7e3-4b40-a5c6-20f57e8dc52b",
         "name": "Peerings",
-        "path": "/public/shapes/azure/other/01285-icon-service-Peerings.svg"
+        "path": "/shapes/azure/other/01285-icon-service-Peerings.svg"
     },
     {
         "id": "1331d81c-55de-4be2-aefc-95899b18fc4e",
         "name": "Dashboard Hub",
-        "path": "/public/shapes/azure/other/01757-icon-service-Dashboard-Hub.svg"
+        "path": "/shapes/azure/other/01757-icon-service-Dashboard-Hub.svg"
     },
     {
         "id": "958fa3bc-f142-4ef9-811a-7ce54295b939",
         "name": "Azure Video Indexer",
-        "path": "/public/shapes/azure/other/01800-icon-service-Azure-Video-Indexer.svg"
+        "path": "/shapes/azure/other/01800-icon-service-Azure-Video-Indexer.svg"
     },
     {
         "id": "247b17bb-0848-4039-a0a1-1b841812899b",
         "name": "AVS VM",
-        "path": "/public/shapes/azure/other/01846-icon-service-AVS-VM.svg"
+        "path": "/shapes/azure/other/01846-icon-service-AVS-VM.svg"
     },
     {
         "id": "7fc092fe-13e4-4391-8594-c9a012e72463",
         "name": "Arc PostgreSQL",
-        "path": "/public/shapes/azure/other/01848-icon-service-Arc-PostgreSQL .svg"
+        "path": "/shapes/azure/other/01848-icon-service-Arc-PostgreSQL .svg"
     },
     {
         "id": "ef01435e-b5fb-4fa4-ac64-884b8f81e047",
         "name": "Arc SQL Managed Instance",
-        "path": "/public/shapes/azure/other/01849-icon-service-Arc-SQL-Managed-Instance.svg"
+        "path": "/shapes/azure/other/01849-icon-service-Arc-SQL-Managed-Instance.svg"
     },
     {
         "id": "16c0c9fe-499a-4d56-988a-be2e984d1f9a",
         "name": "Arc SQL Server",
-        "path": "/public/shapes/azure/other/01850-icon-service-Arc-SQL-Server.svg"
+        "path": "/shapes/azure/other/01850-icon-service-Arc-SQL-Server.svg"
     },
     {
         "id": "0ecfeba3-e2e3-498d-aef0-4147a043deee",
         "name": "Data Collection Rules",
-        "path": "/public/shapes/azure/other/01857-icon-service-Data-Collection-Rules.svg"
+        "path": "/shapes/azure/other/01857-icon-service-Data-Collection-Rules.svg"
     },
     {
         "id": "158fb457-9807-43b5-8c68-8a83b26167c9",
         "name": "Resource Mover",
-        "path": "/public/shapes/azure/other/02200-icon-service-Resource-Mover.svg"
+        "path": "/shapes/azure/other/02200-icon-service-Resource-Mover.svg"
     },
     {
         "id": "41321cd8-0d4f-4564-907b-8584f0941de1",
         "name": "Azure Chaos Studio",
-        "path": "/public/shapes/azure/other/02223-icon-service-Azure-Chaos-Studio.svg"
+        "path": "/shapes/azure/other/02223-icon-service-Azure-Chaos-Studio.svg"
     },
     {
         "id": "dd24e637-c316-409d-9012-da55a106c57c",
         "name": "Network Managers",
-        "path": "/public/shapes/azure/other/02237-icon-service-Network-Managers.svg"
+        "path": "/shapes/azure/other/02237-icon-service-Network-Managers.svg"
     },
     {
         "id": "9d1bddcc-40b5-429a-b408-ab7307fbc1af",
         "name": "Dedicated HSM",
-        "path": "/public/shapes/azure/other/02322-icon-service-Dedicated-HSM.svg"
+        "path": "/shapes/azure/other/02322-icon-service-Dedicated-HSM.svg"
     },
     {
         "id": "ff9953fa-ff7b-44bf-a920-34c6d15bac95",
         "name": "Modular Data Center",
-        "path": "/public/shapes/azure/other/02323-icon-service-Modular-Data-Center.svg"
+        "path": "/shapes/azure/other/02323-icon-service-Modular-Data-Center.svg"
     },
     {
         "id": "1a9163c4-49f8-4933-8c53-c499c517cd81",
         "name": "Template Specs",
-        "path": "/public/shapes/azure/other/02340-icon-service-Template-Specs.svg"
+        "path": "/shapes/azure/other/02340-icon-service-Template-Specs.svg"
     },
     {
         "id": "58c4ebd1-92e4-4797-a75b-9ce54e80888a",
         "name": "Arc Data services",
-        "path": "/public/shapes/azure/other/02356-icon-service-Arc-Data-services.svg"
+        "path": "/shapes/azure/other/02356-icon-service-Arc-Data-services.svg"
     },
     {
         "id": "9890f194-f808-4750-b1ad-5f776e6ebbae",
         "name": "Azure Backup Center",
-        "path": "/public/shapes/azure/other/02360-icon-service-Azure-Backup-Center.svg"
+        "path": "/shapes/azure/other/02360-icon-service-Azure-Backup-Center.svg"
     },
     {
         "id": "8bd49303-86b2-4a50-94ee-3623e93be042",
         "name": "Backup Vault",
-        "path": "/public/shapes/azure/other/02361-icon-service-Backup-Vault.svg"
+        "path": "/shapes/azure/other/02361-icon-service-Backup-Vault.svg"
     },
     {
         "id": "77dc75c8-340b-47b4-a127-854ffd6487bc",
         "name": "Device Update IoT Hub",
-        "path": "/public/shapes/azure/other/02475-icon-service-Device-Update-IoT-Hub.svg"
+        "path": "/shapes/azure/other/02475-icon-service-Device-Update-IoT-Hub.svg"
     },
     {
         "id": "ae161058-b347-480d-b9ca-6c01960c7fb4",
         "name": "Fiji",
-        "path": "/public/shapes/azure/other/02486-icon-service-Fiji.svg"
+        "path": "/shapes/azure/other/02486-icon-service-Fiji.svg"
     },
     {
         "id": "0e9c06fe-3dae-4cb9-8e40-7f6b104f7aab",
         "name": "Azure Monitor Dashboard",
-        "path": "/public/shapes/azure/other/02488-icon-service-Azure-Monitor-Dashboard.svg"
+        "path": "/shapes/azure/other/02488-icon-service-Azure-Monitor-Dashboard.svg"
     },
     {
         "id": "99f1aa8f-8418-4e16-a246-35454d288fb7",
         "name": "SCVMM Management Servers",
-        "path": "/public/shapes/azure/other/02503-icon-service-SCVMM-Management-Servers.svg"
+        "path": "/shapes/azure/other/02503-icon-service-SCVMM-Management-Servers.svg"
     },
     {
         "id": "271a0b67-b5ed-4e56-8776-d560f023e785",
         "name": "Cloud Services (extended support)",
-        "path": "/public/shapes/azure/other/02505-icon-service-Cloud-Services-(extended-support).svg"
+        "path": "/shapes/azure/other/02505-icon-service-Cloud-Services-(extended-support).svg"
     },
     {
         "id": "ca1a3847-8afe-48d9-a9f5-f20d0cddaab9",
         "name": "Azure Support Center Blue",
-        "path": "/public/shapes/azure/other/02507-icon-service-Azure-Support-Center-Blue.svg"
+        "path": "/shapes/azure/other/02507-icon-service-Azure-Support-Center-Blue.svg"
     },
     {
         "id": "9171315b-f3f3-4287-9c65-060eed3fa2eb",
         "name": "Web App + Database",
-        "path": "/public/shapes/azure/other/02515-icon-service-Web-App-+-Database.svg"
+        "path": "/shapes/azure/other/02515-icon-service-Web-App-+-Database.svg"
     },
     {
         "id": "8502af09-f903-4ce9-9e06-5aba3065abfd",
         "name": "Azure HPC Workbenches",
-        "path": "/public/shapes/azure/other/02518-icon-service-Azure-HPC-Workbenches.svg"
+        "path": "/shapes/azure/other/02518-icon-service-Azure-HPC-Workbenches.svg"
     },
     {
         "id": "9605c495-763f-486e-bb93-a86c575d56c4",
         "name": "Disk Pool",
-        "path": "/public/shapes/azure/other/02560-icon-service-Disk-Pool.svg"
+        "path": "/shapes/azure/other/02560-icon-service-Disk-Pool.svg"
     },
     {
         "id": "971af2a6-d92a-4d34-b846-20c484c1c0cf",
         "name": "Bare Metal Infrastructure",
-        "path": "/public/shapes/azure/other/02561-icon-service-Bare-Metal-Infrastructure.svg"
+        "path": "/shapes/azure/other/02561-icon-service-Bare-Metal-Infrastructure.svg"
     },
     {
         "id": "63aded16-0328-449c-bee5-8b40bd0d0393",
         "name": "Connected Vehicle Platform",
-        "path": "/public/shapes/azure/other/02573-icon-service-Connected-Vehicle-Platform.svg"
+        "path": "/shapes/azure/other/02573-icon-service-Connected-Vehicle-Platform.svg"
     },
     {
         "id": "65d060d1-e44d-42ce-82fe-4a3527d9b0ec",
         "name": "Private Endpoints",
-        "path": "/public/shapes/azure/other/02579-icon-service-Private-Endpoints.svg"
+        "path": "/shapes/azure/other/02579-icon-service-Private-Endpoints.svg"
     },
     {
         "id": "b5ee5bdf-5cd3-4716-9bd5-37d5b3516607",
         "name": "Open Supply Chain Platform",
-        "path": "/public/shapes/azure/other/02602-icon-service-Open-Supply-Chain-Platform.svg"
+        "path": "/shapes/azure/other/02602-icon-service-Open-Supply-Chain-Platform.svg"
     },
     {
         "id": "61df9717-55a7-4914-894e-b384f293e9c2",
         "name": "Aquila",
-        "path": "/public/shapes/azure/other/02625-icon-service-Aquila.svg"
+        "path": "/shapes/azure/other/02625-icon-service-Aquila.svg"
     },
     {
         "id": "c5d4e5d4-2ad7-41e4-975a-d9f1836313c3",
         "name": "Reserved Capacity",
-        "path": "/public/shapes/azure/other/02638-icon-service-Reserved-Capacity.svg"
+        "path": "/shapes/azure/other/02638-icon-service-Reserved-Capacity.svg"
     },
     {
         "id": "07d1a48a-84e1-44b2-b5ec-e6e79538f69a",
         "name": "Custom IP Prefix",
-        "path": "/public/shapes/azure/other/02654-icon-service-Custom-IP-Prefix.svg"
+        "path": "/shapes/azure/other/02654-icon-service-Custom-IP-Prefix.svg"
     },
     {
         "id": "df36b31f-9da3-44d9-bbd7-3287a3bccd62",
         "name": "FHIR Service",
-        "path": "/public/shapes/azure/other/02658-icon-service-FHIR-Service.svg"
+        "path": "/shapes/azure/other/02658-icon-service-FHIR-Service.svg"
     },
     {
         "id": "50ffec3a-74db-4538-b792-1f69828f391e",
         "name": "MedTech Service",
-        "path": "/public/shapes/azure/other/02660-icon-service-MedTech-Service.svg"
+        "path": "/shapes/azure/other/02660-icon-service-MedTech-Service.svg"
     },
     {
         "id": "b7f311e9-32f7-4ba8-8799-12226aea0fe4",
         "name": "Managed Instance Apache Cassandra",
-        "path": "/public/shapes/azure/other/02663-icon-service-Managed-Instance-Apache-Cassandra.svg"
+        "path": "/shapes/azure/other/02663-icon-service-Managed-Instance-Apache-Cassandra.svg"
     },
     {
         "id": "8fff6a4e-6cba-4a3b-8c98-5dd6de8e52b2",
         "name": "Confidential Ledgers",
-        "path": "/public/shapes/azure/other/02668-icon-service-Confidential-Ledgers.svg"
+        "path": "/shapes/azure/other/02668-icon-service-Confidential-Ledgers.svg"
     },
     {
         "id": "8f2f6f9c-1267-4321-8c73-49d323616c42",
         "name": "Entra Identity Licenses",
-        "path": "/public/shapes/azure/other/02681-icon-service-Entra-Identity-Licenses.svg"
+        "path": "/shapes/azure/other/02681-icon-service-Entra-Identity-Licenses.svg"
     },
     {
         "id": "0604b721-8cee-4b6e-a0bc-4ac0b2184933",
         "name": "Test Base",
-        "path": "/public/shapes/azure/other/02691-icon-service-Test-Base.svg"
+        "path": "/shapes/azure/other/02691-icon-service-Test-Base.svg"
     },
     {
         "id": "cd629428-11b1-4685-89da-cf8418b16f5e",
         "name": "Azure Orbital",
-        "path": "/public/shapes/azure/other/02697-icon-service-Azure-Orbital.svg"
+        "path": "/shapes/azure/other/02697-icon-service-Azure-Orbital.svg"
     },
     {
         "id": "c3eb1ce8-4678-497b-83de-ebba0a60dac9",
         "name": "Capacity Reservation Groups",
-        "path": "/public/shapes/azure/other/02732-icon-service-Capacity-Reservation-Groups.svg"
+        "path": "/shapes/azure/other/02732-icon-service-Capacity-Reservation-Groups.svg"
     },
     {
         "id": "c229b4ca-aacf-417f-b313-91914906d617",
         "name": "Windows Notification Services",
-        "path": "/public/shapes/azure/other/02733-icon-service-Windows-Notification-Services.svg"
+        "path": "/shapes/azure/other/02733-icon-service-Windows-Notification-Services.svg"
     },
     {
         "id": "82c0698c-8346-4368-a63f-0f0bf099f950",
         "name": "Azure Network Function Manager",
-        "path": "/public/shapes/azure/other/02740-icon-service-Azure-Network-Function-Manager.svg"
+        "path": "/shapes/azure/other/02740-icon-service-Azure-Network-Function-Manager.svg"
     },
     {
         "id": "5f276eb0-d8c8-4a2b-a1a1-fcb0c5155836",
         "name": "Mission Landing Zone",
-        "path": "/public/shapes/azure/other/02793-icon-service-Mission-Landing-Zone.svg"
+        "path": "/shapes/azure/other/02793-icon-service-Mission-Landing-Zone.svg"
     },
     {
         "id": "ef8a7460-806a-4170-93a4-ac4ba15ab2f7",
         "name": "Mobile Networks",
-        "path": "/public/shapes/azure/other/02794-icon-service-Mobile-Networks.svg"
+        "path": "/shapes/azure/other/02794-icon-service-Mobile-Networks.svg"
     },
     {
         "id": "7178c7ff-eb86-4d87-8f50-e6070184a487",
         "name": "VM App Definitions",
-        "path": "/public/shapes/azure/other/02805-icon-service-VM-App-Definitions.svg"
+        "path": "/shapes/azure/other/02805-icon-service-VM-App-Definitions.svg"
     },
     {
         "id": "2d188b82-1de6-4960-9ea5-06216e955d2b",
         "name": "VM App Versions",
-        "path": "/public/shapes/azure/other/02806-icon-service-VM-App-Versions.svg"
+        "path": "/shapes/azure/other/02806-icon-service-VM-App-Versions.svg"
     },
     {
         "id": "c053f6b9-3fab-4bc1-ba24-ff90eabffabb",
         "name": "Azure Edge Hardware Center",
-        "path": "/public/shapes/azure/other/02810-icon-service-Azure-Edge-Hardware-Center.svg"
+        "path": "/shapes/azure/other/02810-icon-service-Azure-Edge-Hardware-Center.svg"
     },
     {
         "id": "7b0eb6dd-4e27-4400-bd4a-46990636a0f4",
         "name": "Resource Guard",
-        "path": "/public/shapes/azure/other/02819-icon-service-Resource-Guard.svg"
+        "path": "/shapes/azure/other/02819-icon-service-Resource-Guard.svg"
     },
     {
         "id": "24c3e882-8535-40de-8d40-5e5e49124279",
         "name": "Ceres",
-        "path": "/public/shapes/azure/other/02828-icon-service-Ceres.svg"
+        "path": "/shapes/azure/other/02828-icon-service-Ceres.svg"
     },
     {
         "id": "7e7b8c76-566a-48a5-9932-5da40083a54a",
         "name": "Azurite",
-        "path": "/public/shapes/azure/other/02842-icon-service-Azurite.svg"
+        "path": "/shapes/azure/other/02842-icon-service-Azurite.svg"
     },
     {
         "id": "ae74d552-7249-4c04-9b69-f80a64e3647a",
         "name": "Update Management Center",
-        "path": "/public/shapes/azure/other/02846-icon-service-Update-Management-Center.svg"
+        "path": "/shapes/azure/other/02846-icon-service-Update-Management-Center.svg"
     },
     {
         "id": "1ed083e3-1319-4552-a8d3-4a0096ca8240",
         "name": "Azure Compute Galleries",
-        "path": "/public/shapes/azure/other/02864-icon-service-Azure-Compute-Galleries.svg"
+        "path": "/shapes/azure/other/02864-icon-service-Azure-Compute-Galleries.svg"
     },
     {
         "id": "418c4a94-86b1-4322-80e4-33af66d80992",
         "name": "Community Images",
-        "path": "/public/shapes/azure/other/02865-icon-service-Community-Images.svg"
+        "path": "/shapes/azure/other/02865-icon-service-Community-Images.svg"
     },
     {
         "id": "33038d30-9b88-406c-9f86-0a9de612b735",
         "name": "VM Image Version",
-        "path": "/public/shapes/azure/other/02866-icon-service-VM-Image-Version.svg"
+        "path": "/shapes/azure/other/02866-icon-service-VM-Image-Version.svg"
     },
     {
         "id": "67faf539-12d5-481e-a0bb-1a4cdddf8daa",
         "name": "Savings Plans",
-        "path": "/public/shapes/azure/other/02880-icon-service-Savings-Plans.svg"
+        "path": "/shapes/azure/other/02880-icon-service-Savings-Plans.svg"
     },
     {
         "id": "68630928-ff76-4bf7-9122-58e8161f4cf9",
         "name": "Worker Container App",
-        "path": "/public/shapes/azure/other/02884-icon-service-Worker-Container-App.svg"
+        "path": "/shapes/azure/other/02884-icon-service-Worker-Container-App.svg"
     },
     {
         "id": "13d69250-02fa-4736-82d8-f61969330900",
         "name": "Azure Managed Grafana",
-        "path": "/public/shapes/azure/other/02905-icon-service-Azure-Managed-Grafana.svg"
+        "path": "/shapes/azure/other/02905-icon-service-Azure-Managed-Grafana.svg"
     },
     {
         "id": "859085ea-5a1b-4aed-abd6-6e5ac8a69572",
         "name": "Targets Management",
-        "path": "/public/shapes/azure/other/02908-icon-service-Targets-Management.svg"
+        "path": "/shapes/azure/other/02908-icon-service-Targets-Management.svg"
     },
     {
         "id": "927f1167-64c6-4917-8cd3-6c64eb6a9457",
         "name": "Storage Functions",
-        "path": "/public/shapes/azure/other/02909-icon-service-Storage-Functions.svg"
+        "path": "/shapes/azure/other/02909-icon-service-Storage-Functions.svg"
     },
     {
         "id": "ea873b25-4789-46f9-9fd0-bc85b15bb861",
         "name": "Sonic Dash",
-        "path": "/public/shapes/azure/other/02922-icon-service-Sonic-Dash.svg"
+        "path": "/shapes/azure/other/02922-icon-service-Sonic-Dash.svg"
     },
     {
         "id": "a10d1754-ba17-4d32-8ec2-dc19d3a08f17",
         "name": "Compliance Center",
-        "path": "/public/shapes/azure/other/02931-icon-service-Compliance-Center.svg"
+        "path": "/shapes/azure/other/02931-icon-service-Compliance-Center.svg"
     },
     {
         "id": "a26d847d-2877-405f-bab1-3ce3dd17a140",
         "name": "Network Security Perimeters",
-        "path": "/public/shapes/azure/other/02939-icon-service-Network-Security-Perimeters.svg"
+        "path": "/shapes/azure/other/02939-icon-service-Network-Security-Perimeters.svg"
     },
     {
         "id": "777bc312-2dd2-4327-90bc-c97cf5cfe957",
         "name": "Azure Load Testing",
-        "path": "/public/shapes/azure/other/02944-icon-service-Azure-Load-Testing.svg"
+        "path": "/shapes/azure/other/02944-icon-service-Azure-Load-Testing.svg"
     },
     {
         "id": "db1e62fb-4951-4c26-a58c-fb2bd139f922",
         "name": "Virtual Visits Builder",
-        "path": "/public/shapes/azure/other/02949-icon-service-Virtual-Visits-Builder.svg"
+        "path": "/shapes/azure/other/02949-icon-service-Virtual-Visits-Builder.svg"
     },
     {
         "id": "e69e7e62-54ab-45a9-a47f-b099098b7590",
         "name": "Azure Quotas",
-        "path": "/public/shapes/azure/other/02951-icon-service-Azure-Quotas.svg"
+        "path": "/shapes/azure/other/02951-icon-service-Azure-Quotas.svg"
     },
     {
         "id": "f3c27762-285e-4fb2-8a45-7d8f9a0a05fc",
         "name": "Container Apps Environments",
-        "path": "/public/shapes/azure/other/02989-icon-service-Container-Apps-Environments.svg"
+        "path": "/shapes/azure/other/02989-icon-service-Container-Apps-Environments.svg"
     },
     {
         "id": "052f20d4-1dd1-428a-adb2-130a0c9e317f",
         "name": "App Compliance Automation",
-        "path": "/public/shapes/azure/other/03071-icon-service-App-Compliance-Automation.svg"
+        "path": "/shapes/azure/other/03071-icon-service-App-Compliance-Automation.svg"
     },
     {
         "id": "c5d365ea-4673-4011-8eeb-51c2ddae4d1d",
         "name": "Virtual Instance for SAP",
-        "path": "/public/shapes/azure/other/03089-icon-service-Virtual-Instance-for-SAP.svg"
+        "path": "/shapes/azure/other/03089-icon-service-Virtual-Instance-for-SAP.svg"
     },
     {
         "id": "15c98133-809d-496c-86f7-5bae358905f9",
         "name": "Azure Center for SAP",
-        "path": "/public/shapes/azure/other/03090-icon-service-Azure-Center-for-SAP.svg"
+        "path": "/shapes/azure/other/03090-icon-service-Azure-Center-for-SAP.svg"
     },
     {
         "id": "391c0937-7055-4eab-a5b6-569528614dcc",
         "name": "Azure Storage Mover",
-        "path": "/public/shapes/azure/other/03091-icon-service-Azure-Storage-Mover.svg"
+        "path": "/shapes/azure/other/03091-icon-service-Azure-Storage-Mover.svg"
     },
     {
         "id": "b56aa137-c01c-4666-b16b-af77ae7d1642",
         "name": "Central Service Instance For SAP",
-        "path": "/public/shapes/azure/other/03092-icon-service-Central-Service-Instance-For-SAP.svg"
+        "path": "/shapes/azure/other/03092-icon-service-Central-Service-Instance-For-SAP.svg"
     },
     {
         "id": "154889f3-153a-4048-a11a-ce8e7a9e6b1c",
         "name": "Kubernetes Fleet Manager",
-        "path": "/public/shapes/azure/other/03134-icon-service-Kubernetes-Fleet-Manager.svg"
+        "path": "/shapes/azure/other/03134-icon-service-Kubernetes-Fleet-Manager.svg"
     },
     {
         "id": "6176497b-c403-4502-b9c1-7f0361678611",
         "name": "Express Route Traffic Collector",
-        "path": "/public/shapes/azure/other/03137-icon-service-Express-Route-Traffic-Collector.svg"
+        "path": "/shapes/azure/other/03137-icon-service-Express-Route-Traffic-Collector.svg"
     },
     {
         "id": "86d63f99-563d-40df-84cb-9e09f2c9020f",
         "name": "Database Instance For SAP",
-        "path": "/public/shapes/azure/other/03175-icon-service-Database-Instance-For-SAP.svg"
+        "path": "/shapes/azure/other/03175-icon-service-Database-Instance-For-SAP.svg"
     },
     {
         "id": "62ed01b5-3ef7-4f12-9ab8-4dd2cc73c21f",
         "name": "Elastic SAN",
-        "path": "/public/shapes/azure/other/03190-icon-service-Elastic-SAN.svg"
+        "path": "/shapes/azure/other/03190-icon-service-Elastic-SAN.svg"
     },
     {
         "id": "8294f7fb-1674-4445-a22e-1fec20572a13",
         "name": "Microsoft Dev Box",
-        "path": "/public/shapes/azure/other/03250-icon-service-Microsoft-Dev-Box.svg"
+        "path": "/shapes/azure/other/03250-icon-service-Microsoft-Dev-Box.svg"
     },
     {
         "id": "65dc6cc1-554f-471b-bd9d-db8170f92f94",
         "name": "Azure Deployment Environments",
-        "path": "/public/shapes/azure/other/03251-icon-service-Azure-Deployment-Environments.svg"
+        "path": "/shapes/azure/other/03251-icon-service-Azure-Deployment-Environments.svg"
     },
     {
         "id": "b151ccf6-c253-415f-80ff-63f41c6fab3c",
         "name": "Azure Dev Tunnels",
-        "path": "/public/shapes/azure/other/03308-icon-service-Azure-Dev-Tunnels.svg"
+        "path": "/shapes/azure/other/03308-icon-service-Azure-Dev-Tunnels.svg"
     },
     {
         "id": "947bac8b-7a0d-44a3-99c8-3ff49fd5d16c",
         "name": "Azure Sustainability",
-        "path": "/public/shapes/azure/other/03314-icon-service-Azure-Sustainability.svg"
+        "path": "/shapes/azure/other/03314-icon-service-Azure-Sustainability.svg"
     },
     {
         "id": "cfe13444-a77e-46ff-9e39-29b89d9f3663",
         "name": "IcM Troubleshooting",
-        "path": "/public/shapes/azure/other/03361-icon-service-IcM-Troubleshooting.svg"
+        "path": "/shapes/azure/other/03361-icon-service-IcM-Troubleshooting.svg"
     },
     {
         "id": "e0295ee9-432a-4cb8-8aa7-c5feee7441ef",
         "name": "OSConfig",
-        "path": "/public/shapes/azure/other/03365-icon-service-OSConfig.svg"
+        "path": "/shapes/azure/other/03365-icon-service-OSConfig.svg"
     },
     {
         "id": "4cfd174d-f0be-4e68-a3e7-88848a9a856a",
         "name": "Virtual Enclaves",
-        "path": "/public/shapes/azure/other/03394-icon-service-Virtual-Enclaves.svg"
+        "path": "/shapes/azure/other/03394-icon-service-Virtual-Enclaves.svg"
     },
     {
         "id": "51ce9135-d605-4ae7-ab40-8b5c0bd2a812",
         "name": "AKS Istio",
-        "path": "/public/shapes/azure/other/03399-icon-service-AKS-Istio.svg"
+        "path": "/shapes/azure/other/03399-icon-service-AKS-Istio.svg"
     },
     {
         "id": "5fc43b91-0772-47aa-8221-d7efa593c171",
         "name": "Defender CM Local Manager",
-        "path": "/public/shapes/azure/other/03402-icon-service-Defender-CM-Local-Manager.svg"
+        "path": "/shapes/azure/other/03402-icon-service-Defender-CM-Local-Manager.svg"
     },
     {
         "id": "4f764345-02b0-4545-a783-018b5a5b2f61",
         "name": "Defender External Management",
-        "path": "/public/shapes/azure/other/03403-icon-service-Defender-External-Management.svg"
+        "path": "/shapes/azure/other/03403-icon-service-Defender-External-Management.svg"
     },
     {
         "id": "f8908df6-ee4f-4215-8615-1a2718e0bdb1",
         "name": "Defender Freezer Monitor",
-        "path": "/public/shapes/azure/other/03404-icon-service-Defender-Freezer-Monitor.svg"
+        "path": "/shapes/azure/other/03404-icon-service-Defender-Freezer-Monitor.svg"
     },
     {
         "id": "a7e5663f-8dd8-4434-84db-8a76e8e58e81",
         "name": "Defender Historian",
-        "path": "/public/shapes/azure/other/03405-icon-service-Defender-Historian.svg"
+        "path": "/shapes/azure/other/03405-icon-service-Defender-Historian.svg"
     },
     {
         "id": "5d4bb954-19ef-4ecc-b76f-e6d3940f76a0",
         "name": "Defender HMI",
-        "path": "/public/shapes/azure/other/03406-icon-service-Defender-HMI.svg"
+        "path": "/shapes/azure/other/03406-icon-service-Defender-HMI.svg"
     },
     {
         "id": "f522c0e7-db3a-4bf8-8a7b-f270463d6fe1",
         "name": "Defender Marquee",
-        "path": "/public/shapes/azure/other/03407-icon-service-Defender-Marquee.svg"
+        "path": "/shapes/azure/other/03407-icon-service-Defender-Marquee.svg"
     },
     {
         "id": "83131a6a-0dda-4297-ba6c-1c461ad4eaa3",
         "name": "Defender Robot Controller",
-        "path": "/public/shapes/azure/other/03408-icon-service-Defender-Robot-Controller.svg"
+        "path": "/shapes/azure/other/03408-icon-service-Defender-Robot-Controller.svg"
     },
     {
         "id": "3f2fef07-e85d-48f9-8554-f6d6b63255a6",
         "name": "Defender Sensor",
-        "path": "/public/shapes/azure/other/03409-icon-service-Defender-Sensor.svg"
+        "path": "/shapes/azure/other/03409-icon-service-Defender-Sensor.svg"
     },
     {
         "id": "e3c4d74b-b7e4-45cc-bb64-78e961ed591e",
         "name": "Defender Slot",
-        "path": "/public/shapes/azure/other/03410-icon-service-Defender-Slot.svg"
+        "path": "/shapes/azure/other/03410-icon-service-Defender-Slot.svg"
     },
     {
         "id": "548c0a86-35f6-446b-86b2-7a9a6ae41c67",
         "name": "Defender Web Guiding System",
-        "path": "/public/shapes/azure/other/03411-icon-service-Defender-Web-Guiding-System.svg"
+        "path": "/shapes/azure/other/03411-icon-service-Defender-Web-Guiding-System.svg"
     },
     {
         "id": "6ba9f58a-a8b8-4d3c-b879-ea35256e8202",
         "name": "Defender DCS Controller",
-        "path": "/public/shapes/azure/other/03412-icon-service-Defender-DCS-Controller.svg"
+        "path": "/shapes/azure/other/03412-icon-service-Defender-DCS-Controller.svg"
     },
     {
         "id": "ac959816-2735-455b-a610-d8a0dac8e1b3",
         "name": "Defender Distributer Control System",
-        "path": "/public/shapes/azure/other/03413-icon-service-Defender-Distributer-Control-System.svg"
+        "path": "/shapes/azure/other/03413-icon-service-Defender-Distributer-Control-System.svg"
     },
     {
         "id": "c511d44d-fb14-4e57-8d3a-876552653db9",
         "name": "Defender Engineering Station",
-        "path": "/public/shapes/azure/other/03414-icon-service-Defender-Engineering-Station.svg"
+        "path": "/shapes/azure/other/03414-icon-service-Defender-Engineering-Station.svg"
     },
     {
         "id": "a463729c-4b4a-439c-ba24-774ff4ec5f4e",
         "name": "Defender Industrial Packaging System",
-        "path": "/public/shapes/azure/other/03415-icon-service-Defender-Industrial-Packaging-System.svg"
+        "path": "/shapes/azure/other/03415-icon-service-Defender-Industrial-Packaging-System.svg"
     },
     {
         "id": "0fc77c5e-3582-4120-9096-e0ce20146a99",
         "name": "Defender Industrial Printer",
-        "path": "/public/shapes/azure/other/03416-icon-service-Defender-Industrial-Printer.svg"
+        "path": "/shapes/azure/other/03416-icon-service-Defender-Industrial-Printer.svg"
     },
     {
         "id": "16c1655c-d333-4c3f-a1ad-b32fb4f7dfde",
         "name": "Defender Industrial Scale System",
-        "path": "/public/shapes/azure/other/03417-icon-service-Defender-Industrial-Scale-System.svg"
+        "path": "/shapes/azure/other/03417-icon-service-Defender-Industrial-Scale-System.svg"
     },
     {
         "id": "f53f2910-b3a6-407f-8d2b-36ef9506a14a",
         "name": "Defender Industrial Robot",
-        "path": "/public/shapes/azure/other/03418-icon-service-Defender-Industrial-Robot.svg"
+        "path": "/shapes/azure/other/03418-icon-service-Defender-Industrial-Robot.svg"
     },
     {
         "id": "cd200cc4-0d74-42b3-ae28-d9e90357b8d0",
         "name": "Defender Meter",
-        "path": "/public/shapes/azure/other/03419-icon-service-Defender-Meter.svg"
+        "path": "/shapes/azure/other/03419-icon-service-Defender-Meter.svg"
     },
     {
         "id": "c0c0d8ee-54f0-482c-9ab3-a7e8db3bd64d",
         "name": "Defender PLC",
-        "path": "/public/shapes/azure/other/03420-icon-service-Defender-PLC.svg"
+        "path": "/shapes/azure/other/03420-icon-service-Defender-PLC.svg"
     },
     {
         "id": "3e7d6482-0e23-4d3e-a2f7-d193cfc88db2",
         "name": "Defender Pneumatic Device",
-        "path": "/public/shapes/azure/other/03421-icon-service-Defender-Pneumatic-Device.svg"
+        "path": "/shapes/azure/other/03421-icon-service-Defender-Pneumatic-Device.svg"
     },
     {
         "id": "336c37c7-1fdd-4162-8c28-2ffc3d244cfe",
         "name": "Defender Programable Board",
-        "path": "/public/shapes/azure/other/03422-icon-service-Defender-Programable-Board.svg"
+        "path": "/shapes/azure/other/03422-icon-service-Defender-Programable-Board.svg"
     },
     {
         "id": "5bc0bc94-03a8-45c5-82cf-4b192f9b79ad",
         "name": "Defender Relay",
-        "path": "/public/shapes/azure/other/03423-icon-service-Defender-Relay.svg"
+        "path": "/shapes/azure/other/03423-icon-service-Defender-Relay.svg"
     },
     {
         "id": "8048a8bc-45a4-4cd1-a596-d021cf937685",
         "name": "Defender RTU",
-        "path": "/public/shapes/azure/other/03424-icon-service-Defender-RTU.svg"
+        "path": "/shapes/azure/other/03424-icon-service-Defender-RTU.svg"
     },
     {
         "id": "322bf711-297c-4e22-8505-3117cc477235",
         "name": "HDI AKS Cluster",
-        "path": "/public/shapes/azure/other/03468-icon-service-HDI-AKS-Cluster.svg"
+        "path": "/shapes/azure/other/03468-icon-service-HDI-AKS-Cluster.svg"
     },
     {
         "id": "e8e3c4d9-da75-4708-8093-b5b0994c4957",
         "name": "Monitor Health Models",
-        "path": "/public/shapes/azure/other/03528-icon-service-Monitor-Health-Models.svg"
+        "path": "/shapes/azure/other/03528-icon-service-Monitor-Health-Models.svg"
     },
     {
         "id": "c5a68ec0-cd4e-432d-8cf9-f314c46fe7f3",
         "name": "WAC Installer",
-        "path": "/public/shapes/azure/other/03563-icon-service-WAC-Installer.svg"
+        "path": "/shapes/azure/other/03563-icon-service-WAC-Installer.svg"
     },
     {
         "id": "d92ef39d-3c99-40da-ac56-10df7397e5c2",
         "name": "Azure A",
-        "path": "/public/shapes/azure/other/10018-icon-service-Azure-A.svg"
+        "path": "/shapes/azure/other/10018-icon-service-Azure-A.svg"
     },
     {
         "id": "01fff448-a5ed-4648-ba08-594fe987ed14",
         "name": "Local Network Gateways",
-        "path": "/public/shapes/azure/other/10077-icon-service-Local-Network-Gateways.svg"
+        "path": "/shapes/azure/other/10077-icon-service-Local-Network-Gateways.svg"
     },
     {
         "id": "8f4863f7-cd41-4e58-9116-b3b9b5cbc013",
         "name": "Edge Management",
-        "path": "/public/shapes/azure/other/10117-icon-service-Edge-Management.svg"
+        "path": "/shapes/azure/other/10117-icon-service-Edge-Management.svg"
     },
     {
         "id": "2ae7716b-9d36-41c3-9c59-2ae66fe05302",
         "name": "Instance Pools",
-        "path": "/public/shapes/azure/other/10139-icon-service-Instance-Pools.svg"
+        "path": "/shapes/azure/other/10139-icon-service-Instance-Pools.svg"
     },
     {
         "id": "5988ef07-cf58-4a65-a9ec-20808f398e62",
         "name": "Azure Sphere",
-        "path": "/public/shapes/azure/other/10190-icon-service-Azure-Sphere.svg"
+        "path": "/shapes/azure/other/10190-icon-service-Azure-Sphere.svg"
     },
     {
         "id": "a30da2a2-d882-478f-9aa3-fef1a6a96aa2",
         "name": "App Registrations",
-        "path": "/public/shapes/azure/other/10232-icon-service-App-Registrations.svg"
+        "path": "/shapes/azure/other/10232-icon-service-App-Registrations.svg"
     },
     {
         "id": "c48284a2-bfd3-4b38-bf35-debe0dfcc415",
         "name": "Exchange On Premises Access",
-        "path": "/public/shapes/azure/other/10334-icon-service-Exchange-On-Premises-Access.svg"
+        "path": "/shapes/azure/other/10334-icon-service-Exchange-On-Premises-Access.svg"
     },
     {
         "id": "f3d4eb6e-edf3-42cb-8beb-e5b1b5519b5c",
         "name": "WAC",
-        "path": "/public/shapes/azure/other/10355-icon-service-WAC.svg"
+        "path": "/shapes/azure/other/10355-icon-service-WAC.svg"
     },
     {
         "id": "fdc20a4c-e826-47d7-88d0-04add4d8a2f4",
         "name": "AzureAttestation",
-        "path": "/public/shapes/azure/other/10422-icon-service-AzureAttestation.svg"
+        "path": "/shapes/azure/other/10422-icon-service-AzureAttestation.svg"
     },
     {
         "id": "cc8e3dbf-d58e-4c4b-af48-0aa11a8f1aa6",
         "name": "RTOS",
-        "path": "/public/shapes/azure/other/10778-icon-service-RTOS.svg"
+        "path": "/shapes/azure/other/10778-icon-service-RTOS.svg"
     },
     {
         "id": "7c593bd6-15f8-4a64-b49f-b182a7fd4d7c",
         "name": "Web Jobs",
-        "path": "/public/shapes/azure/other/10846-icon-service-Web-Jobs.svg"
+        "path": "/shapes/azure/other/10846-icon-service-Web-Jobs.svg"
     }
 ]

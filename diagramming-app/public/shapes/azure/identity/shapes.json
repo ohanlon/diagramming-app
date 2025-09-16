@@ -2,161 +2,161 @@
     {
         "id": "bbae9bc4-e3a1-4f5f-a771-3244ca493d9e",
         "name": "Security",
-        "path": "/public/shapes/azure/identity/00321-icon-service-Security.svg"
+        "path": "/shapes/azure/identity/00321-icon-service-Security.svg"
     },
     {
         "id": "a0337ca0-c0c2-4d93-aa16-617726da9c08",
         "name": "Administrative Units",
-        "path": "/public/shapes/azure/identity/00919-icon-service-Administrative-Units.svg"
+        "path": "/shapes/azure/identity/00919-icon-service-Administrative-Units.svg"
     },
     {
         "id": "85bd07bf-737c-44a4-88a4-39f6524692c3",
         "name": "Verifiable Credentials",
-        "path": "/public/shapes/azure/identity/01084-icon-service-Verifiable-Credentials.svg"
+        "path": "/shapes/azure/identity/01084-icon-service-Verifiable-Credentials.svg"
     },
     {
         "id": "7351468c-9070-4909-82ed-d4b2a5fb890a",
         "name": "Entra Privleged Identity Management",
-        "path": "/public/shapes/azure/identity/02251-icon-service-Entra-Privleged-Identity-Management.svg"
+        "path": "/shapes/azure/identity/02251-icon-service-Entra-Privleged-Identity-Management.svg"
     },
     {
         "id": "8ca96dba-8bdc-4f41-89a9-0ef4095d2a52",
         "name": "API Proxy",
-        "path": "/public/shapes/azure/identity/02386-icon-service-API-Proxy.svg"
+        "path": "/shapes/azure/identity/02386-icon-service-API-Proxy.svg"
     },
     {
         "id": "ed04326d-7d23-44cd-94ff-df5aeaef8775",
         "name": "Tenant Properties",
-        "path": "/public/shapes/azure/identity/02679-icon-service-Tenant-Properties.svg"
+        "path": "/shapes/azure/identity/02679-icon-service-Tenant-Properties.svg"
     },
     {
         "id": "24ec5ac4-2983-4e9e-970a-6a85eb0672a3",
         "name": "Entra Identity Custom Roles",
-        "path": "/public/shapes/azure/identity/02680-icon-service-Entra-Identity-Custom-Roles.svg"
+        "path": "/shapes/azure/identity/02680-icon-service-Entra-Identity-Custom-Roles.svg"
     },
     {
         "id": "f2adf903-c62c-48d3-bee7-f995fd01939f",
         "name": "Entra Identity Licenses",
-        "path": "/public/shapes/azure/identity/02681-icon-service-Entra-Identity-Licenses.svg"
+        "path": "/shapes/azure/identity/02681-icon-service-Entra-Identity-Licenses.svg"
     },
     {
         "id": "379cf540-2622-405a-822e-6f8bf8f0e369",
         "name": "Entra Connect",
-        "path": "/public/shapes/azure/identity/02854-icon-service-Entra-Connect.svg"
+        "path": "/shapes/azure/identity/02854-icon-service-Entra-Connect.svg"
     },
     {
         "id": "c19cfaf9-9911-4656-bb26-d70a7fe94073",
         "name": "Entra Verified ID",
-        "path": "/public/shapes/azure/identity/03143-icon-service-Entra-Verified-ID.svg"
+        "path": "/shapes/azure/identity/03143-icon-service-Entra-Verified-ID.svg"
     },
     {
         "id": "45c77272-80d0-45da-9e72-363c52912e59",
         "name": "Verification As A Service",
-        "path": "/public/shapes/azure/identity/03225-icon-service-Verification-As-A-Service.svg"
+        "path": "/shapes/azure/identity/03225-icon-service-Verification-As-A-Service.svg"
     },
     {
         "id": "ccd7e64e-442c-451e-89fe-fb2b8df81633",
         "name": "Multi Factor Authentication",
-        "path": "/public/shapes/azure/identity/03256-icon-service-Multi-Factor-Authentication.svg"
+        "path": "/shapes/azure/identity/03256-icon-service-Multi-Factor-Authentication.svg"
     },
     {
         "id": "f134a4e2-2e71-42b6-aced-6fadb3943ef8",
         "name": "Entra Global Secure Access",
-        "path": "/public/shapes/azure/identity/03309-icon-service-Entra-Global-Secure-Access.svg"
+        "path": "/shapes/azure/identity/03309-icon-service-Entra-Global-Secure-Access.svg"
     },
     {
         "id": "0a6e3617-6247-4c49-a7fc-0eca6785adc9",
         "name": "External Identities",
-        "path": "/public/shapes/azure/identity/03338-icon-service-External-Identities.svg"
+        "path": "/shapes/azure/identity/03338-icon-service-External-Identities.svg"
     },
     {
         "id": "89ef1e8e-9469-4a0e-b50a-8ff979c2744a",
         "name": "Entra Private Access",
-        "path": "/public/shapes/azure/identity/03382-icon-service-Entra-Private-Access.svg"
+        "path": "/shapes/azure/identity/03382-icon-service-Entra-Private-Access.svg"
     },
     {
         "id": "8c0ddf32-7eb8-4698-8a16-5471f963d275",
         "name": "Entra Internet Access",
-        "path": "/public/shapes/azure/identity/03383-icon-service-Entra-Internet-Access.svg"
+        "path": "/shapes/azure/identity/03383-icon-service-Entra-Internet-Access.svg"
     },
     {
         "id": "f0506915-0a71-4101-b472-b2b8b31b53ab",
         "name": "Entra Connect Sync",
-        "path": "/public/shapes/azure/identity/03533-icon-service-Entra-Connect-Sync.svg"
+        "path": "/shapes/azure/identity/03533-icon-service-Entra-Connect-Sync.svg"
     },
     {
         "id": "50b012ff-6255-4d4c-98e3-0691722a9d73",
         "name": "Entra Domain Services",
-        "path": "/public/shapes/azure/identity/10222-icon-service-Entra-Domain-Services.svg"
+        "path": "/shapes/azure/identity/10222-icon-service-Entra-Domain-Services.svg"
     },
     {
         "id": "d81c5327-9094-4fcf-9ac8-34077662619e",
         "name": "Groups",
-        "path": "/public/shapes/azure/identity/10223-icon-service-Groups.svg"
+        "path": "/shapes/azure/identity/10223-icon-service-Groups.svg"
     },
     {
         "id": "4cc397ad-069a-4f03-bbdd-2d571945b4d5",
         "name": "Active Directory Connect Health",
-        "path": "/public/shapes/azure/identity/10224-icon-service-Active-Directory-Connect-Health.svg"
+        "path": "/shapes/azure/identity/10224-icon-service-Active-Directory-Connect-Health.svg"
     },
     {
         "id": "11a6ce78-c9e3-4974-b89b-404a66eabfa9",
         "name": "Entra Connect Health",
-        "path": "/public/shapes/azure/identity/10224-icon-service-Entra-Connect-Health.svg"
+        "path": "/shapes/azure/identity/10224-icon-service-Entra-Connect-Health.svg"
     },
     {
         "id": "dcb93904-7242-4433-9275-62c4a9eb999d",
         "name": "Enterprise Applications",
-        "path": "/public/shapes/azure/identity/10225-icon-service-Enterprise-Applications.svg"
+        "path": "/shapes/azure/identity/10225-icon-service-Enterprise-Applications.svg"
     },
     {
         "id": "0959c3c0-4485-4810-b84e-115e627b34db",
         "name": "Entra Managed Identities",
-        "path": "/public/shapes/azure/identity/10227-icon-service-Entra-Managed-Identities.svg"
+        "path": "/shapes/azure/identity/10227-icon-service-Entra-Managed-Identities.svg"
     },
     {
         "id": "75c570fc-fd91-45bf-9572-b8e668f3c319",
         "name": "Managed Identities",
-        "path": "/public/shapes/azure/identity/10227-icon-service-Managed-Identities.svg"
+        "path": "/shapes/azure/identity/10227-icon-service-Managed-Identities.svg"
     },
     {
         "id": "144582b3-bb08-4161-a55c-d311dcf937b1",
         "name": "Azure AD B2C",
-        "path": "/public/shapes/azure/identity/10228-icon-service-Azure-AD-B2C.svg"
+        "path": "/shapes/azure/identity/10228-icon-service-Azure-AD-B2C.svg"
     },
     {
         "id": "2a9b7329-b5b1-4450-acae-6837f543cedb",
         "name": "Azure Information Protection",
-        "path": "/public/shapes/azure/identity/10229-icon-service-Azure-Information-Protection.svg"
+        "path": "/shapes/azure/identity/10229-icon-service-Azure-Information-Protection.svg"
     },
     {
         "id": "18f34935-29d7-4e7c-8182-48af4848b816",
         "name": "Users",
-        "path": "/public/shapes/azure/identity/10230-icon-service-Users.svg"
+        "path": "/shapes/azure/identity/10230-icon-service-Users.svg"
     },
     {
         "id": "fca0ee9e-49c6-4b6d-b7cb-65e095c77b0e",
         "name": "Entra ID Protection",
-        "path": "/public/shapes/azure/identity/10231-icon-service-Entra-ID-Protection.svg"
+        "path": "/shapes/azure/identity/10231-icon-service-Entra-ID-Protection.svg"
     },
     {
         "id": "9eeb73c0-34db-4082-997f-2f9a765f63e9",
         "name": "App Registrations",
-        "path": "/public/shapes/azure/identity/10232-icon-service-App-Registrations.svg"
+        "path": "/shapes/azure/identity/10232-icon-service-App-Registrations.svg"
     },
     {
         "id": "83666cfd-3d57-44bc-bcf8-30f96b49a87f",
         "name": "Identity Governance",
-        "path": "/public/shapes/azure/identity/10235-icon-service-Identity-Governance.svg"
+        "path": "/shapes/azure/identity/10235-icon-service-Identity-Governance.svg"
     },
     {
         "id": "3e81347a-8056-4f39-b7af-accfefae69b5",
         "name": "Entra Identity Roles and Administrators",
-        "path": "/public/shapes/azure/identity/10340-icon-service-Entra-Identity-Roles-and-Administrators.svg"
+        "path": "/shapes/azure/identity/10340-icon-service-Entra-Identity-Roles-and-Administrators.svg"
     },
     {
         "id": "05756aea-30e1-4725-8f08-9380f13f0232",
         "name": "User Settings",
-        "path": "/public/shapes/azure/identity/10433-icon-service-User-Settings.svg"
+        "path": "/shapes/azure/identity/10433-icon-service-User-Settings.svg"
     }
 ]

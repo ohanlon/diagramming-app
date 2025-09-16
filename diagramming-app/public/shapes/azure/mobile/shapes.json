@@ -2,16 +2,16 @@
     {
         "id": "3d7e9b15-2ffb-4cb4-b8a4-25582636a25e",
         "name": "Power Platform",
-        "path": "/public/shapes/azure/mobile/03335-icon-service-Power-Platform.svg"
+        "path": "/shapes/azure/mobile/03335-icon-service-Power-Platform.svg"
     },
     {
         "id": "5bd3066d-8348-4eee-9b05-f03367474b8d",
         "name": "App Services",
-        "path": "/public/shapes/azure/mobile/10035-icon-service-App-Services.svg"
+        "path": "/shapes/azure/mobile/10035-icon-service-App-Services.svg"
     },
     {
         "id": "44f343c6-a7ae-4d4a-9195-896c1e7d272a",
         "name": "Notification Hubs",
-        "path": "/public/shapes/azure/mobile/10045-icon-service-Notification-Hubs.svg"
+        "path": "/shapes/azure/mobile/10045-icon-service-Notification-Hubs.svg"
     }
 ]

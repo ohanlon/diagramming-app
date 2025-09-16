@@ -2,146 +2,146 @@
     {
         "id": "16d5e5cf-811b-4191-a1d7-30be2e193bb1",
         "name": "Machine Learning Studio (Classic) Web Services",
-        "path": "/public/shapes/azure/iot/00030-icon-service-Machine-Learning-Studio-(Classic)-Web-Services.svg"
+        "path": "/shapes/azure/iot/00030-icon-service-Machine-Learning-Studio-(Classic)-Web-Services.svg"
     },
     {
         "id": "bbd7d4df-9d58-442b-b073-2fb0fa4434b1",
         "name": "Event Hubs",
-        "path": "/public/shapes/azure/iot/00039-icon-service-Event-Hubs.svg"
+        "path": "/shapes/azure/iot/00039-icon-service-Event-Hubs.svg"
     },
     {
         "id": "905864dc-5023-407a-b68a-dc681fca4762",
         "name": "Stream Analytics Jobs",
-        "path": "/public/shapes/azure/iot/00042-icon-service-Stream-Analytics-Jobs.svg"
+        "path": "/shapes/azure/iot/00042-icon-service-Stream-Analytics-Jobs.svg"
     },
     {
         "id": "ce3c28cf-fb83-40a0-bb12-09d23d2faf73",
         "name": "Azure Databox Gateway",
-        "path": "/public/shapes/azure/iot/00691-icon-service-Azure-Databox-Gateway.svg"
+        "path": "/shapes/azure/iot/00691-icon-service-Azure-Databox-Gateway.svg"
     },
     {
         "id": "bf0fbec0-9ee0-4bc4-9122-e471365f6be8",
         "name": "Digital Twins",
-        "path": "/public/shapes/azure/iot/01030-icon-service-Digital-Twins.svg"
+        "path": "/shapes/azure/iot/01030-icon-service-Digital-Twins.svg"
     },
     {
         "id": "d5f7088a-3fac-46c8-a2cb-ffdab9a1f122",
         "name": "Industrial IoT",
-        "path": "/public/shapes/azure/iot/02359-icon-service-Industrial-IoT.svg"
+        "path": "/shapes/azure/iot/02359-icon-service-Industrial-IoT.svg"
     },
     {
         "id": "255c0b7e-9783-40ef-8bc5-db0dc445602b",
         "name": "Logic Apps",
-        "path": "/public/shapes/azure/iot/02631-icon-service-Logic-Apps.svg"
+        "path": "/shapes/azure/iot/02631-icon-service-Logic-Apps.svg"
     },
     {
         "id": "c71056c2-710d-4610-97e1-d6ad30207ee5",
         "name": "Azure Stack HCI Sizer",
-        "path": "/public/shapes/azure/iot/03293-icon-service-Azure-Stack-HCI-Sizer.svg"
+        "path": "/shapes/azure/iot/03293-icon-service-Azure-Stack-HCI-Sizer.svg"
     },
     {
         "id": "b60a3624-926a-417b-8542-4f6b38fe097f",
         "name": "Stack HCI Premium",
-        "path": "/public/shapes/azure/iot/03466-icon-service-Stack-HCI-Premium.svg"
+        "path": "/shapes/azure/iot/03466-icon-service-Stack-HCI-Premium.svg"
     },
     {
         "id": "5daf5755-2d96-4614-b284-e35b0860b746",
         "name": "Azure IoT Operations",
-        "path": "/public/shapes/azure/iot/03485-icon-service-Azure-IoT-Operations.svg"
+        "path": "/shapes/azure/iot/03485-icon-service-Azure-IoT-Operations.svg"
     },
     {
         "id": "9b26c6be-5adc-4343-aa83-99058b2a71bb",
         "name": "Function Apps",
-        "path": "/public/shapes/azure/iot/10029-icon-service-Function-Apps.svg"
+        "path": "/shapes/azure/iot/10029-icon-service-Function-Apps.svg"
     },
     {
         "id": "163b7048-93c4-42bb-b694-d22c3f3c7c5b",
         "name": "Notification Hubs",
-        "path": "/public/shapes/azure/iot/10045-icon-service-Notification-Hubs.svg"
+        "path": "/shapes/azure/iot/10045-icon-service-Notification-Hubs.svg"
     },
     {
         "id": "8a8a9543-a6e1-456c-baa1-4ccc9e13b456",
         "name": "Notification Hub Namespaces",
-        "path": "/public/shapes/azure/iot/10053-icon-service-Notification-Hub-Namespaces.svg"
+        "path": "/shapes/azure/iot/10053-icon-service-Notification-Hub-Namespaces.svg"
     },
     {
         "id": "ca5b4f98-7bfc-4b6c-8abc-0c5e1071e4ef",
         "name": "Azure Stack",
-        "path": "/public/shapes/azure/iot/10114-icon-service-Azure-Stack.svg"
+        "path": "/shapes/azure/iot/10114-icon-service-Azure-Stack.svg"
     },
     {
         "id": "907b6fad-c5e0-48e9-837c-86bd119ad421",
         "name": "Azure Cosmos DB",
-        "path": "/public/shapes/azure/iot/10121-icon-service-Azure-Cosmos-DB.svg"
+        "path": "/shapes/azure/iot/10121-icon-service-Azure-Cosmos-DB.svg"
     },
     {
         "id": "07366aa1-6f86-45c2-9e4b-c3b5cff7b7d1",
         "name": "Event Hub Clusters",
-        "path": "/public/shapes/azure/iot/10149-icon-service-Event-Hub-Clusters.svg"
+        "path": "/shapes/azure/iot/10149-icon-service-Event-Hub-Clusters.svg"
     },
     {
         "id": "232a30c2-0468-4171-8364-d30e3ca794fc",
         "name": "Machine Learning Studio Workspaces",
-        "path": "/public/shapes/azure/iot/10167-icon-service-Machine-Learning-Studio-Workspaces.svg"
+        "path": "/shapes/azure/iot/10167-icon-service-Machine-Learning-Studio-Workspaces.svg"
     },
     {
         "id": "5bcc7945-49fd-4c3f-86fd-da92742ad1a6",
         "name": "Machine Learning Studio Web Service Plans",
-        "path": "/public/shapes/azure/iot/10168-icon-service-Machine-Learning-Studio-Web-Service-Plans.svg"
+        "path": "/shapes/azure/iot/10168-icon-service-Machine-Learning-Studio-Web-Service-Plans.svg"
     },
     {
         "id": "bfb1a624-eb6c-4cbc-ad5c-9e7ede0c6b4c",
         "name": "Time Series Insights Environments",
-        "path": "/public/shapes/azure/iot/10181-icon-service-Time-Series-Insights-Environments.svg"
+        "path": "/shapes/azure/iot/10181-icon-service-Time-Series-Insights-Environments.svg"
     },
     {
         "id": "27727dad-172d-454b-a8be-1ff220ab0cbd",
         "name": "IoT Hub",
-        "path": "/public/shapes/azure/iot/10182-icon-service-IoT-Hub.svg"
+        "path": "/shapes/azure/iot/10182-icon-service-IoT-Hub.svg"
     },
     {
         "id": "c43cba22-89ea-455e-8fc5-425e5a544246",
         "name": "IoT Central Applications",
-        "path": "/public/shapes/azure/iot/10184-icon-service-IoT-Central-Applications.svg"
+        "path": "/shapes/azure/iot/10184-icon-service-IoT-Central-Applications.svg"
     },
     {
         "id": "52e52785-7194-45ae-98a5-fde28ffd4dec",
         "name": "Azure Maps Accounts",
-        "path": "/public/shapes/azure/iot/10185-icon-service-Azure-Maps-Accounts.svg"
+        "path": "/shapes/azure/iot/10185-icon-service-Azure-Maps-Accounts.svg"
     },
     {
         "id": "aa8bc3ff-95e3-4cbf-9c1d-c2eaf8867ba1",
         "name": "IoT Edge",
-        "path": "/public/shapes/azure/iot/10186-icon-service-IoT-Edge.svg"
+        "path": "/shapes/azure/iot/10186-icon-service-IoT-Edge.svg"
     },
     {
         "id": "30bb698e-cc0d-4df6-a504-276ff94faee7",
         "name": "Time Series Insights Event Sources",
-        "path": "/public/shapes/azure/iot/10188-icon-service-Time-Series-Insights-Event-Sources.svg"
+        "path": "/shapes/azure/iot/10188-icon-service-Time-Series-Insights-Event-Sources.svg"
     },
     {
         "id": "be9f499e-236d-4006-97e6-264ab80aca5c",
         "name": "Time Series Insights Access Policies",
-        "path": "/public/shapes/azure/iot/10192-icon-service-Time-Series-Insights-Access-Policies.svg"
+        "path": "/shapes/azure/iot/10192-icon-service-Time-Series-Insights-Access-Policies.svg"
     },
     {
         "id": "8ac2ac03-d921-4851-90b6-2f6a630bca1d",
         "name": "Time Series Data Sets",
-        "path": "/public/shapes/azure/iot/10198-icon-service-Time-Series-Data-Sets.svg"
+        "path": "/shapes/azure/iot/10198-icon-service-Time-Series-Data-Sets.svg"
     },
     {
         "id": "042d6fb9-2633-4dfd-bd5d-128c76c57fb5",
         "name": "Windows10 Core Services",
-        "path": "/public/shapes/azure/iot/10203-icon-service-Windows10-Core-Services.svg"
+        "path": "/shapes/azure/iot/10203-icon-service-Windows10-Core-Services.svg"
     },
     {
         "id": "0e94fd5f-0b23-4285-970e-205700971ce6",
         "name": "Event Grid Subscriptions",
-        "path": "/public/shapes/azure/iot/10221-icon-service-Event-Grid-Subscriptions.svg"
+        "path": "/shapes/azure/iot/10221-icon-service-Event-Grid-Subscriptions.svg"
     },
     {
         "id": "807965cf-8b50-4c0d-8499-325b239df4dc",
         "name": "Device Provisioning Services",
-        "path": "/public/shapes/azure/iot/10369-icon-service-Device-Provisioning-Services.svg"
+        "path": "/shapes/azure/iot/10369-icon-service-Device-Provisioning-Services.svg"
     }
 ]

@@ -2,31 +2,31 @@
     {
         "id": "ae29362a-3731-4311-9f2e-d49fb782d453",
         "name": "Blockchain Applications",
-        "path": "/public/shapes/azure/blockchain/10210-icon-service-Blockchain-Applications.svg"
+        "path": "/shapes/azure/blockchain/10210-icon-service-Blockchain-Applications.svg"
     },
     {
         "id": "b270c746-f1cc-4dce-a6a7-ca99979e9cee",
         "name": "Outbound Connection",
-        "path": "/public/shapes/azure/blockchain/10364-icon-service-Outbound-Connection.svg"
+        "path": "/shapes/azure/blockchain/10364-icon-service-Outbound-Connection.svg"
     },
     {
         "id": "e925e567-1818-415b-bcbb-2fa74c768410",
         "name": "Azure Blockchain Service",
-        "path": "/public/shapes/azure/blockchain/10366-icon-service-Azure-Blockchain-Service.svg"
+        "path": "/shapes/azure/blockchain/10366-icon-service-Azure-Blockchain-Service.svg"
     },
     {
         "id": "a0cd601f-f0d5-4b89-811e-8e2d4ae8365c",
         "name": "Azure Token Service",
-        "path": "/public/shapes/azure/blockchain/10367-icon-service-Azure-Token-Service.svg"
+        "path": "/shapes/azure/blockchain/10367-icon-service-Azure-Token-Service.svg"
     },
     {
         "id": "23d8e63f-30df-42d8-8114-8cb52edf9653",
         "name": "ABS Member",
-        "path": "/public/shapes/azure/blockchain/10374-icon-service-ABS-Member.svg"
+        "path": "/shapes/azure/blockchain/10374-icon-service-ABS-Member.svg"
     },
     {
         "id": "59402876-9d3b-4046-a1c4-5e9e9217e711",
         "name": "Consortium",
-        "path": "/public/shapes/azure/blockchain/10375-icon-service-Consortium.svg"
+        "path": "/shapes/azure/blockchain/10375-icon-service-Consortium.svg"
     }
 ]

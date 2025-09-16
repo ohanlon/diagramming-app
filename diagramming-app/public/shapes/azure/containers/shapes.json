@@ -2,36 +2,36 @@
     {
         "id": "d3a9945d-725f-442d-98b3-7d611f4d12f2",
         "name": "Azure Red Hat OpenShift",
-        "path": "/public/shapes/azure/containers/03331-icon-service-Azure-Red-Hat-OpenShift.svg"
+        "path": "/shapes/azure/containers/03331-icon-service-Azure-Red-Hat-OpenShift.svg"
     },
     {
         "id": "bb5a9c72-0ded-4f03-8880-80c2b4470397",
         "name": "Kubernetes Services",
-        "path": "/public/shapes/azure/containers/10023-icon-service-Kubernetes-Services.svg"
+        "path": "/shapes/azure/containers/10023-icon-service-Kubernetes-Services.svg"
     },
     {
         "id": "cec53cbe-7531-4beb-b7d0-d78acd3a37c2",
         "name": "Batch Accounts",
-        "path": "/public/shapes/azure/containers/10031-icon-service-Batch-Accounts.svg"
+        "path": "/shapes/azure/containers/10031-icon-service-Batch-Accounts.svg"
     },
     {
         "id": "75cd81ad-7173-48d4-8b13-c42cda4c4e0e",
         "name": "App Services",
-        "path": "/public/shapes/azure/containers/10035-icon-service-App-Services.svg"
+        "path": "/shapes/azure/containers/10035-icon-service-App-Services.svg"
     },
     {
         "id": "bae60228-b1c6-41f1-ab46-bc9a5666b635",
         "name": "Service Fabric Clusters",
-        "path": "/public/shapes/azure/containers/10036-icon-service-Service-Fabric-Clusters.svg"
+        "path": "/shapes/azure/containers/10036-icon-service-Service-Fabric-Clusters.svg"
     },
     {
         "id": "c7e3c45c-7cae-43ea-a170-d9fa2fbcc79d",
         "name": "Container Instances",
-        "path": "/public/shapes/azure/containers/10104-icon-service-Container-Instances.svg"
+        "path": "/shapes/azure/containers/10104-icon-service-Container-Instances.svg"
     },
     {
         "id": "817fe454-a1b4-4656-b851-4840739606b3",
         "name": "Container Registries",
-        "path": "/public/shapes/azure/containers/10105-icon-service-Container-Registries.svg"
+        "path": "/shapes/azure/containers/10105-icon-service-Container-Registries.svg"
     }
 ]

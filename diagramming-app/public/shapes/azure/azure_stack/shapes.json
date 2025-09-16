@@ -2,36 +2,36 @@
     {
         "id": "f2a509a5-d489-48b9-ab8a-10c032d16747",
         "name": "Multi Tenancy",
-        "path": "/public/shapes/azure/azure_stack/00965-icon-service-Multi-Tenancy.svg"
+        "path": "/shapes/azure/azure_stack/00965-icon-service-Multi-Tenancy.svg"
     },
     {
         "id": "1883ac6e-af50-41dd-8aaf-4d1eb6d49000",
         "name": "Infrastructure Backup",
-        "path": "/public/shapes/azure/azure_stack/10108-icon-service-Infrastructure-Backup.svg"
+        "path": "/shapes/azure/azure_stack/10108-icon-service-Infrastructure-Backup.svg"
     },
     {
         "id": "113ca581-6fb3-49da-9011-0fbf3960956b",
         "name": "Capacity",
-        "path": "/public/shapes/azure/azure_stack/10109-icon-service-Capacity.svg"
+        "path": "/shapes/azure/azure_stack/10109-icon-service-Capacity.svg"
     },
     {
         "id": "fc3a4fee-2404-411b-b5c0-47c93fb1bc90",
         "name": "Offers",
-        "path": "/public/shapes/azure/azure_stack/10110-icon-service-Offers.svg"
+        "path": "/shapes/azure/azure_stack/10110-icon-service-Offers.svg"
     },
     {
         "id": "ff09f7bd-a3ee-490a-a283-5c67686153f8",
         "name": "User Subscriptions",
-        "path": "/public/shapes/azure/azure_stack/10111-icon-service-User-Subscriptions.svg"
+        "path": "/shapes/azure/azure_stack/10111-icon-service-User-Subscriptions.svg"
     },
     {
         "id": "9e4117b0-8331-456e-9b41-6d8c3d15e44f",
         "name": "Plans",
-        "path": "/public/shapes/azure/azure_stack/10113-icon-service-Plans.svg"
+        "path": "/shapes/azure/azure_stack/10113-icon-service-Plans.svg"
     },
     {
         "id": "068f9748-75b7-4797-b0ec-292143b00b78",
         "name": "Updates",
-        "path": "/public/shapes/azure/azure_stack/10115-icon-service-Updates.svg"
+        "path": "/shapes/azure/azure_stack/10115-icon-service-Updates.svg"
     }
 ]
