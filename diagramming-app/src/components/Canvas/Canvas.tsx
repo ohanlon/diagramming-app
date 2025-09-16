@@ -11,7 +11,7 @@ import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected } = useDiagramStore();
+  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -272,6 +272,28 @@ const Canvas: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Delete') {
         deleteSelected();
+      } else if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        addSheet();
+      } else if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undo();
+      } else if (e.ctrlKey && e.key === 'y') {
+        e.preventDefault();
+        redo();
+      } else if (e.ctrlKey && e.key === 'x') {
+        e.preventDefault();
+        if (activeSheet.selectedShapeIds.length > 0) {
+          cutShape(activeSheet.selectedShapeIds);
+        }
+      } else if (e.ctrlKey && e.key === 'c') {
+        e.preventDefault();
+        if (activeSheet.selectedShapeIds.length > 0) {
+          copyShape(activeSheet.selectedShapeIds);
+        }
+      } else if (e.ctrlKey && e.key === 'v') {
+        e.preventDefault();
+        pasteShape();
       }
     };
 
@@ -280,7 +302,7 @@ const Canvas: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [deleteSelected]);
+  }, [deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, activeSheet]);
 
   if (!activeSheet) {
     return <div>No active sheet found.</div>;
