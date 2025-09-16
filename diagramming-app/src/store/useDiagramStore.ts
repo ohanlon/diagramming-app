@@ -231,6 +231,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             },
             shapeIds: [...(currentSheet.shapeIds || []), newShape.id],
             selectedShapeIds: [newShape.id],
+            selectedConnectorIds: [],
           },
         },
       };
@@ -510,6 +511,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           [state.activeSheetId]: {
             ...currentSheet,
             selectedShapeIds: ids,
+            selectedConnectorIds: [],
           },
         },
       };
