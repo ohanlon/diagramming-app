@@ -4,7 +4,7 @@ interface OrthogonalPathResult {
   path: Point[];
   sourceConnectionPoint: Point;
   targetConnectionPoint: Point;
-  arrowDirection: AnchorType;
+  arrowAngle: number;
 }
 
 const getConnectionPoints = (shape: Shape): { [key in AnchorType]: Point } => {
@@ -32,31 +32,22 @@ export const calculateOrthogonalPath = (
 
   const path = [startPoint, endPoint];
 
-  // Determine arrow direction based on the last segment of the best path
-  let arrowDirection: AnchorType = 'right'; // Default
+  let arrowAngle: number = 0; // Default to 0 degrees
+
   if (path.length >= 2) {
     const lastPoint = path[path.length - 1];
     const secondLastPoint = path[path.length - 2];
 
-    if (Math.abs(lastPoint.x - secondLastPoint.x) > Math.abs(lastPoint.y - secondLastPoint.y)) {
-      if (lastPoint.x > secondLastPoint.x) {
-        arrowDirection = 'right';
-      } else {
-        arrowDirection = 'left';
-      }
-    } else {
-      if (lastPoint.y > secondLastPoint.y) {
-        arrowDirection = 'bottom';
-      } else {
-        arrowDirection = 'top';
-      }
-    }
+    const deltaX = lastPoint.x - secondLastPoint.x;
+    const deltaY = lastPoint.y - secondLastPoint.y;
+
+    arrowAngle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
   }
 
   return {
     path: path,
     sourceConnectionPoint: startPoint,
     targetConnectionPoint: endPoint,
-    arrowDirection,
+    arrowAngle,
   };
 };

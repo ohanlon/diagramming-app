@@ -26,7 +26,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   }
 
   // Calculate orthogonal path
-  const { path, arrowDirection } = calculateOrthogonalPath(
+  const { path, arrowAngle } = calculateOrthogonalPath(
     startNode,
     endNode,
     connector.startAnchorType,
@@ -36,15 +36,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   // Generate SVG path 'd' attribute from points
   const d = path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
-  let markerId = "arrowhead-right"; // Default
-
-  if (arrowDirection === 'top') {
-    markerId = "arrowhead-up";
-  } else if (arrowDirection === 'bottom') {
-    markerId = "arrowhead-down";
-  } else if (arrowDirection === 'left') {
-    markerId = "arrowhead-left";
-  }
+  const lastPoint = path[path.length - 1];
 
   return (
     <g>
@@ -65,11 +57,15 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         fill="none"
         role="graphics-symbol"
         aria-label="Connector between nodes"
-        markerEnd={`url(#${markerId})`}
         strokeDasharray={connector.lineStyle === 'dashed' ? '8, 4' : connector.lineStyle === 'long-dash' ? '16 8' : connector.lineStyle === 'dot-dash' ? '8 4 1 4' : connector.lineStyle === 'custom-1' ? '16 4 1 4 1 4' : connector.lineStyle === 'custom-2' ? '40 10 20 10' : 'none'}
         onClick={() => setSelectedConnectors([connector.id])}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
+      />
+      <polygon
+        points="0,0 10,3.5 0,7"
+        fill="black"
+        transform={`translate(${lastPoint.x}, ${lastPoint.y}) rotate(${arrowAngle}) translate(-10, -3.5)`}
       />
       {isSelected && path.length > 0 && (
         <>

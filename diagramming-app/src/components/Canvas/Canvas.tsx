@@ -477,54 +477,6 @@ const Canvas: React.FC = () => {
           <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="#ddd" />
           </pattern>
-
-          {/* Arrowhead pointing right (default) */}
-          <marker
-            id="arrowhead-right"
-            markerWidth="10"
-            markerHeight="7"
-            refX="10"
-            refY="3.5"
-            orient="0"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-          </marker>
-
-          {/* Arrowhead pointing down */}
-          <marker
-            id="arrowhead-down"
-            markerWidth="10"
-            markerHeight="10"
-            refX="5"
-            refY="10"
-            orient="0"
-          >
-            <polygon points="0 0, 10 0, 5 10" transform="rotate(90 5 5)" fill="black" />
-          </marker>
-
-          {/* Arrowhead pointing up */}
-          <marker
-            id="arrowhead-up"
-            markerWidth="10"
-            markerHeight="10"
-            refX="5"
-            refY="0"
-            orient="0"
-          >
-            <polygon points="0 10, 10 10, 5 0" transform="rotate(90 5 5)" fill="black" />
-          </marker>
-
-          {/* Arrowhead pointing left */}
-          <marker
-            id="arrowhead-left"
-            markerWidth="10"
-            markerHeight="7"
-            refX="0"
-            refY="3.5"
-            orient="180"
-          >
-            <polygon points="10 0, 0 3.5, 10 7" fill="black" />
-          </marker>
         </defs>
         <g transform={`translate(${activeSheet.pan.x}, ${activeSheet.pan.y}) scale(${activeSheet.zoom})`}>
         <rect
