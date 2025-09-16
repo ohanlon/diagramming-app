@@ -1,3 +1,5 @@
+import type { ToolDefinition } from "../components/Toolbar/Toolbar.definitions";
+
 /**
  * Creates a debounced version of the provided function.
  *
@@ -5,7 +7,7 @@
  * @param delay - Delay in milliseconds before execution.
  * @returns A new throttled function that will execute after `delay` ms.
  */
-export function debounce<T extends (...args: unknown[]) => void>(
+export function debounce<T extends (...args: ToolDefinition[]) => void>(
   func: T,
   delay: number
 ): (...args: Parameters<T>) => void {
