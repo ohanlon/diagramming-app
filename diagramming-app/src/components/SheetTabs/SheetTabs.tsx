@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { Tabs, Tab, Button, Box, TextField, Tooltip } from '@mui/material';
+import { Tabs, Tab, Box, TextField, Tooltip, Divider } from '@mui/material';
 import { Add, Close } from '@mui/icons-material';
+
+import './SheetTabs.less';
 
 const SheetTabs: React.FC = () => {
   const { sheets, activeSheetId, addSheet, removeSheet, setActiveSheet, renameSheet } = useDiagramStore();
@@ -53,13 +55,14 @@ const SheetTabs: React.FC = () => {
   }, [editingSheetId]);
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2.8em' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2em' }}>
       <Tabs
         value={activeSheetId}
         onChange={(_event, newValue) => setActiveSheet(newValue)}
         variant="scrollable"
         scrollButtons="auto"
         aria-label="sheet tabs"
+        sx={{ height: '2em', minHeight: '2em' }}
       >
         {sheetIds.map((id) => {
           const sheet = sheets[id];
@@ -71,57 +74,65 @@ const SheetTabs: React.FC = () => {
               key={sheet.id}
               sx={{
                 height: '2em',
+                minHeight: '2em',
+                padding: '0 .625em',
                 '&.Mui-selected': {
                   bgcolor: '#A0A0A0', // Background color for selected tab
                 },
               }}
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    {isEditing ? (
-                      <TextField
-                        inputRef={inputRef}
-                        value={editedSheetName}
-                        onChange={(e) => setEditedSheetName(e.target.value)}
-                        onBlur={() => saveEditedName(sheet.id)}
-                        onKeyDown={(e) => handleInputKeyDown(e as React.KeyboardEvent<HTMLInputElement>, sheet.id)}
-                        size="small"
-                        variant="standard"
-                        sx={{ flexGrow: 1 }}
-                      />
-                    ) : (
-                      <span onDoubleClick={() => handleRenameSheet(sheet.id, sheet.name)}>{sheet.name}</span>
-                    )}
-                    <Box
-                      component="span"
-                      onClick={(e) => handleRemoveSheet(e, sheet.id)}
-                      sx={{
-                        ml: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        '&:hover': {
-                          bgcolor: 'rgba(0, 0, 0, 0.04)',
-                        },
-                        visibility: sheetIds.length === 1 ? 'hidden' : 'visible',
-                      }}
-                    >
-                      <Close fontSize="small" />
-                    </Box>
+                  {isEditing ? (
+                    <TextField
+                      inputRef={inputRef}
+                      value={editedSheetName}
+                      onChange={(e) => setEditedSheetName(e.target.value)}
+                      onBlur={() => saveEditedName(sheet.id)}
+                      onKeyDown={(e) => handleInputKeyDown(e as React.KeyboardEvent<HTMLInputElement>, sheet.id)}
+                      size="small"
+                      variant="standard"
+                      sx={{ flexGrow: 1, maxWidth: '200px' }}
+                    />
+                  ) : (
+                    <span onDoubleClick={() => handleRenameSheet(sheet.id, sheet.name)} className="textSpan">{sheet.name}</span>
+                  )}
+                  <Box
+                    component="span"
+                    onClick={(e) => handleRemoveSheet(e, sheet.id)}
+                    sx={{
+                      ml: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        bgcolor: 'rgba(0, 0, 0, 0.04)',
+                      },
+                      visibility: sheetIds.length === 1 ? 'hidden' : 'visible',
+                    }}
+                  >
+                    <Close fontSize="small" />
                   </Box>
+                </Box>
               }
               value={sheet.id}
             />
           );
         })}
       </Tabs>
+      <Divider orientation="vertical" flexItem />
       <Tooltip title="Add New Sheet">
-        <Button onClick={handleAddSheet} sx={{ height: '2.5em' }} data-testid="add-sheet-button">
+        <Box onClick={handleAddSheet} sx={{
+          height: '2em', minHeight: '2em', width: 32,
+          '&:hover': {
+            bgcolor: 'rgba(0, 0, 0, 0.04)',
+          },
+        }} data-testid="add-sheet-button">
           <Add />
-        </Button>
+        </Box>
       </Tooltip>
     </Box>
   );
