@@ -1,0 +1,13 @@
+[
+    {
+        "id": "57c6ee88-422e-4fdb-b8a8-6ad3ddc44810",
+        "title": "YouTube Video",
+        "path": "/shapes/interactive/youtube/youtube.svg",
+        "textPosition": "outside",
+        "autosize": true,
+        "interaction": {
+            "type": "embed",
+            "url": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+        }
+    }
+]

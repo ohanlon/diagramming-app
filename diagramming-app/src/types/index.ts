@@ -10,6 +10,16 @@ export type Layer = {
   isLocked: boolean; // Optional: for preventing interaction
 };
 
+export type Interaction = {
+  type: 'embed';
+  url: string;
+};
+
+export type Interaction = {
+  type: 'embed';
+  url: string;
+};
+
 export type Shape = {
   id: string;
   type: string;
@@ -40,6 +50,7 @@ export type Shape = {
   parentId?: string; // New: ID of the parent group shape
   autosize?: boolean;
   isTextPositionManuallySet?: boolean;
+  interaction?: Interaction;
 };
 
 export type ShapeType = 'Group' | string;

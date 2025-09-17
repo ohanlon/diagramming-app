@@ -207,7 +207,7 @@ export const getInitialTools = ({
         {
             id: 'font-family',
             element: (
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <FormControl variant="standard" sx={{ m: 1, width: 120 }}>
                     <Select
                         value={activeSheet.selectedFont}
                         onChange={handleFontChange}

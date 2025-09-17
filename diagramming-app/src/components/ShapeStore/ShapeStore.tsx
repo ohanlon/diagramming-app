@@ -15,15 +15,17 @@ import {
   createFilterOptions,
 } from '@mui/material';
 import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOutlined as PushPinOutlinedIcon } from '@mui/icons-material';
+import { type Interaction } from '../../types';
 
 interface Shape {
   id: string;
-  title: string;
+  name: string;
   path: string;
   textPosition: 'inside' | 'outside';
   shape?: string;
   autosize?: boolean;
   color?: string; // Add color property
+  interaction?: Interaction;
 }
 
 interface CatalogEntry {
@@ -89,21 +91,22 @@ const ShapeStore: React.FC = () => {
 
           for (const subEntry of index) {
             const shapesResponse = await fetch(subEntry.path);
-            const shapesInFile: Shape[] = await shapesResponse.json();
+            const shapesInFile: any[] = await shapesResponse.json();
 
             const shapesWithSvgContent: Shape[] = await Promise.all(
               shapesInFile.map(async (shape) => {
+                const normalizedShape = { ...shape, name: shape.name || shape.title };
                 if (shape.path) { // Ensure path exists
                   try {
                     const svgResponse = await fetch(shape.path);
                     const svgContent = await svgResponse.text();
-                    return { ...shape, shape: svgContent }; // Assign SVG content to 'shape' property
+                    return { ...normalizedShape, shape: svgContent }; // Assign SVG content to 'shape' property
                   } catch (svgError) {
                     console.error(`Failed to load SVG for ${shape.path}:`, svgError);
-                    return shape; // Return original shape if SVG fetch fails
+                    return normalizedShape; // Return original shape if SVG fetch fails
                   }
                 }
-                return shape; // Return original shape if no path
+                return normalizedShape; // Return original shape if no path
               })
             );
 
@@ -151,13 +154,13 @@ const ShapeStore: React.FC = () => {
     <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 12.5em)' }}>
       <Autocomplete
         options={searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
-        getOptionLabel={(option) => option.shape.title}
+        getOptionLabel={(option) => option.shape.name || ''}
         groupBy={(option) => `${option.category.provider}: ${option.category.name}`}
         filterOptions={filterOptions}
         renderOption={(props, option) => (
           <Box component="li" {...props} key={option.shape.id}>
             {option.shape.shape && <div className="shape-thumbnail-container" style={{ width: 24, height: 24, marginRight: 8 }} dangerouslySetInnerHTML={{ __html: option.shape.shape }} />}
-            {option.shape.title}
+            {option.shape.name || ''}
           </Box>
         )}
         value={null}
@@ -246,13 +249,16 @@ const ShapeStore: React.FC = () => {
                       padding: '6px',
                     }}
                   >
-                    <Tooltip title={shape.title} placement="top">
+                    <Tooltip title={shape.name || ''} placement="top">
                       <Card
                         draggable
                         onDragStart={(e) => {
-                          e.dataTransfer.setData('shapeType', shape.title);
+                          e.dataTransfer.setData('shapeType', shape.name || '');
                           if (shape.shape) {
                             e.dataTransfer.setData('svgContent', shape.shape);
+                          }
+                          if (shape.interaction) {
+                            e.dataTransfer.setData('interaction', JSON.stringify(shape.interaction));
                           }
                           e.dataTransfer.setData('textPosition', shape.textPosition);
                           e.dataTransfer.setData('autosize', String(shape.autosize));

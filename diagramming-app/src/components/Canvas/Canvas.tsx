@@ -320,6 +320,8 @@ const Canvas: React.FC = () => {
     const svgContent = e.dataTransfer.getData('svgContent');
     const textPosition = e.dataTransfer.getData('textPosition') as 'inside' | 'outside';
     const autosize = e.dataTransfer.getData('autosize') === 'true';
+    const interactionData = e.dataTransfer.getData('interaction');
+    const interaction = interactionData ? JSON.parse(interactionData) : undefined;
     if (!shapeType) return;
 
     const svgRect = svgRef.current?.getBoundingClientRect();
@@ -385,6 +387,7 @@ const Canvas: React.FC = () => {
       textHeight: 20,
       textPosition: textPosition,
       autosize: autosize,
+      interaction: interaction,
     };
     addShape(newShape);
   };

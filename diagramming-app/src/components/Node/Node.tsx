@@ -18,7 +18,7 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown, activeLayerId, layers }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor } = shape;
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor, interaction } = shape;
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
@@ -232,6 +232,22 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       stroke: isSelected ? 'blue' : 'black',
       strokeWidth: isSelected ? 2 : 1,
     };
+
+    if (interaction?.type === 'embed') {
+      return (
+        <foreignObject x={0} y={0} width={width} height={height}>
+          <iframe
+            width="100%"
+            height="100%"
+            src={interaction.url}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={text}
+          ></iframe>
+        </foreignObject>
+      );
+    }
 
     if (svgContent) {
       const parser = new DOMParser();

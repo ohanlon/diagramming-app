@@ -13,5 +13,10 @@
     "id": "1a529804-75b0-4f7b-99dd-2dcf95eb6695",
     "name": "Flowchart",
     "path": "/shapes/architecture/index.json"
+  },
+  {
+    "id": "5944d9a3-e358-4286-adac-1c322e1db5b1",
+    "name": "Interactive",
+    "path": "/shapes/interactive/index.json"
   }
 ]
