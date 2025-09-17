@@ -241,12 +241,8 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       // Apply shape color to SVG content
       const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
       if (gradients.length > 0) {
-        gradients.forEach(gradient => {
-          const stops = Array.from(gradient.querySelectorAll('stop'));
-          stops.forEach(stop => {
-            stop.setAttribute('stop-color', color);
-          });
-        });
+        // If the shape has a gradient, do not apply a solid color.
+        // The user can modify the gradient later.
       } else {
         const paths = Array.from(svgElement.querySelectorAll('path'));
         paths.forEach(path => {
