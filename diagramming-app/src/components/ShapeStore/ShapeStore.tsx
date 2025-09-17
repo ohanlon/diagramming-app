@@ -37,6 +37,7 @@ interface IndexEntry {
   name: string;
   path: string;
   shapes: Shape[];
+  provider: string;
 }
 
 interface SearchableShape {
@@ -46,7 +47,7 @@ interface SearchableShape {
 
 const filterOptions = createFilterOptions<SearchableShape>({
   matchFrom: 'any',
-  stringify: (option) => `${option.shape.title} ${option.category.name}`,
+  stringify: (option) => `${option.shape.name} ${option.category.name} ${option.category.provider}`
 });
 
 const ShapeStore: React.FC = () => {
@@ -106,7 +107,7 @@ const ShapeStore: React.FC = () => {
               })
             );
 
-            allIndexEntries.push({ ...subEntry, shapes: shapesWithSvgContent });
+            allIndexEntries.push({ ...subEntry, shapes: shapesWithSvgContent, provider: entry.name });
           }
         }
         setIndexEntries(allIndexEntries);
@@ -151,7 +152,7 @@ const ShapeStore: React.FC = () => {
       <Autocomplete
         options={searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
         getOptionLabel={(option) => option.shape.title}
-        groupBy={(option) => option.category.name}
+        groupBy={(option) => `${option.category.provider}: ${option.category.name}`}
         filterOptions={filterOptions}
         renderOption={(props, option) => (
           <Box component="li" {...props} key={option.shape.id}>
@@ -199,7 +200,7 @@ const ShapeStore: React.FC = () => {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Tooltip title={entry.name}>
+                <Tooltip title={`${entry.provider}: ${entry.name}`}>
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -207,10 +208,11 @@ const ShapeStore: React.FC = () => {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       flex: '1 1 auto',
-                    minWidth: 0,
+                      minWidth: 0,
                       width: '6.25rem'
                     }}
                   >
+                    <span style={{ color: 'grey' }}>{entry.provider}: </span>
                     {entry.name}
                   </Typography>
                 </Tooltip>
