@@ -193,9 +193,14 @@ const ShapeStore: React.FC = () => {
               aria-controls={`${entry.id}-content`}
               id={`${entry.id}-header`}
               sx={{
-                minHeight: 48,
+                height: 32,
+                minHeight: 32,
+                '&.Mui-expanded': {
+                  height: 32,
+                  minHeight: 32,
+                },
                 '& .MuiAccordionSummary-content': {
-                  margin: '12px 0',
+                  margin: 'auto 0',
                 },
               }}
             >
