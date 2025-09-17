@@ -77,6 +77,7 @@ interface DiagramStoreActions {
   selectAll: () => void;
   selectShapes: () => void;
   selectConnectors: () => void;
+  updateShapeInteractionUrl: (shapeId: string, url: string) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -1708,6 +1709,34 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             ...currentSheet,
             selectedShapeIds: allShapeIds,
             selectedConnectorIds: [],
+          },
+        },
+      };
+    });
+  },
+
+  updateShapeInteractionUrl: (shapeId: string, url: string) => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const shape = currentSheet.shapesById[shapeId];
+      if (!shape || !shape.interaction) return state;
+
+      const newInteraction = { ...shape.interaction, url: url };
+      const newShape = { ...shape, interaction: newInteraction };
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            shapesById: {
+              ...currentSheet.shapesById,
+              [shapeId]: newShape,
+            },
           },
         },
       };

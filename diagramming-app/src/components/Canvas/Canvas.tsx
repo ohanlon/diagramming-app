@@ -9,6 +9,8 @@ import { getAnchorPoint } from '../../utils/getAnchorPoint';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
 import { debounce } from '../../utils/debounce';
 import './Canvas.less';
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 const Canvas: React.FC = () => {
   const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
@@ -29,6 +31,11 @@ const Canvas: React.FC = () => {
   const [isMouseDownOnShape, setIsMouseDownOnShape] = useState<string | null>(null);
   const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
+
+  const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false);
+  const [youTubeUrl, setYouTubeUrl] = useState('');
+  const [youTubeShapeData, setYouTubeShapeData] = useState<Omit<Shape, 'id'> | null>(null);
+  const [urlError, setUrlError] = useState(false);
 
   const debouncedSetCurrentMousePoint = useMemo(
     () => debounce((point: Point | null) => setCurrentMousePoint(point), 20),
@@ -316,7 +323,7 @@ const Canvas: React.FC = () => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const shapeType = e.dataTransfer.getData('shapeType');
+    const shapeType = e.dataTransfer.getData('shapeType') || '';
     const svgContent = e.dataTransfer.getData('svgContent');
     const textPosition = e.dataTransfer.getData('textPosition') as 'inside' | 'outside';
     const autosize = e.dataTransfer.getData('autosize') === 'true';
@@ -367,8 +374,7 @@ const Canvas: React.FC = () => {
     const newHeight = targetHeight;
     const newWidth = newHeight * aspectRatio;
 
-    const newShape = {
-      id: uuidv4(),
+    const shapeData = {
       type: shapeType,
       x: (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom,
       y: (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom,
@@ -389,7 +395,36 @@ const Canvas: React.FC = () => {
       autosize: autosize,
       interaction: interaction,
     };
-    addShape(newShape);
+
+    if (interaction?.type === 'embed') {
+      setYouTubeShapeData(shapeData);
+      setYouTubeUrl(interaction.url);
+      setIsYouTubeDialogOpen(true);
+    } else {
+      addShape({ ...shapeData, id: uuidv4() });
+    }
+  };
+
+  const handleSaveYouTubeUrl = () => {
+    if (youTubeUrl.startsWith('https://www.youtube.com/embed/')) {
+      if (youTubeShapeData) {
+        addShape({
+          ...youTubeShapeData,
+          id: uuidv4(),
+          interaction: { ...youTubeShapeData.interaction, url: youTubeUrl },
+        } as Shape);
+      }
+      handleCloseYouTubeDialog();
+    } else {
+      setUrlError(true);
+    }
+  };
+
+  const handleCloseYouTubeDialog = () => {
+    setIsYouTubeDialogOpen(false);
+    setYouTubeUrl('');
+    setYouTubeShapeData(null);
+    setUrlError(false);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -606,6 +641,39 @@ const Canvas: React.FC = () => {
           onBringToFront={() => bringToFront(contextMenu.shapeId)}
           onSendToBack={() => sendToBack(contextMenu.shapeId)}
         />
+      )}
+      {isYouTubeDialogOpen && (
+        <Dialog open={isYouTubeDialogOpen} onClose={handleCloseYouTubeDialog} PaperProps={{ component: 'form', onSubmit: (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleSaveYouTubeUrl(); } }}>
+          <DialogTitle>
+            Set YouTube URL
+            <IconButton
+              aria-label="close"
+              onClick={handleCloseYouTubeDialog}
+              sx={{ position: 'absolute', right: 8, top: 8, color: (theme) => theme.palette.grey[500] }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="url"
+              label="YouTube Embed URL"
+              type="url"
+              fullWidth
+              variant="standard"
+              value={youTubeUrl}
+              onChange={(e) => setYouTubeUrl(e.target.value)}
+              error={urlError}
+              helperText={urlError ? "URL must start with https://www.youtube.com/embed/" : ""}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseYouTubeDialog}>Cancel</Button>
+            <Button onClick={handleSaveYouTubeUrl}>Save</Button>
+          </DialogActions>
+        </Dialog>
       )}
     </div>
   );

@@ -1,3 +1,22 @@
+// import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
+// import type { Shape, Point, AnchorType, Layer } from '../../types';
+// import { useDiagramStore } from '../../store/useDiagramStore';
+// import './Node.less';
+// import TextResizer from '../TextResizer/TextResizer';
+
+// interface NodeProps {
+//   shape: Shape;
+//   zoom: number;
+//   isInteractive: boolean;
+//   isSelected: boolean;
+//   isConnectorDragTarget: boolean;
+//   onConnectorStart: (nodeId: string, point: Point, anchorType: AnchorType) => void;
+//   onContextMenu: (e: React.MouseEvent, id: string) => void;
+//   onNodeMouseDown: (e: React.MouseEvent, id: string) => void;
+//   activeLayerId: string;
+//   layers: { [id: string]: Layer };
+// }
+
 import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import type { Shape, Point, AnchorType, Layer } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
@@ -332,7 +351,6 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       style={{ cursor: isInteractive ? 'grab' : 'default', opacity: isFaded ? 0.6 : 1 }}
     >
       {renderShape()}
-
 
       {text && (
         <TextResizer
