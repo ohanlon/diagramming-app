@@ -352,7 +352,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     >
       {renderShape()}
 
-      {text && (
+      {text && textPosition !== 'None' && (
         <TextResizer
           shapeId={id}
           text={text}

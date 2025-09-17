@@ -45,7 +45,7 @@ export type Shape = {
   isUnderlined?: boolean;
   verticalAlign?: 'top' | 'middle' | 'bottom';
   horizontalAlign?: 'left' | 'center' | 'right';
-  textPosition?: 'inside' | 'outside';
+  textPosition?: 'inside' | 'outside' | 'None';
   textColor?: string;
   parentId?: string; // New: ID of the parent group shape
   autosize?: boolean;

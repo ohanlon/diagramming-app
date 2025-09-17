@@ -277,6 +277,11 @@ const Canvas: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
       if (e.key === 'Delete') {
         deleteSelected();
       } else if (e.ctrlKey && e.key === 'n') {

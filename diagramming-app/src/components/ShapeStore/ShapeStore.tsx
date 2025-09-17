@@ -21,7 +21,7 @@ interface Shape {
   id: string;
   name: string;
   path: string;
-  textPosition: 'inside' | 'outside';
+  textPosition: 'inside' | 'outside' | 'None';
   shape?: string;
   autosize?: boolean;
   color?: string; // Add color property
