@@ -1,167 +1,167 @@
 [
     {
         "id": "3a0fa934-ffa5-44da-b2ce-a4a23dfef87d",
-        "name": "Monitor",
+        "title": "Monitor",
         "path": "/shapes/azure/management_governance/00001-icon-service-Monitor.svg"
     },
     {
         "id": "96236d88-c532-42e0-90ca-8b4edc5169c4",
-        "name": "Alerts",
+        "title": "Alerts",
         "path": "/shapes/azure/management_governance/00002-icon-service-Alerts.svg"
     },
     {
         "id": "1cf62c4b-8c8a-4aba-8851-b1a3bb6e2d67",
-        "name": "Advisor",
+        "title": "Advisor",
         "path": "/shapes/azure/management_governance/00003-icon-service-Advisor.svg"
     },
     {
         "id": "fd7d0b88-8c76-464e-b668-e64c0a979a5c",
-        "name": "Cost Management and Billing",
+        "title": "Cost Management and Billing",
         "path": "/shapes/azure/management_governance/00004-icon-service-Cost-Management-and-Billing.svg"
     },
     {
         "id": "e00efd44-6bd8-408b-9f19-c132506c93d1",
-        "name": "Blueprints",
+        "title": "Blueprints",
         "path": "/shapes/azure/management_governance/00006-icon-service-Blueprints.svg"
     },
     {
         "id": "5407e6f1-01bb-41ec-af9a-ac271c902989",
-        "name": "Activity Log",
+        "title": "Activity Log",
         "path": "/shapes/azure/management_governance/00007-icon-service-Activity-Log.svg"
     },
     {
         "id": "0280b207-bc0b-4349-a3e6-e8857430ffc3",
-        "name": "Diagnostics Settings",
+        "title": "Diagnostics Settings",
         "path": "/shapes/azure/management_governance/00008-icon-service-Diagnostics-Settings.svg"
     },
     {
         "id": "078491c4-0ec7-4b50-bf33-44f1dfa89a62",
-        "name": "Log Analytics Workspaces",
+        "title": "Log Analytics Workspaces",
         "path": "/shapes/azure/management_governance/00009-icon-service-Log-Analytics-Workspaces.svg"
     },
     {
         "id": "1554de45-b89f-40c1-a1d0-42bea213adf4",
-        "name": "Scheduler Job Collections",
+        "title": "Scheduler Job Collections",
         "path": "/shapes/azure/management_governance/00010-icon-service-Scheduler-Job-Collections.svg"
     },
     {
         "id": "00c1d0b8-4d8d-47ec-ae84-c55983b938fd",
-        "name": "Compliance",
+        "title": "Compliance",
         "path": "/shapes/azure/management_governance/00011-icon-service-Compliance.svg"
     },
     {
         "id": "071a34a2-699d-4a89-b5f2-2b174ff16892",
-        "name": "Application Insights",
+        "title": "Application Insights",
         "path": "/shapes/azure/management_governance/00012-icon-service-Application-Insights.svg"
     },
     {
         "id": "185259eb-cf0a-478c-8abf-bb72628b3b18",
-        "name": "My Customers",
+        "title": "My Customers",
         "path": "/shapes/azure/management_governance/00014-icon-service-My-Customers.svg"
     },
     {
         "id": "3aedcc47-5283-4aa3-9c57-d72d3bb26c61",
-        "name": "Recovery Services Vaults",
+        "title": "Recovery Services Vaults",
         "path": "/shapes/azure/management_governance/00017-icon-service-Recovery-Services-Vaults.svg"
     },
     {
         "id": "49d283f3-9fdf-4f4f-89f0-96ac7773c112",
-        "name": "Metrics",
+        "title": "Metrics",
         "path": "/shapes/azure/management_governance/00020-icon-service-Metrics.svg"
     },
     {
         "id": "a05e1ac2-7df8-418c-a89c-2e2b88434d18",
-        "name": "Solutions",
+        "title": "Solutions",
         "path": "/shapes/azure/management_governance/00021-icon-service-Solutions.svg"
     },
     {
         "id": "a086e525-a85a-411e-bf60-9bafa6527a75",
-        "name": "Automation Accounts",
+        "title": "Automation Accounts",
         "path": "/shapes/azure/management_governance/00022-icon-service-Automation-Accounts.svg"
     },
     {
         "id": "2c7f079d-d8ba-401c-8b99-6e9dd08c4503",
-        "name": "Operation Log (Classic)",
+        "title": "Operation Log (Classic)",
         "path": "/shapes/azure/management_governance/00024-icon-service-Operation-Log-(Classic).svg"
     },
     {
         "id": "03c070b7-7b26-43de-830c-ea5c9d5b80f9",
-        "name": "Service Providers",
+        "title": "Service Providers",
         "path": "/shapes/azure/management_governance/00025-icon-service-Service-Providers.svg"
     },
     {
         "id": "6ec67af6-bbc9-4b09-bdfb-c10b4b62f236",
-        "name": "Education",
+        "title": "Education",
         "path": "/shapes/azure/management_governance/00026-icon-service-Education.svg"
     },
     {
         "id": "777871d4-58fa-48df-bd2a-8002b7e70e1f",
-        "name": "Service Catalog MAD",
+        "title": "Service Catalog MAD",
         "path": "/shapes/azure/management_governance/00027-icon-service-Service-Catalog-MAD.svg"
     },
     {
         "id": "ff41bb9c-87be-47e3-a746-5f57b7b870ec",
-        "name": "Intune Trends",
+        "title": "Intune Trends",
         "path": "/shapes/azure/management_governance/00408-icon-service-Intune-Trends.svg"
     },
     {
         "id": "bdbe28ab-dd73-4bce-82ca-879d46442718",
-        "name": "Azure Lighthouse",
+        "title": "Azure Lighthouse",
         "path": "/shapes/azure/management_governance/00471-icon-service-Azure-Lighthouse.svg"
     },
     {
         "id": "eaecf974-507f-4900-bd8b-b878b7fa5c6d",
-        "name": "Universal Print",
+        "title": "Universal Print",
         "path": "/shapes/azure/management_governance/00571-icon-service-Universal-Print.svg"
     },
     {
         "id": "0a1d38e5-ccf8-4e4e-a895-013382e69bfa",
-        "name": "Azure Arc",
+        "title": "Azure Arc",
         "path": "/shapes/azure/management_governance/00756-icon-service-Azure-Arc.svg"
     },
     {
         "id": "c5d60d4b-b838-4117-811f-adefdfa18c99",
-        "name": "Arc Machines",
+        "title": "Arc Machines",
         "path": "/shapes/azure/management_governance/01710-icon-service-Arc-Machines.svg"
     },
     {
         "id": "af4d79b9-e047-4f5e-8635-e529fcc82dee",
-        "name": "Resources Provider",
+        "title": "Resources Provider",
         "path": "/shapes/azure/management_governance/03366-icon-service-Resources-Provider.svg"
     },
     {
         "id": "f8b4a313-ef2a-4f8a-b254-1efe8889790c",
-        "name": "User Privacy",
+        "title": "User Privacy",
         "path": "/shapes/azure/management_governance/10303-icon-service-User-Privacy.svg"
     },
     {
         "id": "d756ddb8-622a-460d-bd7c-a60b138c4237",
-        "name": "Managed Desktop",
+        "title": "Managed Desktop",
         "path": "/shapes/azure/management_governance/10311-icon-service-Managed-Desktop.svg"
     },
     {
         "id": "4a16d5e6-8fcb-41cb-be82-59a8c5080133",
-        "name": "Managed Applications Center",
+        "title": "Managed Applications Center",
         "path": "/shapes/azure/management_governance/10313-icon-service-Managed-Applications-Center.svg"
     },
     {
         "id": "4d5c9086-b94b-4737-8dc7-75be3fdc805c",
-        "name": "Customer Lockbox for Microsoft Azure",
+        "title": "Customer Lockbox for Microsoft Azure",
         "path": "/shapes/azure/management_governance/10314-icon-service-Customer-Lockbox-for-Microsoft-Azure.svg"
     },
     {
         "id": "7ebca71f-00a3-4a7e-bd17-ae142e7fe4a5",
-        "name": "Policy",
+        "title": "Policy",
         "path": "/shapes/azure/management_governance/10316-icon-service-Policy.svg"
     },
     {
         "id": "528cf2e5-735e-4f9b-be06-b7206adffc77",
-        "name": "Resource Graph Explorer",
+        "title": "Resource Graph Explorer",
         "path": "/shapes/azure/management_governance/10318-icon-service-Resource-Graph-Explorer.svg"
     },
     {
         "id": "f09b88fb-55f9-417f-828c-fad8a16c4a87",
-        "name": "MachinesAzureArc",
+        "title": "MachinesAzureArc",
         "path": "/shapes/azure/management_governance/10450-icon-service-MachinesAzureArc.svg"
     }
 ]

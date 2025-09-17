@@ -1,77 +1,77 @@
 [
     {
         "id": "bd30a70b-d3ee-40de-9bd5-c89608cd3acb",
-        "name": "Detonation",
+        "title": "Detonation",
         "path": "/shapes/azure/security/00378-icon-service-Detonation.svg"
     },
     {
         "id": "e7990572-8cf9-4172-bf55-7a925263c748",
-        "name": "Microsoft Defender for IoT",
+        "title": "Microsoft Defender for IoT",
         "path": "/shapes/azure/security/02247-icon-service-Microsoft-Defender-for-IoT.svg"
     },
     {
         "id": "aa1dbd92-8361-4337-80a8-1a7cb7a30ebe",
-        "name": "Microsoft Defender EASM",
+        "title": "Microsoft Defender EASM",
         "path": "/shapes/azure/security/03336-icon-service-Microsoft-Defender-EASM.svg"
     },
     {
         "id": "0170848b-c98d-40b9-a60a-4658cc8e5a3a",
-        "name": "Identity Secure Score",
+        "title": "Identity Secure Score",
         "path": "/shapes/azure/security/03340-icon-service-Identity-Secure-Score.svg"
     },
     {
         "id": "1e208ed1-7f92-4930-80f8-8b104611af00",
-        "name": "Entra Identity Risky Signins",
+        "title": "Entra Identity Risky Signins",
         "path": "/shapes/azure/security/03341-icon-service-Entra-Identity-Risky-Signins.svg"
     },
     {
         "id": "552da4b2-b77a-46ad-b550-72889a05c843",
-        "name": "Entra Identity Risky Users",
+        "title": "Entra Identity Risky Users",
         "path": "/shapes/azure/security/03342-icon-service-Entra-Identity-Risky-Users.svg"
     },
     {
         "id": "0496e5bb-55d9-4d34-b16b-d7b7b241daa4",
-        "name": "Multifactor Authentication",
+        "title": "Multifactor Authentication",
         "path": "/shapes/azure/security/03344-icon-service-Multifactor-Authentication.svg"
     },
     {
         "id": "c16e422f-4ff2-4423-8078-ef9e4a9527e0",
-        "name": "Azure Information Protection",
+        "title": "Azure Information Protection",
         "path": "/shapes/azure/security/10229-icon-service-Azure-Information-Protection.svg"
     },
     {
         "id": "806ee8b0-98d1-44e1-896e-d222be416541",
-        "name": "Conditional Access",
+        "title": "Conditional Access",
         "path": "/shapes/azure/security/10233-icon-service-Conditional-Access.svg"
     },
     {
         "id": "65d418ca-2caf-482c-b5cd-ef065f597c26",
-        "name": "Microsoft Defender for Cloud",
+        "title": "Microsoft Defender for Cloud",
         "path": "/shapes/azure/security/10241-icon-service-Microsoft-Defender-for-Cloud.svg"
     },
     {
         "id": "10eb963c-e01e-446a-b481-da6c552a782b",
-        "name": "Application Security Groups",
+        "title": "Application Security Groups",
         "path": "/shapes/azure/security/10244-icon-service-Application-Security-Groups.svg"
     },
     {
         "id": "78cd5b95-bd48-4a65-9902-b26ee4341ea5",
-        "name": "Key Vaults",
+        "title": "Key Vaults",
         "path": "/shapes/azure/security/10245-icon-service-Key-Vaults.svg"
     },
     {
         "id": "a2fdb16c-e35c-406e-8374-2cdf7aeb6e32",
-        "name": "Azure Sentinel",
+        "title": "Azure Sentinel",
         "path": "/shapes/azure/security/10248-icon-service-Azure-Sentinel.svg"
     },
     {
         "id": "8f82c223-7253-4de2-a538-c90eef8e7e43",
-        "name": "User Settings",
+        "title": "User Settings",
         "path": "/shapes/azure/security/10433-icon-service-User-Settings.svg"
     },
     {
         "id": "ec0f9fd7-09f4-4d18-b334-67bf2be908b9",
-        "name": "ExtendedSecurityUpdates",
+        "title": "ExtendedSecurityUpdates",
         "path": "/shapes/azure/security/10572-icon-service-ExtendedSecurityUpdates.svg"
     }
 ]

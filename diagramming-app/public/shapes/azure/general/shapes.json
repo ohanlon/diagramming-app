@@ -1,482 +1,482 @@
 [
     {
         "id": "e6a8f9c3-6657-46d1-bd05-d349d9d391a6",
-        "name": "Cost Management and Billing",
+        "title": "Cost Management and Billing",
         "path": "/shapes/azure/general/00004-icon-service-Cost-Management-and-Billing.svg"
     },
     {
         "id": "3fd47589-1db7-4d6f-a800-ca81223bf925",
-        "name": "Preview Features",
+        "title": "Preview Features",
         "path": "/shapes/azure/general/00456-icon-service-Preview-Features.svg"
     },
     {
         "id": "e2bb2cf0-6fa4-45ca-9952-2cbf4bc79421",
-        "name": "All Resources",
+        "title": "All Resources",
         "path": "/shapes/azure/general/10001-icon-service-All-Resources.svg"
     },
     {
         "id": "93ded326-6179-4b48-90af-2cb7a031b5b9",
-        "name": "Subscriptions",
+        "title": "Subscriptions",
         "path": "/shapes/azure/general/10002-icon-service-Subscriptions.svg"
     },
     {
         "id": "3114c9ce-faea-4c02-87f4-e147794ce34d",
-        "name": "Reservations",
+        "title": "Reservations",
         "path": "/shapes/azure/general/10003-icon-service-Reservations.svg"
     },
     {
         "id": "bf1824d3-0e50-4d06-b8b1-a6c4e34646cc",
-        "name": "Service Health",
+        "title": "Service Health",
         "path": "/shapes/azure/general/10004-icon-service-Service-Health.svg"
     },
     {
         "id": "f78359f3-c043-454c-9f1f-f5aa0debde13",
-        "name": "Information",
+        "title": "Information",
         "path": "/shapes/azure/general/10005-icon-service-Information.svg"
     },
     {
         "id": "e9cb5b34-721e-4546-a445-fbc00192d068",
-        "name": "Recent",
+        "title": "Recent",
         "path": "/shapes/azure/general/10006-icon-service-Recent.svg"
     },
     {
         "id": "c753e13c-f9d5-48dc-9f14-573e7be0cace",
-        "name": "Resource Groups",
+        "title": "Resource Groups",
         "path": "/shapes/azure/general/10007-icon-service-Resource-Groups.svg"
     },
     {
         "id": "b262ea3f-e1c8-4749-9450-78fd0a11991f",
-        "name": "Marketplace",
+        "title": "Marketplace",
         "path": "/shapes/azure/general/10008-icon-service-Marketplace.svg"
     },
     {
         "id": "87e895a1-5206-4a31-8e99-66dc409d393c",
-        "name": "Templates",
+        "title": "Templates",
         "path": "/shapes/azure/general/10009-icon-service-Templates.svg"
     },
     {
         "id": "5c0ce911-db49-4bd1-8c88-1ab07d25bb36",
-        "name": "Quickstart Center",
+        "title": "Quickstart Center",
         "path": "/shapes/azure/general/10010-icon-service-Quickstart-Center.svg"
     },
     {
         "id": "2d937939-9bba-476c-bb08-1167eec9efad",
-        "name": "Management Groups",
+        "title": "Management Groups",
         "path": "/shapes/azure/general/10011-icon-service-Management-Groups.svg"
     },
     {
         "id": "f9bc2ca5-699e-4eab-a1da-96cb1efaa2f3",
-        "name": "Help and Support",
+        "title": "Help and Support",
         "path": "/shapes/azure/general/10013-icon-service-Help-and-Support.svg"
     },
     {
         "id": "5c38b87c-e27a-42ad-9c94-a347174d46e6",
-        "name": "Tag",
+        "title": "Tag",
         "path": "/shapes/azure/general/10014-icon-service-Tag.svg"
     },
     {
         "id": "c4f1e8cf-43ba-44c3-868d-0703b6b5b4cd",
-        "name": "Dashboard",
+        "title": "Dashboard",
         "path": "/shapes/azure/general/10015-icon-service-Dashboard.svg"
     },
     {
         "id": "9d35dce2-e051-4c1e-9f03-d579024d5a8e",
-        "name": "Free Services",
+        "title": "Free Services",
         "path": "/shapes/azure/general/10016-icon-service-Free-Services.svg"
     },
     {
         "id": "6ba88b0a-7d19-4fcf-9988-4199655a57cc",
-        "name": "Cost Management",
+        "title": "Cost Management",
         "path": "/shapes/azure/general/10019-icon-service-Cost-Management.svg"
     },
     {
         "id": "0d389b06-d11e-438b-8402-9d354a2d8153",
-        "name": "Marketplace Management",
+        "title": "Marketplace Management",
         "path": "/shapes/azure/general/10112-icon-service-Marketplace-Management.svg"
     },
     {
         "id": "49a42370-0474-4167-98d4-f16a8b585068",
-        "name": "Region Management",
+        "title": "Region Management",
         "path": "/shapes/azure/general/10116-icon-service-Region-Management.svg"
     },
     {
         "id": "d89227d5-a1be-45af-97f7-43e9fe0e5579",
-        "name": "Troubleshoot",
+        "title": "Troubleshoot",
         "path": "/shapes/azure/general/10341-icon-service-Troubleshoot.svg"
     },
     {
         "id": "4d61b470-e002-4ef9-8072-26bc97bc6767",
-        "name": "Resource Explorer",
+        "title": "Resource Explorer",
         "path": "/shapes/azure/general/10349-icon-service-Resource-Explorer.svg"
     },
     {
         "id": "2be81272-e73a-4503-93d0-2dfef50035eb",
-        "name": "Biz Talk",
+        "title": "Biz Talk",
         "path": "/shapes/azure/general/10779-icon-service-Biz-Talk.svg"
     },
     {
         "id": "486113e0-6591-4537-b8b0-e84e5b3cf27d",
-        "name": "Blob Block",
+        "title": "Blob Block",
         "path": "/shapes/azure/general/10780-icon-service-Blob-Block.svg"
     },
     {
         "id": "0a938797-4f56-491d-a71c-4ab63e3a822e",
-        "name": "Blob Page",
+        "title": "Blob Page",
         "path": "/shapes/azure/general/10781-icon-service-Blob-Page.svg"
     },
     {
         "id": "fffc3598-1d72-4376-9fc4-d16ec339d7f6",
-        "name": "Branch",
+        "title": "Branch",
         "path": "/shapes/azure/general/10782-icon-service-Branch.svg"
     },
     {
         "id": "6a5afe3c-7b40-4990-804b-77ebdafa8f2c",
-        "name": "Browser",
+        "title": "Browser",
         "path": "/shapes/azure/general/10783-icon-service-Browser.svg"
     },
     {
         "id": "673c6d0f-0372-4631-a314-fca1b4099866",
-        "name": "Bug",
+        "title": "Bug",
         "path": "/shapes/azure/general/10784-icon-service-Bug.svg"
     },
     {
         "id": "d7e3d6ff-2e5d-4f31-b3ad-66852ba84400",
-        "name": "Builds",
+        "title": "Builds",
         "path": "/shapes/azure/general/10785-icon-service-Builds.svg"
     },
     {
         "id": "d1bcb146-c0ce-4de9-b109-4d6271ad6480",
-        "name": "Cache",
+        "title": "Cache",
         "path": "/shapes/azure/general/10786-icon-service-Cache.svg"
     },
     {
         "id": "f35062ed-27af-4f7a-b040-75707fe7feb9",
-        "name": "Code",
+        "title": "Code",
         "path": "/shapes/azure/general/10787-icon-service-Code.svg"
     },
     {
         "id": "7775f535-cc2a-49b6-9869-231e03f5028a",
-        "name": "Commit",
+        "title": "Commit",
         "path": "/shapes/azure/general/10788-icon-service-Commit.svg"
     },
     {
         "id": "d4dd8b19-8917-4499-92aa-6b6e7d84e40e",
-        "name": "Controls",
+        "title": "Controls",
         "path": "/shapes/azure/general/10789-icon-service-Controls.svg"
     },
     {
         "id": "7aa06478-641d-4bf0-b6f4-abf9a2f78a4f",
-        "name": "Controls Horizontal",
+        "title": "Controls Horizontal",
         "path": "/shapes/azure/general/10790-icon-service-Controls-Horizontal.svg"
     },
     {
         "id": "aa39ddef-15db-4c87-bf01-f13c12dfc567",
-        "name": "Cost Alerts",
+        "title": "Cost Alerts",
         "path": "/shapes/azure/general/10791-icon-service-Cost-Alerts.svg"
     },
     {
         "id": "55685e9c-5c2b-4db9-a05b-8d0d876b2d8e",
-        "name": "Cost Analysis",
+        "title": "Cost Analysis",
         "path": "/shapes/azure/general/10792-icon-service-Cost-Analysis.svg"
     },
     {
         "id": "83970832-9fbd-4b4d-9504-a7fcfa7f1a72",
-        "name": "Cost Budgets",
+        "title": "Cost Budgets",
         "path": "/shapes/azure/general/10793-icon-service-Cost-Budgets.svg"
     },
     {
         "id": "2e09221e-835b-4f79-94eb-a5e73a3e8bfd",
-        "name": "Counter",
+        "title": "Counter",
         "path": "/shapes/azure/general/10794-icon-service-Counter.svg"
     },
     {
         "id": "ca2d5747-bc81-41cf-9e0f-8ac86bf9eb37",
-        "name": "Cubes",
+        "title": "Cubes",
         "path": "/shapes/azure/general/10795-icon-service-Cubes.svg"
     },
     {
         "id": "85ae08a6-11eb-4747-bff8-db2942026a79",
-        "name": "Dev Console",
+        "title": "Dev Console",
         "path": "/shapes/azure/general/10796-icon-service-Dev-Console.svg"
     },
     {
         "id": "636621f4-7683-43be-a646-af650502eb6d",
-        "name": "Download",
+        "title": "Download",
         "path": "/shapes/azure/general/10797-icon-service-Download.svg"
     },
     {
         "id": "f2abdf44-3731-4479-9024-f83b498a8b68",
-        "name": "Error",
+        "title": "Error",
         "path": "/shapes/azure/general/10798-icon-service-Error.svg"
     },
     {
         "id": "34611020-548e-4ef1-9afb-5b52ed79a46d",
-        "name": "Extensions",
+        "title": "Extensions",
         "path": "/shapes/azure/general/10799-icon-service-Extensions.svg"
     },
     {
         "id": "73d189ce-e166-4fbd-931d-ea087e49335b",
-        "name": "File",
+        "title": "File",
         "path": "/shapes/azure/general/10800-icon-service-File.svg"
     },
     {
         "id": "01c64bf8-770e-4d6f-a928-553df539f23c",
-        "name": "Files",
+        "title": "Files",
         "path": "/shapes/azure/general/10801-icon-service-Files.svg"
     },
     {
         "id": "f0bc6a36-ae20-4cad-bfa7-8c6284605f06",
-        "name": "Folder Blank",
+        "title": "Folder Blank",
         "path": "/shapes/azure/general/10802-icon-service-Folder-Blank.svg"
     },
     {
         "id": "1936456d-0b2e-4e2b-89fd-f073625341de",
-        "name": "Folder Website",
+        "title": "Folder Website",
         "path": "/shapes/azure/general/10803-icon-service-Folder-Website.svg"
     },
     {
         "id": "a63ba9d3-5b12-4e11-8fab-ade7d0f28255",
-        "name": "FTP",
+        "title": "FTP",
         "path": "/shapes/azure/general/10804-icon-service-FTP.svg"
     },
     {
         "id": "845a4eea-e437-4f88-afa9-92fcaa3a8dc7",
-        "name": "Gear",
+        "title": "Gear",
         "path": "/shapes/azure/general/10805-icon-service-Gear.svg"
     },
     {
         "id": "6a5282a4-a11b-4461-b70e-c87f9f47a1ee",
-        "name": "Globe Error",
+        "title": "Globe Error",
         "path": "/shapes/azure/general/10807-icon-service-Globe-Error.svg"
     },
     {
         "id": "1f7a7b33-857f-4c24-b3ed-88c2701ae29f",
-        "name": "Globe Success",
+        "title": "Globe Success",
         "path": "/shapes/azure/general/10808-icon-service-Globe-Success.svg"
     },
     {
         "id": "171b90c8-e7e9-41dc-bf6a-9dcb4e4d84c7",
-        "name": "Globe Warning",
+        "title": "Globe Warning",
         "path": "/shapes/azure/general/10809-icon-service-Globe-Warning.svg"
     },
     {
         "id": "ee0e88af-df5c-4eae-8f1f-dbea3ac07d11",
-        "name": "Guide",
+        "title": "Guide",
         "path": "/shapes/azure/general/10810-icon-service-Guide.svg"
     },
     {
         "id": "9fa87326-b75f-43c4-ba2a-bdfdecb565ac",
-        "name": "Heart",
+        "title": "Heart",
         "path": "/shapes/azure/general/10811-icon-service-Heart.svg"
     },
     {
         "id": "81112207-d58c-414d-8838-a5af4215b276",
-        "name": "Image",
+        "title": "Image",
         "path": "/shapes/azure/general/10812-icon-service-Image.svg"
     },
     {
         "id": "fdcc2f3a-925b-4f80-ac73-594fe7557758",
-        "name": "Input Output",
+        "title": "Input Output",
         "path": "/shapes/azure/general/10813-icon-service-Input-Output.svg"
     },
     {
         "id": "c29ac8e0-1035-470a-a522-ce898c670797",
-        "name": "Journey Hub",
+        "title": "Journey Hub",
         "path": "/shapes/azure/general/10814-icon-service-Journey-Hub.svg"
     },
     {
         "id": "32d54fb6-c82a-4e51-a8ea-31464b2d808c",
-        "name": "Launch Portal",
+        "title": "Launch Portal",
         "path": "/shapes/azure/general/10815-icon-service-Launch-Portal.svg"
     },
     {
         "id": "be310333-04ae-4556-9977-c78212525114",
-        "name": "Learn",
+        "title": "Learn",
         "path": "/shapes/azure/general/10816-icon-service-Learn.svg"
     },
     {
         "id": "c3f020be-6cb0-4b80-a0f0-df5ee2166ce2",
-        "name": "Load Test",
+        "title": "Load Test",
         "path": "/shapes/azure/general/10817-icon-service-Load-Test.svg"
     },
     {
         "id": "283833d6-852f-4cd8-8dfc-069893efad78",
-        "name": "Location",
+        "title": "Location",
         "path": "/shapes/azure/general/10818-icon-service-Location.svg"
     },
     {
         "id": "f235d696-1b90-45a3-a4e7-9adbd0bbea70",
-        "name": "Log Streaming",
+        "title": "Log Streaming",
         "path": "/shapes/azure/general/10819-icon-service-Log-Streaming.svg"
     },
     {
         "id": "c3d85b39-008e-4403-8314-a645a74b2185",
-        "name": "Management Portal",
+        "title": "Management Portal",
         "path": "/shapes/azure/general/10820-icon-service-Management-Portal.svg"
     },
     {
         "id": "e643f243-0187-437c-8cea-0b45a678d9bf",
-        "name": "Media File",
+        "title": "Media File",
         "path": "/shapes/azure/general/10821-icon-service-Media-File.svg"
     },
     {
         "id": "4c1c06f7-a377-432c-87d0-b1510b231fcf",
-        "name": "Mobile",
+        "title": "Mobile",
         "path": "/shapes/azure/general/10822-icon-service-Mobile.svg"
     },
     {
         "id": "3ddc837e-b3b9-4347-8006-df729ac90c02",
-        "name": "Mobile Engagement",
+        "title": "Mobile Engagement",
         "path": "/shapes/azure/general/10823-icon-service-Mobile-Engagement.svg"
     },
     {
         "id": "e92fcd81-b2a3-4456-9489-655ef0174776",
-        "name": "Power",
+        "title": "Power",
         "path": "/shapes/azure/general/10824-icon-service-Power.svg"
     },
     {
         "id": "7643c839-ff17-468a-9bd5-3ea7ffb32f97",
-        "name": "Powershell",
+        "title": "Powershell",
         "path": "/shapes/azure/general/10825-icon-service-Powershell.svg"
     },
     {
         "id": "869fdc32-b96a-42f3-987d-34d5eaa9b6e4",
-        "name": "Power Up",
+        "title": "Power Up",
         "path": "/shapes/azure/general/10826-icon-service-Power-Up.svg"
     },
     {
         "id": "2ea0d54f-d477-44eb-b2b3-c79420005501",
-        "name": "Feature Previews",
+        "title": "Feature Previews",
         "path": "/shapes/azure/general/10827-icon-service-Feature-Previews.svg"
     },
     {
         "id": "293de645-6856-408f-b5a4-aaedb1db9222",
-        "name": "Process Explorer",
+        "title": "Process Explorer",
         "path": "/shapes/azure/general/10828-icon-service-Process-Explorer.svg"
     },
     {
         "id": "162d76dc-7a6e-4770-aef8-5921afcd72b9",
-        "name": "Production Ready Database",
+        "title": "Production Ready Database",
         "path": "/shapes/azure/general/10829-icon-service-Production-Ready-Database.svg"
     },
     {
         "id": "0ee541ba-9a27-4e86-8c57-1bc465f9fc58",
-        "name": "Resource Group List",
+        "title": "Resource Group List",
         "path": "/shapes/azure/general/10830-icon-service-Resource-Group-List.svg"
     },
     {
         "id": "fee93096-100c-4434-8689-b813654d971e",
-        "name": "Resource Linked",
+        "title": "Resource Linked",
         "path": "/shapes/azure/general/10831-icon-service-Resource-Linked.svg"
     },
     {
         "id": "f0afac98-f5d1-4499-9766-4141de549762",
-        "name": "Scheduler",
+        "title": "Scheduler",
         "path": "/shapes/azure/general/10833-icon-service-Scheduler.svg"
     },
     {
         "id": "0451083c-4987-44a0-8300-072365e1641f",
-        "name": "Search",
+        "title": "Search",
         "path": "/shapes/azure/general/10834-icon-service-Search.svg"
     },
     {
         "id": "734959d2-bf10-4315-944e-e031c4b25cbc",
-        "name": "Server Farm",
+        "title": "Server Farm",
         "path": "/shapes/azure/general/10835-icon-service-Server-Farm.svg"
     },
     {
         "id": "daac8d5e-c0b2-4429-b91b-eea01fc8be5d",
-        "name": "SSD",
+        "title": "SSD",
         "path": "/shapes/azure/general/10837-icon-service-SSD.svg"
     },
     {
         "id": "bd759c04-b7e7-4fe8-8824-26161f9b8061",
-        "name": "Storage Azure Files",
+        "title": "Storage Azure Files",
         "path": "/shapes/azure/general/10838-icon-service-Storage-Azure-Files.svg"
     },
     {
         "id": "6dcecf1c-0f69-4d79-9d7c-175c8e6e1215",
-        "name": "Storage Container",
+        "title": "Storage Container",
         "path": "/shapes/azure/general/10839-icon-service-Storage-Container.svg"
     },
     {
         "id": "f4683e8c-30f2-499f-8af7-221114f13098",
-        "name": "Storage Queue",
+        "title": "Storage Queue",
         "path": "/shapes/azure/general/10840-icon-service-Storage-Queue.svg"
     },
     {
         "id": "937e4b44-4300-4da8-acdf-6ed5bdcc7c97",
-        "name": "Table",
+        "title": "Table",
         "path": "/shapes/azure/general/10841-icon-service-Table.svg"
     },
     {
         "id": "1519b87e-17ac-4f1e-b9c0-109707c83cce",
-        "name": "Tags",
+        "title": "Tags",
         "path": "/shapes/azure/general/10842-icon-service-Tags.svg"
     },
     {
         "id": "1e2dde7e-1959-4446-a132-2e7f8e539e4c",
-        "name": "TFS VC Repository",
+        "title": "TFS VC Repository",
         "path": "/shapes/azure/general/10843-icon-service-TFS-VC-Repository.svg"
     },
     {
         "id": "72c825eb-172c-40da-aecc-b1d832341abb",
-        "name": "Toolbox",
+        "title": "Toolbox",
         "path": "/shapes/azure/general/10844-icon-service-Toolbox.svg"
     },
     {
         "id": "bb180215-c3e5-4482-a061-68da7f20e5bb",
-        "name": "Versions",
+        "title": "Versions",
         "path": "/shapes/azure/general/10845-icon-service-Versions.svg"
     },
     {
         "id": "f0d02151-28da-4bf4-b3e3-5d66fb532b1f",
-        "name": "Website Power",
+        "title": "Website Power",
         "path": "/shapes/azure/general/10847-icon-service-Website-Power.svg"
     },
     {
         "id": "bdb2e63a-fc7a-4f12-b18c-68ccd8a8b213",
-        "name": "Website Staging",
+        "title": "Website Staging",
         "path": "/shapes/azure/general/10848-icon-service-Website-Staging.svg"
     },
     {
         "id": "5318e231-bddb-44b1-9d00-432c6db180a7",
-        "name": "Web Slots",
+        "title": "Web Slots",
         "path": "/shapes/azure/general/10849-icon-service-Web-Slots.svg"
     },
     {
         "id": "522f7443-e471-49e6-a8f0-eef4274c0b0d",
-        "name": "Web Test",
+        "title": "Web Test",
         "path": "/shapes/azure/general/10850-icon-service-Web-Test.svg"
     },
     {
         "id": "e7e5a248-125d-454d-a55a-67fe74e34f33",
-        "name": "Workbooks",
+        "title": "Workbooks",
         "path": "/shapes/azure/general/10851-icon-service-Workbooks.svg"
     },
     {
         "id": "cdaf8310-b5d0-4739-ac62-eb83f22994df",
-        "name": "Workflow",
+        "title": "Workflow",
         "path": "/shapes/azure/general/10852-icon-service-Workflow.svg"
     },
     {
         "id": "895e093a-65bb-4f87-a536-fb5abe8c0397",
-        "name": "Backlog",
+        "title": "Backlog",
         "path": "/shapes/azure/general/10853-icon-service-Backlog.svg"
     },
     {
         "id": "f180e01d-c71f-4f72-92a6-89973d063633",
-        "name": "Media",
+        "title": "Media",
         "path": "/shapes/azure/general/10854-icon-service-Media.svg"
     },
     {
         "id": "aa1a8ede-3cda-419c-bf11-918f015d55e6",
-        "name": "Module",
+        "title": "Module",
         "path": "/shapes/azure/general/10855-icon-service-Module.svg"
     },
     {
         "id": "a6f9d415-317a-487c-8593-5757746bc5a0",
-        "name": "Search Grid",
+        "title": "Search Grid",
         "path": "/shapes/azure/general/10856-icon-service-Search-Grid.svg"
     }
 ]

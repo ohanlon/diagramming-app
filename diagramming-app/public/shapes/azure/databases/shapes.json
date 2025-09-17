@@ -1,137 +1,137 @@
 [
     {
         "id": "e99edf91-7a1d-4b29-9432-8e978e71f691",
-        "name": "SQL Data Warehouses",
+        "title": "SQL Data Warehouses",
         "path": "/shapes/azure/databases/00036-icon-service-SQL-Data-Warehouses.svg"
     },
     {
         "id": "cb6c1d50-d475-4efd-82e5-94c97fa22461",
-        "name": "Azure Synapse Analytics",
+        "title": "Azure Synapse Analytics",
         "path": "/shapes/azure/databases/00606-icon-service-Azure-Synapse-Analytics.svg"
     },
     {
         "id": "f68b3865-7c2d-4998-b0ce-946225b76153",
-        "name": "Azure SQL",
+        "title": "Azure SQL",
         "path": "/shapes/azure/databases/02390-icon-service-Azure-SQL.svg"
     },
     {
         "id": "38dde9c1-48ea-4c06-9120-1a6531b992b9",
-        "name": "SSIS Lift And Shift IR",
+        "title": "SSIS Lift And Shift IR",
         "path": "/shapes/azure/databases/02392-icon-service-SSIS-Lift-And-Shift-IR.svg"
     },
     {
         "id": "dfcd2a49-0400-4c1c-9121-5a5c714bf29c",
-        "name": "Azure Purview Accounts",
+        "title": "Azure Purview Accounts",
         "path": "/shapes/azure/databases/02517-icon-service-Azure-Purview-Accounts.svg"
     },
     {
         "id": "35d8fd5a-d8a4-4dc2-a1f5-459f544071f3",
-        "name": "Azure SQL Edge",
+        "title": "Azure SQL Edge",
         "path": "/shapes/azure/databases/02750-icon-service-Azure-SQL-Edge.svg"
     },
     {
         "id": "d5f429eb-9ab5-4778-a960-4dc4fca489b4",
-        "name": "Azure Database PostgreSQL Server Group",
+        "title": "Azure Database PostgreSQL Server Group",
         "path": "/shapes/azure/databases/02827-icon-service-Azure-Database-PostgreSQL-Server-Group.svg"
     },
     {
         "id": "438ed735-3c65-4214-a2a7-7663fecfb908",
-        "name": "Oracle Database",
+        "title": "Oracle Database",
         "path": "/shapes/azure/databases/03490-icon-service-Oracle-Database.svg"
     },
     {
         "id": "6ffeb7be-adb8-4d58-aac2-1fb29b13a587",
-        "name": "Azure Cosmos DB",
+        "title": "Azure Cosmos DB",
         "path": "/shapes/azure/databases/10121-icon-service-Azure-Cosmos-DB.svg"
     },
     {
         "id": "cf173344-c530-49bf-83e4-d58acc3d8fd0",
-        "name": "Azure Database MySQL Server",
+        "title": "Azure Database MySQL Server",
         "path": "/shapes/azure/databases/10122-icon-service-Azure-Database-MySQL-Server.svg"
     },
     {
         "id": "4b8b4a30-9846-4da9-abfc-1a3e62adfe17",
-        "name": "Azure Database MariaDB Server",
+        "title": "Azure Database MariaDB Server",
         "path": "/shapes/azure/databases/10123-icon-service-Azure-Database-MariaDB-Server.svg"
     },
     {
         "id": "7564137b-2d8b-418b-9724-6d39fa754781",
-        "name": "Azure SQL VM",
+        "title": "Azure SQL VM",
         "path": "/shapes/azure/databases/10124-icon-service-Azure-SQL-VM.svg"
     },
     {
         "id": "a00c5c62-ec5d-4ca8-8bbd-bcf017ce8217",
-        "name": "Data Factories",
+        "title": "Data Factories",
         "path": "/shapes/azure/databases/10126-icon-service-Data-Factories.svg"
     },
     {
         "id": "5f7d6d3f-d7a8-4d73-a658-00dd0d56f483",
-        "name": "Virtual Clusters",
+        "title": "Virtual Clusters",
         "path": "/shapes/azure/databases/10127-icon-service-Virtual-Clusters.svg"
     },
     {
         "id": "7974fe41-fb0a-421c-b0a2-912835e8f61d",
-        "name": "Elastic Job Agents",
+        "title": "Elastic Job Agents",
         "path": "/shapes/azure/databases/10128-icon-service-Elastic-Job-Agents.svg"
     },
     {
         "id": "d67ccb4b-17c2-4c1a-bae5-4f9066b485f4",
-        "name": "SQL Database",
+        "title": "SQL Database",
         "path": "/shapes/azure/databases/10130-icon-service-SQL-Database.svg"
     },
     {
         "id": "4c8a58a1-13b0-4ec4-a7d8-ddb90828d12e",
-        "name": "Azure Database PostgreSQL Server",
+        "title": "Azure Database PostgreSQL Server",
         "path": "/shapes/azure/databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg"
     },
     {
         "id": "59e4095c-8aa0-4047-8c5e-3df4f0b48ec1",
-        "name": "SQL Server",
+        "title": "SQL Server",
         "path": "/shapes/azure/databases/10132-icon-service-SQL-Server.svg"
     },
     {
         "id": "f16545fe-11cd-4440-8f08-d1c0322b7a36",
-        "name": "Azure Database Migration Services",
+        "title": "Azure Database Migration Services",
         "path": "/shapes/azure/databases/10133-icon-service-Azure-Database-Migration-Services.svg"
     },
     {
         "id": "2dda040d-abbf-4c75-b54f-ab869e8989ca",
-        "name": "SQL Elastic Pools",
+        "title": "SQL Elastic Pools",
         "path": "/shapes/azure/databases/10134-icon-service-SQL-Elastic-Pools.svg"
     },
     {
         "id": "60170c7f-8ce2-432e-9679-3f437670d07d",
-        "name": "Managed Database",
+        "title": "Managed Database",
         "path": "/shapes/azure/databases/10135-icon-service-Managed-Database.svg"
     },
     {
         "id": "56874740-4692-4c16-89e4-1142f023b96c",
-        "name": "SQL Managed Instance",
+        "title": "SQL Managed Instance",
         "path": "/shapes/azure/databases/10136-icon-service-SQL-Managed-Instance.svg"
     },
     {
         "id": "f3a05927-8012-4356-b9ff-f25021666aa5",
-        "name": "Azure SQL Server Stretch Databases",
+        "title": "Azure SQL Server Stretch Databases",
         "path": "/shapes/azure/databases/10137-icon-service-Azure-SQL-Server-Stretch-Databases.svg"
     },
     {
         "id": "2ed26675-13cf-4e2a-8394-756bb9859a28",
-        "name": "Cache Redis",
+        "title": "Cache Redis",
         "path": "/shapes/azure/databases/10137-icon-service-Cache-Redis.svg"
     },
     {
         "id": "744707d4-647b-4c72-a582-45ee9212920a",
-        "name": "Instance Pools",
+        "title": "Instance Pools",
         "path": "/shapes/azure/databases/10139-icon-service-Instance-Pools.svg"
     },
     {
         "id": "fbb19224-387e-4b6e-aaff-50cef7184c0f",
-        "name": "Azure Data Explorer Clusters",
+        "title": "Azure Data Explorer Clusters",
         "path": "/shapes/azure/databases/10145-icon-service-Azure-Data-Explorer-Clusters.svg"
     },
     {
         "id": "0737d499-f15c-481c-9f9d-cf64e93c2cfc",
-        "name": "SQL Server Registries",
+        "title": "SQL Server Registries",
         "path": "/shapes/azure/databases/10351-icon-service-SQL-Server-Registries.svg"
     }
 ]
