@@ -2,197 +2,275 @@
     {
         "id": "c13c0deb-102c-4bbd-84b4-ffe96d91040f",
         "title": "Maintenance Configuration",
-        "path": "/shapes/azure/compute/00195-icon-service-Maintenance-Configuration.svg"
+        "path": "/shapes/azure/compute/00195-icon-service-Maintenance-Configuration.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "776fadb8-8263-4306-8680-dcaafc3e03c3",
         "title": "Host Pools",
-        "path": "/shapes/azure/compute/00328-icon-service-Host-Pools.svg"
+        "path": "/shapes/azure/compute/00328-icon-service-Host-Pools.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "3d56e3d9-b26f-43dd-87cf-14a157c9b85a",
         "title": "Application Group",
-        "path": "/shapes/azure/compute/00329-icon-service-Application-Group.svg"
+        "path": "/shapes/azure/compute/00329-icon-service-Application-Group.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "57acbcaf-281d-4f7e-95d2-a3ed75af6773",
         "title": "Workspaces",
-        "path": "/shapes/azure/compute/00330-icon-service-Workspaces.svg"
+        "path": "/shapes/azure/compute/00330-icon-service-Workspaces.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "aa849d67-d4a4-4cda-8e7f-dde6b50ff422",
         "title": "Disk Encryption Sets",
-        "path": "/shapes/azure/compute/00398-icon-service-Disk-Encryption-Sets.svg"
+        "path": "/shapes/azure/compute/00398-icon-service-Disk-Encryption-Sets.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "c6540c3b-f404-4479-98fd-ed8828fac09b",
         "title": "Workspaces",
-        "path": "/shapes/azure/compute/00400-icon-service-Workspaces.svg"
+        "path": "/shapes/azure/compute/00400-icon-service-Workspaces.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "957d7d1a-b603-4a64-8fa6-fc8618614340",
         "title": "Automanaged VM",
-        "path": "/shapes/azure/compute/02112-icon-service-Automanaged-VM.svg"
+        "path": "/shapes/azure/compute/02112-icon-service-Automanaged-VM.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "3dbc7df3-f010-4635-be53-e67ad1ef27d6",
         "title": "Managed Service Fabric",
-        "path": "/shapes/azure/compute/02370-icon-service-Managed-Service-Fabric.svg"
+        "path": "/shapes/azure/compute/02370-icon-service-Managed-Service-Fabric.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "bfa7e1a2-cf72-406a-94da-781ecf5ecfa7",
         "title": "Metrics Advisor",
-        "path": "/shapes/azure/compute/02409-icon-service-Metrics-Advisor.svg"
+        "path": "/shapes/azure/compute/02409-icon-service-Metrics-Advisor.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "f02fe2e8-090f-47fc-a644-a0b84b46d673",
         "title": "Image Templates",
-        "path": "/shapes/azure/compute/02634-icon-service-Image-Templates.svg"
+        "path": "/shapes/azure/compute/02634-icon-service-Image-Templates.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "871a5239-c053-413e-adca-dcc01e8c22d9",
         "title": "Restore Points",
-        "path": "/shapes/azure/compute/02817-icon-service-Restore-Points.svg"
+        "path": "/shapes/azure/compute/02817-icon-service-Restore-Points.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "505f7121-e943-4f79-a746-34922da089ff",
         "title": "Restore Points Collections",
-        "path": "/shapes/azure/compute/02818-icon-service-Restore-Points-Collections.svg"
+        "path": "/shapes/azure/compute/02818-icon-service-Restore-Points-Collections.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "650bae63-f836-40d3-8ad6-db2f6a44c9dd",
         "title": "Azure Compute Galleries",
-        "path": "/shapes/azure/compute/02864-icon-service-Azure-Compute-Galleries.svg"
+        "path": "/shapes/azure/compute/02864-icon-service-Azure-Compute-Galleries.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "dee69730-e487-4338-84fc-914f62197a95",
         "title": "Compute Fleet",
-        "path": "/shapes/azure/compute/03487-icon-service-Compute-Fleet.svg"
+        "path": "/shapes/azure/compute/03487-icon-service-Compute-Fleet.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "8781a999-7be4-41e0-9c13-e29aed9dfe7f",
         "title": "AKS Automatic",
-        "path": "/shapes/azure/compute/03543-icon-service-AKS-Automatic.svg"
+        "path": "/shapes/azure/compute/03543-icon-service-AKS-Automatic.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "149d5fd5-54d2-4198-b598-fe61e044793d",
         "title": "Virtual Machine",
-        "path": "/shapes/azure/compute/10021-icon-service-Virtual-Machine.svg"
+        "path": "/shapes/azure/compute/10021-icon-service-Virtual-Machine.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "11e3b6a4-c615-4a62-b69d-32d3771ee46b",
         "title": "Kubernetes Services",
-        "path": "/shapes/azure/compute/10023-icon-service-Kubernetes-Services.svg"
+        "path": "/shapes/azure/compute/10023-icon-service-Kubernetes-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "49a0605e-f7f5-4d5c-8102-d00f2aee52f7",
         "title": "Mesh Applications",
-        "path": "/shapes/azure/compute/10024-icon-service-Mesh-Applications.svg"
+        "path": "/shapes/azure/compute/10024-icon-service-Mesh-Applications.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "8b6cd622-acff-46b9-b92b-170b87e2a773",
         "title": "Availability Sets",
-        "path": "/shapes/azure/compute/10025-icon-service-Availability-Sets.svg"
+        "path": "/shapes/azure/compute/10025-icon-service-Availability-Sets.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "06436f56-fbf4-496f-9f9c-3edabc9643c6",
         "title": "Disks Snapshots",
-        "path": "/shapes/azure/compute/10026-icon-service-Disks-Snapshots.svg"
+        "path": "/shapes/azure/compute/10026-icon-service-Disks-Snapshots.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "dd495a39-ce91-45c9-bab9-6c0fcb58ab59",
         "title": "OS Images (Classic)",
-        "path": "/shapes/azure/compute/10027-icon-service-OS-Images-(Classic).svg"
+        "path": "/shapes/azure/compute/10027-icon-service-OS-Images-(Classic).svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "946bbf48-4730-4927-a554-11c783fb5bac",
         "title": "Virtual Machines (Classic)",
-        "path": "/shapes/azure/compute/10028-icon-service-Virtual-Machines-(Classic).svg"
+        "path": "/shapes/azure/compute/10028-icon-service-Virtual-Machines-(Classic).svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "9609b1c9-878b-4e72-affb-72b516e41f8c",
         "title": "Function Apps",
-        "path": "/shapes/azure/compute/10029-icon-service-Function-Apps.svg"
+        "path": "/shapes/azure/compute/10029-icon-service-Function-Apps.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "2099c77c-8e11-4ff4-93a1-a9ee5205cdd6",
         "title": "Cloud Services (Classic)",
-        "path": "/shapes/azure/compute/10030-icon-service-Cloud-Services-(Classic).svg"
+        "path": "/shapes/azure/compute/10030-icon-service-Cloud-Services-(Classic).svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "67d852c1-c781-4512-b10d-0c59ea11505b",
         "title": "Batch Accounts",
-        "path": "/shapes/azure/compute/10031-icon-service-Batch-Accounts.svg"
+        "path": "/shapes/azure/compute/10031-icon-service-Batch-Accounts.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "c4ad7678-41c5-45e9-a63d-758239772239",
         "title": "Disks",
-        "path": "/shapes/azure/compute/10032-icon-service-Disks.svg"
+        "path": "/shapes/azure/compute/10032-icon-service-Disks.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "dd71f24f-c97f-4446-b4bb-a2c9e0e5447b",
         "title": "Images",
-        "path": "/shapes/azure/compute/10033-icon-service-Images.svg"
+        "path": "/shapes/azure/compute/10033-icon-service-Images.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "e4badd34-173b-4d2e-a024-c2db5a6a1d92",
         "title": "VM Scale Sets",
-        "path": "/shapes/azure/compute/10034-icon-service-VM-Scale-Sets.svg"
+        "path": "/shapes/azure/compute/10034-icon-service-VM-Scale-Sets.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "2616a1c1-d721-4fd7-ad8a-c87d92780531",
         "title": "App Services",
-        "path": "/shapes/azure/compute/10035-icon-service-App-Services.svg"
+        "path": "/shapes/azure/compute/10035-icon-service-App-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "6ee3a4e0-5a09-475c-b667-93ef3e94ca0d",
         "title": "Service Fabric Clusters",
-        "path": "/shapes/azure/compute/10036-icon-service-Service-Fabric-Clusters.svg"
+        "path": "/shapes/azure/compute/10036-icon-service-Service-Fabric-Clusters.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "981baa3c-b8e6-43eb-8caa-ce416a9e0cfa",
         "title": "Image Definitions",
-        "path": "/shapes/azure/compute/10037-icon-service-Image-Definitions.svg"
+        "path": "/shapes/azure/compute/10037-icon-service-Image-Definitions.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "c7c99986-a771-4bdd-aad1-5dbdb0a19190",
         "title": "Image Versions",
-        "path": "/shapes/azure/compute/10038-icon-service-Image-Versions.svg"
+        "path": "/shapes/azure/compute/10038-icon-service-Image-Versions.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d27797b3-c0d0-4a82-b3e3-537ce5e2b13a",
         "title": "Shared Image Galleries",
-        "path": "/shapes/azure/compute/10039-icon-service-Shared-Image-Galleries.svg"
+        "path": "/shapes/azure/compute/10039-icon-service-Shared-Image-Galleries.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "0af11ae3-b984-4b37-b2c3-67e11449953b",
         "title": "VM Images (Classic)",
-        "path": "/shapes/azure/compute/10040-icon-service-VM-Images-(Classic).svg"
+        "path": "/shapes/azure/compute/10040-icon-service-VM-Images-(Classic).svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "91cbf100-c823-4b0a-9a60-a36bb510189f",
         "title": "Disks (Classic)",
-        "path": "/shapes/azure/compute/10041-icon-service-Disks-(Classic).svg"
+        "path": "/shapes/azure/compute/10041-icon-service-Disks-(Classic).svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "753e92ae-c565-4207-9691-48a85c26a3d4",
         "title": "Container Services (Deprecated)",
-        "path": "/shapes/azure/compute/10049-icon-service-Container-Services-(Deprecated).svg"
+        "path": "/shapes/azure/compute/10049-icon-service-Container-Services-(Deprecated).svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "bc4e875f-7e58-4bce-9f08-933f4c821e0d",
         "title": "Container Instances",
-        "path": "/shapes/azure/compute/10104-icon-service-Container-Instances.svg"
+        "path": "/shapes/azure/compute/10104-icon-service-Container-Instances.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "efb3c06c-4c35-40d5-8b56-1cfc62501e86",
         "title": "Host Groups",
-        "path": "/shapes/azure/compute/10346-icon-service-Host-Groups.svg"
+        "path": "/shapes/azure/compute/10346-icon-service-Host-Groups.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "37fb013a-f7fd-447c-b46c-6984651b13a5",
         "title": "Hosts",
-        "path": "/shapes/azure/compute/10347-icon-service-Hosts.svg"
+        "path": "/shapes/azure/compute/10347-icon-service-Hosts.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "94a2e666-514b-4eec-8639-118c1b9f30c5",

@@ -2,6 +2,8 @@
     {
         "id": "28917583-700e-468d-9d59-6a03f716712a",
         "title": "Azure Database Migration Services",
-        "path": "/shapes/azure/migration/10133-icon-service-Azure-Database-Migration-Services.svg"
+        "path": "/shapes/azure/migration/10133-icon-service-Azure-Database-Migration-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     }
 ]

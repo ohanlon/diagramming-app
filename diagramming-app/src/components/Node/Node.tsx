@@ -252,13 +252,11 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         });
       }
 
-      const serializer = new XMLSerializer();
-      const coloredSvgContent = serializer.serializeToString(svgElement);
+      svgElement.setAttribute('width', '100%');
+      svgElement.setAttribute('height', '100%');
 
-      const scaledSvgContent = coloredSvgContent.replace(
-        /<svg([^>]*)>/,
-        `<svg$1 width="100%" height="100%">`
-      );
+      const serializer = new XMLSerializer();
+      const scaledSvgContent = serializer.serializeToString(svgElement);
 
       return (
         <foreignObject x={0} y={0} width={width} height={height}>

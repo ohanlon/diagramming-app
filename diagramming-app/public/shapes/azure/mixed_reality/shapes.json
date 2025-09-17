@@ -2,11 +2,15 @@
     {
         "id": "528dcfe0-8af9-419f-806c-4fdc4f7514e5",
         "title": "Remote Rendering",
-        "path": "/shapes/azure/mixed_reality/00698-icon-service-Remote-Rendering.svg"
+        "path": "/shapes/azure/mixed_reality/00698-icon-service-Remote-Rendering.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "a5efe2b2-1a1f-4744-9bce-2890a9bc4a77",
         "title": "Spatial Anchor Accounts",
-        "path": "/shapes/azure/mixed_reality/10352-icon-service-Spatial-Anchor-Accounts.svg"
+        "path": "/shapes/azure/mixed_reality/10352-icon-service-Spatial-Anchor-Accounts.svg",
+        "textPosition": "outside",
+        "autosize": true
     }
 ]

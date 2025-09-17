@@ -346,23 +346,32 @@ const Canvas: React.FC = () => {
     const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
     let minX = 0;
     let minY = 0;
-    let width = 100;
-    let height = 100;
+    let originalWidth = 100;
+    let originalHeight = 100;
     if (viewBoxMatch && viewBoxMatch[1]) {
       const viewBox = viewBoxMatch[1].split(' ').map(Number);
       minX = viewBox[0];
       minY = viewBox[1];
-      width = viewBox[2] - viewBox[0];
-      height = viewBox[3] - viewBox[1];
+      originalWidth = viewBox[2] - viewBox[0];
+      originalHeight = viewBox[3] - viewBox[1];
     }
+
+    const canvasElement = canvasRef.current;
+    if (!canvasElement) return;
+    const fontSize = parseFloat(getComputedStyle(canvasElement).fontSize);
+    const targetHeight = 5 * fontSize;
+
+    const aspectRatio = originalWidth / originalHeight;
+    const newHeight = targetHeight;
+    const newWidth = newHeight * aspectRatio;
 
     const newShape = {
       id: uuidv4(),
       type: shapeType,
       x: (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom,
       y: (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom,
-      width: width,
-      height: height,
+      width: newWidth,
+      height: newHeight,
       text: shapeType,
       color: color,
       layerId: activeSheet.activeLayerId,
@@ -371,8 +380,8 @@ const Canvas: React.FC = () => {
       minY: minY,
       fontFamily: selectedFont,
       textOffsetX: 0,
-      textOffsetY: height + 5,
-      textWidth: width,
+      textOffsetY: newHeight + 5,
+      textWidth: newWidth,
       textHeight: 20,
       textPosition: textPosition,
       autosize: autosize,

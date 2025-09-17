@@ -2,86 +2,120 @@
     {
         "id": "4d9b1f34-e804-45bb-ab5d-3d0a78ae53f9",
         "title": "Log Analytics Workspaces",
-        "path": "/shapes/azure/analytics/00009-icon-service-Log-Analytics-Workspaces.svg"
+        "path": "/shapes/azure/analytics/00009-icon-service-Log-Analytics-Workspaces.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "364a94d4-09a2-4660-a4d3-b939df4111d5",
         "title": "Event Hubs",
-        "path": "/shapes/azure/analytics/00039-icon-service-Event-Hubs.svg"
+        "path": "/shapes/azure/analytics/00039-icon-service-Event-Hubs.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "dbdb7594-ef1d-4b88-af5c-12713e940843",
         "title": "Stream Analytics Jobs",
-        "path": "/shapes/azure/analytics/00042-icon-service-Stream-Analytics-Jobs.svg"
+        "path": "/shapes/azure/analytics/00042-icon-service-Stream-Analytics-Jobs.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "9b1be7f8-458e-4c47-8e82-ce6354e9d45a",
         "title": "Endpoint Analytics",
-        "path": "/shapes/azure/analytics/00562-icon-service-Endpoint-Analytics.svg"
+        "path": "/shapes/azure/analytics/00562-icon-service-Endpoint-Analytics.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "1777fc2c-ffa0-4e7d-bb19-06a604427d2e",
         "title": "Azure Synapse Analytics",
-        "path": "/shapes/azure/analytics/00606-icon-service-Azure-Synapse-Analytics.svg"
+        "path": "/shapes/azure/analytics/00606-icon-service-Azure-Synapse-Analytics.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d258e673-8ce6-4a74-afe4-2539c1d5d512",
         "title": "Azure Workbooks",
-        "path": "/shapes/azure/analytics/02189-icon-service-Azure-Workbooks.svg"
+        "path": "/shapes/azure/analytics/02189-icon-service-Azure-Workbooks.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "0e7debda-1ac3-4a29-a324-bc186d690e25",
         "title": "Private Link Services",
-        "path": "/shapes/azure/analytics/02209-icon-service-Private-Link-Services.svg"
+        "path": "/shapes/azure/analytics/02209-icon-service-Private-Link-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "f93dd1ab-78b9-45de-82ae-1e220235b433",
         "title": "Power BI Embedded",
-        "path": "/shapes/azure/analytics/03332-icon-service-Power-BI-Embedded.svg"
+        "path": "/shapes/azure/analytics/03332-icon-service-Power-BI-Embedded.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "76d65235-f9ae-494a-a837-69e379668aeb",
         "title": "Power Platform",
-        "path": "/shapes/azure/analytics/03335-icon-service-Power-Platform.svg"
+        "path": "/shapes/azure/analytics/03335-icon-service-Power-Platform.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d8f51502-f689-49d3-b76f-e62ad2cb3619",
         "title": "Data Factories",
-        "path": "/shapes/azure/analytics/10126-icon-service-Data-Factories.svg"
+        "path": "/shapes/azure/analytics/10126-icon-service-Data-Factories.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "b4090f7a-3ef2-4b10-94b3-98096b3769f6",
         "title": "HD Insight Clusters",
-        "path": "/shapes/azure/analytics/10142-icon-service-HD-Insight-Clusters.svg"
+        "path": "/shapes/azure/analytics/10142-icon-service-HD-Insight-Clusters.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "be611db5-f9d0-43f8-a426-6cdaf801c4db",
         "title": "Data Lake Analytics",
-        "path": "/shapes/azure/analytics/10143-icon-service-Data-Lake-Analytics.svg"
+        "path": "/shapes/azure/analytics/10143-icon-service-Data-Lake-Analytics.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "ba21455b-9876-4b4d-967d-bae929fe917e",
         "title": "Azure Data Explorer Clusters",
-        "path": "/shapes/azure/analytics/10145-icon-service-Azure-Data-Explorer-Clusters.svg"
+        "path": "/shapes/azure/analytics/10145-icon-service-Azure-Data-Explorer-Clusters.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "605e142d-196d-49a9-a5c0-ba0133f1767d",
         "title": "Analysis Services",
-        "path": "/shapes/azure/analytics/10148-icon-service-Analysis-Services.svg"
+        "path": "/shapes/azure/analytics/10148-icon-service-Analysis-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d6abf6c0-962b-4d33-804e-6a4fbf43cddf",
         "title": "Event Hub Clusters",
-        "path": "/shapes/azure/analytics/10149-icon-service-Event-Hub-Clusters.svg"
+        "path": "/shapes/azure/analytics/10149-icon-service-Event-Hub-Clusters.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "addbb929-b96d-46ad-a003-bcda47703e67",
         "title": "Data Lake Store Gen1",
-        "path": "/shapes/azure/analytics/10150-icon-service-Data-Lake-Store-Gen1.svg"
+        "path": "/shapes/azure/analytics/10150-icon-service-Data-Lake-Store-Gen1.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "402ae3cb-82af-43d1-a093-a4b426cc5970",
         "title": "Azure Databricks",
-        "path": "/shapes/azure/analytics/10787-icon-service-Azure-Databricks.svg"
+        "path": "/shapes/azure/analytics/10787-icon-service-Azure-Databricks.svg",
+        "textPosition": "outside",
+        "autosize": true
     }
 ]

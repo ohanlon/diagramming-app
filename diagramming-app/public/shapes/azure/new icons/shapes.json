@@ -2,131 +2,183 @@
     {
         "id": "c29e7ceb-1776-4b84-bb58-cacedfa8db33",
         "title": "Load Balancer Hub",
-        "path": "/shapes/azure/new icons/029029174-icon-service-Load-Balancer-Hub.svg"
+        "path": "/shapes/azure/new icons/029029174-icon-service-Load-Balancer-Hub.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "c92d79cc-d33a-4b1f-a028-140be6f0cdb6",
         "title": "Toolchain Orchestrator",
-        "path": "/shapes/azure/new icons/029109619-icon-service-Toolchain-Orchestrator.svg"
+        "path": "/shapes/azure/new icons/029109619-icon-service-Toolchain-Orchestrator.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "833806f1-6afa-4a6b-8310-79cd50f98f54",
         "title": "Workload Orchestration",
-        "path": "/shapes/azure/new icons/029109619-icon-service-Workload-Orchestration.svg"
+        "path": "/shapes/azure/new icons/029109619-icon-service-Workload-Orchestration.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "aed3c8e2-1f7b-4c60-80c2-facd8570a5c8",
         "title": "Data Virtualization",
-        "path": "/shapes/azure/new icons/029203566-icon-service-Data-Virtualization.svg"
+        "path": "/shapes/azure/new icons/029203566-icon-service-Data-Virtualization.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "e7ea2ade-fcb7-4fc5-9a95-ae8c778b23dd",
         "title": "Edge Actions",
-        "path": "/shapes/azure/new icons/029273094-icon-service-Edge-Actions.svg"
+        "path": "/shapes/azure/new icons/029273094-icon-service-Edge-Actions.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "431f407d-cc03-4295-8703-b5b20b4c1308",
         "title": "FRD QA",
-        "path": "/shapes/azure/new icons/029455661-icon-service-FRD-QA.svg"
+        "path": "/shapes/azure/new icons/029455661-icon-service-FRD-QA.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d44884d2-decb-4cc8-b5bb-d6c41e486b10",
         "title": "Landing Zone",
-        "path": "/shapes/azure/new icons/029636048-icon-service-Landing-Zone.svg"
+        "path": "/shapes/azure/new icons/029636048-icon-service-Landing-Zone.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "fee03ced-d965-4d9f-b2f4-59f5a08fa721",
         "title": "Service Groups",
-        "path": "/shapes/azure/new icons/029637767-icon-service-Service-Groups.svg"
+        "path": "/shapes/azure/new icons/029637767-icon-service-Service-Groups.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "935511c2-5cf5-4a03-befc-2cd4601c01e4",
         "title": "Engage Center Connect",
-        "path": "/shapes/azure/new icons/029797391-icon-service-Engage-Center-Connect.svg"
+        "path": "/shapes/azure/new icons/029797391-icon-service-Engage-Center-Connect.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "4bb15df3-489d-4503-b1da-fe0832fae50c",
         "title": "Storage Hubs",
-        "path": "/shapes/azure/new icons/030486388-icon-service-Storage-Hubs.svg"
+        "path": "/shapes/azure/new icons/030486388-icon-service-Storage-Hubs.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "702c437a-4e33-4f33-ac84-9aa6dec741c9",
         "title": "Service Group Relationships",
-        "path": "/shapes/azure/new icons/030777508 -icon-service-Service-Group-Relationships.svg"
+        "path": "/shapes/azure/new icons/030777508 -icon-service-Service-Group-Relationships.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "8b19375d-252a-46ed-adc6-aeac7e484c03",
         "title": "Logic Apps Template",
-        "path": "/shapes/azure/new icons/032130874-icon-service-Logic-Apps-Template.svg"
+        "path": "/shapes/azure/new icons/032130874-icon-service-Logic-Apps-Template.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "529897d8-3d7d-45bf-9c2e-3372b8a375d1",
         "title": "promethus",
-        "path": "/shapes/azure/new icons/033112809-icon-service-promethus.svg"
+        "path": "/shapes/azure/new icons/033112809-icon-service-promethus.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "5eca1992-c4bb-49dc-beb5-4af57194b4c9",
         "title": "external id",
-        "path": "/shapes/azure/new icons/03425-icon-service-external-id.svg"
+        "path": "/shapes/azure/new icons/03425-icon-service-external-id.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "bd6afa1e-8cba-4ea0-ac70-14cf7f9cb5e4",
         "title": "external id modified",
-        "path": "/shapes/azure/new icons/034251-icon-service-external-id-modified.svg"
+        "path": "/shapes/azure/new icons/034251-icon-service-external-id-modified.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "6efd31c7-f645-455f-821c-833e22cbb583",
         "title": "Azure Consumption Commitment",
-        "path": "/shapes/azure/new icons/03495-icon-service-Azure-Consumption-Commitment.svg"
+        "path": "/shapes/azure/new icons/03495-icon-service-Azure-Consumption-Commitment.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "1c006d6f-37f0-4c89-98cc-b9589ea7fb6f",
         "title": "Edge Storage Accelerator",
-        "path": "/shapes/azure/new icons/03521-icon-service-Edge-Storage-Accelerator.svg"
+        "path": "/shapes/azure/new icons/03521-icon-service-Edge-Storage-Accelerator.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "9d202668-1999-4bb3-baa4-128cf9b014ea",
         "title": "SQL Database Fleet Manager",
-        "path": "/shapes/azure/new icons/03565-icon-service-SQL-Database-Fleet-Manager.svg"
+        "path": "/shapes/azure/new icons/03565-icon-service-SQL-Database-Fleet-Manager.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "4de97925-e67f-458c-902a-87f67047cf1e",
         "title": "Breeze",
-        "path": "/shapes/azure/new icons/03633-icon-service-Breeze.svg"
+        "path": "/shapes/azure/new icons/03633-icon-service-Breeze.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "df794eed-fd70-458b-b902-60c8dd67d099",
         "title": "Network Foundation Hub",
-        "path": "/shapes/azure/new icons/03643-icon-service-Network-Foundation-Hub.svg"
+        "path": "/shapes/azure/new icons/03643-icon-service-Network-Foundation-Hub.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d88fd1e3-48ff-466d-a543-57fbd351e5dd",
         "title": "Network Security Hub",
-        "path": "/shapes/azure/new icons/03650-icon-service-Network-Security-Hub.svg"
+        "path": "/shapes/azure/new icons/03650-icon-service-Network-Security-Hub.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "28374ba8-72f6-435f-b7ca-41e69adace03",
         "title": "Hybrid Connectivity Hub",
-        "path": "/shapes/azure/new icons/03656-icon-service-Hybrid-Connectivity-Hub.svg"
+        "path": "/shapes/azure/new icons/03656-icon-service-Hybrid-Connectivity-Hub.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "98e6b4ba-c9cc-4459-9464-9142990ae7f6",
         "title": "Azure Managed Redis",
-        "path": "/shapes/azure/new icons/03675-icon-service-Azure-Managed-Redis.svg"
+        "path": "/shapes/azure/new icons/03675-icon-service-Azure-Managed-Redis.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "956b9157-ef46-4a03-9259-626f12eb7a55",
         "title": "AI at Edge",
-        "path": "/shapes/azure/new icons/03687-icon-service-AI-at-Edge.svg"
+        "path": "/shapes/azure/new icons/03687-icon-service-AI-at-Edge.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d92f6084-38c5-4ab3-9fb3-656de86625ab",
         "title": "VPNClientWindows",
-        "path": "/shapes/azure/new icons/03694-icon-service-VPNClientWindows.svg"
+        "path": "/shapes/azure/new icons/03694-icon-service-VPNClientWindows.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "e811f392-f205-480c-aad4-dbb087fd0036",
         "title": "Planetary Computer Pro",
-        "path": "/shapes/azure/new icons/03755-icon-service-Planetary-Computer-Pro.svg"
+        "path": "/shapes/azure/new icons/03755-icon-service-Planetary-Computer-Pro.svg",
+        "textPosition": "outside",
+        "autosize": true
     }
 ]

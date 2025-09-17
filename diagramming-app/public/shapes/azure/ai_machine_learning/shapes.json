@@ -2,166 +2,232 @@
     {
         "id": "171bab28-8dc8-440e-81b5-2630b4fd62ac",
         "title": "Batch AI",
-        "path": "/shapes/azure/ai_machine_learning/00028-icon-service-Batch-AI.svg"
+        "path": "/shapes/azure/ai_machine_learning/00028-icon-service-Batch-AI.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "745cb552-3932-4d4a-90cd-6dd73e3b7089",
         "title": "Machine Learning Studio (Classic) Web Services",
-        "path": "/shapes/azure/ai_machine_learning/00030-icon-service-Machine-Learning-Studio-(Classic)-Web-Services.svg"
+        "path": "/shapes/azure/ai_machine_learning/00030-icon-service-Machine-Learning-Studio-(Classic)-Web-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "b438ec1d-8797-44f1-9f54-4933c6540459",
         "title": "Genomics",
-        "path": "/shapes/azure/ai_machine_learning/00031-icon-service-Genomics.svg"
+        "path": "/shapes/azure/ai_machine_learning/00031-icon-service-Genomics.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "6129fbfb-7955-4dc2-b655-21b683a4c8a1",
         "title": "Computer Vision",
-        "path": "/shapes/azure/ai_machine_learning/00792-icon-service-Computer-Vision.svg"
+        "path": "/shapes/azure/ai_machine_learning/00792-icon-service-Computer-Vision.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "59849a33-dcae-4a5e-a35d-3253e7fb8bcd",
         "title": "Custom Vision",
-        "path": "/shapes/azure/ai_machine_learning/00793-icon-service-Custom-Vision.svg"
+        "path": "/shapes/azure/ai_machine_learning/00793-icon-service-Custom-Vision.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "efb97189-97cb-47f3-bc7f-4f10161dc8b4",
         "title": "Face APIs",
-        "path": "/shapes/azure/ai_machine_learning/00794-icon-service-Face-APIs.svg"
+        "path": "/shapes/azure/ai_machine_learning/00794-icon-service-Face-APIs.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "5184487c-8d02-4050-890f-b27d41275ae7",
         "title": "Content Moderators",
-        "path": "/shapes/azure/ai_machine_learning/00795-icon-service-Content-Moderators.svg"
+        "path": "/shapes/azure/ai_machine_learning/00795-icon-service-Content-Moderators.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "a6b05015-b783-4574-970f-16f82a88ee5b",
         "title": "Personalizers",
-        "path": "/shapes/azure/ai_machine_learning/00796-icon-service-Personalizers.svg"
+        "path": "/shapes/azure/ai_machine_learning/00796-icon-service-Personalizers.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "43ff1fbc-b6bb-4e86-aace-a5778a8da235",
         "title": "Speech Services",
-        "path": "/shapes/azure/ai_machine_learning/00797-icon-service-Speech-Services.svg"
+        "path": "/shapes/azure/ai_machine_learning/00797-icon-service-Speech-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "e9ffc047-42fd-45c8-af27-1b8030eec54c",
         "title": "QnA Makers",
-        "path": "/shapes/azure/ai_machine_learning/00799-icon-service-QnA-Makers.svg"
+        "path": "/shapes/azure/ai_machine_learning/00799-icon-service-QnA-Makers.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "a8ff5009-4dbd-4e42-aaa8-d7424ae1c0b3",
         "title": "Translator Text",
-        "path": "/shapes/azure/ai_machine_learning/00800-icon-service-Translator-Text.svg"
+        "path": "/shapes/azure/ai_machine_learning/00800-icon-service-Translator-Text.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "f081ffd9-218f-4ba1-a0e5-ca0d33480729",
         "title": "Language Understanding",
-        "path": "/shapes/azure/ai_machine_learning/00801-icon-service-Language-Understanding.svg"
+        "path": "/shapes/azure/ai_machine_learning/00801-icon-service-Language-Understanding.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "2ed27f0e-a776-4eb8-a31a-2d9a8e1900ac",
         "title": "Immersive Readers",
-        "path": "/shapes/azure/ai_machine_learning/00812-icon-service-Immersive-Readers.svg"
+        "path": "/shapes/azure/ai_machine_learning/00812-icon-service-Immersive-Readers.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "fd47c641-44cf-45ee-9fc7-3154b2929d6a",
         "title": "Anomaly Detector",
-        "path": "/shapes/azure/ai_machine_learning/00814-icon-service-Anomaly-Detector.svg"
+        "path": "/shapes/azure/ai_machine_learning/00814-icon-service-Anomaly-Detector.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "c73020d6-02a3-42ae-a5de-22b8abfeea1b",
         "title": "Form Recognizers",
-        "path": "/shapes/azure/ai_machine_learning/00819-icon-service-Form-Recognizers.svg"
+        "path": "/shapes/azure/ai_machine_learning/00819-icon-service-Form-Recognizers.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "cdfb2254-74ef-41a9-9567-0659aaea1922",
         "title": "Azure Experimentation Studio",
-        "path": "/shapes/azure/ai_machine_learning/01239-icon-service-Azure-Experimentation-Studio.svg"
+        "path": "/shapes/azure/ai_machine_learning/01239-icon-service-Azure-Experimentation-Studio.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "12347532-e27c-4e51-ac7c-e046b18a47a1",
         "title": "Azure Object Understanding",
-        "path": "/shapes/azure/ai_machine_learning/01688-icon-service-Azure-Object-Understanding.svg"
+        "path": "/shapes/azure/ai_machine_learning/01688-icon-service-Azure-Object-Understanding.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "c374a767-43ba-4806-9ca6-da0bd416757e",
         "title": "Metrics Advisor",
-        "path": "/shapes/azure/ai_machine_learning/02409-icon-service-Metrics-Advisor.svg"
+        "path": "/shapes/azure/ai_machine_learning/02409-icon-service-Metrics-Advisor.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "343029a1-7589-404f-905b-62c3fb486c39",
         "title": "Azure Applied AI Services",
-        "path": "/shapes/azure/ai_machine_learning/02749-icon-service-Azure-Applied-AI-Services.svg"
+        "path": "/shapes/azure/ai_machine_learning/02749-icon-service-Azure-Applied-AI-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "39452466-d518-4b63-a73d-d6cdf7673dde",
         "title": "Language",
-        "path": "/shapes/azure/ai_machine_learning/02876-icon-service-Language.svg"
+        "path": "/shapes/azure/ai_machine_learning/02876-icon-service-Language.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "4fa3ac4f-ad02-4dea-9b5b-f14cf617a3b4",
         "title": "Cognitive Services Decisions",
-        "path": "/shapes/azure/ai_machine_learning/03173-icon-service-Cognitive-Services-Decisions.svg"
+        "path": "/shapes/azure/ai_machine_learning/03173-icon-service-Cognitive-Services-Decisions.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "42b581f8-22cb-4759-9db0-7002008bb3f2",
         "title": "Serverless Search",
-        "path": "/shapes/azure/ai_machine_learning/03321-icon-service-Serverless-Search.svg"
+        "path": "/shapes/azure/ai_machine_learning/03321-icon-service-Serverless-Search.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "1c90628d-ec2e-4f90-af97-3f8d4f4a8a8c",
         "title": "Bonsai",
-        "path": "/shapes/azure/ai_machine_learning/03337-icon-service-Bonsai.svg"
+        "path": "/shapes/azure/ai_machine_learning/03337-icon-service-Bonsai.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "e20d1ee6-32fa-4282-962c-e32dfd521e5c",
         "title": "Content Safety",
-        "path": "/shapes/azure/ai_machine_learning/03390-icon-service-Content-Safety.svg"
+        "path": "/shapes/azure/ai_machine_learning/03390-icon-service-Content-Safety.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "91b43fa3-8f6b-4111-be81-f6c92da75e58",
         "title": "Azure OpenAI",
-        "path": "/shapes/azure/ai_machine_learning/03438-icon-service-Azure-OpenAI.svg"
+        "path": "/shapes/azure/ai_machine_learning/03438-icon-service-Azure-OpenAI.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "3328d5dc-71e0-444b-81a9-301970078227",
         "title": "AI Studio",
-        "path": "/shapes/azure/ai_machine_learning/03513-icon-service-AI-Studio.svg"
+        "path": "/shapes/azure/ai_machine_learning/03513-icon-service-AI-Studio.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "1e040682-7484-4451-9e30-d40edb0988bf",
         "title": "Cognitive Search",
-        "path": "/shapes/azure/ai_machine_learning/10044-icon-service-Cognitive-Search.svg"
+        "path": "/shapes/azure/ai_machine_learning/10044-icon-service-Cognitive-Search.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "f6890d47-f7a6-44c6-bd1d-20cddc3be53c",
         "title": "Cognitive Services",
-        "path": "/shapes/azure/ai_machine_learning/10162-icon-service-Cognitive-Services.svg"
+        "path": "/shapes/azure/ai_machine_learning/10162-icon-service-Cognitive-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "384f3d85-64d8-497e-af98-425faa8b2738",
         "title": "Genomics Accounts",
-        "path": "/shapes/azure/ai_machine_learning/10164-icon-service-Genomics-Accounts.svg"
+        "path": "/shapes/azure/ai_machine_learning/10164-icon-service-Genomics-Accounts.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "7da8620c-6ece-4b6a-aa38-617f762ee85b",
         "title": "Bot Services",
-        "path": "/shapes/azure/ai_machine_learning/10165-icon-service-Bot-Services.svg"
+        "path": "/shapes/azure/ai_machine_learning/10165-icon-service-Bot-Services.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "d840f9d0-9441-4efa-82a7-a040020127a2",
         "title": "Machine Learning",
-        "path": "/shapes/azure/ai_machine_learning/10166-icon-service-Machine-Learning.svg"
+        "path": "/shapes/azure/ai_machine_learning/10166-icon-service-Machine-Learning.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "74a90dae-3aed-448c-ab91-59b89e9e84c1",
         "title": "Machine Learning Studio Workspaces",
-        "path": "/shapes/azure/ai_machine_learning/10167-icon-service-Machine-Learning-Studio-Workspaces.svg"
+        "path": "/shapes/azure/ai_machine_learning/10167-icon-service-Machine-Learning-Studio-Workspaces.svg",
+        "textPosition": "outside",
+        "autosize": true
     },
     {
         "id": "8b2e5d69-35ca-487c-a016-b87ce7a79ff8",
         "title": "Machine Learning Studio Web Service Plans",
-        "path": "/shapes/azure/ai_machine_learning/10168-icon-service-Machine-Learning-Studio-Web-Service-Plans.svg"
+        "path": "/shapes/azure/ai_machine_learning/10168-icon-service-Machine-Learning-Studio-Web-Service-Plans.svg",
+        "textPosition": "outside",
+        "autosize": true
     }
 ]

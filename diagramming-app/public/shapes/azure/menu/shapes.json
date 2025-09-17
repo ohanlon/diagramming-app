@@ -2,6 +2,8 @@
     {
         "id": "3bdb1e34-5860-4395-ad45-c535e7ad778f",
         "title": "Keys",
-        "path": "/shapes/azure/menu/00787-icon-service-Keys.svg"
+        "path": "/shapes/azure/menu/00787-icon-service-Keys.svg",
+        "textPosition": "outside",
+        "autosize": true
     }
 ]
