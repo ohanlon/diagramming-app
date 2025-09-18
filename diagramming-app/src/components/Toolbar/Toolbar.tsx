@@ -146,6 +146,7 @@ const ToolbarComponent: React.FC = () => {
 
   const selectedShapes = useMemo(() => activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean), [activeSheet.selectedShapeIds, activeSheet.shapesById]);
   const hasSelectedShapes = selectedShapes.length > 0;
+  const hasSelectedConnectors = activeSheet.selectedConnectorIds.length > 0;
 
   useEffect(() => {
     if (hasSelectedShapes) {
@@ -242,6 +243,7 @@ const ToolbarComponent: React.FC = () => {
       canUndo,
       canRedo,
       hasSelectedShapes,
+      hasSelectedConnectors,
       isBoldActive,
       isItalicActive,
       isUnderlinedActive,
@@ -284,6 +286,7 @@ const ToolbarComponent: React.FC = () => {
     canUndo,
     canRedo,
     hasSelectedShapes,
+    hasSelectedConnectors,
     isBoldActive,
     isItalicActive,
     isUnderlinedActive,

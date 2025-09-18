@@ -40,13 +40,14 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   // Generate SVG path 'd' attribute from points
   const d = path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
-  const markerId = `arrowhead_${connector.id}`;
+  const standardArrowId = `arrowhead_standard_${connector.id}`;
+  const polygonArrowId = `arrowhead_polygon_${connector.id}`;
 
   return (
     <g style={{ opacity: isFaded ? 0.6 : 1 }}>
       <defs>
         <marker
-          id={markerId}
+          id={standardArrowId}
           viewBox="0 0 10 10"
           refX="8"
           refY="5"
@@ -55,6 +56,17 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
           orient="auto-start-reverse"
         >
           <path d="M 0 0 L 10 5 L 0 10 z" fill="black" />
+        </marker>
+        <marker
+          id={polygonArrowId}
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <polygon points="0,0 10,3.5 0,7" fill="black" />
         </marker>
       </defs>
       <path
@@ -75,8 +87,8 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         role="graphics-symbol"
         aria-label="Connector between nodes"
         strokeDasharray={connector.lineStyle === 'dashed' ? '8, 4' : connector.lineStyle === 'long-dash' ? '16 8' : connector.lineStyle === 'dot-dash' ? '8 4 1 4' : connector.lineStyle === 'custom-1' ? '16 4 1 4 1 4' : connector.lineStyle === 'custom-2' ? '40 10 20 10' : 'none'}
-        markerStart={connector.startArrow === 'standard_arrow' ? `url(#${markerId})` : 'none'}
-        markerEnd={connector.endArrow === 'standard_arrow' ? `url(#${markerId})` : 'none'}
+        markerStart={connector.startArrow === 'standard_arrow' ? `url(#${standardArrowId})` : connector.startArrow === 'polygon_arrow' ? `url(#${polygonArrowId})` : 'none'}
+        markerEnd={connector.endArrow === 'standard_arrow' ? `url(#${standardArrowId})` : connector.endArrow === 'polygon_arrow' ? `url(#${polygonArrowId})` : 'none'}
         onClick={() => setSelectedConnectors([connector.id])}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}

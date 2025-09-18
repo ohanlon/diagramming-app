@@ -42,12 +42,16 @@ export const LINE_STYLE_SVG: Record<LineStyle, string> = {
 
 export const ARROW_STYLE_SVG: Record<ArrowStyle, {start: string, end: string}> = {
     none: {
-        start: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H80" stroke="black" stroke-width="2"/></svg>`,
-        end: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H80" stroke="black" stroke-width="2"/></svg>`
+        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`,
+        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`
     },
     standard_arrow: {
-        start: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1L2 6L10 11" stroke="black" stroke-width="2"/><path d="M2 6H80" stroke="black" stroke-width="2"/></svg>`,
-        end: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M70 1L78 6L70 11" stroke="black" stroke-width="2"/><path d="M0 6H78" stroke="black" stroke-width="2"/></svg>`
+        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1L2 6L10 11" stroke="black" stroke-width="2"/><path d="M2 6H30" stroke="black" stroke-width="2"/></svg>`,
+        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 1L28 6L20 11" stroke="black" stroke-width="2"/><path d="M0 6H28" stroke="black" stroke-width="2"/></svg>`
+    },
+    polygon_arrow: {
+        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L0 6L10 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`,
+        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2.5L30 6L20 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`
     }
 };
 
@@ -71,6 +75,7 @@ export interface GetInitialToolsProps {
     canUndo: boolean;
     canRedo: boolean;
     hasSelectedShapes: boolean;
+    hasSelectedConnectors: boolean;
     isBoldActive: boolean;
     isItalicActive: boolean;
     isUnderlinedActive: boolean;
@@ -114,6 +119,7 @@ export const getInitialTools = ({
     canUndo,
     canRedo,
     hasSelectedShapes,
+    hasSelectedConnectors,
     isBoldActive,
     isItalicActive,
     isUnderlinedActive,
@@ -328,7 +334,7 @@ export const getInitialTools = ({
         {
             id: 'line-style',
             element: (
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }} disabled={!hasSelectedConnectors}>
                     <Select
                         value={currentLineStyle}
                         onChange={handleLineStyleChange}
@@ -359,6 +365,7 @@ export const getInitialTools = ({
                     inputProps={{ min: 1, max: 12, step: 1 }}
                     sx={{ width: 40, margin: '8px' }}
                     variant="standard"
+                    disabled={!hasSelectedConnectors}
                 />
             ),
             width: 90,
@@ -366,7 +373,7 @@ export const getInitialTools = ({
         {
             id: 'start-arrow',
             element: (
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <FormControl variant="standard" sx={{ m: 1, width: '4em' }} disabled={!hasSelectedConnectors}>
                     <Select
                         value={currentStartArrow}
                         onChange={handleStartArrowChange}
@@ -385,12 +392,12 @@ export const getInitialTools = ({
                     </Select>
                 </FormControl>
             ),
-            width: 140,
+            width: 60,
         },
         {
             id: 'end-arrow',
             element: (
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <FormControl variant="standard" sx={{ m: 1, width: '4em' }} disabled={!hasSelectedConnectors}>
                     <Select
                         value={currentEndArrow}
                         onChange={handleEndArrowChange}
@@ -409,7 +416,7 @@ export const getInitialTools = ({
                     </Select>
                 </FormControl>
             ),
-            width: 140,
+            width: 60,
         },
         {
             id: 'divider-4',

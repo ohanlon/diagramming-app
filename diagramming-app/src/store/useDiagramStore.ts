@@ -513,7 +513,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       const newConnector = {
         ...connector,
         startArrow: 'none',
-        endArrow: 'standard_arrow',
+        endArrow: 'polygon_arrow',
       };
 
       return {
