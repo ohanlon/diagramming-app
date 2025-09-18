@@ -29,11 +29,6 @@ import {
   VerticalAlignTop,
 } from '@mui/icons-material';
 import type { LineStyle, ArrowStyle } from '../../types';
-
-export const arrowStyles: { name: string, value: ArrowStyle }[] = [
-    { name: 'None', value: 'none' },
-    { name: 'Standard Arrow', value: 'standard_arrow' },
-];
 import { googleFonts, fontSizes } from './Fonts';
 
 export const LINE_STYLE_SVG: Record<LineStyle, string> = {
@@ -43,6 +38,17 @@ export const LINE_STYLE_SVG: Record<LineStyle, string> = {
     'dot-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="2 3 10 3"/></svg>`,
     'custom-1': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="16 4 1 4 1 4"/></svg>`,
     'custom-2': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="40 10 20 10"/></svg>`,
+};
+
+export const ARROW_STYLE_SVG: Record<ArrowStyle, {start: string, end: string}> = {
+    none: {
+        start: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H80" stroke="black" stroke-width="2"/></svg>`,
+        end: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H80" stroke="black" stroke-width="2"/></svg>`
+    },
+    standard_arrow: {
+        start: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1L2 6L10 11" stroke="black" stroke-width="2"/><path d="M2 6H80" stroke="black" stroke-width="2"/></svg>`,
+        end: `<svg width="80" height="12" viewBox="0 0 80 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M70 1L78 6L70 11" stroke="black" stroke-width="2"/><path d="M0 6H78" stroke="black" stroke-width="2"/></svg>`
+    }
 };
 
 export const lineStyles: { name: string, value: LineStyle }[] = [
@@ -367,10 +373,13 @@ export const getInitialTools = ({
                         displayEmpty
                         inputProps={{ 'aria-label': 'Start Arrow' }}
                         sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        renderValue={(selected) => (
+                            <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[selected as ArrowStyle].start }} />
+                        )}
                     >
-                        {arrowStyles.map((style) => (
-                            <MenuItem key={style.value} value={style.value}>
-                                {style.name}
+                        {Object.keys(ARROW_STYLE_SVG).map((style) => (
+                            <MenuItem key={style} value={style}>
+                                <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[style as ArrowStyle].start }} />
                             </MenuItem>
                         ))}
                     </Select>
@@ -388,10 +397,13 @@ export const getInitialTools = ({
                         displayEmpty
                         inputProps={{ 'aria-label': 'End Arrow' }}
                         sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        renderValue={(selected) => (
+                            <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[selected as ArrowStyle].end }} />
+                        )}
                     >
-                        {arrowStyles.map((style) => (
-                            <MenuItem key={style.value} value={style.value}>
-                                {style.name}
+                        {Object.keys(ARROW_STYLE_SVG).map((style) => (
+                            <MenuItem key={style} value={style}>
+                                <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[style as ArrowStyle].end }} />
                             </MenuItem>
                         ))}
                     </Select>
