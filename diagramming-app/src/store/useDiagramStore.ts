@@ -370,6 +370,15 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       const shape = currentSheet.shapesById[id];
       if (!shape) return state;
 
+      let updatedTextOffsetY = shape.textOffsetY;
+      // Only adjust textOffsetY if textPosition is 'outside'
+      if (shape.textPosition === 'outside') {
+        const originalHeight = shape.height;
+        const originalTextOffsetY = shape.textOffsetY;
+        const distanceFromBottom = originalHeight - originalTextOffsetY;
+        updatedTextOffsetY = newHeight - distanceFromBottom;
+      }
+
       return {
         ...state,
         sheets: {
@@ -378,7 +387,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             ...currentSheet,
             shapesById: {
               ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight },
+              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetY: updatedTextOffsetY },
             },
           },
         },
@@ -421,7 +430,14 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       dimensions.forEach(({ id, x, y, width, height }: { id: string; x: number; y: number; width: number; height: number }) => {
         const shape = newShapesById[id];
         if (shape) {
-          newShapesById[id] = { ...shape, x, y, width, height };
+          let updatedTextOffsetY = shape.textOffsetY;
+          if (shape.textPosition === 'outside') {
+            const originalHeight = shape.height;
+            const originalTextOffsetY = shape.textOffsetY;
+            const distanceFromBottom = originalHeight - originalTextOffsetY;
+            updatedTextOffsetY = height - distanceFromBottom;
+          }
+          newShapesById[id] = { ...shape, x, y, width, height, textOffsetY: updatedTextOffsetY };
         }
       });
       return {
