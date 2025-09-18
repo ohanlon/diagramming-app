@@ -180,10 +180,10 @@ const ShapeStore: React.FC = () => {
           setSearchTerm(newInputValue);
         }}
         renderInput={(params) => <TextField {...params} label="Search Shapes & Categories" variant="outlined" size="small" />}
-        sx={{ mb: 2, flexShrink: 0 }}
+        sx={{ mb: 0, flexShrink: 0 }}
       />
 
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }}>
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 0 }}>
         {visibleCategories.map(entry => (
           <Accordion
             key={entry.id}

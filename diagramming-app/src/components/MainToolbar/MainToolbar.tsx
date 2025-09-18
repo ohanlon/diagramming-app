@@ -94,14 +94,16 @@ const MainToolbar: React.FC = () => {
   };
 
   return (
-    <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+    <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black', minHeight: '2em' }}>
       <Button onClick={handleFileMenuOpen} sx={{ color: 'black' }}>
         File
       </Button>
       <Menu
+        elevation={0}
         anchorEl={fileMenuAnchorEl}
         open={Boolean(fileMenuAnchorEl)}
         onClose={handleFileMenuClose}
+        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
       >
         <MenuItem
           onMouseOver={handleNewSubMenuOpen}
@@ -112,6 +114,7 @@ const MainToolbar: React.FC = () => {
         </MenuItem>
       </Menu>
       <Menu
+        elevation={0}
         anchorEl={newMenuAnchorEl}
         open={Boolean(newMenuAnchorEl)}
         onClose={handleNewSubMenuClose}
@@ -124,6 +127,7 @@ const MainToolbar: React.FC = () => {
           vertical: 'center',
           horizontal: 'left',
         }}
+        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
       >
         <MenuItem onClick={handleNewDiagram}>Diagram</MenuItem>
       </Menu>
@@ -132,9 +136,11 @@ const MainToolbar: React.FC = () => {
         Edit
       </Button>
       <Menu
+        elevation={0}
         anchorEl={editMenuAnchorEl}
         open={Boolean(editMenuAnchorEl)}
         onClose={handleEditMenuClose}
+        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
       >
         <MenuItem onClick={handleUndo} disabled={history.past.length === 0}>
           <ListItemIcon>
@@ -178,9 +184,11 @@ const MainToolbar: React.FC = () => {
         Select
       </Button>
       <Menu
+        elevation={0}
         anchorEl={selectMenuAnchorEl}
         open={Boolean(selectMenuAnchorEl)}
         onClose={handleSelectMenuClose}
+        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
       >
         <MenuItem onClick={handleSelectAll}>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>All</ListItemText>
