@@ -28,7 +28,12 @@ import {
   VerticalAlignCenter,
   VerticalAlignTop,
 } from '@mui/icons-material';
-import type { LineStyle } from '../../types';
+import type { LineStyle, ArrowStyle } from '../../types';
+
+export const arrowStyles: { name: string, value: ArrowStyle }[] = [
+    { name: 'None', value: 'none' },
+    { name: 'Standard Arrow', value: 'standard_arrow' },
+];
 import { googleFonts, fontSizes } from './Fonts';
 
 export const LINE_STYLE_SVG: Record<LineStyle, string> = {
@@ -73,10 +78,14 @@ export interface GetInitialToolsProps {
     currentShapeColor: string;
     currentLineStyle: LineStyle;
     currentLineWidth: number;
+    currentStartArrow: ArrowStyle;
+    currentEndArrow: ArrowStyle;
     handleFontChange: (event: SelectChangeEvent<string>) => void;
     handleFontSizeChange: (event: SelectChangeEvent<string>) => void;
     handleLineStyleChange: (event: SelectChangeEvent<string>) => void;
     handleLineWidthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleStartArrowChange: (event: SelectChangeEvent<string>) => void;
+    handleEndArrowChange: (event: SelectChangeEvent<string>) => void;
     resetStore: () => void;
     undo: () => void;
     redo: () => void;
@@ -112,12 +121,16 @@ export const getInitialTools = ({
     currentShapeColor,
     currentLineStyle,
     currentLineWidth,
+    currentStartArrow,
+    currentEndArrow,
     handleColorPickerClick,
     handleShapeColorPickerClick,
     handleFontChange,
     handleFontSizeChange,
     handleLineStyleChange,
     handleLineWidthChange,
+    handleStartArrowChange,
+    handleEndArrowChange,
     undo,
     redo,
     cutShape,
@@ -343,6 +356,48 @@ export const getInitialTools = ({
                 />
             ),
             width: 90,
+        },
+        {
+            id: 'start-arrow',
+            element: (
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                    <Select
+                        value={currentStartArrow}
+                        onChange={handleStartArrowChange}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Start Arrow' }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                    >
+                        {arrowStyles.map((style) => (
+                            <MenuItem key={style.value} value={style.value}>
+                                {style.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            ),
+            width: 140,
+        },
+        {
+            id: 'end-arrow',
+            element: (
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                    <Select
+                        value={currentEndArrow}
+                        onChange={handleEndArrowChange}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'End Arrow' }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                    >
+                        {arrowStyles.map((style) => (
+                            <MenuItem key={style.value} value={style.value}>
+                                {style.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            ),
+            width: 140,
         },
         {
             id: 'divider-4',

@@ -3,7 +3,7 @@ import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { debounce } from '../../utils/debounce';
-import type { LineStyle } from '../../types';
+import type { LineStyle, ArrowStyle } from '../../types';
 import ColorPicker from '../ColorPicker/ColorPicker';
 import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
 import { colors as shapeColors } from '../ShapeColorPicker/colors';
@@ -21,6 +21,8 @@ const ToolbarComponent: React.FC = () => {
     updateShapeSvgContent,
     setSelectedLineStyle,
     setSelectedLineWidth,
+    setSelectedStartArrow,
+    setSelectedEndArrow,
     undo,
     redo,
     cutShape,
@@ -46,18 +48,24 @@ const ToolbarComponent: React.FC = () => {
   const [currentTextColor, setCurrentTextColor] = useState('#000000');
   const [currentLineStyle, setCurrentLineStyle] = useState<LineStyle>(activeSheet.selectedLineStyle);
   const [currentLineWidth, setCurrentLineWidth] = useState<number>(activeSheet.selectedLineWidth);
+  const [currentStartArrow, setCurrentStartArrow] = useState<ArrowStyle>('none');
+  const [currentEndArrow, setCurrentEndArrow] = useState<ArrowStyle>('standard_arrow');
 
   useEffect(() => {
     if (!activeSheet || activeSheet.selectedConnectorIds === undefined) return;
 
     let newLineStyle = activeSheet.selectedLineStyle;
     let newLineWidth = activeSheet.selectedLineWidth;
+    let newStartArrow: ArrowStyle = 'none';
+    let newEndArrow: ArrowStyle = 'standard_arrow';
 
     if (activeSheet.selectedConnectorIds.length > 0) {
       const firstSelectedConnector = activeSheet.connectors[activeSheet.selectedConnectorIds[0]];
       if (firstSelectedConnector) {
         newLineStyle = firstSelectedConnector.lineStyle || 'continuous';
         newLineWidth = firstSelectedConnector.lineWidth || 1;
+        newStartArrow = firstSelectedConnector.startArrow || 'none';
+        newEndArrow = firstSelectedConnector.endArrow || 'standard_arrow';
       }
     }
 
@@ -67,7 +75,13 @@ const ToolbarComponent: React.FC = () => {
     if (currentLineWidth !== newLineWidth) {
       setCurrentLineWidth(newLineWidth);
     }
-  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, currentLineStyle, currentLineWidth]);
+    if (currentStartArrow !== newStartArrow) {
+      setCurrentStartArrow(newStartArrow);
+    }
+    if (currentEndArrow !== newEndArrow) {
+      setCurrentEndArrow(newEndArrow);
+    }
+  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, currentLineStyle, currentLineWidth, currentStartArrow, currentEndArrow]);
 
 
 
@@ -197,6 +211,14 @@ const ToolbarComponent: React.FC = () => {
     setSelectedLineStyle(event.target.value as LineStyle);
   }, [setSelectedLineStyle]);
 
+  const handleStartArrowChange = useCallback((event: SelectChangeEvent<string>) => {
+    setSelectedStartArrow(event.target.value as ArrowStyle);
+  }, [setSelectedStartArrow]);
+
+  const handleEndArrowChange = useCallback((event: SelectChangeEvent<string>) => {
+    setSelectedEndArrow(event.target.value as ArrowStyle);
+  }, [setSelectedEndArrow]);
+
   const handleLineWidthChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
     if (!isNaN(value) && value >= 1 && value <= 12) {
@@ -233,12 +255,16 @@ const ToolbarComponent: React.FC = () => {
       currentShapeColor,
       currentLineStyle,
       currentLineWidth,
+      currentStartArrow,
+      currentEndArrow,
       handleColorPickerClick,
       handleShapeColorPickerClick,
       handleFontChange,
       handleFontSizeChange,
       handleLineStyleChange,
       handleLineWidthChange,
+      handleStartArrowChange,
+      handleEndArrowChange,
       resetStore,
       undo,
       redo,
@@ -271,12 +297,16 @@ const ToolbarComponent: React.FC = () => {
     currentShapeColor,
     currentLineStyle,
     currentLineWidth,
+    currentStartArrow,
+    currentEndArrow,
     handleColorPickerClick,
     handleShapeColorPickerClick,
     handleFontChange,
     handleFontSizeChange,
     handleLineStyleChange,
     handleLineWidthChange,
+    handleStartArrowChange,
+    handleEndArrowChange,
     resetStore,
     undo,
     redo,

@@ -4,7 +4,11 @@ import type { Sheet, DiagramState, HistoryState, LineStyle, Shape, Connector, Po
 import { v4 as uuidv4 } from 'uuid';
 
 
+import type { Sheet, DiagramState, HistoryState, LineStyle, Shape, Connector, Point, Layer, ArrowStyle } from '../types';
+
 interface DiagramStoreActions {
+  setSelectedStartArrow: (arrowStyle: ArrowStyle) => void;
+  setSelectedEndArrow: (arrowStyle: ArrowStyle) => void;
   setSelectedLineWidth: (width: number) => void;
   updateShapeSvgContent: (id: string, svgContent: string) => void;
   setSelectedShapeColor: (color: string) => void;
@@ -506,13 +510,19 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
+      const newConnector = {
+        ...connector,
+        startArrow: 'none',
+        endArrow: 'standard_arrow',
+      };
+
       return {
         ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
             ...currentSheet,
-            connectors: { ...currentSheet.connectors, [connector.id]: connector },
+            connectors: { ...currentSheet.connectors, [connector.id]: newConnector },
             selectedConnectorIds: [], // Deselect all connectors when a new one is added
           },
         },
@@ -1546,6 +1556,60 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           [state.activeSheetId]: {
             ...currentSheet,
             selectedLineWidth: width,
+            connectors: newConnectors,
+          },
+        },
+      };
+    });
+  },
+
+  setSelectedStartArrow: (arrowStyle: ArrowStyle) => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const newConnectors = { ...currentSheet.connectors };
+      currentSheet.selectedConnectorIds.forEach((connectorId: string) => {
+        const connector = newConnectors[connectorId];
+        if (connector) {
+          newConnectors[connectorId] = { ...connector, startArrow: arrowStyle };
+        }
+      });
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            connectors: newConnectors,
+          },
+        },
+      };
+    });
+  },
+
+  setSelectedEndArrow: (arrowStyle: ArrowStyle) => {
+    addHistory(set);
+    set((state: DiagramState) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const newConnectors = { ...currentSheet.connectors };
+      currentSheet.selectedConnectorIds.forEach((connectorId: string) => {
+        const connector = newConnectors[connectorId];
+        if (connector) {
+          newConnectors[connectorId] = { ...connector, endArrow: arrowStyle };
+        }
+      });
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
             connectors: newConnectors,
           },
         },

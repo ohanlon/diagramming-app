@@ -59,6 +59,8 @@ export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
 
 export type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash' | 'custom-1' | 'custom-2';
 
+export type ArrowStyle = 'none' | 'standard_arrow';
+
 export type Connector = {
   id: string;
   startNodeId: string;
@@ -67,6 +69,8 @@ export type Connector = {
   endAnchorType: AnchorType;
   lineStyle?: LineStyle;
   lineWidth?: number;
+  startArrow?: ArrowStyle;
+  endArrow?: ArrowStyle;
 };
 
 export type Sheet = {
