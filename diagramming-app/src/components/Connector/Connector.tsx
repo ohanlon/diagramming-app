@@ -34,7 +34,9 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     startNode,
     endNode,
     connector.startAnchorType,
-    connector.endAnchorType
+    connector.endAnchorType,
+    connector.startArrow || 'none',
+    connector.endArrow || 'polygon_arrow'
   );
 
   // Generate SVG path 'd' attribute from points
@@ -49,7 +51,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         <marker
           id={standardArrowId}
           viewBox="0 0 10 10"
-          refX="8"
+          refX="10"
           refY="5"
           markerWidth="6"
           markerHeight="6"
@@ -60,7 +62,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         <marker
           id={polygonArrowId}
           viewBox="0 0 10 10"
-          refX="8"
+          refX="10"
           refY="5"
           markerWidth="6"
           markerHeight="6"
