@@ -44,7 +44,8 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     return null;
   }
 
-  const arrowLength = 10;
+  const { lineWidth = 2 } = connector;
+  const arrowLength = 5 * lineWidth;
   const shortening = arrowLength * Math.cos(Math.PI / 6);
   const dPath = [...path.map(p => ({...p}))];
   let endArrowPoints: Point[] = [];
