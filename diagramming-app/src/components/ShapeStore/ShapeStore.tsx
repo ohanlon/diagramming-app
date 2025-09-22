@@ -260,9 +260,7 @@ const ShapeStore: React.FC = () => {
                         draggable
                         onDragStart={(e) => {
                           e.dataTransfer.setData('shapeType', shape.name || '');
-                          if (shape.shape) {
-                            e.dataTransfer.setData('svgContent', shape.shape);
-                          }
+                          // Removed: e.dataTransfer.setData('svgContent', shape.shape);
                           if (shape.interaction) {
                             e.dataTransfer.setData('interaction', JSON.stringify(shape.interaction));
                           }

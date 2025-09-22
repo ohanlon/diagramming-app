@@ -37,8 +37,8 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown, activeLayerId, layers }) => {
-  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor, interaction } = shape;
-  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected } = useDiagramStore();
+  const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor, interaction, path } = shape; // Added path
+  const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected, updateShapeSvgContent } = useDiagramStore(); // Added updateShapeSvgContent
   const activeSheet = sheets[activeSheetId];
   const [isResizing, setIsResizing] = useState(false);
 
@@ -174,12 +174,28 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     } else {
       document.removeEventListener('mousemove', handleResizeMouseMove);
       document.removeEventListener('mouseup', handleResizeMouseUp);
-    }
+    };
     return () => {
       document.removeEventListener('mousemove', handleResizeMouseMove);
       document.removeEventListener('mouseup', handleResizeMouseUp);
     };
   }, [isResizing, handleResizeMouseMove, handleResizeMouseUp]);
+
+  // Effect to fetch SVG content if path is available but svgContent is not
+  useEffect(() => {
+    if (path && !svgContent) {
+      const fetchSvg = async () => {
+        try {
+          const response = await fetch(path);
+          const fetchedSvg = await response.text();
+          updateShapeSvgContent(id, fetchedSvg);
+        } catch (error) {
+          console.error(`Failed to fetch SVG for path: ${path}`, error);
+        }
+      };
+      fetchSvg();
+    }
+  }, [path, svgContent, id, updateShapeSvgContent]);
 
   if (!activeSheet) return null;
 

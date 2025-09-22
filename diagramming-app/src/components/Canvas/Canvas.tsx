@@ -384,22 +384,31 @@ const Canvas: React.FC = () => {
   const { shapesById, shapeIds = [], connectors, selectedShapeIds } = activeSheet;
   const selectedFont = activeSheet.selectedFont;
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => { // Made async
     e.preventDefault();
     const shapeType = e.dataTransfer.getData('shapeType') || '';
-    const svgContent = e.dataTransfer.getData('svgContent');
+    // Removed: const svgContent = e.dataTransfer.getData('svgContent');
     const textPosition = e.dataTransfer.getData('textPosition') as 'inside' | 'outside';
     const autosize = e.dataTransfer.getData('autosize') === 'true';
     const interactionData = e.dataTransfer.getData('interaction');
     const interaction = interactionData ? JSON.parse(interactionData) : undefined;
     const shapePath = e.dataTransfer.getData('shapePath'); // New: Get shapePath
-    if (!shapeType) return;
+    if (!shapeType || !shapePath) return; // Ensure shapePath exists
 
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
+    let fetchedSvgContent = '';
+    try {
+      const response = await fetch(shapePath); // Fetch SVG content using shapePath
+      fetchedSvgContent = await response.text();
+    } catch (error) {
+      console.error('Failed to fetch SVG content:', error);
+      return; // Abort if SVG content cannot be fetched
+    }
+
     const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+    const svgDoc = parser.parseFromString(fetchedSvgContent, 'image/svg+xml');
     const svgElement = svgDoc.documentElement;
 
     let color = '#000000'; // default color
@@ -416,7 +425,7 @@ const Canvas: React.FC = () => {
       }
     }
 
-    const viewBoxMatch = svgContent.match(/viewBox="(.*?)"/);
+    const viewBoxMatch = fetchedSvgContent.match(/viewBox="(.*?)"/); // Use fetchedSvgContent
     let minX = 0;
     let minY = 0;
     let originalWidth = 100;
@@ -447,10 +456,10 @@ const Canvas: React.FC = () => {
       text: shapeType,
       color: color,
       layerId: activeSheet.activeLayerId,
-      svgContent: svgContent,
+      svgContent: fetchedSvgContent, // Use fetchedSvgContent
       minX: minX,
       minY: minY,
-      path: shapePath, // New: Add path
+      path: shapePath,
       fontFamily: selectedFont,
       textOffsetX: 0,
       textOffsetY: newHeight + 5,
