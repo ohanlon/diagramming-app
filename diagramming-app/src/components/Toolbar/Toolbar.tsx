@@ -1,6 +1,7 @@
 import { Toolbar, IconButton, Tooltip, type SelectChangeEvent, Menu, MenuItem } from '@mui/material';
 import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import { useHistoryStore } from '../../store/useHistoryStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { debounce } from '../../utils/debounce';
 import type { LineStyle, ArrowStyle } from '../../types';
@@ -35,8 +36,8 @@ const ToolbarComponent: React.FC = () => {
     setVerticalAlign,
     setHorizontalAlign,
     groupShapes,
-    history, // Add history here
   } = useDiagramStore();
+  const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
   const canUndo = history.past.length > 0; // Corrected access
   const canRedo = history.future.length > 0; // Corrected access

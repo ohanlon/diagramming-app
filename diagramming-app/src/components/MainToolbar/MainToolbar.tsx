@@ -4,13 +4,15 @@ import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
 import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import { useHistoryStore } from '../../store/useHistoryStore';
 
 const MainToolbar: React.FC = () => {
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [newMenuAnchorEl, setNewMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, history } = useDiagramStore();
+  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets } = useDiagramStore();
+  const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
 
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {

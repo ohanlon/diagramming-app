@@ -268,6 +268,7 @@ const ShapeStore: React.FC = () => {
                           }
                           e.dataTransfer.setData('textPosition', shape.textPosition);
                           e.dataTransfer.setData('autosize', String(shape.autosize));
+                          e.dataTransfer.setData('shapePath', shape.path); // New: Add shape.path
                         }}
                         sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         data-testid={shape.id}

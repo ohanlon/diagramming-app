@@ -13,7 +13,7 @@ import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, I
 import { Close as CloseIcon } from '@mui/icons-material';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShape, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
+  const { sheets, activeSheetId, addShapeAndRecordHistory, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -41,6 +41,67 @@ const Canvas: React.FC = () => {
     () => debounce((point: Point | null) => setCurrentMousePoint(point), 20),
     []
   );
+
+  const getShapeWithCalculatedTextProps = useCallback((shape: Omit<Shape, 'id'>): Omit<Shape, 'id'> => {
+    // Create a temporary div to measure text dimensions
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.whiteSpace = 'nowrap';
+    tempDiv.style.fontFamily = shape.fontFamily || 'Open Sans';
+    tempDiv.style.fontSize = `${shape.fontSize || 10}pt`;
+    tempDiv.style.fontWeight = shape.isBold ? 'bold' : 'normal';
+    tempDiv.style.fontStyle = shape.isItalic ? 'italic' : 'normal';
+    tempDiv.style.textDecoration = shape.isUnderlined ? 'underline' : 'none';
+    tempDiv.textContent = shape.text;
+    document.body.appendChild(tempDiv);
+
+    const PADDING_HORIZONTAL = 10;
+    const PADDING_VERTICAL = 6;
+
+    const newWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
+    tempDiv.style.whiteSpace = 'normal';
+    tempDiv.style.width = `${newWidth}px`;
+    const newHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
+
+    document.body.removeChild(tempDiv);
+
+    let calculatedTextWidth = shape.textWidth;
+    let calculatedTextHeight = shape.textHeight;
+    let calculatedTextOffsetX = shape.textOffsetX;
+    let calculatedTextOffsetY = shape.textOffsetY;
+
+    if (shape.autosize) {
+      if (shape.textPosition === 'inside') {
+        // If text is inside, shape dimensions should adjust
+        // For now, we'll just update text dimensions, shape dimensions will be handled by updateShapeDimensions
+        calculatedTextWidth = newWidth;
+        calculatedTextHeight = newHeight;
+      } else {
+        // If text is outside, only text dimensions adjust
+        calculatedTextWidth = newWidth;
+        calculatedTextHeight = newHeight;
+      }
+
+      if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
+        if (shape.horizontalAlign === 'center') {
+          calculatedTextOffsetX = (shape.width / 2) - (newWidth / 2);
+        } else if (shape.horizontalAlign === 'left') {
+          calculatedTextOffsetX = 0;
+        } else {
+          calculatedTextOffsetX = shape.width - newWidth;
+        }
+      }
+    }
+
+    return {
+      ...shape,
+      textWidth: calculatedTextWidth,
+      textHeight: calculatedTextHeight,
+      textOffsetX: calculatedTextOffsetX,
+      textOffsetY: calculatedTextOffsetY,
+    };
+  }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!activeSheet) return;
@@ -331,6 +392,7 @@ const Canvas: React.FC = () => {
     const autosize = e.dataTransfer.getData('autosize') === 'true';
     const interactionData = e.dataTransfer.getData('interaction');
     const interaction = interactionData ? JSON.parse(interactionData) : undefined;
+    const shapePath = e.dataTransfer.getData('shapePath'); // New: Get shapePath
     if (!shapeType) return;
 
     const svgRect = svgRef.current?.getBoundingClientRect();
@@ -388,6 +450,7 @@ const Canvas: React.FC = () => {
       svgContent: svgContent,
       minX: minX,
       minY: minY,
+      path: shapePath, // New: Add path
       fontFamily: selectedFont,
       textOffsetX: 0,
       textOffsetY: newHeight + 5,
@@ -403,18 +466,19 @@ const Canvas: React.FC = () => {
       setYouTubeUrl(interaction.url);
       setIsYouTubeDialogOpen(true);
     } else {
-      addShape({ ...shapeData, id: uuidv4() });
+      const finalShape = getShapeWithCalculatedTextProps({ ...shapeData, id: uuidv4() });
+      addShapeAndRecordHistory(finalShape as Shape);
     }
   };
 
   const handleSaveYouTubeUrl = () => {
     if (youTubeUrl.startsWith('https://www.youtube.com/embed/')) {
       if (youTubeShapeData) {
-        addShape({
+        addShapeAndRecordHistory(getShapeWithCalculatedTextProps({
           ...youTubeShapeData,
           id: uuidv4(),
           interaction: { ...youTubeShapeData.interaction, url: youTubeUrl },
-        } as Shape);
+        }) as Shape);
       }
       handleCloseYouTubeDialog();
     } else {

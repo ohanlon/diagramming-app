@@ -28,6 +28,7 @@ export type Shape = {
   svgContent?: string;
   minX?: number;
   minY?: number;
+  path?: string;
   fontFamily?: string; // New: Optional font family for the shape's text
   fontSize?: number;
   textOffsetX: number;
@@ -94,10 +95,6 @@ export type Sheet = {
 export type DiagramState = {
   sheets: Record<string, Sheet>;
   activeSheetId: string;
-  history: {
-    past: HistoryState[];
-    future: HistoryState[];
-  };
 };
 
 export type HistoryState = {

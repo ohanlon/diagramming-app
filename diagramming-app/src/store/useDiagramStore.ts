@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 import type { Sheet, DiagramState, HistoryState, LineStyle, Shape, Connector, Point, Layer, ArrowStyle } from '../types';
+import { useHistoryStore } from './useHistoryStore';
 
 interface DiagramStoreActions {
   setSelectedStartArrow: (arrowStyle: ArrowStyle) => void;
@@ -9,7 +10,7 @@ interface DiagramStoreActions {
   setSelectedLineWidth: (width: number) => void;
   updateShapeSvgContent: (id: string, svgContent: string) => void;
   setSelectedShapeColor: (color: string) => void;
-  addShape: (shape: Shape) => void;
+  addShapeAndRecordHistory: (shape: Shape) => void;
   updateShapePosition: (id: string, newX: number, newY: number) => void;
   updateShapePositions: (positions: { id: string; x: number; y: number }[]) => void;
   recordShapeMove: (id: string, newX: number, newY: number) => void;
@@ -117,26 +118,51 @@ const initialState: DiagramState = {
     },
   },
   activeSheetId: defaultSheetId,
-  history: {
-    past: [],
-    future: [],
-  },
 };
 
-const addHistory = (set: (fn: (state: DiagramState) => void) => void) => {
-  set((state: DiagramState) => {
-    const { history, sheets, activeSheetId } = state;
-    const newPast = [...history.past, { sheets, activeSheetId }];
-    return {
-      ...state,
-      history: { past: newPast, future: [] },
-    };
-  });
+const MAX_HISTORY_SIZE = 100;
+
+const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
+  const currentSheet = state.sheets[state.activeSheetId];
+  if (!currentSheet) return state;
+
+  const newShape = { ...shape };
+
+  if (newShape.svgContent) {
+    const uniqueSuffix = newShape.id.replace(/-/g, '');
+    let svgContent = newShape.svgContent;
+    svgContent = svgContent.replace(/id="([^"]+)"/g, (_, id) => `id="${id}_${uniqueSuffix}"`);
+    svgContent = svgContent.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}_${uniqueSuffix})`);
+    svgContent = svgContent.replace(/xlink:href="#([^"]+)"/g, (_, id) => `xlink:href="#${id}_${uniqueSuffix}"`);
+    newShape.svgContent = svgContent;
+  }
+
+  return {
+    ...state,
+    sheets: {
+      ...state.sheets,
+      [state.activeSheetId]: {
+        ...currentSheet,
+        shapesById: {
+          ...currentSheet.shapesById,
+          [newShape.id]: { ...newShape, layerId: currentSheet.activeLayerId, fontSize: currentSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: currentSheet.selectedTextColor, autosize: true, isTextPositionManuallySet: false, minX: newShape.minX, minY: newShape.minY, path: newShape.path },
+        },
+        shapeIds: [...(currentSheet.shapeIds || []), newShape.id],
+        selectedShapeIds: [newShape.id],
+        selectedConnectorIds: [],
+      },
+    },
+  };
+};
+
+const addHistory = (set: (fn: (state: DiagramState) => void) => void, get: () => DiagramState & DiagramStoreActions) => {
+  const { sheets, activeSheetId } = get();
+  useHistoryStore.getState().recordHistory(sheets, activeSheetId);
 };
 
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       setConnectorDragTargetShapeId: (shapeId: string | null) => {
         set((state) => {
@@ -180,7 +206,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedShapeColor: (color: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -208,40 +234,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     });
   },
 
-  addShape: (shape: Shape) => {
-    addHistory(set);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+  
 
-      const newShape = { ...shape };
-
-      if (newShape.svgContent) {
-        const uniqueSuffix = newShape.id.replace(/-/g, '');
-        let svgContent = newShape.svgContent;
-        svgContent = svgContent.replace(/id="([^"]+)"/g, (_, id) => `id="${id}_${uniqueSuffix}"`);
-        svgContent = svgContent.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${id}_${uniqueSuffix})`);
-        svgContent = svgContent.replace(/xlink:href="#([^"]+)"/g, (_, id) => `xlink:href="#${id}_${uniqueSuffix}"`);
-        newShape.svgContent = svgContent;
-      }
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [newShape.id]: { ...newShape, layerId: currentSheet.activeLayerId, fontSize: currentSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: currentSheet.selectedTextColor, autosize: true, isTextPositionManuallySet: false },
-            },
-            shapeIds: [...(currentSheet.shapeIds || []), newShape.id],
-            selectedShapeIds: [newShape.id],
-            selectedConnectorIds: [],
-          },
-        },
-      };
-    });
+  addShapeAndRecordHistory: (shape: Shape) => {
+    set((state) => _addShapeToState(state, shape));
+    addHistory(set, get);
   },
 
   updateShapePosition: (id: string, newX: number, newY: number) => {
@@ -269,7 +266,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   recordShapeMove: (id: string, newX: number, newY: number) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -315,7 +312,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     }),
 
   recordShapeMoves: (positions: { id: string; x: number; y: number }[]) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -395,7 +392,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       };
     }),
   recordShapeResize: (id: string, finalX: number, finalY: number, finalWidth: number, finalHeight: number) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -454,7 +451,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     }),
 
   recordShapeResizeMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -480,7 +477,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   updateShapeText: (id: string, text: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -502,7 +499,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   addConnector: (connector: Connector) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -621,56 +618,32 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     });
   },
 
-  undo: () =>
+  undo: () => {
     set((state) => {
-      const { past, future } = state.history;
-      if (past.length === 0) return state;
-
-      const previousState = past[past.length - 1];
-      const newPast = past.slice(0, past.length - 1);
-
-      const currentState: HistoryState = { // Changed to HistoryState
-        sheets: state.sheets,
-        activeSheetId: state.activeSheetId,
-      };
-
+      const historyState = useHistoryStore.getState().undo(state.sheets, state.activeSheetId);
+      if (!historyState) return state;
       return {
         ...state,
-        sheets: previousState.sheets,
-        activeSheetId: previousState.activeSheetId,
-        history: {
-          past: newPast,
-          future: [currentState, ...future],
-        },
+        sheets: historyState.sheets,
+        activeSheetId: historyState.activeSheetId,
       };
-    }),
+    });
+  },
 
-  redo: () =>
+  redo: () => {
     set((state) => {
-      const { past, future } = state.history;
-      if (future.length === 0) return state;
-
-      const nextState = future[0];
-      const newFuture = future.slice(1);
-
-      const currentState: HistoryState = { // Changed to HistoryState
-        sheets: state.sheets,
-        activeSheetId: state.activeSheetId,
-      };
-
+      const historyState = useHistoryStore.getState().redo(state.sheets, state.activeSheetId);
+      if (!historyState) return state;
       return {
         ...state,
-        sheets: nextState.sheets,
-        activeSheetId: nextState.activeSheetId,
-        history: {
-          past: [...past, currentState],
-          future: newFuture,
-        },
+        sheets: historyState.sheets,
+        activeSheetId: historyState.activeSheetId,
       };
-    }),
+    });
+  },
 
   bringForward: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -696,7 +669,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   sendBackward: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -722,7 +695,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   bringToFront: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -748,7 +721,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   sendToBack: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -785,7 +758,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     }),
 
   addLayer: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -816,7 +789,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   removeLayer: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -875,7 +848,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   renameLayer: (id: string, name: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -897,7 +870,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   toggleLayerVisibility: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -922,7 +895,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setActiveLayer: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet || !currentSheet.layers[id]) return state;
@@ -931,7 +904,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   reorderLayer: (fromIndex: number, toIndex: number) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -954,7 +927,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   cutShape: (ids: string[]) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1013,7 +986,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   pasteShape: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1080,7 +1053,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   addSheet: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const newSheetId = uuidv4();
       const newSheetName = `Sheet ${Object.keys(state.sheets).length + 1}`;
@@ -1128,7 +1101,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   removeSheet: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const sheetIds = Object.keys(state.sheets);
       if (sheetIds.length === 1) {
@@ -1151,7 +1124,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setActiveSheet: (id: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       if (!state.sheets[id]) return state;
       return { ...state, activeSheetId: id };
@@ -1159,7 +1132,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   renameSheet: (id: string, name: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const sheet = state.sheets[id];
       if (!sheet) return state;
@@ -1174,7 +1147,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedFont: (font: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1202,7 +1175,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedFontSize: (size: number) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1230,7 +1203,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   updateShapeTextPosition: (id: string, textOffsetX: number, textOffsetY: number) => {
-    addHistory(set);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1255,7 +1227,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => {
-    addHistory(set);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1306,7 +1277,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   updateShapeIsTextSelected: (id: string, isTextSelected: boolean) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1331,7 +1302,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   toggleBold: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1358,7 +1329,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   toggleItalic: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1385,7 +1356,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   toggleUnderlined: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1413,10 +1384,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
 
   resetStore: () => {
     set(initialState);
+    useHistoryStore.getState().initializeHistory(initialState.sheets, initialState.activeSheetId);
   },
 
   setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1443,7 +1415,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1470,7 +1442,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedTextColor: (color: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1498,7 +1470,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedLineStyle: (style: LineStyle) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1530,7 +1502,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedLineWidth: (width: number) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1562,7 +1534,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedStartArrow: (arrowStyle: ArrowStyle) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1589,7 +1561,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   setSelectedEndArrow: (arrowStyle: ArrowStyle) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1616,7 +1588,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   groupShapes: (ids: string[]) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1702,7 +1674,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     });
   },
   deleteSelected: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1749,7 +1721,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   selectAll: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1772,7 +1744,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   selectShapes: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1794,7 +1766,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   updateShapeInteractionUrl: (shapeId: string, url: string) => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1822,7 +1794,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
   },
 
   selectConnectors: () => {
-    addHistory(set);
+    addHistory(set, get);
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -1846,7 +1818,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
     {
       name: 'diagram-storage-v2',
       storage: createJSONStorage(() => localStorage),
-      
+      partialize: (state) => ({ sheets: state.sheets, activeSheetId: state.activeSheetId }),
     }
   )
 );
