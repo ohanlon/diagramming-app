@@ -17,6 +17,12 @@ import {
 import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOutlined as PushPinOutlinedIcon } from '@mui/icons-material';
 import { type Interaction } from '../../types';
 
+interface ShapeFileEntry {
+  name?: string;
+  title?: string;
+  path?: string;
+}
+
 interface Shape {
   id: string;
   name: string;
@@ -91,7 +97,7 @@ const ShapeStore: React.FC = () => {
 
           for (const subEntry of index) {
             const shapesResponse = await fetch(subEntry.path);
-            const shapesInFile: any[] = await shapesResponse.json();
+            const shapesInFile: ShapeFileEntry[] = await shapesResponse.json();
 
             const shapesWithSvgContent: Shape[] = await Promise.all(
               shapesInFile.map(async (shape) => {

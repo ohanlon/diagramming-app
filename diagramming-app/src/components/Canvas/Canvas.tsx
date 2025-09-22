@@ -56,9 +56,6 @@ const Canvas: React.FC = () => {
     } else if (isDrawingConnector) {
       debouncedSetCurrentMousePoint({ x: mouseX, y: mouseY });
 
-      const previewConnector = svgRef.current?.querySelector('.connector-path');
-      if (previewConnector) (previewConnector as SVGPathElement).style.display = 'none';
-
       const targetElement = document.elementFromPoint(e.clientX, e.clientY);
 
       if (previewConnector) (previewConnector as SVGPathElement).style.display = '';

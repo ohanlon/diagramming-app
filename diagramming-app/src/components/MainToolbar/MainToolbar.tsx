@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
-import { ArrowRight, ContentCopy, ContentCut, ContentPaste, RedoOutlined, UndoOutlined } from '@mui/icons-material';
+import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 
 const MainToolbar: React.FC = () => {
@@ -43,6 +45,36 @@ const MainToolbar: React.FC = () => {
   const handleNewSubMenuClose = () => {
     setNewMenuAnchorEl(null);
   };
+
+  const handlePrint = () => {
+    const printContainer = document.createElement('div');
+    printContainer.className = 'print-container';
+    document.body.appendChild(printContainer);
+    const root = createRoot(printContainer);
+    root.render(<Print />);
+
+    setTimeout(() => {
+      window.print();
+      document.body.removeChild(printContainer);
+    }, 500);
+
+    handleFileMenuClose();
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
+        event.preventDefault();
+        handlePrint();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handlePrint]);
 
   const handleNewDiagram = () => {
     resetStore();
@@ -109,8 +141,16 @@ const MainToolbar: React.FC = () => {
           onMouseOver={handleNewSubMenuOpen}
           sx={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          <ListItemText>New</ListItemText>
+          <ListItemIcon />
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>New</ListItemText>
           <ArrowRight sx={{ fontSize: '1.2rem', ml: 1 }} />
+        </MenuItem>
+        <MenuItem onClick={handlePrint}>
+          <ListItemIcon>
+            <PrintOutlined fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
+          <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
         </MenuItem>
       </Menu>
       <Menu

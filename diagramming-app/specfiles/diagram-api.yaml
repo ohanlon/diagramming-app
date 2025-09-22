@@ -1,0 +1,105 @@
+
+openapi: 3.0.0
+info:
+  title: Diagram API
+  version: 1.0.0
+  description: API for managing diagram states.
+
+paths:
+  /diagrams:
+    post:
+      summary: Create a new diagram
+      operationId: createDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewDiagram'
+      responses:
+        '201':
+          description: Diagram created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '400':
+          description: Invalid input
+
+  /diagrams/{diagramId}:
+    parameters:
+      - in: path
+        name: diagramId
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: ID of the diagram to retrieve or update
+    get:
+      summary: Retrieve a diagram by ID
+      operationId: getDiagramById
+      responses:
+        '200':
+          description: Diagram retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '404':
+          description: Diagram not found
+    put:
+      summary: Update an existing diagram
+      operationId: updateDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagramUpdate'
+      responses:
+        '200':
+          description: Diagram updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '400':
+          description: Invalid input
+        '404':
+          description: Diagram not found
+
+components:
+  schemas:
+    Diagram:
+      type: object
+      required:
+        - id
+        - state
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the diagram
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+        state:
+          type: object
+          description: The JSON state of the diagram
+          example: { "nodes": [], "edges": [] }
+    NewDiagram:
+      type: object
+      required:
+        - state
+      properties:
+        state:
+          type: object
+          description: The initial JSON state of the diagram
+          example: { "nodes": [], "edges": [] }
+    DiagramUpdate:
+      type: object
+      required:
+        - state
+      properties:
+        state:
+          type: object
+          description: The updated JSON state of the diagram
+          example: { "nodes": [], "edges": [] }

@@ -95,7 +95,7 @@ const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     const target = e.target as HTMLElement;
-    const listItem = target.closest('.MuiListItemButton-root');
+    const listItem = target.closest('.MuiListItemButton-root') as HTMLElement;
     if (listItem) {
       draggedOverLayerId.current = listItem.dataset.layerId || null;
     }

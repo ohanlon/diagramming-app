@@ -34,10 +34,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     startNode,
     endNode,
     connector.startAnchorType,
-    connector.endAnchorType,
-    connector.startArrow || 'none',
-    connector.endArrow || 'polygon_arrow',
-    zoom
+    connector.endAnchorType
   );
 
   if (path.length < 2) {

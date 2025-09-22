@@ -1,4 +1,4 @@
-import type { Point, Shape, AnchorType, ArrowStyle } from '../types';
+import type { Point, Shape, AnchorType } from '../types';
 
 interface OrthogonalPathResult {
   path: Point[];
@@ -21,16 +21,13 @@ export const calculateOrthogonalPath = (
   sourceShape: Shape,
   targetShape: Shape,
   startAnchorType: AnchorType,
-  endAnchorType: AnchorType,
-  startArrow: ArrowStyle,
-  endArrow: ArrowStyle,
-  zoom: number = 1
+  endAnchorType: AnchorType
 ): OrthogonalPathResult => {
   const sourceConnectionPoints = getConnectionPoints(sourceShape);
   const targetConnectionPoints = getConnectionPoints(targetShape);
 
-  let startPoint = sourceConnectionPoints[startAnchorType] || { x: sourceShape.x + sourceShape.width / 2, y: sourceShape.y + sourceShape.height / 2 };
-  let endPoint = targetConnectionPoints[endAnchorType] || { x: targetShape.x + targetShape.width / 2, y: targetShape.y + targetShape.height / 2 };
+  const startPoint = sourceConnectionPoints[startAnchorType] || { x: sourceShape.x + sourceShape.width / 2, y: sourceShape.y + sourceShape.height / 2 };
+  const endPoint = targetConnectionPoints[endAnchorType] || { x: targetShape.x + targetShape.width / 2, y: targetShape.y + targetShape.height / 2 };
 
   const path = [startPoint, endPoint];
 

@@ -15,11 +15,6 @@ export type Interaction = {
   url: string;
 };
 
-export type Interaction = {
-  type: 'embed';
-  url: string;
-};
-
 export type Shape = {
   id: string;
   type: string;

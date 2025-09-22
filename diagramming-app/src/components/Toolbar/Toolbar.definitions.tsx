@@ -28,7 +28,7 @@ import {
   VerticalAlignCenter,
   VerticalAlignTop,
 } from '@mui/icons-material';
-import type { LineStyle, ArrowStyle } from '../../types';
+import type { LineStyle, ArrowStyle, Sheet } from '../../types';
 import { googleFonts, fontSizes } from './Fonts';
 
 export const LINE_STYLE_SVG: Record<LineStyle, string> = {
