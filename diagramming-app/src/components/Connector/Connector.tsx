@@ -4,6 +4,24 @@ import type { Connector, Layer, Point } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
 
+const getStrokeDasharray = (lineStyle: LineStyle): string => {
+  switch (lineStyle) {
+    case 'dashed':
+      return '5, 5';
+    case 'long-dash':
+      return '10, 5'; // Example: longer dashes
+    case 'dot-dash':
+      return '2, 3, 10, 3'; // Example: dot-dash pattern
+    case 'custom-1':
+      return '16, 4, 1, 4, 1, 4'; // Example: custom pattern 1
+    case 'custom-2':
+      return '40, 10, 20, 10'; // Example: custom pattern 2
+    case 'continuous':
+    default:
+      return 'none';
+  }
+};
+
 interface ConnectorProps {
   connector: Connector;
   isSelected: boolean;
@@ -113,7 +131,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         fill="none"
         role="graphics-symbol"
         aria-label="Connector between nodes"
-        strokeDasharray={connector.lineStyle === 'dashed' ? '8, 4' : 'none'}
+        strokeDasharray={getStrokeDasharray(connector.lineStyle || 'continuous')}
         onClick={() => setSelectedConnectors([connector.id])}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
