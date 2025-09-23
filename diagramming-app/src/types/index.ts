@@ -53,7 +53,7 @@ export type ShapeType = 'Group' | string;
 
 export type AnchorType = 'top' | 'right' | 'bottom' | 'left';
 
-export type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash' | 'custom-1' | 'custom-2';
+export type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash' | 'custom-1' | 'custom-2' | 'long-dash-space' | 'long-space-short-dot';
 
 export type ArrowStyle = 'none' | 'standard_arrow' | 'polygon_arrow';
 

@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import type { Connector, Layer, Point } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
-import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE } from '../../constants/constant';
+import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE, LONG_DASH_SPACE_PATTERN_LINE_STYLE, LONG_SPACE_SHORT_DOT_PATTERN_STYLE } from '../../constants/constant';
 
 const getStrokeDasharray = (lineStyle: LineStyle): string => {
   switch (lineStyle) {
@@ -11,12 +11,16 @@ const getStrokeDasharray = (lineStyle: LineStyle): string => {
       return DASHED_LINE_STYLE;
     case 'long-dash':
       return LONG_DASH_PATTERN_LINE_STYLE; // Example: longer dashes
+    case 'long-dash-space':
+      return LONG_DASH_SPACE_PATTERN_LINE_STYLE; // Example: longer dashes
     case 'dot-dash':
       return DOT_DASH_PATTERN_LINE_STYLE; // Example: dot-dash pattern
     case 'custom-1':
       return CUSTOM_PATTERN_1_LINE_STYLE; // Example: custom pattern 1
     case 'custom-2':
       return CUSTOM_PATTERN_2_LINE_STYLE; // Example: custom pattern 2
+    case 'long-space-short-dot':
+      return LONG_SPACE_SHORT_DOT_PATTERN_STYLE; // Example: long space short dot pattern
     case 'continuous':
     default:
       return 'none';
