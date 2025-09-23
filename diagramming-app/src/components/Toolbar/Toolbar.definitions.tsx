@@ -168,33 +168,6 @@ export const getInitialTools = ({
 
     return [
         {
-            id: 'undo',
-            element: (
-                <Tooltip title="Undo">
-                    <IconButton onClick={() => handleClick(undo)} color="inherit" disabled={!canUndo} sx={{ borderRadius: 0 }}>
-                        <Undo />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'redo',
-            element: (
-                <Tooltip title="Redo">
-                    <IconButton onClick={() => handleClick(redo)} color="inherit" disabled={!canRedo} sx={{ borderRadius: 0 }}>
-                        <Redo />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'divider-1',
-            element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
-            width: 16,
-        },
-        {
             id: 'cut',
             element: (
                 <Tooltip title="Cut">

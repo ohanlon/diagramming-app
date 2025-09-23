@@ -135,6 +135,30 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
     newShape.svgContent = svgContent;
   }
 
+  // Calculate text dimensions
+  const PADDING_HORIZONTAL = 10;
+  const PADDING_VERTICAL = 6;
+  const fontSize = newShape.fontSize || currentSheet.selectedFontSize;
+  const fontFamily = newShape.fontFamily || currentSheet.selectedFont;
+  const isBold = newShape.isBold || false;
+  const isItalic = newShape.isItalic || false;
+
+  // Create a temporary element to measure text dimensions
+  const tempDiv = document.createElement('div');
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.visibility = 'hidden';
+  tempDiv.style.fontFamily = fontFamily;
+  tempDiv.style.fontSize = `${fontSize}px`;
+  tempDiv.style.fontWeight = isBold ? 'bold' : 'normal';
+  tempDiv.style.fontStyle = isItalic ? 'italic' : 'normal';
+  tempDiv.style.whiteSpace = newShape.autosize ? 'normal' : 'nowrap';
+  tempDiv.textContent = newShape.text || '';
+  document.body.appendChild(tempDiv);
+
+  const textWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
+  const textHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
+  document.body.removeChild(tempDiv);
+
   return {
     ...state,
     sheets: {
@@ -143,7 +167,26 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
         ...currentSheet,
         shapesById: {
           ...currentSheet.shapesById,
-          [newShape.id]: { ...newShape, layerId: currentSheet.activeLayerId, fontSize: currentSheet.selectedFontSize, textOffsetX: 0, textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8, textWidth: newShape.width, textHeight: 20, isBold: false, isItalic: false, isUnderlined: false, verticalAlign: 'middle', horizontalAlign: 'center', textColor: currentSheet.selectedTextColor, autosize: true, isTextPositionManuallySet: false, minX: newShape.minX, minY: newShape.minY, path: newShape.path },
+          [newShape.id]: {
+            ...newShape,
+            layerId: currentSheet.activeLayerId,
+            fontSize,
+            textOffsetX: 0,
+            textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8,
+            textWidth: newShape.autosize ? textWidth : newShape.width,
+            textHeight: newShape.autosize ? textHeight : 20,
+            isBold,
+            isItalic,
+            isUnderlined: newShape.isUnderlined || false,
+            verticalAlign: 'middle',
+            horizontalAlign: 'center',
+            textColor: currentSheet.selectedTextColor,
+            autosize: newShape.autosize || true,
+            isTextPositionManuallySet: false,
+            minX: newShape.minX,
+            minY: newShape.minY,
+            path: newShape.path,
+          },
         },
         shapeIds: [...(currentSheet.shapeIds || []), newShape.id],
         selectedShapeIds: [newShape.id],
@@ -153,14 +196,17 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
   };
 };
 
-const addHistory = (set: (fn: (state: DiagramState) => void) => void, get: () => DiagramState & DiagramStoreActions) => {
+const addHistory = (
+  set: (fn: (state: DiagramState & DiagramStoreActions) => void) => void,
+  get: () => DiagramState & DiagramStoreActions
+): void => {
   const { sheets, activeSheetId } = get();
   useHistoryStore.getState().recordHistory(sheets, activeSheetId);
 };
 
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
-  persist(
-    (set, get) => ({
+  persist<DiagramState & DiagramStoreActions>(
+    (set: (fn: (state: DiagramState & DiagramStoreActions) => void) => void, get: () => DiagramState & DiagramStoreActions) => ({
       ...initialState,
       setConnectorDragTargetShapeId: (shapeId: string | null) => {
         set((state) => {
@@ -1381,8 +1427,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       },
 
       resetStore: () => {
-        set(initialState);
-        useHistoryStore.getState().initializeHistory(initialState.sheets, initialState.activeSheetId);
+        set(() => ({
+          ...initialState,
+        }));
       },
 
       setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => {
@@ -1652,8 +1699,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             newShapesById[shape.id] = {
               ...shape,
               parentId: groupId,
-              x: shape.x - minX, // Make coordinates relative to group
-              y: shape.y - minY, // Make coordinates relative to group
+              x: shape.x - minX,
+              y: shape.y - minY,
+              // Reset width and height to avoid stretching the group
+              width: 0,
+              height: 0,
             };
           });
 
@@ -1671,33 +1721,25 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           };
         });
       },
+
       deleteSelected: () => {
         addHistory(set, get);
         set((state) => {
           const currentSheet = state.sheets[state.activeSheetId];
           if (!currentSheet) return state;
 
-          const { selectedShapeIds, selectedConnectorIds, shapesById, shapeIds, connectors } = currentSheet;
+          const newShapesById = { ...currentSheet.shapesById };
+          const newConnectors = { ...currentSheet.connectors };
 
-          if (selectedShapeIds.length === 0 && (!selectedConnectorIds || selectedConnectorIds.length === 0)) {
-            return state;
-          }
+          // Delete shapes
+          currentSheet.selectedShapeIds.forEach((id) => {
+            delete newShapesById[id];
+          });
 
-          const newShapesById = { ...shapesById };
-          selectedShapeIds.forEach((id) => delete newShapesById[id]);
-
-          const newShapeIds = shapeIds.filter((id) => !ids.includes(id));
-
-          const newConnectors = { ...connectors };
-          if (selectedConnectorIds) {
-            selectedConnectorIds.forEach((id) => delete newConnectors[id]);
-          }
-
-
-          // Also remove connectors attached to deleted shapes
-          Object.values(newConnectors).forEach((conn) => {
-            if (selectedShapeIds.includes(conn.startNodeId) || selectedShapeIds.includes(conn.endNodeId)) {
-              delete newConnectors[conn.id];
+          // Delete connectors
+          Object.entries(currentSheet.connectors).forEach(([id, connector]) => {
+            if (currentSheet.selectedShapeIds.includes(connector.startNodeId) || currentSheet.selectedShapeIds.includes(connector.endNodeId)) {
+              delete newConnectors[id];
             }
           });
 
@@ -1708,7 +1750,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               [state.activeSheetId]: {
                 ...currentSheet,
                 shapesById: newShapesById,
-                shapeIds: newShapeIds,
                 connectors: newConnectors,
                 selectedShapeIds: [],
                 selectedConnectorIds: [],
@@ -1719,13 +1760,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       },
 
       selectAll: () => {
-        addHistory(set, get);
         set((state) => {
           const currentSheet = state.sheets[state.activeSheetId];
           if (!currentSheet) return state;
-
-          const allShapeIds = Object.keys(currentSheet.shapesById);
-          const allConnectorIds = Object.keys(currentSheet.connectors);
 
           return {
             ...state,
@@ -1733,8 +1770,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               ...state.sheets,
               [state.activeSheetId]: {
                 ...currentSheet,
-                selectedShapeIds: allShapeIds,
-                selectedConnectorIds: allConnectorIds,
+                selectedShapeIds: currentSheet.shapeIds,
+                selectedConnectorIds: Object.keys(currentSheet.connectors),
               },
             },
           };
@@ -1742,12 +1779,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       },
 
       selectShapes: () => {
-        addHistory(set, get);
         set((state) => {
           const currentSheet = state.sheets[state.activeSheetId];
           if (!currentSheet) return state;
-
-          const allShapeIds = Object.keys(currentSheet.shapesById);
 
           return {
             ...state,
@@ -1755,7 +1789,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               ...state.sheets,
               [state.activeSheetId]: {
                 ...currentSheet,
-                selectedShapeIds: allShapeIds,
+                selectedShapeIds: currentSheet.shapeIds,
                 selectedConnectorIds: [],
               },
             },
@@ -1763,17 +1797,32 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         });
       },
 
+      selectConnectors: () => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedConnectorIds: Object.keys(currentSheet.connectors),
+                selectedShapeIds: [],
+              },
+            },
+          };
+        });
+      },
+
       updateShapeInteractionUrl: (shapeId: string, url: string) => {
-        addHistory(set, get);
         set((state) => {
           const currentSheet = state.sheets[state.activeSheetId];
           if (!currentSheet) return state;
 
           const shape = currentSheet.shapesById[shapeId];
-          if (!shape || !shape.interaction) return state;
-
-          const newInteraction = { ...shape.interaction, url: url };
-          const newShape = { ...shape, interaction: newInteraction };
+          if (!shape) return state;
 
           return {
             ...state,
@@ -1783,7 +1832,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...currentSheet,
                 shapesById: {
                   ...currentSheet.shapesById,
-                  [shapeId]: newShape,
+                  [shapeId]: { ...shape, interactionUrl: url },
                 },
               },
             },
@@ -1791,13 +1840,20 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         });
       },
 
-      selectConnectors: () => {
+      // New action to set multiple properties at once
+      setMultipleProperties: (ids: string[], properties: Partial<Shape>) => {
         addHistory(set, get);
         set((state) => {
           const currentSheet = state.sheets[state.activeSheetId];
           if (!currentSheet) return state;
 
-          const allConnectorIds = Object.keys(currentSheet.connectors);
+          const newShapesById = { ...currentSheet.shapesById };
+          ids.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, ...properties };
+            }
+          });
 
           return {
             ...state,
@@ -1805,8 +1861,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               ...state.sheets,
               [state.activeSheetId]: {
                 ...currentSheet,
-                selectedShapeIds: [],
-                selectedConnectorIds: allConnectorIds,
+                shapesById: newShapesById,
               },
             },
           };
@@ -1814,9 +1869,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       },
     }),
     {
-      name: 'diagram-storage-v2',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ sheets: state.sheets, activeSheetId: state.activeSheetId }),
+      name: 'diagram-storage',
     }
   )
 );

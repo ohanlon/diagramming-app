@@ -158,7 +158,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
         style={{
           fontFamily: fontFamily,
           fontSize: fontSize ? `${fontSize}pt` : undefined,
-          textAlign: 'center',
+          textAlign: horizontalAlign === 'left' ? 'left' : horizontalAlign === 'center' ? 'center' : 'right',
           wordWrap: 'break-word',
           whiteSpace: 'normal',
           overflow: 'hidden',
