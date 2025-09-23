@@ -69,7 +69,7 @@ const Canvas: React.FC = () => {
     let calculatedTextWidth = shape.textWidth;
     let calculatedTextHeight = shape.textHeight;
     let calculatedTextOffsetX = shape.textOffsetX;
-    let calculatedTextOffsetY = shape.textOffsetY;
+    const calculatedTextOffsetY = shape.textOffsetY;
 
     if (shape.autosize) {
       if (shape.textPosition === 'inside') {

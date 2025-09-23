@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
-import type { Sheet, DiagramState, HistoryState, LineStyle, Shape, Connector, Point, Layer, ArrowStyle } from '../types';
+import type { Sheet, DiagramState, LineStyle, Shape, Connector, Point, ArrowStyle } from '../types';
 import { useHistoryStore } from './useHistoryStore';
 
 interface DiagramStoreActions {
@@ -120,8 +120,6 @@ const initialState: DiagramState = {
   activeSheetId: defaultSheetId,
 };
 
-const MAX_HISTORY_SIZE = 100;
-
 const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
   const currentSheet = state.sheets[state.activeSheetId];
   if (!currentSheet) return state;
@@ -181,1639 +179,1639 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
           };
         });
       },
-        updateShapeSvgContent: (id: string, svgContent: string) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+      updateShapeSvgContent: (id: string, svgContent: string) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
 
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, svgContent },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedShapeColor: (color: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, color };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedShapeColor: color,
-            shapesById: newShapesById,
-          },
-        },
-      };
-
-    });
-  },
-
-  
-
-  addShapeAndRecordHistory: (shape: Shape) => {
-    set((state) => _addShapeToState(state, shape));
-    addHistory(set, get);
-  },
-
-  updateShapePosition: (id: string, newX: number, newY: number) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  recordShapeMove: (id: string, newX: number, newY: number) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...currentSheet.shapesById[id], x: newX, y: newY },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  updateShapePositions: (positions: { id: string; x: number; y: number }[]) =>
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      positions.forEach(({ id, x, y }) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, x, y };
-        }
-      });
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    }),
-
-  recordShapeMoves: (positions: { id: string; x: number; y: number }[]) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      positions.forEach(({ id, x, y }) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, x, y };
-        }
-      });
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  updateShapeHeight: (id: string, height: number) =>
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, height },
-            },
-          },
-        },
-      };
-    }),
-
-  updateShapeDimensions: (id: string, newX: number, newY: number, newWidth: number, newHeight: number) =>
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
-
-      let updatedTextOffsetY = shape.textOffsetY;
-      // Only adjust textOffsetY if textPosition is 'outside'
-      if (shape.textPosition === 'outside') {
-        const originalHeight = shape.height;
-        const originalTextOffsetY = shape.textOffsetY;
-        const distanceFromBottom = originalHeight - originalTextOffsetY;
-        updatedTextOffsetY = newHeight - distanceFromBottom;
-      }
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetY: updatedTextOffsetY },
-            },
-          },
-        },
-      };
-    }),
-  recordShapeResize: (id: string, finalX: number, finalY: number, finalWidth: number, finalHeight: number) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: {
-                ...currentSheet.shapesById[id],
-                x: finalX,
-                y: finalY,
-                width: finalWidth,
-                height: finalHeight,
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, svgContent },
+                },
               },
             },
-          },
-        },
-      };
-    });
-  },
+          };
+        });
+      },
 
-  updateShapeDimensionsMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) =>
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+      setSelectedShapeColor: (color: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      const newShapesById = { ...currentSheet.shapesById };
-      dimensions.forEach(({ id, x, y, width, height }) => {
-        const shape = newShapesById[id];
-        if (shape) {
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, color };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedShapeColor: color,
+                shapesById: newShapesById,
+              },
+            },
+          };
+
+        });
+      },
+
+
+
+      addShapeAndRecordHistory: (shape: Shape) => {
+        set((state) => _addShapeToState(state, shape));
+        addHistory(set, get);
+      },
+
+      updateShapePosition: (id: string, newX: number, newY: number) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, x: newX, y: newY },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      recordShapeMove: (id: string, newX: number, newY: number) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...currentSheet.shapesById[id], x: newX, y: newY },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      updateShapePositions: (positions: { id: string; x: number; y: number }[]) =>
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          positions.forEach(({ id, x, y }) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, x, y };
+            }
+          });
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        }),
+
+      recordShapeMoves: (positions: { id: string; x: number; y: number }[]) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          positions.forEach(({ id, x, y }) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, x, y };
+            }
+          });
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeHeight: (id: string, height: number) =>
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, height },
+                },
+              },
+            },
+          };
+        }),
+
+      updateShapeDimensions: (id: string, newX: number, newY: number, newWidth: number, newHeight: number) =>
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
+
           let updatedTextOffsetY = shape.textOffsetY;
+          // Only adjust textOffsetY if textPosition is 'outside'
           if (shape.textPosition === 'outside') {
             const originalHeight = shape.height;
             const originalTextOffsetY = shape.textOffsetY;
             const distanceFromBottom = originalHeight - originalTextOffsetY;
-            updatedTextOffsetY = height - distanceFromBottom;
+            updatedTextOffsetY = newHeight - distanceFromBottom;
           }
-          newShapesById[id] = { ...shape, x, y, width, height, textOffsetY: updatedTextOffsetY };
-        }
-      });
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    }),
 
-  recordShapeResizeMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      dimensions.forEach(({ id, x, y }) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, x, y };
-        }
-      });
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  updateShapeText: (id: string, text: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-                                [id]: { ...currentSheet.shapesById[id], text, isTextPositionManuallySet: false },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  addConnector: (connector: Connector) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newConnector = {
-        ...connector,
-        startArrow: 'none' as ArrowStyle,
-        endArrow: 'polygon_arrow' as ArrowStyle,
-      };
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            connectors: { ...currentSheet.connectors, [connector.id]: newConnector },
-            selectedConnectorIds: [], // Deselect all connectors when a new one is added
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedShapes: (ids: string[]) =>
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedShapeIds: ids,
-            selectedConnectorIds: [],
-          },
-        },
-      };
-    }),
-
-  toggleShapeSelection: (id: string) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const selectedShapeIds = currentSheet.selectedShapeIds.includes(id)
-        ? currentSheet.selectedShapeIds.filter((shapeId) => shapeId !== id)
-        : [...currentSheet.selectedShapeIds, id];
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedShapeIds: selectedShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedConnectors: (ids: string[]) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedConnectorIds: ids,
-          },
-        },
-      };
-    });
-  },
-
-  setZoom: (zoom: number) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            zoom: zoom,
-          },
-        },
-      };
-    });
-  },
-
-  setPan: (pan: Point) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            pan: pan,
-          },
-        },
-      };
-    });
-  },
-
-  undo: () => {
-    set((state) => {
-      const historyState = useHistoryStore.getState().undo(state.sheets, state.activeSheetId);
-      if (!historyState) return state;
-      return {
-        ...state,
-        sheets: historyState.sheets,
-        activeSheetId: historyState.activeSheetId,
-      };
-    });
-  },
-
-  redo: () => {
-    set((state) => {
-      const historyState = useHistoryStore.getState().redo(state.sheets, state.activeSheetId);
-      if (!historyState) return state;
-      return {
-        ...state,
-        sheets: historyState.sheets,
-        activeSheetId: historyState.activeSheetId,
-      };
-    });
-  },
-
-  bringForward: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapeIds = [...currentSheet.shapeIds];
-      const currentIdx = newShapeIds.indexOf(id);
-      if (currentIdx < 0 || currentIdx === newShapeIds.length - 1) return state;
-
-      // Swap with the next element
-      [newShapeIds[currentIdx], newShapeIds[currentIdx + 1]] = [newShapeIds[currentIdx + 1], newShapeIds[currentIdx]];
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapeIds: newShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  sendBackward: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapeIds = [...currentSheet.shapeIds];
-      const currentIdx = newShapeIds.indexOf(id);
-      if (currentIdx <= 0) return state;
-
-      // Swap with the previous element
-      [newShapeIds[currentIdx], newShapeIds[currentIdx - 1]] = [newShapeIds[currentIdx - 1], newShapeIds[currentIdx]];
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapeIds: newShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  bringToFront: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const currentIdx = currentSheet.shapeIds.indexOf(id);
-      if (currentIdx === -1 || currentIdx === currentSheet.shapeIds.length - 1)
-        return state;
-
-      const newShapeIds = currentSheet.shapeIds.filter((shapeId) => shapeId !== id);
-      newShapeIds.push(id);
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapeIds: newShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  sendToBack: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const currentIdx = currentSheet.shapeIds.indexOf(id);
-      if (currentIdx === -1 || currentIdx === 0) return state;
-
-      const newShapeIds = currentSheet.shapeIds.filter((shapeId) => shapeId !== id);
-      newShapeIds.unshift(id);
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapeIds: newShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  toggleFullscreen: () =>
-    set((state) => { // Changed to return empty object
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      }
-      return state;
-    }),
-
-  addLayer: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newLayerId = uuidv4();
-      const newLayerName = `Layer ${currentSheet.layerIds.length + 1}`;
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            layers: {
-              ...currentSheet.layers,
-              [newLayerId]: {
-                id: newLayerId,
-                name: newLayerName,
-                isVisible: true,
-                isLocked: false,
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetY: updatedTextOffsetY },
+                },
               },
             },
-            layerIds: [newLayerId, ...currentSheet.layerIds],
-            activeLayerId: newLayerId,
-          },
-        },
-      };
-    });
-  },
+          };
+        }),
+      recordShapeResize: (id: string, finalX: number, finalY: number, finalWidth: number, finalHeight: number) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-  removeLayer: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      if (currentSheet.layerIds.length === 1) {
-        console.warn('Cannot remove the last layer.');
-        return state;
-      }
-
-      const newLayers = Object.fromEntries(
-        Object.entries(currentSheet.layers).filter(([layerId]) => layerId !== id)
-      );
-
-      const newLayerIds = currentSheet.layerIds.filter((layerId) => layerId !== id);
-
-      const newActiveLayerId =
-        currentSheet.activeLayerId === id
-          ? newLayerIds[0]
-          : currentSheet.activeLayerId;
-
-      const newShapesById = Object.fromEntries(
-        Object.entries(currentSheet.shapesById).filter(
-          ([, shape]) => shape.layerId !== id
-        )
-      );
-      const newShapeIds = currentSheet.shapeIds.filter(
-        (shapeId) => newShapesById[shapeId]
-      );
-      const newConnectors = Object.fromEntries(
-        Object.entries(currentSheet.connectors).filter(
-          ([, conn]) =>
-            newShapesById[conn.startNodeId] && newShapesById[conn.endNodeId]
-        )
-      );
-      const newSelectedShapeIds = currentSheet.selectedShapeIds.filter(
-        (shapeId) => newShapesById[shapeId]
-      );
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            layers: newLayers,
-            layerIds: newLayerIds,
-            activeLayerId: newActiveLayerId,
-            shapesById: newShapesById,
-            shapeIds: newShapeIds,
-            connectors: newConnectors,
-            selectedShapeIds: newSelectedShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  renameLayer: (id: string, name: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const layer = currentSheet.layers[id];
-      if (!layer) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            layers: { ...currentSheet.layers, [id]: { ...layer, name } },
-          },
-        },
-      };
-    });
-  },
-
-  toggleLayerVisibility: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const layer = currentSheet.layers[id];
-      if (!layer) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            layers: {
-              ...currentSheet.layers,
-              [id]: { ...layer, isVisible: !layer.isVisible },
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: {
+                    ...currentSheet.shapesById[id],
+                    x: finalX,
+                    y: finalY,
+                    width: finalWidth,
+                    height: finalHeight,
+                  },
+                },
+              },
             },
-          },
-        },
-      };
-    });
-  },
+          };
+        });
+      },
 
-  setActiveLayer: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet || !currentSheet.layers[id]) return state;
-      return { ...state, activeSheetId: id };
-    });
-  },
+      updateShapeDimensionsMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) =>
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-  reorderLayer: (fromIndex: number, toIndex: number) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+          const newShapesById = { ...currentSheet.shapesById };
+          dimensions.forEach(({ id, x, y, width, height }) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              let updatedTextOffsetY = shape.textOffsetY;
+              if (shape.textPosition === 'outside') {
+                const originalHeight = shape.height;
+                const originalTextOffsetY = shape.textOffsetY;
+                const distanceFromBottom = originalHeight - originalTextOffsetY;
+                updatedTextOffsetY = height - distanceFromBottom;
+              }
+              newShapesById[id] = { ...shape, x, y, width, height, textOffsetY: updatedTextOffsetY };
+            }
+          });
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        }),
 
-      const newLayerIds = [...currentSheet.layerIds];
-      const [movedLayerId] = newLayerIds.splice(fromIndex, 1);
-      newLayerIds.splice(toIndex, 0, movedLayerId);
+      recordShapeResizeMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            layerIds: newLayerIds,
-          },
-        },
-      };
-    });
-  },
+          const newShapesById = { ...currentSheet.shapesById };
+          dimensions.forEach(({ id, x, y }) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, x, y };
+            }
+          });
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
 
-  cutShape: (ids: string[]) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+      updateShapeText: (id: string, text: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      const shapesToCut = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
-      if (shapesToCut.length === 0) return state;
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...currentSheet.shapesById[id], text, isTextPositionManuallySet: false },
+                },
+              },
+            },
+          };
+        });
+      },
 
-      const newShapesById = { ...currentSheet.shapesById };
-      ids.forEach((id) => delete newShapesById[id]);
+      addConnector: (connector: Connector) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      const newShapeIds = currentSheet.shapeIds.filter((id) => !ids.includes(id));
+          const newConnector = {
+            ...connector,
+            startArrow: 'none' as ArrowStyle,
+            endArrow: 'polygon_arrow' as ArrowStyle,
+          };
 
-      const newConnectors = Object.fromEntries(
-        Object.entries(currentSheet.connectors).filter(
-          ([, conn]) => !ids.includes(conn.startNodeId) && !ids.includes(conn.endNodeId)
-        )
-      );
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                connectors: { ...currentSheet.connectors, [connector.id]: newConnector },
+                selectedConnectorIds: [], // Deselect all connectors when a new one is added
+              },
+            },
+          };
+        });
+      },
 
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-            shapeIds: newShapeIds,
-            connectors: newConnectors,
-            selectedShapeIds: [],
-            clipboard: shapesToCut,
-          },
-        },
-      };
+      setSelectedShapes: (ids: string[]) =>
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-    });
-  },
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedShapeIds: ids,
+                selectedConnectorIds: [],
+              },
+            },
+          };
+        }),
 
-  copyShape: (ids: string[]) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+      toggleShapeSelection: (id: string) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      const shapesToCopy = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
-      if (shapesToCopy.length === 0) return state;
+          const selectedShapeIds = currentSheet.selectedShapeIds.includes(id)
+            ? currentSheet.selectedShapeIds.filter((shapeId) => shapeId !== id)
+            : [...currentSheet.selectedShapeIds, id];
 
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            clipboard: shapesToCopy,
-          },
-        },
-      };
-    });
-  },
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedShapeIds: selectedShapeIds,
+              },
+            },
+          };
+        });
+      },
 
-  pasteShape: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+      setSelectedConnectors: (ids: string[]) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      const { clipboard, selectedShapeIds, shapesById, pan, zoom } = currentSheet;
-      if (!clipboard || clipboard.length === 0) return state;
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedConnectorIds: ids,
+              },
+            },
+          };
+        });
+      },
 
-      let pasteX = 0;
-      let pasteY = 0;
+      setZoom: (zoom: number) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-      if (selectedShapeIds.length > 0) {
-        const selectedShape = shapesById[selectedShapeIds[0]];
-        if (selectedShape) {
-          pasteX = selectedShape.x + 10;
-          pasteY = selectedShape.y + 10;
-        }
-      } else {
-        // Calculate center of the visible canvas area
-        const canvasWidth = window.innerWidth; // Assuming canvas takes full window width
-        const canvasHeight = window.innerHeight; // Assuming canvas takes full window height
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                zoom: zoom,
+              },
+            },
+          };
+        });
+      },
 
-        // Adjust for current pan and zoom to get the center in diagram coordinates
-        pasteX = (canvasWidth / 2 - pan.x) / zoom;
-        pasteY = (canvasHeight / 2 - pan.y) / zoom;
+      setPan: (pan: Point) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
 
-        // Adjust for the first shape's own offset from its group's top-left
-        // This assumes clipboard[0] is the reference point for the group
-        pasteX -= clipboard[0].x;
-        pasteY -= clipboard[0].y;
-      }
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                pan: pan,
+              },
+            },
+          };
+        });
+      },
 
-      const newShapes: Shape[] = [];
-      const newShapeIds: string[] = [];
-      const newShapesById = { ...shapesById };
+      undo: () => {
+        set((state) => {
+          const historyState = useHistoryStore.getState().undo(state.sheets, state.activeSheetId);
+          if (!historyState) return state;
+          return {
+            ...state,
+            sheets: historyState.sheets,
+            activeSheetId: historyState.activeSheetId,
+          };
+        });
+      },
 
-      clipboard.forEach((shape) => {
-          const newShapeId = uuidv4();
-          const newShape = {
+      redo: () => {
+        set((state) => {
+          const historyState = useHistoryStore.getState().redo(state.sheets, state.activeSheetId);
+          if (!historyState) return state;
+          return {
+            ...state,
+            sheets: historyState.sheets,
+            activeSheetId: historyState.activeSheetId,
+          };
+        });
+      },
+
+      bringForward: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapeIds = [...currentSheet.shapeIds];
+          const currentIdx = newShapeIds.indexOf(id);
+          if (currentIdx < 0 || currentIdx === newShapeIds.length - 1) return state;
+
+          // Swap with the next element
+          [newShapeIds[currentIdx], newShapeIds[currentIdx + 1]] = [newShapeIds[currentIdx + 1], newShapeIds[currentIdx]];
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapeIds: newShapeIds,
+              },
+            },
+          };
+        });
+      },
+
+      sendBackward: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapeIds = [...currentSheet.shapeIds];
+          const currentIdx = newShapeIds.indexOf(id);
+          if (currentIdx <= 0) return state;
+
+          // Swap with the previous element
+          [newShapeIds[currentIdx], newShapeIds[currentIdx - 1]] = [newShapeIds[currentIdx - 1], newShapeIds[currentIdx]];
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapeIds: newShapeIds,
+              },
+            },
+          };
+        });
+      },
+
+      bringToFront: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const currentIdx = currentSheet.shapeIds.indexOf(id);
+          if (currentIdx === -1 || currentIdx === currentSheet.shapeIds.length - 1)
+            return state;
+
+          const newShapeIds = currentSheet.shapeIds.filter((shapeId) => shapeId !== id);
+          newShapeIds.push(id);
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapeIds: newShapeIds,
+              },
+            },
+          };
+        });
+      },
+
+      sendToBack: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const currentIdx = currentSheet.shapeIds.indexOf(id);
+          if (currentIdx === -1 || currentIdx === 0) return state;
+
+          const newShapeIds = currentSheet.shapeIds.filter((shapeId) => shapeId !== id);
+          newShapeIds.unshift(id);
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapeIds: newShapeIds,
+              },
+            },
+          };
+        });
+      },
+
+      toggleFullscreen: () =>
+        set((state) => { // Changed to return empty object
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            }
+          }
+          return state;
+        }),
+
+      addLayer: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newLayerId = uuidv4();
+          const newLayerName = `Layer ${currentSheet.layerIds.length + 1}`;
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                layers: {
+                  ...currentSheet.layers,
+                  [newLayerId]: {
+                    id: newLayerId,
+                    name: newLayerName,
+                    isVisible: true,
+                    isLocked: false,
+                  },
+                },
+                layerIds: [newLayerId, ...currentSheet.layerIds],
+                activeLayerId: newLayerId,
+              },
+            },
+          };
+        });
+      },
+
+      removeLayer: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          if (currentSheet.layerIds.length === 1) {
+            console.warn('Cannot remove the last layer.');
+            return state;
+          }
+
+          const newLayers = Object.fromEntries(
+            Object.entries(currentSheet.layers).filter(([layerId]) => layerId !== id)
+          );
+
+          const newLayerIds = currentSheet.layerIds.filter((layerId) => layerId !== id);
+
+          const newActiveLayerId =
+            currentSheet.activeLayerId === id
+              ? newLayerIds[0]
+              : currentSheet.activeLayerId;
+
+          const newShapesById = Object.fromEntries(
+            Object.entries(currentSheet.shapesById).filter(
+              ([, shape]) => shape.layerId !== id
+            )
+          );
+          const newShapeIds = currentSheet.shapeIds.filter(
+            (shapeId) => newShapesById[shapeId]
+          );
+          const newConnectors = Object.fromEntries(
+            Object.entries(currentSheet.connectors).filter(
+              ([, conn]) =>
+                newShapesById[conn.startNodeId] && newShapesById[conn.endNodeId]
+            )
+          );
+          const newSelectedShapeIds = currentSheet.selectedShapeIds.filter(
+            (shapeId) => newShapesById[shapeId]
+          );
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                layers: newLayers,
+                layerIds: newLayerIds,
+                activeLayerId: newActiveLayerId,
+                shapesById: newShapesById,
+                shapeIds: newShapeIds,
+                connectors: newConnectors,
+                selectedShapeIds: newSelectedShapeIds,
+              },
+            },
+          };
+        });
+      },
+
+      renameLayer: (id: string, name: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const layer = currentSheet.layers[id];
+          if (!layer) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                layers: { ...currentSheet.layers, [id]: { ...layer, name } },
+              },
+            },
+          };
+        });
+      },
+
+      toggleLayerVisibility: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const layer = currentSheet.layers[id];
+          if (!layer) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                layers: {
+                  ...currentSheet.layers,
+                  [id]: { ...layer, isVisible: !layer.isVisible },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      setActiveLayer: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet || !currentSheet.layers[id]) return state;
+          return { ...state, activeSheetId: id };
+        });
+      },
+
+      reorderLayer: (fromIndex: number, toIndex: number) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newLayerIds = [...currentSheet.layerIds];
+          const [movedLayerId] = newLayerIds.splice(fromIndex, 1);
+          newLayerIds.splice(toIndex, 0, movedLayerId);
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                layerIds: newLayerIds,
+              },
+            },
+          };
+        });
+      },
+
+      cutShape: (ids: string[]) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shapesToCut = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
+          if (shapesToCut.length === 0) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          ids.forEach((id) => delete newShapesById[id]);
+
+          const newShapeIds = currentSheet.shapeIds.filter((id) => !ids.includes(id));
+
+          const newConnectors = Object.fromEntries(
+            Object.entries(currentSheet.connectors).filter(
+              ([, conn]) => !ids.includes(conn.startNodeId) && !ids.includes(conn.endNodeId)
+            )
+          );
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+                shapeIds: newShapeIds,
+                connectors: newConnectors,
+                selectedShapeIds: [],
+                clipboard: shapesToCut,
+              },
+            },
+          };
+
+        });
+      },
+
+      copyShape: (ids: string[]) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shapesToCopy = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
+          if (shapesToCopy.length === 0) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                clipboard: shapesToCopy,
+              },
+            },
+          };
+        });
+      },
+
+      pasteShape: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const { clipboard, selectedShapeIds, shapesById, pan, zoom } = currentSheet;
+          if (!clipboard || clipboard.length === 0) return state;
+
+          let pasteX = 0;
+          let pasteY = 0;
+
+          if (selectedShapeIds.length > 0) {
+            const selectedShape = shapesById[selectedShapeIds[0]];
+            if (selectedShape) {
+              pasteX = selectedShape.x + 10;
+              pasteY = selectedShape.y + 10;
+            }
+          } else {
+            // Calculate center of the visible canvas area
+            const canvasWidth = window.innerWidth; // Assuming canvas takes full window width
+            const canvasHeight = window.innerHeight; // Assuming canvas takes full window height
+
+            // Adjust for current pan and zoom to get the center in diagram coordinates
+            pasteX = (canvasWidth / 2 - pan.x) / zoom;
+            pasteY = (canvasHeight / 2 - pan.y) / zoom;
+
+            // Adjust for the first shape's own offset from its group's top-left
+            // This assumes clipboard[0] is the reference point for the group
+            pasteX -= clipboard[0].x;
+            pasteY -= clipboard[0].y;
+          }
+
+          const newShapes: Shape[] = [];
+          const newShapeIds: string[] = [];
+          const newShapesById = { ...shapesById };
+
+          clipboard.forEach((shape) => {
+            const newShapeId = uuidv4();
+            const newShape = {
               ...shape,
               id: newShapeId,
               x: pasteX + (shape.x - clipboard[0].x),
               y: pasteY + (shape.y - clipboard[0].y),
               layerId: currentSheet.activeLayerId,
+            };
+            newShapes.push(newShape);
+            newShapeIds.push(newShapeId);
+            newShapesById[newShapeId] = newShape;
+          });
+
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+                shapeIds: [...currentSheet.shapeIds, ...newShapeIds],
+                selectedShapeIds: newShapeIds,
+              },
+            },
           };
-          newShapes.push(newShape);
-          newShapeIds.push(newShapeId);
-          newShapesById[newShapeId] = newShape;
-      });
-
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-            shapeIds: [...currentSheet.shapeIds, ...newShapeIds],
-            selectedShapeIds: newShapeIds,
-          },
-        },
-      };
-    });
-  },
-
-  addSheet: () => {
-    addHistory(set, get);
-    set((state) => {
-      const newSheetId = uuidv4();
-      const newSheetName = `Sheet ${Object.keys(state.sheets).length + 1}`;
-      const defaultLayerId = uuidv4(); // This is fine here, as it's a local variable for newSheet
-
-      const newSheet: Sheet = { // Explicitly type newSheet as Sheet
-        id: newSheetId,
-        name: newSheetName,
-        shapesById: {},
-        shapeIds: [],
-        connectors: {},
-        selectedShapeIds: [],
-        layers: {
-          [defaultLayerId]: {
-            id: defaultLayerId,
-            name: 'Layer 1',
-            isVisible: true,
-            isLocked: false,
-          },
-        },
-        layerIds: [defaultLayerId],
-        activeLayerId: defaultLayerId,
-        zoom: 1,
-        pan: { x: 0, y: 0 },
-        clipboard: null,
-        selectedFont: initialState.sheets[defaultSheetId].selectedFont,
-        selectedFontSize: initialState.sheets[defaultSheetId].selectedFontSize,
-        selectedTextColor: initialState.sheets[defaultSheetId].selectedTextColor,
-        selectedShapeColor: initialState.sheets[defaultSheetId].selectedShapeColor,
-        selectedLineStyle: initialState.sheets[defaultSheetId].selectedLineStyle,
-        selectedLineWidth: initialState.sheets[defaultSheetId].selectedLineWidth,
-        selectedConnectorIds: initialState.sheets[defaultSheetId].selectedConnectorIds,
-        connectorDragTargetShapeId: null,
-      };
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [newSheetId]: newSheet,
-        },
-        activeSheetId: newSheetId,
-      };
-    });
-  },
-
-  removeSheet: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const sheetIds = Object.keys(state.sheets);
-      if (sheetIds.length === 1) {
-        console.warn('Cannot remove the last sheet.');
-        return state;
-      }
-
-      const newSheets = Object.fromEntries(
-        Object.entries(state.sheets).filter(([sheetId]) => sheetId !== id)
-      );
-
-      const newActiveSheetId = id === state.activeSheetId ? sheetIds.filter((sheetId) => sheetId !== id)[0] : state.activeSheetId;
-
-      return {
-        ...state,
-        sheets: newSheets,
-        activeSheetId: newActiveSheetId,
-      };
-    });
-  },
-
-  setActiveSheet: (id: string) => {
-    addHistory(set, get);
-    set((state) => {
-      if (!state.sheets[id]) return state;
-      return { ...state, activeSheetId: id };
-    });
-  },
-
-  renameSheet: (id: string, name: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const sheet = state.sheets[id];
-      if (!sheet) return state;
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [id]: { ...sheet, name },
-        },
-      };
-    });
-  },
-
-  setSelectedFont: (font: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-                            newShapesById[id] = { ...shape, fontFamily: font, isTextPositionManuallySet: false };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedFont: font,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedFontSize: (size: number) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-                            newShapesById[id] = { ...shape, fontSize: size, isTextPositionManuallySet: false };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedFontSize: size,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  updateShapeTextPosition: (id: string, textOffsetX: number, textOffsetY: number) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-                                [id]: { ...shape, textOffsetX, textOffsetY, isTextPositionManuallySet: true },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, textWidth, textHeight },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  deselectAllTextBlocks: () => {
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, isTextSelected: false };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  updateShapeIsTextSelected: (id: string, isTextSelected: boolean) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[id];
-      if (!shape) return state;
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, isTextSelected },
-            },
-          },
-        },
-      };
-    });
-  },
-
-  toggleBold: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, isBold: !shape.isBold };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  toggleItalic: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, isItalic: !shape.isItalic };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  toggleUnderlined: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, isUnderlined: !shape.isUnderlined };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  resetStore: () => {
-    set(initialState);
-    useHistoryStore.getState().initializeHistory(initialState.sheets, initialState.activeSheetId);
-  },
-
-  setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, verticalAlign: alignment };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-                            newShapesById[id] = { ...shape, horizontalAlign: alignment, isTextPositionManuallySet: false };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedTextColor: (color: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newShapesById = { ...currentSheet.shapesById };
-      currentSheet.selectedShapeIds.forEach((id) => {
-        const shape = newShapesById[id];
-        if (shape) {
-          newShapesById[id] = { ...shape, textColor: color };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedTextColor: color,
-            shapesById: newShapesById,
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedLineStyle: (style: LineStyle) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newConnectors = { ...currentSheet.connectors };
-      const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
-        ? currentSheet.selectedConnectorIds
-        : Object.keys(newConnectors);
-
-      targetConnectorIds.forEach((connectorId) => {
-        const connector = newConnectors[connectorId];
-        if (connector) {
-          newConnectors[connectorId] = { ...connector, lineStyle: style };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedLineStyle: style,
-            connectors: newConnectors,
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedLineWidth: (width: number) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newConnectors = { ...currentSheet.connectors };
-      const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
-        ? currentSheet.selectedConnectorIds
-        : Object.keys(newConnectors);
-
-      targetConnectorIds.forEach((connectorId) => {
-        const connector = newConnectors[connectorId];
-        if (connector) {
-          newConnectors[connectorId] = { ...connector, lineWidth: width };
-        }
         });
+      },
 
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedLineWidth: width,
-            connectors: newConnectors,
-          },
-        },
-      };
-    });
-  },
+      addSheet: () => {
+        addHistory(set, get);
+        set((state) => {
+          const newSheetId = uuidv4();
+          const newSheetName = `Sheet ${Object.keys(state.sheets).length + 1}`;
+          const defaultLayerId = uuidv4(); // This is fine here, as it's a local variable for newSheet
 
-  setSelectedStartArrow: (arrowStyle: ArrowStyle) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newConnectors = { ...currentSheet.connectors };
-      currentSheet.selectedConnectorIds.forEach((connectorId) => {
-        const connector = newConnectors[connectorId];
-        if (connector) {
-          newConnectors[connectorId] = { ...connector, startArrow: arrowStyle };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            connectors: newConnectors,
-          },
-        },
-      };
-    });
-  },
-
-  setSelectedEndArrow: (arrowStyle: ArrowStyle) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const newConnectors = { ...currentSheet.connectors };
-      currentSheet.selectedConnectorIds.forEach((connectorId) => {
-        const connector = newConnectors[connectorId];
-        if (connector) {
-          newConnectors[connectorId] = { ...connector, endArrow: arrowStyle };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            connectors: newConnectors,
-          },
-        },
-      };
-    });
-  },
-
-  groupShapes: (ids: string[]) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shapesToGroup = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
-      if (shapesToGroup.length < 2) return state; // Need at least two shapes to group
-
-      // Calculate bounding box of selected shapes
-      let minX = Infinity;
-      let minY = Infinity;
-      let maxX = -Infinity;
-      let maxY = -Infinity;
-
-      shapesToGroup.forEach((shape) => {
-        minX = Math.min(minX, shape.x);
-        minY = Math.min(minY, shape.y);
-        maxX = Math.max(maxX, shape.x + shape.width);
-        maxY = Math.max(maxY, shape.y + shape.height);
-      });
-
-      const groupWidth = maxX - minX;
-      const groupHeight = maxY - minY;
-
-      const groupId = uuidv4();
-      const newGroupShape: Shape = {
-        id: groupId,
-        type: 'Group',
-        x: minX,
-        y: minY,
-        width: groupWidth,
-        height: groupHeight,
-        text: '', // Groups don't have text
-        color: 'transparent', // Groups are transparent
-        layerId: currentSheet.activeLayerId,
-        textOffsetX: 0,
-        textOffsetY: 0,
-        textWidth: 0,
-        textHeight: 0,
-        // Add all other properties from Shape, even if undefined
-        svgContent: undefined,
-        minX: undefined,
-        minY: undefined,
-        fontFamily: undefined,
-        fontSize: undefined,
-        isTextSelected: undefined,
-        isBold: undefined,
-        isItalic: undefined,
-        isUnderlined: undefined,
-        verticalAlign: undefined,
-        horizontalAlign: undefined,
-        textPosition: undefined,
-        textColor: undefined,
-        parentId: undefined,
-        autosize: undefined,
-        isTextPositionManuallySet: undefined,
-      };
-
-      const newShapesById = { ...currentSheet.shapesById, [groupId]: newGroupShape };
-      const newShapeIds = [...currentSheet.shapeIds, groupId];
-      const newSelectedShapeIds = [groupId];
-
-      shapesToGroup.forEach((shape) => {
-        newShapesById[shape.id] = {
-          ...shape,
-          parentId: groupId,
-          x: shape.x - minX, // Make coordinates relative to group
-          y: shape.y - minY, // Make coordinates relative to group
-        };
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-            shapeIds: newShapeIds,
-            selectedShapeIds: newSelectedShapeIds,
-          },
-        },
-      };
-    });
-  },
-  deleteSelected: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const { selectedShapeIds, selectedConnectorIds, shapesById, shapeIds, connectors } = currentSheet;
-
-      if (selectedShapeIds.length === 0 && (!selectedConnectorIds || selectedConnectorIds.length === 0)) {
-        return state;
-      }
-
-      const newShapesById = { ...shapesById };
-      selectedShapeIds.forEach((id) => delete newShapesById[id]);
-
-      const newShapeIds = shapeIds.filter((id) => !ids.includes(id));
-
-      const newConnectors = { ...connectors };
-      if (selectedConnectorIds) {
-        selectedConnectorIds.forEach((id) => delete newConnectors[id]);
-      }
-
-
-      // Also remove connectors attached to deleted shapes
-      Object.values(newConnectors).forEach((conn) => {
-        if (selectedShapeIds.includes(conn.startNodeId) || selectedShapeIds.includes(conn.endNodeId)) {
-          delete newConnectors[conn.id];
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: newShapesById,
-            shapeIds: newShapeIds,
-            connectors: newConnectors,
+          const newSheet: Sheet = { // Explicitly type newSheet as Sheet
+            id: newSheetId,
+            name: newSheetName,
+            shapesById: {},
+            shapeIds: [],
+            connectors: {},
             selectedShapeIds: [],
-            selectedConnectorIds: [],
-          },
-        },
-      };
-    });
-  },
-
-  selectAll: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const allShapeIds = Object.keys(currentSheet.shapesById);
-      const allConnectorIds = Object.keys(currentSheet.connectors);
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedShapeIds: allShapeIds,
-            selectedConnectorIds: allConnectorIds,
-          },
-        },
-      };
-    });
-  },
-
-  selectShapes: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const allShapeIds = Object.keys(currentSheet.shapesById);
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedShapeIds: allShapeIds,
-            selectedConnectorIds: [],
-          },
-        },
-      };
-    });
-  },
-
-  updateShapeInteractionUrl: (shapeId: string, url: string) => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
-
-      const shape = currentSheet.shapesById[shapeId];
-      if (!shape || !shape.interaction) return state;
-
-      const newInteraction = { ...shape.interaction, url: url };
-      const newShape = { ...shape, interaction: newInteraction };
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [shapeId]: newShape,
+            layers: {
+              [defaultLayerId]: {
+                id: defaultLayerId,
+                name: 'Layer 1',
+                isVisible: true,
+                isLocked: false,
+              },
             },
-          },
-        },
-      };
-    });
-  },
+            layerIds: [defaultLayerId],
+            activeLayerId: defaultLayerId,
+            zoom: 1,
+            pan: { x: 0, y: 0 },
+            clipboard: null,
+            selectedFont: initialState.sheets[defaultSheetId].selectedFont,
+            selectedFontSize: initialState.sheets[defaultSheetId].selectedFontSize,
+            selectedTextColor: initialState.sheets[defaultSheetId].selectedTextColor,
+            selectedShapeColor: initialState.sheets[defaultSheetId].selectedShapeColor,
+            selectedLineStyle: initialState.sheets[defaultSheetId].selectedLineStyle,
+            selectedLineWidth: initialState.sheets[defaultSheetId].selectedLineWidth,
+            selectedConnectorIds: initialState.sheets[defaultSheetId].selectedConnectorIds,
+            connectorDragTargetShapeId: null,
+          };
 
-  selectConnectors: () => {
-    addHistory(set, get);
-    set((state) => {
-      const currentSheet = state.sheets[state.activeSheetId];
-      if (!currentSheet) return state;
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [newSheetId]: newSheet,
+            },
+            activeSheetId: newSheetId,
+          };
+        });
+      },
 
-      const allConnectorIds = Object.keys(currentSheet.connectors);
+      removeSheet: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const sheetIds = Object.keys(state.sheets);
+          if (sheetIds.length === 1) {
+            console.warn('Cannot remove the last sheet.');
+            return state;
+          }
 
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedShapeIds: [],
-            selectedConnectorIds: allConnectorIds,
-          },
-        },
-      };
-    });
-  },
+          const newSheets = Object.fromEntries(
+            Object.entries(state.sheets).filter(([sheetId]) => sheetId !== id)
+          );
+
+          const newActiveSheetId = id === state.activeSheetId ? sheetIds.filter((sheetId) => sheetId !== id)[0] : state.activeSheetId;
+
+          return {
+            ...state,
+            sheets: newSheets,
+            activeSheetId: newActiveSheetId,
+          };
+        });
+      },
+
+      setActiveSheet: (id: string) => {
+        addHistory(set, get);
+        set((state) => {
+          if (!state.sheets[id]) return state;
+          return { ...state, activeSheetId: id };
+        });
+      },
+
+      renameSheet: (id: string, name: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const sheet = state.sheets[id];
+          if (!sheet) return state;
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [id]: { ...sheet, name },
+            },
+          };
+        });
+      },
+
+      setSelectedFont: (font: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, fontFamily: font, isTextPositionManuallySet: false };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedFont: font,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedFontSize: (size: number) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, fontSize: size, isTextPositionManuallySet: false };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedFontSize: size,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeTextPosition: (id: string, textOffsetX: number, textOffsetY: number) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, textOffsetX, textOffsetY, isTextPositionManuallySet: true },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, textWidth, textHeight },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      deselectAllTextBlocks: () => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isTextSelected: false };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeIsTextSelected: (id: string, isTextSelected: boolean) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[id];
+          if (!shape) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [id]: { ...shape, isTextSelected },
+                },
+              },
+            },
+          };
+        });
+      },
+
+      toggleBold: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isBold: !shape.isBold };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      toggleItalic: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isItalic: !shape.isItalic };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      toggleUnderlined: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, isUnderlined: !shape.isUnderlined };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      resetStore: () => {
+        set(initialState);
+        useHistoryStore.getState().initializeHistory(initialState.sheets, initialState.activeSheetId);
+      },
+
+      setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, verticalAlign: alignment };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, horizontalAlign: alignment, isTextPositionManuallySet: false };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedTextColor: (color: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newShapesById = { ...currentSheet.shapesById };
+          currentSheet.selectedShapeIds.forEach((id) => {
+            const shape = newShapesById[id];
+            if (shape) {
+              newShapesById[id] = { ...shape, textColor: color };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedTextColor: color,
+                shapesById: newShapesById,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedLineStyle: (style: LineStyle) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newConnectors = { ...currentSheet.connectors };
+          const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
+            ? currentSheet.selectedConnectorIds
+            : Object.keys(newConnectors);
+
+          targetConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, lineStyle: style };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedLineStyle: style,
+                connectors: newConnectors,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedLineWidth: (width: number) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newConnectors = { ...currentSheet.connectors };
+          const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
+            ? currentSheet.selectedConnectorIds
+            : Object.keys(newConnectors);
+
+          targetConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, lineWidth: width };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedLineWidth: width,
+                connectors: newConnectors,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedStartArrow: (arrowStyle: ArrowStyle) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newConnectors = { ...currentSheet.connectors };
+          currentSheet.selectedConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, startArrow: arrowStyle };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                connectors: newConnectors,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedEndArrow: (arrowStyle: ArrowStyle) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const newConnectors = { ...currentSheet.connectors };
+          currentSheet.selectedConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, endArrow: arrowStyle };
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                connectors: newConnectors,
+              },
+            },
+          };
+        });
+      },
+
+      groupShapes: (ids: string[]) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shapesToGroup = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
+          if (shapesToGroup.length < 2) return state; // Need at least two shapes to group
+
+          // Calculate bounding box of selected shapes
+          let minX = Infinity;
+          let minY = Infinity;
+          let maxX = -Infinity;
+          let maxY = -Infinity;
+
+          shapesToGroup.forEach((shape) => {
+            minX = Math.min(minX, shape.x);
+            minY = Math.min(minY, shape.y);
+            maxX = Math.max(maxX, shape.x + shape.width);
+            maxY = Math.max(maxY, shape.y + shape.height);
+          });
+
+          const groupWidth = maxX - minX;
+          const groupHeight = maxY - minY;
+
+          const groupId = uuidv4();
+          const newGroupShape: Shape = {
+            id: groupId,
+            type: 'Group',
+            x: minX,
+            y: minY,
+            width: groupWidth,
+            height: groupHeight,
+            text: '', // Groups don't have text
+            color: 'transparent', // Groups are transparent
+            layerId: currentSheet.activeLayerId,
+            textOffsetX: 0,
+            textOffsetY: 0,
+            textWidth: 0,
+            textHeight: 0,
+            // Add all other properties from Shape, even if undefined
+            svgContent: undefined,
+            minX: undefined,
+            minY: undefined,
+            fontFamily: undefined,
+            fontSize: undefined,
+            isTextSelected: undefined,
+            isBold: undefined,
+            isItalic: undefined,
+            isUnderlined: undefined,
+            verticalAlign: undefined,
+            horizontalAlign: undefined,
+            textPosition: undefined,
+            textColor: undefined,
+            parentId: undefined,
+            autosize: undefined,
+            isTextPositionManuallySet: undefined,
+          };
+
+          const newShapesById = { ...currentSheet.shapesById, [groupId]: newGroupShape };
+          const newShapeIds = [...currentSheet.shapeIds, groupId];
+          const newSelectedShapeIds = [groupId];
+
+          shapesToGroup.forEach((shape) => {
+            newShapesById[shape.id] = {
+              ...shape,
+              parentId: groupId,
+              x: shape.x - minX, // Make coordinates relative to group
+              y: shape.y - minY, // Make coordinates relative to group
+            };
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+                shapeIds: newShapeIds,
+                selectedShapeIds: newSelectedShapeIds,
+              },
+            },
+          };
+        });
+      },
+      deleteSelected: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const { selectedShapeIds, selectedConnectorIds, shapesById, shapeIds, connectors } = currentSheet;
+
+          if (selectedShapeIds.length === 0 && (!selectedConnectorIds || selectedConnectorIds.length === 0)) {
+            return state;
+          }
+
+          const newShapesById = { ...shapesById };
+          selectedShapeIds.forEach((id) => delete newShapesById[id]);
+
+          const newShapeIds = shapeIds.filter((id) => !ids.includes(id));
+
+          const newConnectors = { ...connectors };
+          if (selectedConnectorIds) {
+            selectedConnectorIds.forEach((id) => delete newConnectors[id]);
+          }
+
+
+          // Also remove connectors attached to deleted shapes
+          Object.values(newConnectors).forEach((conn) => {
+            if (selectedShapeIds.includes(conn.startNodeId) || selectedShapeIds.includes(conn.endNodeId)) {
+              delete newConnectors[conn.id];
+            }
+          });
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: newShapesById,
+                shapeIds: newShapeIds,
+                connectors: newConnectors,
+                selectedShapeIds: [],
+                selectedConnectorIds: [],
+              },
+            },
+          };
+        });
+      },
+
+      selectAll: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const allShapeIds = Object.keys(currentSheet.shapesById);
+          const allConnectorIds = Object.keys(currentSheet.connectors);
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedShapeIds: allShapeIds,
+                selectedConnectorIds: allConnectorIds,
+              },
+            },
+          };
+        });
+      },
+
+      selectShapes: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const allShapeIds = Object.keys(currentSheet.shapesById);
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedShapeIds: allShapeIds,
+                selectedConnectorIds: [],
+              },
+            },
+          };
+        });
+      },
+
+      updateShapeInteractionUrl: (shapeId: string, url: string) => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const shape = currentSheet.shapesById[shapeId];
+          if (!shape || !shape.interaction) return state;
+
+          const newInteraction = { ...shape.interaction, url: url };
+          const newShape = { ...shape, interaction: newInteraction };
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                shapesById: {
+                  ...currentSheet.shapesById,
+                  [shapeId]: newShape,
+                },
+              },
+            },
+          };
+        });
+      },
+
+      selectConnectors: () => {
+        addHistory(set, get);
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          const allConnectorIds = Object.keys(currentSheet.connectors);
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedShapeIds: [],
+                selectedConnectorIds: allConnectorIds,
+              },
+            },
+          };
+        });
+      },
     }),
     {
       name: 'diagram-storage-v2',
