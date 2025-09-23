@@ -3,19 +3,20 @@ import React, { memo } from 'react';
 import type { Connector, Layer, Point } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
+import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE } from '../../constants/constant';
 
 const getStrokeDasharray = (lineStyle: LineStyle): string => {
   switch (lineStyle) {
     case 'dashed':
-      return '5, 5';
+      return DASHED_LINE_STYLE;
     case 'long-dash':
-      return '10, 5'; // Example: longer dashes
+      return LONG_DASH_PATTERN_LINE_STYLE; // Example: longer dashes
     case 'dot-dash':
-      return '2, 3, 10, 3'; // Example: dot-dash pattern
+      return DOT_DASH_PATTERN_LINE_STYLE; // Example: dot-dash pattern
     case 'custom-1':
-      return '16, 4, 1, 4, 1, 4'; // Example: custom pattern 1
+      return CUSTOM_PATTERN_1_LINE_STYLE; // Example: custom pattern 1
     case 'custom-2':
-      return '40, 10, 20, 10'; // Example: custom pattern 2
+      return CUSTOM_PATTERN_2_LINE_STYLE; // Example: custom pattern 2
     case 'continuous':
     default:
       return 'none';

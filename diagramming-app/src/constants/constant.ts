@@ -1,0 +1,5 @@
+export const DASHED_LINE_STYLE = '5 5';
+export const LONG_DASH_PATTERN_LINE_STYLE = '10 5';
+export const DOT_DASH_PATTERN_LINE_STYLE = '2 3 10 3';
+export const CUSTOM_PATTERN_1_LINE_STYLE = '16 4 1 4 1 4'
+export const CUSTOM_PATTERN_2_LINE_STYLE = '40 10 20 10';
