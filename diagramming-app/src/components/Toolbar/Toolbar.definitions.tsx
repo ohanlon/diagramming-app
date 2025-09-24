@@ -22,8 +22,6 @@ import {
   FormatItalic,
   FormatUnderlined,
   GroupAdd,
-  Redo,
-  Undo,
   VerticalAlignBottom,
   VerticalAlignCenter,
   VerticalAlignTop,
@@ -119,8 +117,6 @@ export interface GetInitialToolsProps {
 
 export const getInitialTools = ({
     activeSheet,
-    canUndo,
-    canRedo,
     hasSelectedShapes,
     hasSelectedConnectors,
     isBoldActive,
@@ -146,8 +142,6 @@ export const getInitialTools = ({
     handleLineWidthChange,
     handleStartArrowChange,
     handleEndArrowChange,
-    undo,
-    redo,
     cutShape,
     copyShape,
     pasteShape,
