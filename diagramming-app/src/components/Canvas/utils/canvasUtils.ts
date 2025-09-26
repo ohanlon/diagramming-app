@@ -51,10 +51,10 @@ export const calculateShapeWithTextProps = (shape: Omit<Shape, 'id'>): Omit<Shap
   document.body.appendChild(tempDiv);
 
   // Get computed dimensions
-  const computedStyle = window.getComputedStyle(tempDiv);
+  // const computedStyle = window.getComputedStyle(tempDiv);
   const textWidth = tempDiv.offsetWidth;
   const textHeight = tempDiv.offsetHeight;
-  const lineHeight = parseFloat(computedStyle.lineHeight) || textHeight;
+  // const lineHeight = parseFloat(computedStyle.lineHeight) || textHeight;
 
   document.body.removeChild(tempDiv);
 

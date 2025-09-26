@@ -127,8 +127,8 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
 
 // This will be imported and used in the main store
 export const createShapeActions = (
-  set: (fn: (state: DiagramState) => DiagramState) => void, 
-  get: () => DiagramState, 
+  set: (fn: (state: DiagramState) => DiagramState) => void,
+  _get: () => DiagramState,
   addHistory: () => void
 ): ShapeStoreActions => ({
 

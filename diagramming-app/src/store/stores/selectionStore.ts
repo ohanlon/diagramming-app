@@ -17,8 +17,8 @@ export interface SelectionStoreActions {
 
 // This will be imported and used in the main store
 export const createSelectionActions = (
-  set: (fn: (state: DiagramState) => DiagramState) => void, 
-  get: () => DiagramState
+  set: (fn: (state: DiagramState) => DiagramState) => void,
+  _get: () => DiagramState
 ): SelectionStoreActions => ({
 
   setSelectedShapes: (ids: string[]) =>

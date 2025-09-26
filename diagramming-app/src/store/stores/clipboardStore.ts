@@ -12,7 +12,7 @@ export interface ClipboardStoreActions {
 // This will be imported and used in the main store
 export const createClipboardActions = (
   set: (fn: (state: DiagramState) => DiagramState) => void, 
-  get: () => DiagramState, 
+  _get: () => DiagramState, 
   addHistory: () => void
 ): ClipboardStoreActions => ({
 

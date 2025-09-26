@@ -37,10 +37,10 @@ const Canvas: React.FC = () => {
   const [youTubeShapeData, setYouTubeShapeData] = useState<Omit<Shape, 'id'> | null>(null);
   const [urlError, setUrlError] = useState(false);
 
-  const debouncedSetCurrentMousePoint = useMemo(
-    () => debounce((point: Point | null) => setCurrentMousePoint(point), 20),
-    []
-  );
+  const debouncedSetCurrentMousePoint = useMemo(() => {
+    const handler = (point: Point | null) => setCurrentMousePoint(point);
+    return debounce(handler as (...args: unknown[]) => void, 20) as (point: Point | null) => void;
+  }, []);
 
   const getShapeWithCalculatedTextProps = useCallback((shape: Omit<Shape, 'id'>): Omit<Shape, 'id'> => {
     // Create a temporary div to measure text dimensions
@@ -119,7 +119,7 @@ const Canvas: React.FC = () => {
 
       const targetElement = document.elementFromPoint(e.clientX, e.clientY);
 
-      if (previewConnector) (previewConnector as SVGPathElement).style.display = '';
+      // Preview connector logic to be implemented
 
       const targetNodeG = targetElement?.closest('g[data-node-id]');
       let hoveredShapeId: string | null = null;
@@ -461,8 +461,8 @@ const Canvas: React.FC = () => {
       minY: minY,
       path: shapePath,
       fontFamily: selectedFont,
-      textOffsetX: 0,
-      textOffsetY: newHeight + 5,
+      textOffsetX: textPosition === 'inside' ? 0 : 0,
+      textOffsetY: textPosition === 'inside' ? 0 : newHeight + 5,
       textWidth: newWidth,
       textHeight: 20,
       textPosition: textPosition,
@@ -475,19 +475,19 @@ const Canvas: React.FC = () => {
       setYouTubeUrl(interaction.url);
       setIsYouTubeDialogOpen(true);
     } else {
-      const finalShape = getShapeWithCalculatedTextProps({ ...shapeData, id: uuidv4() });
-      addShapeAndRecordHistory(finalShape as Shape);
+      const finalShape = getShapeWithCalculatedTextProps(shapeData);
+      addShapeAndRecordHistory({ ...finalShape, id: uuidv4() });
     }
   };
 
   const handleSaveYouTubeUrl = () => {
     if (youTubeUrl.startsWith('https://www.youtube.com/embed/')) {
       if (youTubeShapeData) {
-        addShapeAndRecordHistory(getShapeWithCalculatedTextProps({
+        const calculatedShape = getShapeWithCalculatedTextProps({
           ...youTubeShapeData,
-          id: uuidv4(),
-          interaction: { ...youTubeShapeData.interaction, url: youTubeUrl },
-        }) as Shape);
+          interaction: { ...youTubeShapeData.interaction!, url: youTubeUrl, type: 'embed' as const },
+        });
+        addShapeAndRecordHistory({ ...calculatedShape, id: uuidv4() });
       }
       handleCloseYouTubeDialog();
     } else {

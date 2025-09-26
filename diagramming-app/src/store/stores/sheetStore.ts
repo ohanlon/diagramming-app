@@ -12,8 +12,8 @@ export interface SheetStoreActions {
 
 // This will be imported and used in the main store
 export const createSheetActions = (
-  set: (fn: (state: DiagramState) => DiagramState) => void, 
-  get: () => DiagramState, 
+  set: (fn: (state: DiagramState) => DiagramState) => void,
+  _get: () => DiagramState,
   addHistory: () => void,
   defaultSheetId: string
 ): SheetStoreActions => ({

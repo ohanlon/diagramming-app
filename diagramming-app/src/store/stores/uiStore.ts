@@ -17,8 +17,8 @@ export interface UIStoreActions {
 
 // This will be imported and used in the main store
 export const createUIActions = (
-  set: (fn: (state: DiagramState) => DiagramState) => void, 
-  get: () => DiagramState,
+  set: (fn: (state: DiagramState) => DiagramState) => void,
+  _get: () => DiagramState,
   initialState: DiagramState,
   useHistoryStore: any
 ): UIStoreActions => ({

@@ -22,6 +22,8 @@ interface ShapeFileEntry {
   name?: string;
   title?: string;
   path?: string;
+  textPosition?: 'inside' | 'outside' | 'None';
+  autosize?: boolean;
 }
 
 interface Shape {
@@ -64,7 +66,7 @@ const ShapeStore: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [pinnedCategoryIds, setPinnedCategoryIds] = useState<string[]>([]);
   const [visibleCategories, setVisibleCategories] = useState<IndexEntry[]>([]);
-  const [expanded, setExpanded] = useState<string | false>(false);
+  const [expandedAccordions, setExpandedAccordions] = useState<string[]>([]);
 
   const handlePinToggle = (entry: IndexEntry) => {
     setPinnedCategoryIds(prevPinnedIds => {
@@ -79,10 +81,20 @@ const ShapeStore: React.FC = () => {
 
   const handleRemoveCategory = (entry: IndexEntry) => {
     setVisibleCategories(prevVisibleCategories => prevVisibleCategories.filter(cat => cat.id !== entry.id));
+    // Also remove from expanded accordions when category is removed
+    setExpandedAccordions(prev => prev.filter(id => id !== entry.id));
   };
 
   const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : false);
+    setExpandedAccordions(prev => {
+      if (isExpanded) {
+        // Add panel to expanded list if not already there
+        return prev.includes(panel) ? prev : [...prev, panel];
+      } else {
+        // Remove panel from expanded list
+        return prev.filter(id => id !== panel);
+      }
+    });
   };
 
   useEffect(() => {
@@ -106,7 +118,8 @@ const ShapeStore: React.FC = () => {
                   ...shape, 
                   id: shape.name || `shape_${index}`,
                   name: shape.name || shape.title || '',
-                  textPosition: 'inside' as const,
+                  textPosition: shape.textPosition || 'outside',
+                  autosize: shape.autosize ?? true,
                   path: shape.path || ''
                 };
                 if (shape.path) { // Ensure path exists
@@ -138,6 +151,14 @@ const ShapeStore: React.FC = () => {
         }
         setPinnedCategoryIds(initialPinnedIds);
 
+        // Load expanded accordions from localStorage
+        const storedExpandedIds = localStorage.getItem('expandedShapeCategoryIds');
+        let initialExpandedIds: string[] = [];
+        if (storedExpandedIds) {
+          initialExpandedIds = JSON.parse(storedExpandedIds);
+        }
+        setExpandedAccordions(initialExpandedIds);
+
         const initialVisibleCategories = allIndexEntries.filter(entry =>
           initialPinnedIds.includes(entry.id)
         );
@@ -153,6 +174,11 @@ const ShapeStore: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
   }, [pinnedCategoryIds]);
+
+  // Persist expanded accordions to localStorage
+  useEffect(() => {
+    localStorage.setItem('expandedShapeCategoryIds', JSON.stringify(expandedAccordions));
+  }, [expandedAccordions]);
 
   const searchableShapes = useMemo<SearchableShape[]>(() => {
     const allShapes: SearchableShape[] = [];
@@ -201,7 +227,7 @@ const ShapeStore: React.FC = () => {
             if (categoryToAdd && !visibleCategories.some(vc => vc.id === categoryToAdd.id)) {
               setVisibleCategories(prev => [...prev, categoryToAdd]);
               setPinnedCategoryIds(prev => [...prev, categoryToAdd.id]);
-              setExpanded(categoryToAdd.id);
+              setExpandedAccordions(prev => prev.includes(categoryToAdd.id) ? prev : [...prev, categoryToAdd.id]);
             }
           }
           setSearchTerm('');
@@ -237,7 +263,7 @@ const ShapeStore: React.FC = () => {
         {visibleCategories.map(entry => (
           <Accordion
             key={entry.id}
-            expanded={expanded === entry.id}
+            expanded={expandedAccordions.includes(entry.id)}
             onChange={handleAccordionChange(entry.id)}
             sx={{ mb: 1, '&:before': { display: 'none' } }}
           >
