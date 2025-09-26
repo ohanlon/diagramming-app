@@ -481,7 +481,7 @@ const Canvas: React.FC = () => {
   };
 
   const handleSaveYouTubeUrl = () => {
-    if (youTubeUrl.startsWith('https://www.youtube.com/embed/')) {
+    if (youTubeUrl.startsWith('https://www.youtube.com/')) {
       if (youTubeShapeData) {
         const calculatedShape = getShapeWithCalculatedTextProps({
           ...youTubeShapeData,
