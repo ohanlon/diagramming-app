@@ -1,0 +1,93 @@
+/* Resizable ShapeStore styles */
+.resizable-shape-store-container {
+  display: flex;
+  position: relative;
+  min-width: 18.75rem; /* 300px at 16px base font size */
+  max-width: 25rem; /* 400px at 16px base font size */
+  transition: width 0.2s ease;
+}
+
+.resizable-shape-store-container.resizing {
+  transition: none;
+}
+
+.resize-handle {
+  width: 0.25rem; /* 4px at 16px base font size */
+  cursor: col-resize;
+  position: relative;
+  background-color: transparent;
+  user-select: none;
+}
+
+.resize-handle:hover {
+  background-color: #2196f3;
+}
+
+.resize-handle:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -2px;
+  right: -2px;
+  bottom: 0;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.resize-handle:active {
+  background-color: #1976d2;
+}
+
+.resize-handle-separator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background-color: #e0e0e0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.resize-handle-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.shape-store-content {
+  flex: 1;
+  overflow: hidden;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar styling */
+.shape-store-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.shape-store-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.shape-store-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.shape-store-scrollable::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.shape-store-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

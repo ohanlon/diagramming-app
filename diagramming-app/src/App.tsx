@@ -1,5 +1,5 @@
 import MainToolbar from './components/MainToolbar/MainToolbar';
-import ShapeStore from './components/ShapeStore/ShapeStore';
+import ResizableShapeStore from './components/ResizableShapeStore/ResizableShapeStore';
 import Canvas from './components/Canvas/Canvas';
 import ToolbarComponent from './components/Toolbar/Toolbar';
 import LayerPanel from './components/LayerPanel/LayerPanel';
@@ -26,7 +26,7 @@ function App() {
         <ToolbarComponent />
       </AppBar>
       <Box sx={{ display: 'flex', flexGrow: 1, minHeight: 0 }}>
-        <ShapeStore />
+        <ResizableShapeStore />
         <Canvas />
       </Box>
       {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}

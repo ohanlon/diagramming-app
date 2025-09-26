@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOutlined as PushPinOutlinedIcon } from '@mui/icons-material';
 import { type Interaction } from '../../types';
+import { makeImageSVGUnique, generateShapeUniqueId } from '../../utils/svgUtils';
 
 interface ShapeFileEntry {
   name?: string;
@@ -100,13 +101,22 @@ const ShapeStore: React.FC = () => {
             const shapesInFile: ShapeFileEntry[] = await shapesResponse.json();
 
             const shapesWithSvgContent: Shape[] = await Promise.all(
-              shapesInFile.map(async (shape) => {
-                const normalizedShape = { ...shape, name: shape.name || shape.title };
+              shapesInFile.map(async (shape, index) => {
+                const normalizedShape = { 
+                  ...shape, 
+                  id: shape.name || `shape_${index}`,
+                  name: shape.name || shape.title || '',
+                  textPosition: 'inside' as const,
+                  path: shape.path || ''
+                };
                 if (shape.path) { // Ensure path exists
                   try {
                     const svgResponse = await fetch(shape.path);
                     const svgContent = await svgResponse.text();
-                    return { ...normalizedShape, shape: svgContent }; // Assign SVG content to 'shape' property
+                    // Make SVG IDs unique to prevent conflicts in the DOM
+                    const uniqueId = generateShapeUniqueId(normalizedShape.name || `shape_${index}`, index);
+                    const uniqueSvgContent = makeImageSVGUnique(svgContent, uniqueId);
+                    return { ...normalizedShape, shape: uniqueSvgContent }; // Assign unique SVG content
                   } catch (svgError) {
                     console.error(`Failed to load SVG for ${shape.path}:`, svgError);
                     return normalizedShape; // Return original shape if SVG fetch fails
@@ -157,7 +167,14 @@ const ShapeStore: React.FC = () => {
   }, [indexEntries]);
 
   return (
-    <Box sx={{ width: 200, p: 2, borderRight: 1, borderColor: 'divider', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 12.5em)' }}>
+    <Box sx={{ 
+      width: '100%', 
+      p: 2, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: 'calc(100vh - 12.5em)',
+      overflow: 'hidden'
+    }}>
       <Autocomplete
         options={searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
         getOptionLabel={(option) => option.shape.name || ''}
@@ -165,7 +182,15 @@ const ShapeStore: React.FC = () => {
         filterOptions={filterOptions}
         renderOption={(props, option) => (
           <Box component="li" {...props} key={option.shape.id}>
-            {option.shape.shape && <div className="shape-thumbnail-container" style={{ width: 24, height: 24, marginRight: 8 }} dangerouslySetInnerHTML={{ __html: option.shape.shape }} />}
+            {option.shape.shape && (
+              <div 
+                className="shape-thumbnail-container" 
+                style={{ width: 24, height: 24, marginRight: 8 }} 
+                dangerouslySetInnerHTML={{ 
+                  __html: makeImageSVGUnique(option.shape.shape, `search_${option.shape.id}`)
+                }} 
+              />
+            )}
             {option.shape.name || ''}
           </Box>
         )}
@@ -189,7 +214,26 @@ const ShapeStore: React.FC = () => {
         sx={{ mb: 0, flexShrink: 0 }}
       />
 
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 0 }}>
+      <Box sx={{ 
+        flexGrow: 1, 
+        overflowY: 'auto', 
+        overflowX: 'hidden',
+        mb: 0,
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: '#f1f1f1',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: '#c1c1c1',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+          background: '#a1a1a1',
+        },
+      }}>
         {visibleCategories.map(entry => (
           <Accordion
             key={entry.id}
