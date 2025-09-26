@@ -1,4 +1,5 @@
 // Selection-related store actions and state
+import type { DiagramState } from '../../types';
 
 export interface SelectionStoreActions {
   // Shape selection
@@ -15,28 +16,123 @@ export interface SelectionStoreActions {
 }
 
 // This will be imported and used in the main store
-export const createSelectionActions = (set: any, get: any): SelectionStoreActions => ({
-  setSelectedShapes: () => {
-    // Implementation to be moved from main store
+export const createSelectionActions = (
+  set: (fn: (state: DiagramState) => DiagramState) => void, 
+  get: () => DiagramState
+): SelectionStoreActions => ({
+
+  setSelectedShapes: (ids: string[]) =>
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: ids,
+            selectedConnectorIds: [],
+          },
+        },
+      };
+    }),
+
+  toggleShapeSelection: (id: string) => {
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const selectedShapeIds = currentSheet.selectedShapeIds.includes(id)
+        ? currentSheet.selectedShapeIds.filter((shapeId) => shapeId !== id)
+        : [...currentSheet.selectedShapeIds, id];
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: selectedShapeIds,
+          },
+        },
+      };
+    });
   },
-  
-  toggleShapeSelection: () => {
-    // Implementation to be moved from main store
+
+  setSelectedConnectors: (ids: string[]) => {
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedConnectorIds: ids,
+          },
+        },
+      };
+    });
   },
-  
-  setSelectedConnectors: () => {
-    // Implementation to be moved from main store
-  },
-  
+
   selectAll: () => {
-    // Implementation to be moved from main store
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: currentSheet.shapeIds,
+            selectedConnectorIds: Object.keys(currentSheet.connectors),
+          },
+        },
+      };
+    });
   },
-  
+
   selectShapes: () => {
-    // Implementation to be moved from main store
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedShapeIds: currentSheet.shapeIds,
+            selectedConnectorIds: [],
+          },
+        },
+      };
+    });
   },
-  
+
   selectConnectors: () => {
-    // Implementation to be moved from main store
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            selectedConnectorIds: Object.keys(currentSheet.connectors),
+            selectedShapeIds: [],
+          },
+        },
+      };
+    });
   },
 });

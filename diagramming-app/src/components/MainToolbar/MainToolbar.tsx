@@ -15,6 +15,13 @@ const MainToolbar: React.FC = () => {
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
 
+  // If activeSheet is undefined, it means the store state is inconsistent
+  if (!activeSheet) {
+    console.error('Active sheet not found, resetting store');
+    resetStore();
+    return <div>Loading...</div>;
+  }
+
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFileMenuAnchorEl(event.currentTarget);
   };
@@ -94,14 +101,14 @@ const MainToolbar: React.FC = () => {
   };
 
   const handleCut = () => {
-    if (activeSheet.selectedShapeIds.length > 0) {
+    if (activeSheet?.selectedShapeIds?.length > 0) {
       cutShape(activeSheet.selectedShapeIds);
     }
     handleEditMenuClose();
   };
 
   const handleCopy = () => {
-    if (activeSheet.selectedShapeIds.length > 0) {
+    if (activeSheet?.selectedShapeIds?.length > 0) {
       copyShape(activeSheet.selectedShapeIds);
     }
     handleEditMenuClose();
@@ -199,21 +206,21 @@ const MainToolbar: React.FC = () => {
           <Typography variant="body2" color="text.secondary">Ctrl+Y</Typography>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleCut} disabled={activeSheet.selectedShapeIds.length === 0}>
+        <MenuItem onClick={handleCut} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
           <ListItemIcon>
             <ContentCut fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Cut</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+X</Typography>
         </MenuItem>
-        <MenuItem onClick={handleCopy} disabled={activeSheet.selectedShapeIds.length === 0}>
+        <MenuItem onClick={handleCopy} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
           <ListItemIcon>
             <ContentCopy fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Copy</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+C</Typography>
         </MenuItem>
-        <MenuItem onClick={handlePaste} disabled={!activeSheet.clipboard || activeSheet.clipboard.length === 0}>
+        <MenuItem onClick={handlePaste} disabled={!activeSheet || !activeSheet.clipboard || activeSheet.clipboard.length === 0}>
           <ListItemIcon>
             <ContentPaste fontSize="small" />
           </ListItemIcon>
