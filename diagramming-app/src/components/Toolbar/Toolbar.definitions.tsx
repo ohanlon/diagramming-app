@@ -56,6 +56,12 @@ export const ARROW_STYLE_SVG: Record<ArrowStyle, {start: string, end: string}> =
     }
 };
 
+export const CONNECTION_TYPE_SVG: Record<ConnectionType, string> = {
+    direct: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 10L55 10" stroke="black" stroke-width="2"/></svg>`,
+    orthogonal: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15L20 15L20 5L55 5" stroke="black" stroke-width="2" fill="none"/></svg>`,
+    bezier: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15 Q 20 15, 25 10 T 55 5" stroke="black" stroke-width="2" fill="none"/></svg>`
+};
+
 export const lineStyles: { name: string, value: LineStyle }[] = [
     { name: 'Continuous', value: 'continuous' },
     { name: 'Dashed', value: 'dashed' },
@@ -360,10 +366,13 @@ export const getInitialTools = ({
                         displayEmpty
                         inputProps={{ 'aria-label': 'Connection Type' }}
                         sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        renderValue={(selected) => (
+                            <span dangerouslySetInnerHTML={{ __html: CONNECTION_TYPE_SVG[selected as ConnectionType] }} />
+                        )}
                     >
                         {connectionTypes.map((type) => (
                             <MenuItem key={type.value} value={type.value}>
-                                {type.name}
+                                <span dangerouslySetInnerHTML={{ __html: CONNECTION_TYPE_SVG[type.value] }} />
                             </MenuItem>
                         ))}
                     </Select>
