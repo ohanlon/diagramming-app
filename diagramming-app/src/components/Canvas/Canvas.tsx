@@ -6,14 +6,14 @@ import ContextMenu from '../ContextMenu/ContextMenu';
 import type { Point, AnchorType, Shape } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { getAnchorPoint } from '../../utils/getAnchorPoint';
-import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
+import { calculateConnectionPath } from '../../utils/connectionAlgorithms';
 import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShapeAndRecordHistory, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, connectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
+  const { sheets, activeSheetId, addShapeAndRecordHistory, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -127,7 +127,7 @@ const Canvas: React.FC = () => {
         hoveredShapeId = targetNodeG.getAttribute('data-node-id');
       }
 
-      if (hoveredShapeId !== connectorDragTargetShapeId) {
+      if (hoveredShapeId !== activeSheet.connectorDragTargetShapeId) {
         setConnectorDragTargetShapeId(hoveredShapeId);
       }
     } else if (isSelecting && selectionStartPoint) {
@@ -153,7 +153,7 @@ const Canvas: React.FC = () => {
             }
         }
     }
-  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, debouncedSetCurrentMousePoint, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
+  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, debouncedSetCurrentMousePoint, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, activeSheet.connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
 
   const handleMouseUp = useCallback((e: MouseEvent) => {
     if (!activeSheet) return;
@@ -636,7 +636,7 @@ const Canvas: React.FC = () => {
             fill="url(#grid-pattern)"
           />
           {(visibleShapes || []).map((shape) => (
-            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
+            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
           ))}
           {(visibleConnectors || []).map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
@@ -683,11 +683,12 @@ const Canvas: React.FC = () => {
                   isTextPositionManuallySet: undefined,
                 };
 
-                const { path } = calculateOrthogonalPath(
+                const { path } = calculateConnectionPath(
                   startShape,
                   dummyTargetShape,
                   startConnectorAnchorType!,
-                  getAnchorPoint(dummyTargetShape, currentMousePoint!).type
+                  getAnchorPoint(dummyTargetShape, currentMousePoint!).type,
+                  activeSheet.selectedConnectionType || 'direct'
                 );
                 return path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
               })()}

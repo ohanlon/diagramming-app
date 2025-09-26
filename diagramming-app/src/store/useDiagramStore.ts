@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
-import type { Sheet, DiagramState, LineStyle, Shape, Connector, Point, ArrowStyle } from '../types';
+import type { Sheet, DiagramState, LineStyle, Shape, Connector, Point, ArrowStyle, ConnectionType } from '../types';
 import { useHistoryStore } from './useHistoryStore';
 
 interface DiagramStoreActions {
   setSelectedStartArrow: (arrowStyle: ArrowStyle) => void;
   setSelectedEndArrow: (arrowStyle: ArrowStyle) => void;
   setSelectedLineWidth: (width: number) => void;
+  setSelectedConnectionType: (connectionType: ConnectionType) => void;
   updateShapeSvgContent: (id: string, svgContent: string) => void;
   setSelectedShapeColor: (color: string) => void;
   addShapeAndRecordHistory: (shape: Shape) => void;
@@ -113,6 +114,7 @@ const initialState: DiagramState = {
       selectedShapeColor: '#000000',
       selectedLineStyle: 'continuous',
       selectedLineWidth: 1,
+      selectedConnectionType: 'direct',
       selectedConnectorIds: [],
       connectorDragTargetShapeId: null,
     },
@@ -552,6 +554,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             ...connector,
             startArrow: 'none' as ArrowStyle,
             endArrow: 'polygon_arrow' as ArrowStyle,
+            connectionType: currentSheet.selectedConnectionType,
           };
 
           return {
@@ -1129,6 +1132,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
             selectedShapeColor: initialState.sheets[defaultSheetId].selectedShapeColor,
             selectedLineStyle: initialState.sheets[defaultSheetId].selectedLineStyle,
             selectedLineWidth: initialState.sheets[defaultSheetId].selectedLineWidth,
+            selectedConnectionType: initialState.sheets[defaultSheetId].selectedConnectionType,
             selectedConnectorIds: initialState.sheets[defaultSheetId].selectedConnectorIds,
             connectorDragTargetShapeId: null,
           };
@@ -1572,6 +1576,24 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
                 ...currentSheet,
                 selectedLineWidth: width,
                 connectors: newConnectors,
+              },
+            },
+          };
+        });
+      },
+
+      setSelectedConnectionType: (connectionType: ConnectionType) => {
+        set((state) => {
+          const currentSheet = state.sheets[state.activeSheetId];
+          if (!currentSheet) return state;
+
+          return {
+            ...state,
+            sheets: {
+              ...state.sheets,
+              [state.activeSheetId]: {
+                ...currentSheet,
+                selectedConnectionType: connectionType,
               },
             },
           };

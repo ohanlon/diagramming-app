@@ -4,7 +4,7 @@ import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { debounce } from '../../utils/debounce';
-import type { LineStyle, ArrowStyle } from '../../types';
+import type { LineStyle, ArrowStyle, ConnectionType } from '../../types';
 import ColorPicker from '../ColorPicker/ColorPicker';
 import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
 import { colors as shapeColors } from '../ShapeColorPicker/colors';
@@ -22,6 +22,7 @@ const ToolbarComponent: React.FC = () => {
     updateShapeSvgContent,
     setSelectedLineStyle,
     setSelectedLineWidth,
+    setSelectedConnectionType,
     setSelectedStartArrow,
     setSelectedEndArrow,
     undo,
@@ -49,6 +50,7 @@ const ToolbarComponent: React.FC = () => {
   const [currentTextColor, setCurrentTextColor] = useState('#000000');
   const [currentLineStyle, setCurrentLineStyle] = useState<LineStyle>(activeSheet.selectedLineStyle);
   const [currentLineWidth, setCurrentLineWidth] = useState<number>(activeSheet.selectedLineWidth);
+  const [currentConnectionType, setCurrentConnectionType] = useState<ConnectionType>(activeSheet.selectedConnectionType);
   const [currentStartArrow, setCurrentStartArrow] = useState<ArrowStyle>('none');
   const [currentEndArrow, setCurrentEndArrow] = useState<ArrowStyle>('standard_arrow');
 
@@ -57,6 +59,7 @@ const ToolbarComponent: React.FC = () => {
 
     let newLineStyle = activeSheet.selectedLineStyle;
     let newLineWidth = activeSheet.selectedLineWidth;
+    let newConnectionType = activeSheet.selectedConnectionType;
     let newStartArrow: ArrowStyle = 'none';
     let newEndArrow: ArrowStyle = 'standard_arrow';
 
@@ -76,13 +79,16 @@ const ToolbarComponent: React.FC = () => {
     if (currentLineWidth !== newLineWidth) {
       setCurrentLineWidth(newLineWidth);
     }
+    if (currentConnectionType !== newConnectionType) {
+      setCurrentConnectionType(newConnectionType);
+    }
     if (currentStartArrow !== newStartArrow) {
       setCurrentStartArrow(newStartArrow);
     }
     if (currentEndArrow !== newEndArrow) {
       setCurrentEndArrow(newEndArrow);
     }
-  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, currentLineStyle, currentLineWidth, currentStartArrow, currentEndArrow]);
+  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, activeSheet.selectedConnectionType, currentLineStyle, currentLineWidth, currentConnectionType, currentStartArrow, currentEndArrow]);
 
 
 
@@ -213,6 +219,10 @@ const ToolbarComponent: React.FC = () => {
     setSelectedLineStyle(event.target.value as LineStyle);
   }, [setSelectedLineStyle]);
 
+  const handleConnectionTypeChange = useCallback((event: SelectChangeEvent<string>) => {
+    setSelectedConnectionType(event.target.value as ConnectionType);
+  }, [setSelectedConnectionType]);
+
   const handleStartArrowChange = useCallback((event: SelectChangeEvent<string>) => {
     setSelectedStartArrow(event.target.value as ArrowStyle);
   }, [setSelectedStartArrow]);
@@ -258,6 +268,7 @@ const ToolbarComponent: React.FC = () => {
       currentShapeColor,
       currentLineStyle,
       currentLineWidth,
+      currentConnectionType,
       currentStartArrow,
       currentEndArrow,
       handleColorPickerClick,
@@ -266,6 +277,7 @@ const ToolbarComponent: React.FC = () => {
       handleFontSizeChange,
       handleLineStyleChange,
       handleLineWidthChange,
+      handleConnectionTypeChange,
       handleStartArrowChange,
       handleEndArrowChange,
       resetStore,
@@ -301,6 +313,7 @@ const ToolbarComponent: React.FC = () => {
     currentShapeColor,
     currentLineStyle,
     currentLineWidth,
+    currentConnectionType,
     currentStartArrow,
     currentEndArrow,
     handleColorPickerClick,
@@ -309,6 +322,7 @@ const ToolbarComponent: React.FC = () => {
     handleFontSizeChange,
     handleLineStyleChange,
     handleLineWidthChange,
+    handleConnectionTypeChange,
     handleStartArrowChange,
     handleEndArrowChange,
     resetStore,
@@ -332,7 +346,7 @@ const ToolbarComponent: React.FC = () => {
     setHiddenTools(newHiddenTools);
   }, []);
 
-  const debouncedSetTools = useMemo(() => debounce(handleSetTools, 100), [handleSetTools]);
+  const debouncedSetTools = useMemo(() => debounce(handleSetTools as (...args: unknown[]) => void, 100), [handleSetTools]);
 
   useEffect(() => {
     const toolbarElement = toolbarRef.current;

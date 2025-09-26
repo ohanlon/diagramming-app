@@ -26,7 +26,7 @@ import {
   VerticalAlignCenter,
   VerticalAlignTop,
 } from '@mui/icons-material';
-import type { LineStyle, ArrowStyle, Sheet } from '../../types';
+import type { LineStyle, ArrowStyle, Sheet, ConnectionType } from '../../types';
 import { googleFonts, fontSizes } from './Fonts';
 import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE, LONG_DASH_SPACE_PATTERN_LINE_STYLE, LONG_SPACE_SHORT_DOT_PATTERN_STYLE } from '../../constants/constant';
 
@@ -65,6 +65,11 @@ export const lineStyles: { name: string, value: LineStyle }[] = [
     { name: 'Custom 2', value: 'custom-2' },
 ];
 
+export const connectionTypes: { name: string, value: ConnectionType }[] = [
+    { name: 'Direct', value: 'direct' },
+    { name: 'Orthogonal', value: 'orthogonal' },
+];
+
 export interface ToolDefinition {
     id: string;
     element: React.ReactNode;
@@ -90,12 +95,14 @@ export interface GetInitialToolsProps {
     currentShapeColor: string;
     currentLineStyle: LineStyle;
     currentLineWidth: number;
+    currentConnectionType: ConnectionType;
     currentStartArrow: ArrowStyle;
     currentEndArrow: ArrowStyle;
     handleFontChange: (event: SelectChangeEvent<string>) => void;
     handleFontSizeChange: (event: SelectChangeEvent<string>) => void;
     handleLineStyleChange: (event: SelectChangeEvent<string>) => void;
     handleLineWidthChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleConnectionTypeChange: (event: SelectChangeEvent<string>) => void;
     handleStartArrowChange: (event: SelectChangeEvent<string>) => void;
     handleEndArrowChange: (event: SelectChangeEvent<string>) => void;
     resetStore: () => void;
@@ -132,6 +139,7 @@ export const getInitialTools = ({
     currentShapeColor,
     currentLineStyle,
     currentLineWidth,
+    currentConnectionType,
     currentStartArrow,
     currentEndArrow,
     handleColorPickerClick,
@@ -140,6 +148,7 @@ export const getInitialTools = ({
     handleFontSizeChange,
     handleLineStyleChange,
     handleLineWidthChange,
+    handleConnectionTypeChange,
     handleStartArrowChange,
     handleEndArrowChange,
     cutShape,
@@ -339,6 +348,27 @@ export const getInitialTools = ({
                 />
             ),
             width: 90,
+        },
+        {
+            id: 'connection-type',
+            element: (
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 80 }}>
+                    <Select
+                        value={currentConnectionType}
+                        onChange={handleConnectionTypeChange}
+                        displayEmpty
+                        inputProps={{ 'aria-label': 'Connection Type' }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                    >
+                        {connectionTypes.map((type) => (
+                            <MenuItem key={type.value} value={type.value}>
+                                {type.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            ),
+            width: 120,
         },
         {
             id: 'start-arrow',

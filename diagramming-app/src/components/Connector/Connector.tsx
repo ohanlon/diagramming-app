@@ -1,8 +1,8 @@
 
 import React, { memo } from 'react';
-import type { Connector, Layer, Point } from '../../types';
+import type { Connector, Layer, Point, LineStyle } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { calculateOrthogonalPath } from '../../utils/calculateOrthogonalPath';
+import { calculateConnectionPath } from '../../utils/connectionAlgorithms';
 import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE, LONG_DASH_SPACE_PATTERN_LINE_STYLE, LONG_SPACE_SHORT_DOT_PATTERN_STYLE } from '../../constants/constant';
 
 const getStrokeDasharray = (lineStyle: LineStyle): string => {
@@ -52,12 +52,13 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
 
   const isFaded = startNode.layerId !== activeLayerId || !layers[startNode.layerId]?.isVisible;
 
-  // Calculate orthogonal path
-  const { path } = calculateOrthogonalPath(
+  // Calculate connection path based on connection type
+  const { path } = calculateConnectionPath(
     startNode,
     endNode,
     connector.startAnchorType,
-    connector.endAnchorType
+    connector.endAnchorType,
+    connector.connectionType || 'direct'
   );
 
   if (path.length < 2) {
@@ -67,7 +68,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   const { lineWidth = 2 } = connector;
   const arrowLength = 5 * lineWidth;
   const shortening = arrowLength * Math.cos(Math.PI / 6);
-  const dPath = [...path.map(p => ({...p}))];
+  const dPath = [...path.map((p: Point) => ({...p}))];
   let endArrowPoints: Point[] = [];
   let startArrowPoints: Point[] = [];
 

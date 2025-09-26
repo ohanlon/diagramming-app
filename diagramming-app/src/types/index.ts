@@ -57,6 +57,8 @@ export type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash' | 'cu
 
 export type ArrowStyle = 'none' | 'standard_arrow' | 'polygon_arrow';
 
+export type ConnectionType = 'direct' | 'orthogonal';
+
 export type Connector = {
   id: string;
   startNodeId: string;
@@ -67,6 +69,7 @@ export type Connector = {
   lineWidth?: number;
   startArrow?: ArrowStyle;
   endArrow?: ArrowStyle;
+  connectionType?: ConnectionType;
 };
 
 export type Sheet = {
@@ -89,6 +92,7 @@ export type Sheet = {
   selectedShapeColor: string;
   selectedLineStyle: LineStyle;
   selectedLineWidth: number;
+  selectedConnectionType: ConnectionType;
   connectorDragTargetShapeId: string | null;
 };
 
