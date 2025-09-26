@@ -57,7 +57,7 @@ export type LineStyle = 'continuous' | 'dashed' | 'long-dash' | 'dot-dash' | 'cu
 
 export type ArrowStyle = 'none' | 'standard_arrow' | 'polygon_arrow';
 
-export type ConnectionType = 'direct' | 'orthogonal';
+export type ConnectionType = 'direct' | 'orthogonal' | 'bezier';
 
 export type Connector = {
   id: string;

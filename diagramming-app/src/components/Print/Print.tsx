@@ -47,10 +47,10 @@ const Print: React.FC = () => {
     <div className="print-container">
       <svg className="print-svg" viewBox={viewBox}>
         {visibleShapes.map(shape => (
-          <Node key={shape.id} shape={shape} zoom={1} isInteractive={false} isSelected={false} onConnectorStart={() => {}} onContextMenu={() => {}} onNodeMouseDown={() => {}} />
+          <Node key={shape.id} shape={shape} zoom={1} isInteractive={false} isSelected={false} isConnectorDragTarget={false} onConnectorStart={() => {}} onContextMenu={() => {}} onNodeMouseDown={() => {}} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
         ))}
         {visibleConnectors.map(connector => (
-          <Connector key={connector.id} connector={connector} isSelected={false} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} zoom={1} />
+          <Connector key={connector.id} connector={connector} isSelected={false} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
         ))}
       </svg>
     </div>

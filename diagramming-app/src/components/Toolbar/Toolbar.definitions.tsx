@@ -68,6 +68,7 @@ export const lineStyles: { name: string, value: LineStyle }[] = [
 export const connectionTypes: { name: string, value: ConnectionType }[] = [
     { name: 'Direct', value: 'direct' },
     { name: 'Orthogonal', value: 'orthogonal' },
+    { name: 'Bezier', value: 'bezier' },
 ];
 
 export interface ToolDefinition {

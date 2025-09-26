@@ -1583,9 +1583,22 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
       },
 
       setSelectedConnectionType: (connectionType: ConnectionType) => {
+        addHistory(set, get);
         set((state) => {
           const currentSheet = state.sheets[state.activeSheetId];
           if (!currentSheet) return state;
+
+          const newConnectors = { ...currentSheet.connectors };
+          const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
+            ? currentSheet.selectedConnectorIds
+            : Object.keys(newConnectors);
+
+          targetConnectorIds.forEach((connectorId) => {
+            const connector = newConnectors[connectorId];
+            if (connector) {
+              newConnectors[connectorId] = { ...connector, connectionType: connectionType };
+            }
+          });
 
           return {
             ...state,
@@ -1594,6 +1607,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
               [state.activeSheetId]: {
                 ...currentSheet,
                 selectedConnectionType: connectionType,
+                connectors: newConnectors,
               },
             },
           };

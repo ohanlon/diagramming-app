@@ -116,7 +116,21 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     startArrowPoints = [p1, originalStartPoint, p2];
   }
 
-  const d = dPath.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  // Generate path string based on connection type
+  let d: string;
+  if (connector.connectionType === 'bezier' && path.length > 2) {
+    // For bezier curves, create a smooth curve by connecting points with smooth curves
+    d = `M ${path[0].x} ${path[0].y}`;
+    
+    // For bezier, the path already contains the curve points, so we can use them directly
+    // Connect points with smooth line segments to create the bezier effect
+    for (let i = 1; i < path.length; i++) {
+      d += ` L ${path[i].x} ${path[i].y}`;
+    }
+  } else {
+    // For direct and orthogonal connections, use line segments
+    d = dPath.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  }
 
   return (
     <g style={{ opacity: isFaded ? 0.6 : 1 }}>

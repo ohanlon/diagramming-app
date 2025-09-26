@@ -103,6 +103,94 @@ const calculateOrthogonalPathInternal = (
   };
 };
 
+// Bezier curve connection with smooth curves
+const calculateBezierPath = (
+  sourceShape: Shape,
+  targetShape: Shape,
+  startAnchorType: AnchorType,
+  endAnchorType: AnchorType
+): ConnectionResult => {
+  const sourceConnectionPoints = getConnectionPoints(sourceShape);
+  const targetConnectionPoints = getConnectionPoints(targetShape);
+
+  const startPoint = sourceConnectionPoints[startAnchorType];
+  const endPoint = targetConnectionPoints[endAnchorType];
+
+  // Calculate control points based on anchor directions
+  const distance = Math.sqrt(Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2));
+  const controlDistance = Math.min(distance * 0.4, 150); // Adaptive control point distance
+
+  let controlPoint1: Point;
+  let controlPoint2: Point;
+
+  // Calculate control points based on anchor types for natural curves
+  switch (startAnchorType) {
+    case 'right':
+      controlPoint1 = { x: startPoint.x + controlDistance, y: startPoint.y };
+      break;
+    case 'left':
+      controlPoint1 = { x: startPoint.x - controlDistance, y: startPoint.y };
+      break;
+    case 'bottom':
+      controlPoint1 = { x: startPoint.x, y: startPoint.y + controlDistance };
+      break;
+    case 'top':
+      controlPoint1 = { x: startPoint.x, y: startPoint.y - controlDistance };
+      break;
+  }
+
+  switch (endAnchorType) {
+    case 'right':
+      controlPoint2 = { x: endPoint.x + controlDistance, y: endPoint.y };
+      break;
+    case 'left':
+      controlPoint2 = { x: endPoint.x - controlDistance, y: endPoint.y };
+      break;
+    case 'bottom':
+      controlPoint2 = { x: endPoint.x, y: endPoint.y + controlDistance };
+      break;
+    case 'top':
+      controlPoint2 = { x: endPoint.x, y: endPoint.y - controlDistance };
+      break;
+  }
+
+  // Generate bezier curve points
+  const bezierPoints: Point[] = [];
+  const numPoints = 20; // Number of points to generate along the curve
+
+  for (let i = 0; i <= numPoints; i++) {
+    const t = i / numPoints;
+    const point = calculateBezierPoint(startPoint, controlPoint1, controlPoint2, endPoint, t);
+    bezierPoints.push(point);
+  }
+
+  return {
+    path: bezierPoints,
+    sourceConnectionPoint: startPoint,
+    targetConnectionPoint: endPoint,
+  };
+};
+
+// Calculate a point on a cubic bezier curve
+const calculateBezierPoint = (
+  p0: Point,
+  p1: Point,
+  p2: Point,
+  p3: Point,
+  t: number
+): Point => {
+  const invT = 1 - t;
+  const invT2 = invT * invT;
+  const invT3 = invT2 * invT;
+  const t2 = t * t;
+  const t3 = t2 * t;
+
+  return {
+    x: invT3 * p0.x + 3 * invT2 * t * p1.x + 3 * invT * t2 * p2.x + t3 * p3.x,
+    y: invT3 * p0.y + 3 * invT2 * t * p1.y + 3 * invT * t2 * p2.y + t3 * p3.y,
+  };
+};
+
 // Main function to calculate path based on connection type
 export const calculateConnectionPath = (
   sourceShape: Shape,
@@ -114,6 +202,8 @@ export const calculateConnectionPath = (
   switch (connectionType) {
     case 'orthogonal':
       return calculateOrthogonalPathInternal(sourceShape, targetShape, startAnchorType, endAnchorType);
+    case 'bezier':
+      return calculateBezierPath(sourceShape, targetShape, startAnchorType, endAnchorType);
     case 'direct':
     default:
       return calculateDirectPath(sourceShape, targetShape, startAnchorType, endAnchorType);
