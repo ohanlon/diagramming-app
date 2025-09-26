@@ -12,6 +12,11 @@ export interface ConnectorStoreActions {
   setSelectedEndArrow: (arrowStyle: ArrowStyle) => void;
   setSelectedConnectionType: (connectionType: ConnectionType) => void;
   
+  // Connector text
+  updateConnectorText: (connectorId: string, text: string) => void;
+  updateConnectorTextPosition: (connectorId: string, position: number, offset?: { x: number; y: number }) => void;
+  setConnectorTextSelected: (connectorId: string, isSelected: boolean) => void;
+  
   // Connector interaction
   setConnectorDragTargetShapeId: (shapeId: string | null) => void;
 }
@@ -194,6 +199,90 @@ export const createConnectorActions = (
           [state.activeSheetId]: {
             ...currentSheet,
             connectors: newConnectors,
+          },
+        },
+      };
+    });
+  },
+
+  updateConnectorText: (connectorId: string, text: string) => {
+    addHistory();
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const connector = currentSheet.connectors[connectorId];
+      if (!connector) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            connectors: {
+              ...currentSheet.connectors,
+              [connectorId]: {
+                ...connector,
+                text,
+              },
+            },
+          },
+        },
+      };
+    });
+  },
+
+  updateConnectorTextPosition: (connectorId: string, position: number, offset?: { x: number; y: number }) => {
+    addHistory();
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const connector = currentSheet.connectors[connectorId];
+      if (!connector) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            connectors: {
+              ...currentSheet.connectors,
+              [connectorId]: {
+                ...connector,
+                textPosition: Math.max(0, Math.min(1, position)), // Clamp between 0 and 1
+                textOffset: offset || connector.textOffset || { x: 0, y: 0 },
+              },
+            },
+          },
+        },
+      };
+    });
+  },
+
+  setConnectorTextSelected: (connectorId: string, isSelected: boolean) => {
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const connector = currentSheet.connectors[connectorId];
+      if (!connector) return state;
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            connectors: {
+              ...currentSheet.connectors,
+              [connectorId]: {
+                ...connector,
+                isTextSelected: isSelected,
+              },
+            },
           },
         },
       };

@@ -1,9 +1,10 @@
 
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import type { Connector, Layer, Point, LineStyle } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { calculateConnectionPath } from '../../utils/connectionAlgorithms';
 import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE, LONG_DASH_SPACE_PATTERN_LINE_STYLE, LONG_SPACE_SHORT_DOT_PATTERN_STYLE } from '../../constants/constant';
+import ConnectorTextLabel from '../ConnectorTextLabel/ConnectorTextLabel';
 
 const getStrokeDasharray = (lineStyle: LineStyle): string => {
   switch (lineStyle) {
@@ -35,7 +36,7 @@ interface ConnectorProps {
 }
 
 const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected, activeLayerId, layers }) => {
-  const { sheets, activeSheetId, setSelectedConnectors } = useDiagramStore();
+  const { sheets, activeSheetId, setSelectedConnectors, updateConnectorText, setConnectorTextSelected } = useDiagramStore();
   const activeSheet = sheets[activeSheetId];
 
   if (!activeSheet) return null; // Should not happen if Canvas is rendering correctly
@@ -51,6 +52,14 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   }
 
   const isFaded = startNode.layerId !== activeLayerId || !layers[startNode.layerId]?.isVisible;
+
+  const handleDoubleClick = useCallback(() => {
+    // Add text if it doesn't exist, or select if it does
+    if (!connector.text) {
+      updateConnectorText(connector.id, 'Label');
+    }
+    setConnectorTextSelected(connector.id, true);
+  }, [connector.id, connector.text, updateConnectorText, setConnectorTextSelected]);
 
   // Calculate connection path based on connection type
   const { path } = calculateConnectionPath(
@@ -141,6 +150,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         fill="none"
         role="presentation"
         onClick={() => setSelectedConnectors([connector.id])}
+        onDoubleClick={handleDoubleClick}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
       />
@@ -153,6 +163,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         aria-label="Connector between nodes"
         strokeDasharray={getStrokeDasharray(connector.lineStyle || 'continuous')}
         onClick={() => setSelectedConnectors([connector.id])}
+        onDoubleClick={handleDoubleClick}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
       />
@@ -187,6 +198,23 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
             strokeWidth="2"
           />
         </>
+      )}
+      
+      {/* Connector Text Label */}
+      {(connector.text || connector.isTextSelected) && (
+        <ConnectorTextLabel
+          connectorId={connector.id}
+          text={connector.text || ''}
+          position={connector.textPosition || 0.5}
+          offset={connector.textOffset || { x: 0, y: 0 }}
+          pathPoints={path}
+          fontSize={connector.fontSize || 12}
+          fontFamily={connector.fontFamily || 'Arial'}
+          textColor={connector.textColor || '#000000'}
+          isSelected={connector.isTextSelected || false}
+          zoom={activeSheet.zoom}
+          isInteractive={true}
+        />
       )}
     </g>
   );
