@@ -194,6 +194,8 @@ const ShapeStore: React.FC = () => {
 
   return (
     <Box sx={{ 
+      marginLeft: '0.5em', 
+      marginTop: '0.5em', 
       display: 'flex', 
       flexDirection: 'column', 
       height: 'calc(100vh - 12.5em)',
