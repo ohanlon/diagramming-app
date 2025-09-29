@@ -8,6 +8,8 @@ import {
   type SelectChangeEvent,
   TextField,
   Tooltip,
+  Menu,
+  ListSubheader,
 } from '@mui/material';
 import {
   AlignHorizontalCenter,
@@ -438,78 +440,59 @@ export const getInitialTools = ({
             width: 16,
         },
         {
-            id: 'align-top',
-            element: (
-                <Tooltip title="Align Top">
-                    <IconButton onClick={() => handleClick(() => setVerticalAlign('top'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignTopActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
-                        <VerticalAlignTop />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'align-middle',
-            element: (
-                <Tooltip title="Align Middle">
-                    <IconButton onClick={() => handleClick(() => setVerticalAlign('middle'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
-                        <VerticalAlignCenter />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'align-bottom',
-            element: (
-                <Tooltip title="Align Bottom">
-                    <IconButton onClick={() => handleClick(() => setVerticalAlign('bottom'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isVerticalAlignBottomActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
-                        <VerticalAlignBottom />
-                    </IconButton>
-                </Tooltip>
-            ),
+            id: 'align',
+            element: (() => {
+                const AlignDropdown: React.FC = () => {
+                    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+                    const open = Boolean(anchorEl);
+                    return (
+                        <div>
+                            <Tooltip title="Align">
+                                <IconButton
+                                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                                    color="inherit"
+                                    disabled={!hasSelectedShapes}
+                                    sx={{ borderRadius: 0, backgroundColor: (isVerticalAlignTopActive && isVerticalAlignCenterActive && isVerticalAlignBottomActive && isHorizontalAlignLeftActive && isHorizontalAlignCenterActive && isHorizontalAlignRightActive) ? 'rgba(0,0,0,0.1)' : 'transparent' }}
+                                >
+                                    <AlignHorizontalCenter />
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={() => setAnchorEl(null)}
+                                MenuListProps={{ 'aria-label': 'Align options' }}
+                            >
+                                <ListSubheader>Vertical</ListSubheader>
+                                <MenuItem onClick={() => { handleClick(() => setVerticalAlign('top')); setAnchorEl(null); }}>
+                                    <VerticalAlignTop sx={{ mr: 1 }} /> Top
+                                </MenuItem>
+                                <MenuItem onClick={() => { handleClick(() => setVerticalAlign('middle')); setAnchorEl(null); }}>
+                                    <VerticalAlignCenter sx={{ mr: 1 }} /> Middle
+                                </MenuItem>
+                                <MenuItem onClick={() => { handleClick(() => setVerticalAlign('bottom')); setAnchorEl(null); }}>
+                                    <VerticalAlignBottom sx={{ mr: 1 }} /> Bottom
+                                </MenuItem>
+                                <ListSubheader>Horizontal</ListSubheader>
+                                <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('left')); setAnchorEl(null); }}>
+                                    <AlignHorizontalLeft sx={{ mr: 1 }} /> Left
+                                </MenuItem>
+                                <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('center')); setAnchorEl(null); }}>
+                                    <AlignHorizontalCenter sx={{ mr: 1 }} /> Center
+                                </MenuItem>
+                                <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('right')); setAnchorEl(null); }}>
+                                    <AlignHorizontalRight sx={{ mr: 1 }} /> Right
+                                </MenuItem>
+                            </Menu>
+                        </div>
+                    );
+                };
+                return <AlignDropdown />;
+            })(),
             width: 48,
         },
         {
             id: 'divider-5',
-            element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
-            width: 16,
-        },
-        {
-            id: 'align-left',
-            element: (
-                <Tooltip title="Align Left">
-                    <IconButton onClick={() => handleClick(() => setHorizontalAlign('left'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignLeftActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
-                        <AlignHorizontalLeft />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'align-center',
-            element: (
-                <Tooltip title="Align Center">
-                    <IconButton onClick={() => handleClick(() => setHorizontalAlign('center'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignCenterActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
-                        <AlignHorizontalCenter />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'align-right',
-            element: (
-                <Tooltip title="Align Right">
-                    <IconButton onClick={() => handleClick(() => setHorizontalAlign('right'))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isHorizontalAlignRightActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
-                        <AlignHorizontalRight />
-                    </IconButton>
-                </Tooltip>
-            ),
-            width: 48,
-        },
-        {
-            id: 'divider-6',
             element: <Divider orientation="vertical" flexItem sx={{ margin: '0 4px' }} />,
             width: 16,
         },
