@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
-import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, SaveSharp, UndoOutlined } from '@mui/icons-material';
+import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 
@@ -24,6 +24,28 @@ const MainToolbar: React.FC = () => {
 
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFileMenuAnchorEl(event.currentTarget);
+  };
+
+  // When any top-level menu is open, hovering over another top-level menu should open it
+  const isAnyTopMenuOpen = Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl || newMenuAnchorEl);
+
+  const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLButtonElement>, menu: 'file' | 'edit' | 'select') => {
+    if (!isAnyTopMenuOpen) return;
+    // Open the hovered menu and close others
+    const target = event.currentTarget;
+    if (menu === 'file') {
+      setFileMenuAnchorEl(target);
+      setEditMenuAnchorEl(null);
+      setSelectMenuAnchorEl(null);
+    } else if (menu === 'edit') {
+      setEditMenuAnchorEl(target);
+      setFileMenuAnchorEl(null);
+      setSelectMenuAnchorEl(null);
+    } else if (menu === 'select') {
+      setSelectMenuAnchorEl(target);
+      setFileMenuAnchorEl(null);
+      setEditMenuAnchorEl(null);
+    }
   };
 
   const handleFileMenuClose = () => {
@@ -142,7 +164,7 @@ const MainToolbar: React.FC = () => {
 
   return (
     <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black', minHeight: '2em' }}>
-      <Button onClick={handleFileMenuOpen} sx={{ color: 'black' }}>
+      <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black' }}>
         File
       </Button>
       <Menu
@@ -195,7 +217,7 @@ const MainToolbar: React.FC = () => {
         <MenuItem onClick={handleNewDiagram}>Diagram</MenuItem>
       </Menu>
 
-      <Button onClick={handleEditMenuOpen} sx={{ color: 'black' }}>
+      <Button onClick={handleEditMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')} sx={{ color: 'black' }}>
         Edit
       </Button>
       <Menu
@@ -243,7 +265,7 @@ const MainToolbar: React.FC = () => {
         </MenuItem>
       </Menu>
 
-      <Button onClick={handleSelectMenuOpen} sx={{ color: 'black' }}>
+      <Button onClick={handleSelectMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'select')} sx={{ color: 'black' }}>
         Select
       </Button>
       <Menu
