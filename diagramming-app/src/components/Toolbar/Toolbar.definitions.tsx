@@ -53,6 +53,10 @@ export const ARROW_STYLE_SVG: Record<ArrowStyle, {start: string, end: string}> =
     polygon_arrow: {
         start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L0 6L10 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`,
         end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2.5L30 6L20 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`
+    },
+    circle: {
+        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="6" r="5" fill="black"/><path d="M10 6H30" stroke="black" stroke-width="2"/></svg>`,
+        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H20" stroke="black" stroke-width="2"/><circle cx="25" cy="6" r="5" fill="black"/></svg>`
     }
 };
 

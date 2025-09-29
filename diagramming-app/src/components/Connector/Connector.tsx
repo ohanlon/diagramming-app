@@ -1,4 +1,3 @@
-
 import React, { memo, useCallback } from 'react';
 import type { Connector, Layer, Point, LineStyle } from '../../types';
 import { useDiagramStore } from '../../store/useDiagramStore';
@@ -80,6 +79,10 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   const dPath = [...path.map((p: Point) => ({...p}))];
   let endArrowPoints: Point[] = [];
   let startArrowPoints: Point[] = [];
+  const CIRCLE_DIAMETER = 10;
+  const CIRCLE_RADIUS = CIRCLE_DIAMETER / 2;
+  let endCircleCenter: Point | null = null;
+  let startCircleCenter: Point | null = null;
 
   if (connector.endArrow && connector.endArrow !== 'none') {
     const lastPoint = dPath[dPath.length - 1];
@@ -88,19 +91,25 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     const dy = lastPoint.y - secondLastPoint.y;
     const angle = Math.atan2(dy, dx);
 
-    lastPoint.x -= shortening * Math.cos(angle);
-    lastPoint.y -= shortening * Math.sin(angle);
-
     const originalEndPoint = path[path.length - 1];
-    const p1 = {
-      x: originalEndPoint.x - arrowLength * Math.cos(angle - Math.PI / 6),
-      y: originalEndPoint.y - arrowLength * Math.sin(angle - Math.PI / 6),
-    };
-    const p2 = {
-      x: originalEndPoint.x - arrowLength * Math.cos(angle + Math.PI / 6),
-      y: originalEndPoint.y - arrowLength * Math.sin(angle + Math.PI / 6),
-    };
-    endArrowPoints = [p1, originalEndPoint, p2];
+    if (connector.endArrow === 'circle') {
+      // shorten by radius so the circle sits cleanly at the tip
+      lastPoint.x -= CIRCLE_RADIUS * Math.cos(angle);
+      lastPoint.y -= CIRCLE_RADIUS * Math.sin(angle);
+      endCircleCenter = originalEndPoint;
+    } else {
+      lastPoint.x -= shortening * Math.cos(angle);
+      lastPoint.y -= shortening * Math.sin(angle);
+      const p1 = {
+        x: originalEndPoint.x - arrowLength * Math.cos(angle - Math.PI / 6),
+        y: originalEndPoint.y - arrowLength * Math.sin(angle - Math.PI / 6),
+      };
+      const p2 = {
+        x: originalEndPoint.x - arrowLength * Math.cos(angle + Math.PI / 6),
+        y: originalEndPoint.y - arrowLength * Math.sin(angle + Math.PI / 6),
+      };
+      endArrowPoints = [p1, originalEndPoint, p2];
+    }
   }
 
   if (connector.startArrow && connector.startArrow !== 'none') {
@@ -110,19 +119,24 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     const dy = secondPoint.y - firstPoint.y;
     const angle = Math.atan2(dy, dx);
 
-    firstPoint.x += shortening * Math.cos(angle);
-    firstPoint.y += shortening * Math.sin(angle);
-
     const originalStartPoint = path[0];
-    const p1 = {
-      x: originalStartPoint.x + arrowLength * Math.cos(angle - Math.PI / 6),
-      y: originalStartPoint.y + arrowLength * Math.sin(angle - Math.PI / 6),
-    };
-    const p2 = {
-      x: originalStartPoint.x + arrowLength * Math.cos(angle + Math.PI / 6),
-      y: originalStartPoint.y + arrowLength * Math.sin(angle + Math.PI / 6),
-    };
-    startArrowPoints = [p1, originalStartPoint, p2];
+    if (connector.startArrow === 'circle') {
+      firstPoint.x += CIRCLE_RADIUS * Math.cos(angle);
+      firstPoint.y += CIRCLE_RADIUS * Math.sin(angle);
+      startCircleCenter = originalStartPoint;
+    } else {
+      firstPoint.x += shortening * Math.cos(angle);
+      firstPoint.y += shortening * Math.sin(angle);
+      const p1 = {
+        x: originalStartPoint.x + arrowLength * Math.cos(angle - Math.PI / 6),
+        y: originalStartPoint.y + arrowLength * Math.sin(angle - Math.PI / 6),
+      };
+      const p2 = {
+        x: originalStartPoint.x + arrowLength * Math.cos(angle + Math.PI / 6),
+        y: originalStartPoint.y + arrowLength * Math.sin(angle + Math.PI / 6),
+      };
+      startArrowPoints = [p1, originalStartPoint, p2];
+    }
   }
 
   // Generate path string based on connection type
@@ -178,6 +192,12 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
       )}
       {connector.endArrow === 'standard_arrow' && endArrowPoints.length > 0 && (
         <polyline points={endArrowPoints.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="black" strokeWidth={connector.lineWidth || 2} />
+      )}
+      {connector.endArrow === 'circle' && endCircleCenter && (
+        <circle cx={endCircleCenter.x} cy={endCircleCenter.y} r={CIRCLE_RADIUS} fill="black" />
+      )}
+      {connector.startArrow === 'circle' && startCircleCenter && (
+        <circle cx={startCircleCenter.x} cy={startCircleCenter.y} r={CIRCLE_RADIUS} fill="black" />
       )}
       {isSelected && path.length > 0 && (
         <>

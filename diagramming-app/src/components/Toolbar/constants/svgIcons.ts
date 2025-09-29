@@ -25,7 +25,20 @@ export const ARROW_STYLE_SVG: Record<ArrowStyle, {start: string, end: string}> =
     polygon_arrow: {
         start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L0 6L10 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`,
         end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2.5L30 6L20 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`
+    },
+    circle: {
+        // The circle SVGs place the circle so their center aligns to the tip offset
+        start: `<svg width="20" height="10" viewBox="0 0 20 10" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="0" cy="5" r="5" fill="black" /></svg>`,
+        end: `<svg width="20" height="10" viewBox="0 0 20 10" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="5" r="5" fill="black" /></svg>`
     }
+};
+
+// Metadata that tells the rendering code how to align the arrow SVG tip to the connector tip
+export const ARROW_STYLE_META: Record<string, { start?: 'left' | 'center' | 'right', end?: 'left' | 'center' | 'right' }> = {
+    none: { start: 'left', end: 'right' },
+    standard_arrow: { start: 'left', end: 'right' },
+    polygon_arrow: { start: 'left', end: 'right' },
+    circle: { start: 'center', end: 'center' },
 };
 
 export const CONNECTION_TYPE_SVG: Record<ConnectionType, string> = {
