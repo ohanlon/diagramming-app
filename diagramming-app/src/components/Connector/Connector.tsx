@@ -79,10 +79,10 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   const dPath = [...path.map((p: Point) => ({...p}))];
   let endArrowPoints: Point[] = [];
   let startArrowPoints: Point[] = [];
-  const CIRCLE_DIAMETER = 10;
-  const CIRCLE_RADIUS = CIRCLE_DIAMETER / 2;
   let endCircleCenter: Point | null = null;
   let startCircleCenter: Point | null = null;
+  const CIRCLE_DIAMETER_BASE = 10; // base diameter at lineWidth = 1
+  const circleRadius = (CIRCLE_DIAMETER_BASE * lineWidth) / 2; // scales with line width; zoom will scale via Canvas group's transform
 
   if (connector.endArrow && connector.endArrow !== 'none') {
     const lastPoint = dPath[dPath.length - 1];
@@ -93,9 +93,9 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
 
     const originalEndPoint = path[path.length - 1];
     if (connector.endArrow === 'circle') {
-      // shorten by radius so the circle sits cleanly at the tip
-      lastPoint.x -= CIRCLE_RADIUS * Math.cos(angle);
-      lastPoint.y -= CIRCLE_RADIUS * Math.sin(angle);
+      // Shorten by the circle radius so the circle sits at the tip without overlapping the path
+      lastPoint.x -= circleRadius * Math.cos(angle);
+      lastPoint.y -= circleRadius * Math.sin(angle);
       endCircleCenter = originalEndPoint;
     } else {
       lastPoint.x -= shortening * Math.cos(angle);
@@ -121,8 +121,8 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
 
     const originalStartPoint = path[0];
     if (connector.startArrow === 'circle') {
-      firstPoint.x += CIRCLE_RADIUS * Math.cos(angle);
-      firstPoint.y += CIRCLE_RADIUS * Math.sin(angle);
+      firstPoint.x += circleRadius * Math.cos(angle);
+      firstPoint.y += circleRadius * Math.sin(angle);
       startCircleCenter = originalStartPoint;
     } else {
       firstPoint.x += shortening * Math.cos(angle);
@@ -194,10 +194,10 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         <polyline points={endArrowPoints.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="black" strokeWidth={connector.lineWidth || 2} />
       )}
       {connector.endArrow === 'circle' && endCircleCenter && (
-        <circle cx={endCircleCenter.x} cy={endCircleCenter.y} r={CIRCLE_RADIUS} fill="black" />
+        <circle cx={endCircleCenter.x} cy={endCircleCenter.y} r={circleRadius} fill="black" />
       )}
       {connector.startArrow === 'circle' && startCircleCenter && (
-        <circle cx={startCircleCenter.x} cy={startCircleCenter.y} r={CIRCLE_RADIUS} fill="black" />
+        <circle cx={startCircleCenter.x} cy={startCircleCenter.y} r={circleRadius} fill="black" />
       )}
       {isSelected && path.length > 0 && (
         <>
