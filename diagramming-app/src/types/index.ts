@@ -107,6 +107,7 @@ export type DiagramState = {
   sheets: Record<string, Sheet>;
   activeSheetId: string;
   isSnapToGridEnabled: boolean; // Add snapping state
+  isDirty?: boolean; // Whether the store has unsaved changes
 };
 
 export type HistoryState = {

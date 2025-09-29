@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
-import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, UndoOutlined } from '@mui/icons-material';
+import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, SaveSharp, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 
@@ -70,11 +70,17 @@ const MainToolbar: React.FC = () => {
     handleFileMenuClose();
   };
 
+  const { saveDiagram } = useDiagramStore();
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === 'p') {
         event.preventDefault();
         handlePrint();
+      }
+      if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
+        event.preventDefault();
+        saveDiagram();
       }
     };
 
@@ -83,7 +89,7 @@ const MainToolbar: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handlePrint]);
+  }, [handlePrint, saveDiagram]);
 
   const handleNewDiagram = () => {
     resetStore();
@@ -154,6 +160,14 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>New</ListItemText>
           <ArrowRight sx={{ fontSize: '1.2rem', ml: 1 }} />
         </MenuItem>
+        <MenuItem onClick={() => { saveDiagram(); handleFileMenuClose(); }}>
+          <ListItemIcon>
+            <SaveOutlined fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Save</ListItemText>
+          <Typography variant="body2" color="text.secondary">Ctrl+S</Typography>
+        </MenuItem>
+        <Divider />
         <MenuItem onClick={handlePrint}>
           <ListItemIcon>
             <PrintOutlined fontSize="small" />

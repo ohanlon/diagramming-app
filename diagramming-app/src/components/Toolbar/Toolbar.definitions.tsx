@@ -9,7 +9,7 @@ import {
   TextField,
   Tooltip,
   Menu,
-  ListSubheader,
+  Box,
 } from '@mui/material';
 import {
   AlignHorizontalCenter,
@@ -31,6 +31,7 @@ import {
 import type { LineStyle, ArrowStyle, Sheet, ConnectionType } from '../../types';
 import { googleFonts, fontSizes } from './Fonts';
 import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_STYLE, DOT_DASH_PATTERN_LINE_STYLE, LONG_DASH_PATTERN_LINE_STYLE, LONG_DASH_SPACE_PATTERN_LINE_STYLE, LONG_SPACE_SHORT_DOT_PATTERN_STYLE } from '../../constants/constant';
+import { ARROW_STYLE_SVG } from './constants/svgIcons';
 
 export const LINE_STYLE_SVG: Record<LineStyle, string> = {
     continuous: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2"/></svg>`,
@@ -41,25 +42,6 @@ export const LINE_STYLE_SVG: Record<LineStyle, string> = {
     'custom-1': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${CUSTOM_PATTERN_1_LINE_STYLE}"/></svg>`,
     'custom-2': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${CUSTOM_PATTERN_2_LINE_STYLE}"/></svg>`,
     'long-space-short-dot': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${LONG_SPACE_SHORT_DOT_PATTERN_STYLE}"/></svg>`,
-};
-
-export const ARROW_STYLE_SVG: Record<ArrowStyle, {start: string, end: string}> = {
-    none: {
-        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`,
-        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`
-    },
-    standard_arrow: {
-        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1L2 6L10 11" stroke="black" stroke-width="2"/><path d="M2 6H30" stroke="black" stroke-width="2"/></svg>`,
-        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 1L28 6L20 11" stroke="black" stroke-width="2"/><path d="M0 6H28" stroke="black" stroke-width="2"/></svg>`
-    },
-    polygon_arrow: {
-        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5L0 6L10 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`,
-        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2.5L30 6L20 9.5V2.5Z" fill="black"/><path d="M0 6H30" stroke="black" stroke-width="2"/></svg>`
-    },
-    circle: {
-        start: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="6" r="5" fill="black"/><path d="M10 6H30" stroke="black" stroke-width="2"/></svg>`,
-        end: `<svg width="30" height="12" viewBox="0 0 30 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6H20" stroke="black" stroke-width="2"/><circle cx="25" cy="6" r="5" fill="black"/></svg>`
-    }
 };
 
 export const CONNECTION_TYPE_SVG: Record<ConnectionType, string> = {
@@ -462,27 +444,41 @@ export const getInitialTools = ({
                                 open={open}
                                 onClose={() => setAnchorEl(null)}
                                 MenuListProps={{ 'aria-label': 'Align options' }}
+                                PaperProps={{ sx: { p: 1 } }}
                             >
-                                <ListSubheader>Vertical</ListSubheader>
-                                <MenuItem onClick={() => { handleClick(() => setVerticalAlign('top')); setAnchorEl(null); }}>
-                                    <VerticalAlignTop sx={{ mr: 1 }} /> Top
-                                </MenuItem>
-                                <MenuItem onClick={() => { handleClick(() => setVerticalAlign('middle')); setAnchorEl(null); }}>
-                                    <VerticalAlignCenter sx={{ mr: 1 }} /> Middle
-                                </MenuItem>
-                                <MenuItem onClick={() => { handleClick(() => setVerticalAlign('bottom')); setAnchorEl(null); }}>
-                                    <VerticalAlignBottom sx={{ mr: 1 }} /> Bottom
-                                </MenuItem>
-                                <ListSubheader>Horizontal</ListSubheader>
-                                <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('left')); setAnchorEl(null); }}>
-                                    <AlignHorizontalLeft sx={{ mr: 1 }} /> Left
-                                </MenuItem>
-                                <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('center')); setAnchorEl(null); }}>
-                                    <AlignHorizontalCenter sx={{ mr: 1 }} /> Center
-                                </MenuItem>
-                                <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('right')); setAnchorEl(null); }}>
-                                    <AlignHorizontalRight sx={{ mr: 1 }} /> Right
-                                </MenuItem>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    {/* First row: Vertical alignment (icons arranged horizontally) */}
+                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('top')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <VerticalAlignTop />
+                                            <Box component="span" sx={{ fontSize: 12 }}>Top</Box>
+                                        </MenuItem>
+                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('middle')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <VerticalAlignCenter />
+                                            <Box component="span" sx={{ fontSize: 12 }}>Middle</Box>
+                                        </MenuItem>
+                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('bottom')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <VerticalAlignBottom />
+                                            <Box component="span" sx={{ fontSize: 12 }}>Bottom</Box>
+                                        </MenuItem>
+                                    </Box>
+
+                                    {/* Second row: Horizontal alignment (icons arranged horizontally) */}
+                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('left')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <AlignHorizontalLeft />
+                                            <Box component="span" sx={{ fontSize: 12 }}>Left</Box>
+                                        </MenuItem>
+                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('center')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <AlignHorizontalCenter />
+                                            <Box component="span" sx={{ fontSize: 12 }}>Center</Box>
+                                        </MenuItem>
+                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('right')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <AlignHorizontalRight />
+                                            <Box component="span" sx={{ fontSize: 12 }}>Right</Box>
+                                        </MenuItem>
+                                    </Box>
+                                </Box>
                             </Menu>
                         </div>
                     );
