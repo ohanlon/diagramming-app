@@ -21,7 +21,9 @@ interface DiagramStoreActions extends
   LayerStoreActions,
   SheetStoreActions,
   UIStoreActions,
-  ClipboardStoreActions {}
+  ClipboardStoreActions {
+  toggleSnapToGrid: () => void; // Add snapping toggle action
+}
 
 const defaultLayerId = uuidv4();
 const defaultSheetId = uuidv4();
@@ -60,6 +62,7 @@ const initialState: DiagramState = {
     },
   },
   activeSheetId: defaultSheetId,
+  isSnapToGridEnabled: false, // Correctly move snapping state here
 };
 
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
@@ -81,6 +84,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()(
         ...createSheetActions(set, get, addHistoryFn, defaultSheetId),
         ...createUIActions(set, get, initialState, useHistoryStore),
         ...createClipboardActions(set, get, addHistoryFn),
+        
+        // Add snapping toggle action
+        toggleSnapToGrid: () => set((state) => ({ isSnapToGridEnabled: !state.isSnapToGridEnabled })),
       };
     },
     {

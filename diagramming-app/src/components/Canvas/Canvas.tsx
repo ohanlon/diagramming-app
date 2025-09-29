@@ -103,6 +103,12 @@ const Canvas: React.FC = () => {
     };
   }, []);
 
+  const snapToGrid = (value: number, gridSize: number) => {
+    return Math.round(value / gridSize) * gridSize;
+  };
+
+  const GRID_SIZE = 20; // Define the grid size for snapping
+
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!activeSheet) return;
 
@@ -118,8 +124,6 @@ const Canvas: React.FC = () => {
       debouncedSetCurrentMousePoint({ x: mouseX, y: mouseY });
 
       const targetElement = document.elementFromPoint(e.clientX, e.clientY);
-
-      // Preview connector logic to be implemented
 
       const targetNodeG = targetElement?.closest('g[data-node-id]');
       let hoveredShapeId: string | null = null;
@@ -140,16 +144,26 @@ const Canvas: React.FC = () => {
         const dx = mouseX - mouseDownPos.x;
         const dy = mouseY - mouseDownPos.y;
 
+        const snap = useDiagramStore.getState().isSnapToGridEnabled; // Correct snapping toggle state access
+
         if (activeSheet.selectedShapeIds.length > 1) {
             const newPositions = activeSheet.selectedShapeIds.map(id => {
                 const initialPos = initialDragPositions[id];
-                return { id, x: initialPos.x + dx, y: initialPos.y + dy };
+                return {
+                  id,
+                  x: snap ? snapToGrid(initialPos.x + dx, GRID_SIZE) : initialPos.x + dx,
+                  y: snap ? snapToGrid(initialPos.y + dy, GRID_SIZE) : initialPos.y + dy,
+                };
             });
             updateShapePositions(newPositions);
         } else {
             const initialPos = initialDragPositions[isMouseDownOnShape];
             if (initialPos) {
-                updateShapePosition(isMouseDownOnShape, initialPos.x + dx, initialPos.y + dy);
+                updateShapePosition(
+                  isMouseDownOnShape,
+                  snap ? snapToGrid(initialPos.x + dx, GRID_SIZE) : initialPos.x + dx,
+                  snap ? snapToGrid(initialPos.y + dy, GRID_SIZE) : initialPos.y + dy
+                );
             }
         }
     }

@@ -106,6 +106,7 @@ export type Sheet = {
 export type DiagramState = {
   sheets: Record<string, Sheet>;
   activeSheetId: string;
+  isSnapToGridEnabled: boolean; // Add snapping state
 };
 
 export type HistoryState = {

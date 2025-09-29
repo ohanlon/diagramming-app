@@ -10,6 +10,7 @@ import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
 import { colors as shapeColors } from '../ShapeColorPicker/colors';
 import { findClosestColor } from '../../utils/colorUtils';
 import { getInitialTools, type ToolDefinition } from './Toolbar.definitions';
+import { SNAP_TO_GRID_ICON } from './constants/svgIcons';
 
 const ToolbarComponent: React.FC = () => {
   const {
@@ -37,6 +38,8 @@ const ToolbarComponent: React.FC = () => {
     setVerticalAlign,
     setHorizontalAlign,
     groupShapes,
+    toggleSnapToGrid, // Add toggleSnapToGrid from store
+    isSnapToGridEnabled, // Add isSnapToGridEnabled from store
   } = useDiagramStore();
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
@@ -389,6 +392,21 @@ const ToolbarComponent: React.FC = () => {
   return (
     <Toolbar disableGutters variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }} ref={toolbarRef}>
       {visibleTools.map(tool => <React.Fragment key={tool.id}>{tool.element}</React.Fragment>)}
+      <Tooltip title={`Snap to Grid: ${isSnapToGridEnabled ? 'On' : 'Off'}`}>
+        <IconButton
+          onClick={toggleSnapToGrid}
+          color={isSnapToGridEnabled ? 'primary' : 'default'}
+          sx={{
+            borderRadius: isSnapToGridEnabled ? 0 : undefined, // Make highlight square when enabled
+            backgroundColor: isSnapToGridEnabled ? 'rgba(0, 123, 255, 0.1)' : 'transparent',
+            '&:hover': {
+              backgroundColor: isSnapToGridEnabled ? 'rgba(0, 123, 255, 0.2)' : 'rgba(0, 0, 0, 0.04)',
+            },
+          }}
+        >
+          <span dangerouslySetInnerHTML={{ __html: SNAP_TO_GRID_ICON }} />
+        </IconButton>
+      </Tooltip>
       {hiddenTools.length > 0 && (
         <>
           <Tooltip title="More tools">
