@@ -55,8 +55,10 @@ router.post('/register', async (req: Request, res: Response) => {
   try {
     const existing = await getUserByUsername(username);
     if (existing) return res.status(409).json({ error: 'Username already exists' });
-    const passwordHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
-    const created = await createUser(username, passwordHash);
+    // Generate a unique salt per user and store the salt in the DB.
+    const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS);
+    const passwordHash = bcrypt.hashSync(password, salt);
+    const created = await createUser(username, passwordHash, salt);
     await issueTokensAndSetCookies(res, created.id, created.username);
     const settings = await getUserSettings(created.id);
     res.status(201).json({ user: { id: created.id, username: created.username }, settings });
