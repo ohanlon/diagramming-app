@@ -22,8 +22,11 @@ interface DiagramStoreActions extends
   UIStoreActions,
   ClipboardStoreActions {
   toggleSnapToGrid: () => void; // Add snapping toggle action
-  saveDiagram: () => void; // Manually save to storage
-  loadDiagram: () => void; // Load from storage
+  saveDiagram: () => Promise<void>; // Manually save to storage/server
+  loadDiagram: (fromRemote?: boolean) => Promise<void>; // Load from storage or server
+  setServerUrl: (url: string) => void;
+  setServerAuth: (user: string, pass: string) => void;
+  setRemoteDiagramId: (id: string | null) => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -65,6 +68,10 @@ const initialState: DiagramState = {
   activeSheetId: defaultSheetId,
   isSnapToGridEnabled: false, // Correctly move snapping state here
   isDirty: false,
+  remoteDiagramId: null,
+  serverUrl: 'http://localhost:4000',
+  serverAuthUser: null,
+  serverAuthPass: null,
 };
 
 const STORAGE_KEY = 'diagram-storage';
@@ -105,25 +112,132 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
-  const saveDiagram = () => {
+  // Helper to remove svgContent from shapes in a state snapshot
+  const stripSvgFromState = (stateSnapshot: any) => {
+    if (!stateSnapshot || !stateSnapshot.sheets) return stateSnapshot;
+    const newSheets: Record<string, any> = {};
+    for (const [sheetId, sheet] of Object.entries(stateSnapshot.sheets)) {
+      const s: any = { ...(sheet as any) };
+      if (s.shapesById) {
+        const cleanedShapes: Record<string, any> = {};
+        for (const [shapeId, shape] of Object.entries(s.shapesById || {})) {
+          const { svgContent, ...rest } = shape as any;
+          cleanedShapes[shapeId] = rest;
+        }
+        s.shapesById = cleanedShapes;
+      }
+      newSheets[sheetId] = s;
+    }
+    return { ...stateSnapshot, sheets: newSheets };
+  };
+
+  const saveDiagram = async () => {
     const state = get();
-    const toSave = {
+    const toSaveRaw = {
       sheets: state.sheets,
       activeSheetId: state.activeSheetId,
       isSnapToGridEnabled: state.isSnapToGridEnabled,
-      // Persist other top-level UI selections if desired
-      // selectedFont, selectedFontSize, selectedTextColor, etc. could be added here
     };
+    // Strip svgContent client-side to reduce payload
+    const toSave = stripSvgFromState(toSaveRaw);
+
+    const serverUrl = state.serverUrl || 'http://localhost:4000';
+    const authHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
+
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-      // Mark store as not dirty
-      set((s: any) => ({ ...s, isDirty: false }));
-    } catch (e) {
-      console.error('Failed to save diagram to storage:', e);
+      let resp: Response | null = null;
+      const doRequest = async (method: string, url: string) => {
+        return await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(authHeader ? { Authorization: authHeader } : {}),
+          },
+          body: JSON.stringify({ state: toSave }),
+        });
+      };
+
+      if (!state.remoteDiagramId) {
+        resp = await doRequest('POST', `${serverUrl}/diagrams`);
+      } else {
+        resp = await doRequest('PATCH', `${serverUrl}/diagrams/${state.remoteDiagramId}`);
+      }
+
+      if (resp.status === 401) {
+        // Prompt user for credentials once and retry
+        const user = window.prompt('Server requires authentication. Enter username:', state.serverAuthUser || '');
+        if (user !== null) {
+          const pass = window.prompt('Enter password:','');
+          if (pass !== null) {
+            setServerAuth(user, pass);
+            const retryAuth = `Basic ${btoa(`${user}:${pass}`)}`;
+            const retryResp = state.remoteDiagramId
+              ? await fetch(`${serverUrl}/diagrams/${state.remoteDiagramId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: retryAuth }, body: JSON.stringify({ state: toSave }) })
+              : await fetch(`${serverUrl}/diagrams`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: retryAuth }, body: JSON.stringify({ state: toSave }) });
+            if (!retryResp.ok) {
+              const text = await retryResp.text().catch(() => `Status ${retryResp.status}`);
+              wrappedSet({ lastSaveError: `Save failed after auth: ${text}` });
+              return;
+            }
+            const created = await retryResp.json();
+            if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
+            wrappedSet({ isDirty: false, lastSaveError: null });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id }));
+            return;
+          }
+        }
+        wrappedSet({ lastSaveError: 'Authentication required' });
+        return;
+      }
+
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => `Status ${resp.status}`);
+        throw new Error(text);
+      }
+
+      const result = await resp.json();
+      if (!state.remoteDiagramId && result && result.id) {
+        wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id }));
+      } else {
+        wrappedSet({ isDirty: false, lastSaveError: null });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
+      }
+    } catch (e: any) {
+      console.error('Failed to save diagram to server:', e);
+      wrappedSet({ lastSaveError: e?.message || String(e) });
+      // Fallback: persist locally so work is not lost
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
+        wrappedSet({ isDirty: false });
+      } catch (localErr) {
+        console.error('Failed to save diagram locally as fallback:', localErr);
+      }
     }
   };
 
-  const loadDiagram = () => {
+  const loadDiagram = async (fromRemote = false) => {
+    const state = get();
+    if (fromRemote && state.remoteDiagramId) {
+      const serverUrl = state.serverUrl || 'http://localhost:4000';
+      const authHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
+      try {
+        const resp = await fetch(`${serverUrl}/diagrams/${state.remoteDiagramId}`, {
+          headers: {
+            ...(authHeader ? { Authorization: authHeader } : {}),
+          },
+        });
+        if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+        const json = await resp.json();
+        // Replace local state with server state (note: server strips svgContent)
+        set((s: any) => ({ ...s, ...json.state, isDirty: false }));
+        return;
+      } catch (e) {
+        console.error('Failed to load remote diagram:', e);
+      }
+    }
+
+    // Fallback: load from localStorage
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     try {
@@ -132,6 +246,19 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     } catch (e) {
       console.error('Failed to load diagram from storage:', e);
     }
+  };
+
+  const setServerUrl = (url: string) => {
+    wrappedSet({ serverUrl: url });
+  };
+
+  const setServerAuth = (user: string, pass: string) => {
+    // store credentials in memory/state for convenience (not secure for production)
+    wrappedSet({ serverAuthUser: user, serverAuthPass: pass });
+  };
+
+  const setRemoteDiagramId = (id: string | null) => {
+    wrappedSet({ remoteDiagramId: id });
   };
 
   return {
@@ -149,6 +276,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     toggleSnapToGrid: () => wrappedSet((state: any) => ({ isSnapToGridEnabled: !state.isSnapToGridEnabled })),
     saveDiagram,
     loadDiagram,
+    setServerUrl,
+    setServerAuth,
+    setRemoteDiagramId,
   } as any;
 });
 

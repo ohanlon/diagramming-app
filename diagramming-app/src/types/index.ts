@@ -108,6 +108,12 @@ export type DiagramState = {
   activeSheetId: string;
   isSnapToGridEnabled: boolean; // Add snapping state
   isDirty?: boolean; // Whether the store has unsaved changes
+  // Server integration
+  remoteDiagramId?: string | null; // Persisted diagram id on backend
+  serverUrl?: string; // Base URL of diagram server
+  serverAuthUser?: string | null; // Optional basic auth user
+  serverAuthPass?: string | null; // Optional basic auth password
+  lastSaveError?: string | null; // Last error message from save attempts
 };
 
 export type HistoryState = {

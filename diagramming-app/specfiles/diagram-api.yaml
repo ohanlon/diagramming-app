@@ -1,4 +1,3 @@
-
 openapi: 3.0.0
 info:
   title: Diagram API
@@ -48,8 +47,9 @@ paths:
         '404':
           description: Diagram not found
     put:
-      summary: Update an existing diagram
-      operationId: updateDiagram
+      summary: Replace an existing diagram
+      description: Replace the entire diagram document with the provided representation. This is a full-replacement operation.
+      operationId: replaceDiagram
       requestBody:
         required: true
         content:
@@ -58,7 +58,28 @@ paths:
               $ref: '#/components/schemas/DiagramUpdate'
       responses:
         '200':
-          description: Diagram updated successfully
+          description: Diagram replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '400':
+          description: Invalid input
+        '404':
+          description: Diagram not found
+    patch:
+      summary: Partially update a diagram
+      description: Apply a partial update to the diagram. Only top-level keys included will be merged into the stored diagram state. Note: svgContent is not persisted through this API.
+      operationId: patchDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagramPatch'
+      responses:
+        '200':
+          description: Diagram patched successfully
           content:
             application/json:
               schema:
@@ -70,11 +91,241 @@ paths:
 
 components:
   schemas:
-    Diagram:
+    # A Shape representation persisted by the API — intentionally excludes svgContent
+    Shape:
       type: object
       required:
         - id
-        - state
+        - type
+        - x
+        - y
+        - width
+        - height
+        - layerId
+      properties:
+        id:
+          type: string
+          description: Unique shape identifier
+          example: shape-1
+        type:
+          type: string
+          description: Shape type identifier
+          example: Rectangle
+        x:
+          type: number
+          description: X coordinate of the shape's origin
+          example: 100
+        y:
+          type: number
+          description: Y coordinate of the shape's origin
+          example: 150
+        width:
+          type: number
+          example: 120
+        height:
+          type: number
+          example: 48
+        text:
+          type: string
+          description: Text associated with the shape
+          example: "My Node"
+        color:
+          type: string
+          description: Visual color for the shape
+          example: "#3498db"
+        layerId:
+          type: string
+          description: Layer id containing this shape
+          example: layer-1
+        minX:
+          type: number
+          nullable: true
+        minY:
+          type: number
+          nullable: true
+        path:
+          type: string
+          nullable: true
+        fontFamily:
+          type: string
+          nullable: true
+        fontSize:
+          type: number
+          nullable: true
+        textOffsetX:
+          type: number
+        textOffsetY:
+          type: number
+        textWidth:
+          type: number
+        textHeight:
+          type: number
+        isBold:
+          type: boolean
+        isItalic:
+          type: boolean
+        isUnderlined:
+          type: boolean
+        verticalAlign:
+          type: string
+          enum: [top, middle, bottom]
+        horizontalAlign:
+          type: string
+          enum: [left, center, right]
+        textPosition:
+          type: string
+          enum: [inside, outside, None]
+        textColor:
+          type: string
+          nullable: true
+        parentId:
+          type: string
+          nullable: true
+        autosize:
+          type: boolean
+        interaction:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              enum: [embed]
+            url:
+              type: string
+    
+    Connector:
+      type: object
+      required: [id, startNodeId, endNodeId]
+      properties:
+        id:
+          type: string
+          example: connector-1
+        startNodeId:
+          type: string
+        endNodeId:
+          type: string
+        startAnchorType:
+          type: string
+          enum: [top, right, bottom, left]
+        endAnchorType:
+          type: string
+          enum: [top, right, bottom, left]
+        lineStyle:
+          type: string
+          enum: [continuous, dashed, long-dash, dot-dash, custom-1, custom-2, long-dash-space, long-space-short-dot]
+        lineWidth:
+          type: number
+        startArrow:
+          type: string
+          enum: [none, standard_arrow, polygon_arrow, circle]
+        endArrow:
+          type: string
+          enum: [none, standard_arrow, polygon_arrow, circle]
+        connectionType:
+          type: string
+          enum: [direct, orthogonal, bezier]
+        text:
+          type: string
+          nullable: true
+        textPosition:
+          type: number
+          minimum: 0
+          maximum: 1
+        textOffset:
+          type: object
+          nullable: true
+          properties:
+            x: { type: number }
+            y: { type: number }
+        fontSize:
+          type: number
+          nullable: true
+        fontFamily:
+          type: string
+          nullable: true
+        textColor:
+          type: string
+          nullable: true
+
+    Layer:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        isVisible: { type: boolean }
+        isLocked: { type: boolean }
+
+    Sheet:
+      type: object
+      required: [id, name, shapesById, shapeIds, connectors]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        shapesById:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Shape'
+        shapeIds:
+          type: array
+          items:
+            type: string
+        connectors:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Connector'
+        selectedShapeIds:
+          type: array
+          items: { type: string }
+        selectedConnectorIds:
+          type: array
+          items: { type: string }
+        layers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Layer'
+        layerIds:
+          type: array
+          items: { type: string }
+        activeLayerId: { type: string }
+        zoom: { type: number }
+        pan:
+          type: object
+          properties:
+            x: { type: number }
+            y: { type: number }
+        clipboard:
+          type: array
+          items:
+            $ref: '#/components/schemas/Shape'
+          nullable: true
+        selectedFont: { type: string }
+        selectedFontSize: { type: number }
+        selectedTextColor: { type: string }
+        selectedShapeColor: { type: string }
+        selectedLineStyle: { type: string }
+        selectedLineWidth: { type: number }
+        selectedConnectionType: { type: string }
+        connectorDragTargetShapeId:
+          type: string
+          nullable: true
+
+    DiagramState:
+      type: object
+      required: [sheets, activeSheetId]
+      properties:
+        sheets:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Sheet'
+        activeSheetId:
+          type: string
+        isSnapToGridEnabled:
+          type: boolean
+
+    Diagram:
+      type: object
+      required: [id, state]
       properties:
         id:
           type: string
@@ -82,24 +333,43 @@ components:
           description: Unique identifier for the diagram
           example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         state:
-          type: object
-          description: The JSON state of the diagram
-          example: { "nodes": [], "edges": [] }
+          $ref: '#/components/schemas/DiagramState'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     NewDiagram:
       type: object
       required:
         - state
       properties:
         state:
-          type: object
-          description: The initial JSON state of the diagram
-          example: { "nodes": [], "edges": [] }
+          $ref: '#/components/schemas/DiagramState'
+
     DiagramUpdate:
       type: object
       required:
         - state
       properties:
         state:
+          $ref: '#/components/schemas/DiagramState'
+
+    # Partial diagram patch — allows updating any top-level key in the saved state
+    DiagramPatch:
+      type: object
+      properties:
+        state:
           type: object
-          description: The updated JSON state of the diagram
-          example: { "nodes": [], "edges": [] }
+          properties:
+            sheets:
+              type: object
+              description: Partial map of sheets to merge into the existing sheets. Each provided sheet will be merged into the stored sheet.
+              additionalProperties:
+                $ref: '#/components/schemas/Sheet'
+            activeSheetId:
+              type: string
+            isSnapToGridEnabled:
+              type: boolean
