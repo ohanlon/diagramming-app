@@ -36,3 +36,17 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id);
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens (expires_at);
+
+-- Create diagram_history table to store auditable versions of diagrams
+CREATE TABLE IF NOT EXISTS diagram_history (
+  id UUID PRIMARY KEY,
+  diagram_id UUID NOT NULL REFERENCES diagrams(id) ON DELETE CASCADE,
+  state JSONB NOT NULL,
+  operation TEXT NOT NULL,
+  user_id UUID NULL REFERENCES users(id),
+  metadata JSONB NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_diagram_history_diagram_id ON diagram_history (diagram_id);
+CREATE INDEX IF NOT EXISTS idx_diagram_history_created_at ON diagram_history (created_at);
