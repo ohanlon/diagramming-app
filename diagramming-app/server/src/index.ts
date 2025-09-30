@@ -5,12 +5,16 @@ import diagramsRouter from './routes/diagrams';
 import authRouter from './routes/auth';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 import { testConnection } from './db';
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+app.use(cors({ origin: FRONTEND_ORIGIN, credentials: true }));
+app.use(cookieParser());
 app.use(bodyParser.json({ limit: '5mb' }));
 
 // Admin Basic auth fallback
@@ -18,19 +22,20 @@ const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
-// Combined auth middleware: accept either Bearer <token> or Basic admin credentials
+// Combined auth middleware: accept either Bearer <token>, cookie, or Basic admin credentials
 function combinedAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const auth = req.headers.authorization;
-  if (!auth) {
+  const authHeader = req.headers.authorization;
+  const cookieToken = (req as any).cookies?.authToken;
+
+  if (!authHeader && !cookieToken) {
     res.setHeader('WWW-Authenticate', 'Bearer realm="Diagram API", Basic realm="Diagram API"');
     return res.status(401).send('Authentication required');
   }
 
-  if (auth.startsWith('Bearer ')) {
-    const token = auth.slice('Bearer '.length);
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice('Bearer '.length);
     try {
       const payload = jwt.verify(token, JWT_SECRET) as any;
-      // Attach user object to request for later use
       (req as any).user = { id: payload.id, username: payload.username };
       return next();
     } catch (e) {
@@ -40,12 +45,23 @@ function combinedAuth(req: express.Request, res: express.Response, next: express
     }
   }
 
-  if (auth.startsWith('Basic ')) {
-    const base64 = auth.slice('Basic '.length);
+  if (cookieToken) {
+    try {
+      const payload = jwt.verify(cookieToken, JWT_SECRET) as any;
+      (req as any).user = { id: payload.id, username: payload.username };
+      return next();
+    } catch (e) {
+      console.warn('Invalid JWT in cookie', e);
+      res.setHeader('WWW-Authenticate', 'Bearer realm="Diagram API"');
+      return res.status(401).send('Invalid token');
+    }
+  }
+
+  if (authHeader && authHeader.startsWith('Basic ')) {
+    const base64 = authHeader.slice('Basic '.length);
     const decoded = Buffer.from(base64, 'base64').toString('utf8');
     const [user, pass] = decoded.split(':');
     if (user === ADMIN_USER && pass === ADMIN_PASSWORD) {
-      // Admin user - represent as a pseudo-user with id 'admin'
       (req as any).user = { id: 'admin', username: ADMIN_USER, isAdmin: true };
       return next();
     }

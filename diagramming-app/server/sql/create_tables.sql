@@ -23,3 +23,16 @@ ALTER TABLE diagrams ADD COLUMN IF NOT EXISTS owner_user_id UUID NULL REFERENCES
 
 -- Create index on owner_user_id for fast lookups
 CREATE INDEX IF NOT EXISTS idx_diagrams_owner_user_id ON diagrams (owner_user_id);
+
+-- Create refresh_tokens table to support refresh token rotation/revocation
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NULL,
+  revoked BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens (expires_at);

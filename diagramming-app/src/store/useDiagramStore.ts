@@ -30,6 +30,7 @@ interface DiagramStoreActions extends
   login: (username: string, password: string) => Promise<void>; // Login action
   register: (username: string, password: string) => Promise<void>; // Register action
   logout: () => void; // Logout action
+  setShowAuthDialog: (show: boolean) => void; // Control whether auth dialog is shown
 }
 
 const defaultLayerId = uuidv4();
@@ -145,7 +146,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     const toSave = stripSvgFromState(toSaveRaw);
 
     const serverUrl = state.serverUrl || 'http://localhost:4000';
-    const bearerToken = state.authToken;
     const basicAuthHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
 
     try {
@@ -158,55 +158,41 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
             ...(authHeader ? { Authorization: authHeader } : {}),
           },
           body: JSON.stringify({ state: toSave }),
+          credentials: 'include',
         });
       };
 
       if (!state.remoteDiagramId) {
-        resp = await doRequest('POST', `${serverUrl}/diagrams`, bearerToken ? `Bearer ${bearerToken}` : basicAuthHeader);
+        resp = await doRequest('POST', `${serverUrl}/diagrams`, basicAuthHeader);
       } else {
-        resp = await doRequest('PATCH', `${serverUrl}/diagrams/${state.remoteDiagramId}`, bearerToken ? `Bearer ${bearerToken}` : basicAuthHeader);
+        resp = await doRequest('PATCH', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
       }
 
       if (resp.status === 401) {
-        // Prompt user to login and retry once
-        const user = window.prompt('Server requires authentication. Enter username:', state.currentUser?.username || state.serverAuthUser || '');
-        if (user !== null) {
-          const pass = window.prompt('Enter password:', '');
-          if (pass !== null) {
-            // Attempt to login via /auth/login
-            try {
-              const loginResp = await fetch(`${serverUrl}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user, password: pass }) });
-              if (!loginResp.ok) {
-                wrappedSet({ lastSaveError: 'Authentication failed' });
-                return;
-              }
-              const loginJson = await loginResp.json();
-              if (loginJson && loginJson.token) {
-                // Save token and user in store
-                wrappedSet({ authToken: loginJson.token, currentUser: loginJson.user });
-                // Retry original save with bearer token
-                const retryResp = state.remoteDiagramId
-                  ? await fetch(`${serverUrl}/diagrams/${state.remoteDiagramId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${loginJson.token}` }, body: JSON.stringify({ state: toSave }) })
-                  : await fetch(`${serverUrl}/diagrams`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${loginJson.token}` }, body: JSON.stringify({ state: toSave }) });
-                if (!retryResp.ok) {
-                  const text = await retryResp.text().catch(() => `Status ${retryResp.status}`);
-                  wrappedSet({ lastSaveError: `Save failed after auth: ${text}` });
-                  return;
-                }
-                const created = await retryResp.json();
-                if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
-                wrappedSet({ isDirty: false, lastSaveError: null });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id, authToken: loginJson.token, currentUser: loginJson.user }));
-                return;
-              }
-            } catch (e) {
-              console.error('Login attempt failed:', e);
-              wrappedSet({ lastSaveError: 'Authentication attempt failed' });
+        // Try to refresh the access token via refresh endpoint (send cookies)
+        try {
+          const refreshResp = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
+          if (refreshResp.ok) {
+            // retry original save once
+            const retryResp = state.remoteDiagramId
+              ? await doRequest('PATCH', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader)
+              : await doRequest('POST', `${serverUrl}/diagrams`, basicAuthHeader);
+            if (!retryResp.ok) {
+              const text = await retryResp.text().catch(() => `Status ${retryResp.status}`);
+              wrappedSet({ lastSaveError: `Save failed after refresh: ${text}` });
               return;
             }
+            const created = await retryResp.json();
+            if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
+            wrappedSet({ isDirty: false, lastSaveError: null });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id, currentUser: state.currentUser }));
+            return;
           }
+        } catch (refreshErr) {
+          console.warn('Refresh attempt failed', refreshErr);
         }
-        wrappedSet({ lastSaveError: 'Authentication required' });
+        // Open authentication dialog for interactive login
+        wrappedSet({ lastSaveError: 'Authentication required', showAuthDialog: true });
         return;
       }
 
@@ -218,17 +204,17 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       const result = await resp.json();
       if (!state.remoteDiagramId && result && result.id) {
         wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id, authToken: state.authToken, currentUser: state.currentUser }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id, currentUser: state.currentUser }));
       } else {
         wrappedSet({ isDirty: false, lastSaveError: null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, authToken: state.authToken, currentUser: state.currentUser }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, currentUser: state.currentUser }));
       }
     } catch (e: any) {
       console.error('Failed to save diagram to server:', e);
       wrappedSet({ lastSaveError: e?.message || String(e) });
       // Fallback: persist locally so work is not lost
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, authToken: state.authToken, currentUser: state.currentUser }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, currentUser: state.currentUser }));
         wrappedSet({ isDirty: false });
       } catch (localErr) {
         console.error('Failed to save diagram locally as fallback:', localErr);
@@ -240,14 +226,14 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     const state = get();
     const serverUrl = state.serverUrl || 'http://localhost:4000';
     try {
-      const resp = await fetch(`${serverUrl}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+      const resp = await fetch(`${serverUrl}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }), credentials: 'include' });
       if (!resp.ok) throw new Error('Invalid credentials');
       const json = await resp.json();
-      if (json && json.token && json.user) {
-        wrappedSet({ authToken: json.token, currentUser: json.user, lastSaveError: null });
-        // persist token/user along with other state
+      if (json && json.user) {
+        wrappedSet({ currentUser: json.user, lastSaveError: null, showAuthDialog: false });
+        // persist user info along with other state
         const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, authToken: json.token, currentUser: json.user }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: json.user }));
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -259,16 +245,16 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     const state = get();
     const serverUrl = state.serverUrl || 'http://localhost:4000';
     try {
-      const resp = await fetch(`${serverUrl}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+      const resp = await fetch(`${serverUrl}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }), credentials: 'include' });
       if (!resp.ok) {
         const text = await resp.text().catch(() => `Status ${resp.status}`);
         throw new Error(text);
       }
       const json = await resp.json();
-      if (json && json.token && json.user) {
-        wrappedSet({ authToken: json.token, currentUser: json.user, lastSaveError: null });
+      if (json && json.user) {
+        wrappedSet({ currentUser: json.user, lastSaveError: null, showAuthDialog: false });
         const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, authToken: json.token, currentUser: json.user }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: json.user }));
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -276,9 +262,15 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
-  const logout = () => {
-    wrappedSet({ authToken: null, currentUser: null });
+  const logout = async () => {
     const state = get();
+    const serverUrl = state.serverUrl || 'http://localhost:4000';
+    try {
+      await fetch(`${serverUrl}/auth/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.warn('Logout failed on server', e);
+    }
+    wrappedSet({ currentUser: null, showAuthDialog: false });
     const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId }));
   };
@@ -296,18 +288,21 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     wrappedSet({ remoteDiagramId: id });
   };
 
+  const setShowAuthDialog = (show: boolean) => {
+    wrappedSet({ showAuthDialog: show });
+  };
+
   const loadDiagram = async (fromRemote = false) => {
     const state = get();
     if (fromRemote && state.remoteDiagramId) {
       const serverUrl = state.serverUrl || 'http://localhost:4000';
-      const bearerToken = state.authToken;
       const basicAuthHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
       try {
         const resp = await fetch(`${serverUrl}/diagrams/${state.remoteDiagramId}`, {
           headers: {
-            ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
             ...(basicAuthHeader ? { Authorization: basicAuthHeader } : {}),
           },
+          credentials: 'include',
         });
         if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
         const json = await resp.json();
@@ -352,6 +347,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     login,
     register,
     logout,
+    setShowAuthDialog,
   } as any;
 });
 

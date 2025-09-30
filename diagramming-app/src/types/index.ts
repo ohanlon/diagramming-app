@@ -114,8 +114,8 @@ export type DiagramState = {
   serverAuthUser?: string | null; // Optional basic auth user
   serverAuthPass?: string | null; // Optional basic auth password
   lastSaveError?: string | null; // Last error message from save attempts
-  authToken?: string | null; // JWT issued by server after login
   currentUser?: { id: string; username: string } | null; // Authenticated user's info
+  showAuthDialog?: boolean; // Whether auth dialog should be shown (UI control)
 };
 
 export type HistoryState = {

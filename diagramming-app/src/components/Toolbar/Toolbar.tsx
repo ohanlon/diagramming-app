@@ -393,7 +393,8 @@ const ToolbarComponent: React.FC = () => {
 
 
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const authDialogOpen = useDiagramStore(state => state.showAuthDialog);
+  const setShowAuthDialog = useDiagramStore(state => state.setShowAuthDialog);
   const [authDialogMode, setAuthDialogMode] = useState<'login' | 'register'>('login');
 
   const handleAccountMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -403,15 +404,15 @@ const ToolbarComponent: React.FC = () => {
 
   const handleOpenLoginDialog = () => {
     setAuthDialogMode('login');
-    setAuthDialogOpen(true);
+    setShowAuthDialog(true);
   };
 
   const handleOpenRegisterDialog = () => {
     setAuthDialogMode('register');
-    setAuthDialogOpen(true);
+    setShowAuthDialog(true);
   };
 
-  const handleCloseAuthDialog = () => setAuthDialogOpen(false);
+  const handleCloseAuthDialog = () => setShowAuthDialog(false);
 
   const handleLogoutClick = () => {
     handleAccountMenuClose();
@@ -505,7 +506,7 @@ const ToolbarComponent: React.FC = () => {
       >
         <ShapeColorPicker selectedColor={currentShapeColor} onColorSelect={handleShapeColorSelect} />
       </Menu>
-      <AuthDialog open={authDialogOpen} initialMode={authDialogMode} onClose={handleCloseAuthDialog} />
+      <AuthDialog open={Boolean(authDialogOpen)} initialMode={authDialogMode} onClose={handleCloseAuthDialog} />
     </Toolbar>
   );
 };
