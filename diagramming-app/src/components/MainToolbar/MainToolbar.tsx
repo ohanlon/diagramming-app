@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
-import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
+import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { ArrowRight, ArticleOutlined, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
@@ -11,7 +11,7 @@ const MainToolbar: React.FC = () => {
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [newMenuAnchorEl, setNewMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets } = useDiagramStore();
+  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty } = useDiagramStore();
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
 
@@ -114,10 +114,22 @@ const MainToolbar: React.FC = () => {
   }, [handlePrint, saveDiagram]);
 
   const createNewDiagram = useDiagramStore(state => state.createNewDiagram);
+  const [confirmNewOpen, setConfirmNewOpen] = useState(false);
+
+  const handleNewDiagramConfirmed = () => {
+    createNewDiagram();
+    setConfirmNewOpen(false);
+    handleFileMenuClose();
+  };
 
   const handleNewDiagram = () => {
-    createNewDiagram();
-    handleFileMenuClose();
+    if (isDirty) {
+      // Ask for confirmation before discarding unsaved changes
+      setConfirmNewOpen(true);
+    } else {
+      createNewDiagram();
+      handleFileMenuClose();
+    }
   };
 
   const handleUndo = () => {
@@ -291,6 +303,18 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Lines</ListItemText>
         </MenuItem>
       </Menu>
+      <Dialog open={confirmNewOpen} onClose={() => setConfirmNewOpen(false)}>
+        <DialogTitle>Discard unsaved changes?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You have unsaved changes. Creating a new diagram will discard these changes. Do you want to continue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmNewOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleNewDiagramConfirmed}>Discard & New</Button>
+        </DialogActions>
+      </Dialog>
     </Toolbar>
   );
 };
