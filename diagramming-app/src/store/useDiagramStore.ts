@@ -31,6 +31,7 @@ interface DiagramStoreActions extends
   register: (username: string, password: string) => Promise<void>; // Register action
   logout: () => void; // Logout action
   setShowAuthDialog: (show: boolean) => void; // Control whether auth dialog is shown
+  createNewDiagram: () => void; // Create a fresh new diagram with generated ids
 }
 
 const defaultLayerId = uuidv4();
@@ -63,7 +64,7 @@ const initialState: DiagramState = {
       selectedFontSize: 10,
       selectedTextColor: '#000000',
       selectedShapeColor: '#3498db',
-      selectedLineStyle: 'solid' as LineStyle,
+      selectedLineStyle: 'continuous' as LineStyle,
       selectedLineWidth: 2,
       selectedConnectionType: 'direct' as ConnectionType,
       connectorDragTargetShapeId: null,
@@ -292,6 +293,68 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     wrappedSet({ showAuthDialog: show });
   };
 
+  const createNewDiagram = () => {
+    // Generate unique ids for layer and sheet
+    const newLayerId = uuidv4();
+    const newSheetId = uuidv4();
+
+    const newSheet = {
+      id: newSheetId,
+      name: 'Sheet 1',
+      shapesById: {},
+      shapeIds: [],
+      connectors: {},
+      selectedShapeIds: [],
+      selectedConnectorIds: [],
+      layers: {
+        [newLayerId]: {
+          id: newLayerId,
+          name: 'Layer 1',
+          isVisible: true,
+          isLocked: false,
+        },
+      },
+      layerIds: [newLayerId],
+      activeLayerId: newLayerId,
+      zoom: 1,
+      pan: { x: 0, y: 0 },
+      clipboard: [],
+      selectedFont: 'Open Sans',
+      selectedFontSize: 10,
+      selectedTextColor: '#000000',
+      selectedShapeColor: '#3498db',
+      selectedLineStyle: 'continuous',
+      selectedLineWidth: 2,
+      selectedConnectionType: 'direct',
+      connectorDragTargetShapeId: null,
+    };
+
+    // Replace store with a fresh base state and clear remote diagram id
+    set(() => ({
+      sheets: { [newSheetId]: newSheet },
+      activeSheetId: newSheetId,
+      isSnapToGridEnabled: false,
+      isDirty: false,
+      remoteDiagramId: null,
+      serverUrl: get().serverUrl || 'http://localhost:4000',
+      serverAuthUser: null,
+      serverAuthPass: null,
+      lastSaveError: null,
+      currentUser: get().currentUser || null,
+      showAuthDialog: false,
+    } as any));
+
+    // Clear persisted local storage so accidental reload doesn't rehydrate old content
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear stored diagram on new:', e);
+    }
+
+    // Initialize history for the new diagram
+    useHistoryStore.getState().initializeHistory({ [newSheetId]: newSheet } as any, newSheetId);
+  };
+
   const loadDiagram = async (fromRemote = false) => {
     const state = get();
     if (fromRemote && state.remoteDiagramId) {
@@ -348,6 +411,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     register,
     logout,
     setShowAuthDialog,
+    createNewDiagram,
   } as any;
 });
 

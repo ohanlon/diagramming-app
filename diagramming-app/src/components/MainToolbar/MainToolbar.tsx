@@ -113,8 +113,10 @@ const MainToolbar: React.FC = () => {
     };
   }, [handlePrint, saveDiagram]);
 
+  const createNewDiagram = useDiagramStore(state => state.createNewDiagram);
+
   const handleNewDiagram = () => {
-    resetStore();
+    createNewDiagram();
     handleFileMenuClose();
   };
 
