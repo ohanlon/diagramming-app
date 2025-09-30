@@ -395,7 +395,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     ...createConnectorActions(wrappedSet as any, get, addHistoryFn),
     ...createSelectionActions(wrappedSet as any, get),
     ...createLayerActions(wrappedSet as any, get, addHistoryFn),
-    ...createSheetActions(wrappedSet as any, get, addHistoryFn, defaultSheetId),
+    ...createSheetActions(wrappedSet as any, get, addHistoryFn),
     ...createUIActions(wrappedSet as any, get, baseState, useHistoryStore),
     ...createClipboardActions(wrappedSet as any, get, addHistoryFn),
 

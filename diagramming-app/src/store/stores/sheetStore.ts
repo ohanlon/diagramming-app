@@ -14,8 +14,7 @@ export interface SheetStoreActions {
 export const createSheetActions = (
   set: (fn: (state: DiagramState) => DiagramState) => void,
   _get: () => DiagramState,
-  addHistory: () => void,
-  defaultSheetId: string
+  addHistory: () => void
 ): SheetStoreActions => ({
 
   addSheet: () => {
@@ -24,6 +23,9 @@ export const createSheetActions = (
       const newSheetId = uuidv4();
       const newSheetName = `Sheet ${Object.keys(state.sheets).length + 1}`;
       const defaultLayerId = uuidv4();
+
+      // Determine a template sheet from current active sheet or fallback to any existing sheet
+      const templateSheet = state.sheets[state.activeSheetId] || Object.values(state.sheets)[0] as Sheet;
 
       const newSheet: Sheet = {
         id: newSheetId,
@@ -45,14 +47,14 @@ export const createSheetActions = (
         zoom: 1,
         pan: { x: 0, y: 0 },
         clipboard: null,
-        selectedFont: state.sheets[defaultSheetId].selectedFont,
-        selectedFontSize: state.sheets[defaultSheetId].selectedFontSize,
-        selectedTextColor: state.sheets[defaultSheetId].selectedTextColor,
-        selectedShapeColor: state.sheets[defaultSheetId].selectedShapeColor,
-        selectedLineStyle: state.sheets[defaultSheetId].selectedLineStyle,
-        selectedLineWidth: state.sheets[defaultSheetId].selectedLineWidth,
-        selectedConnectionType: state.sheets[defaultSheetId].selectedConnectionType,
-        selectedConnectorIds: state.sheets[defaultSheetId].selectedConnectorIds,
+        selectedFont: templateSheet?.selectedFont ?? 'Open Sans',
+        selectedFontSize: templateSheet?.selectedFontSize ?? 10,
+        selectedTextColor: templateSheet?.selectedTextColor ?? '#000000',
+        selectedShapeColor: templateSheet?.selectedShapeColor ?? '#3498db',
+        selectedLineStyle: templateSheet?.selectedLineStyle ?? 'continuous',
+        selectedLineWidth: templateSheet?.selectedLineWidth ?? 2,
+        selectedConnectionType: templateSheet?.selectedConnectionType ?? 'direct',
+        selectedConnectorIds: templateSheet?.selectedConnectorIds ?? [],
         connectorDragTargetShapeId: null,
       };
 
