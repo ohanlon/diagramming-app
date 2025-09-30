@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider } from '@mui/material';
-import { ArrowRight, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined } from '@mui/icons-material';
+import { ArrowRight, ArticleOutlined, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 
@@ -214,7 +214,10 @@ const MainToolbar: React.FC = () => {
         }}
         PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
       >
-        <MenuItem onClick={handleNewDiagram}>Diagram</MenuItem>
+        <MenuItem onClick={handleNewDiagram}>
+          <ListItemIcon><ArticleOutlined fontSize="small" /></ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Diagram</ListItemText>
+        </MenuItem>
       </Menu>
 
       <Button onClick={handleEditMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')} sx={{ color: 'black' }}>
