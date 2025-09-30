@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { pool } from './db';
 
-export async function createUser(username: string, passwordHash: string) {
+export async function createUser(username: string, passwordHash: string, passwordSalt: string) {
   const id = uuidv4();
   const now = new Date().toISOString();
-  const query = `INSERT INTO users(id, username, password_hash, created_at) VALUES($1, $2, $3, $4) RETURNING *`;
-  const values = [id, username, passwordHash, now];
+  const query = `INSERT INTO users(id, username, password_hash, password_salt, created_at) VALUES($1, $2, $3, $4, $5) RETURNING *`;
+  const values = [id, username, passwordHash, passwordSalt, now];
   const { rows } = await pool.query(query, values);
   return rows[0];
 }
