@@ -78,6 +78,9 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 // Public auth endpoints for register/login
 app.use('/auth', authRouter);
 
+// Protect user endpoints (settings etc.) with combined auth
+app.use('/users', combinedAuth, require('./routes/users').default);
+
 // Protect diagram endpoints with combined auth middleware
 app.use('/diagrams', combinedAuth, diagramsRouter);
 

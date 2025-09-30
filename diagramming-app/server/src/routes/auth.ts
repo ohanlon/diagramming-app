@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUser, getUserByUsername } from '../usersStore';
 import { createRefreshToken, getRefreshTokenRowById, revokeRefreshTokenById } from '../refreshTokensStore';
+import { getUserSettings } from '../userSettingsStore';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -57,7 +58,8 @@ router.post('/register', async (req: Request, res: Response) => {
     const passwordHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
     const created = await createUser(username, passwordHash);
     await issueTokensAndSetCookies(res, created.id, created.username);
-    res.status(201).json({ user: { id: created.id, username: created.username } });
+    const settings = await getUserSettings(created.id);
+    res.status(201).json({ user: { id: created.id, username: created.username }, settings });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to register user' });
@@ -73,7 +75,8 @@ router.post('/login', async (req: Request, res: Response) => {
     const ok = bcrypt.compareSync(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
     await issueTokensAndSetCookies(res, user.id, user.username);
-    res.json({ user: { id: user.id, username: user.username } });
+    const settings = await getUserSettings(user.id);
+    res.json({ user: { id: user.id, username: user.username }, settings });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to login' });

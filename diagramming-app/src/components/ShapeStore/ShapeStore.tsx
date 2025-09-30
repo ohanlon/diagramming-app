@@ -17,6 +17,7 @@ import {
 import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOutlined as PushPinOutlinedIcon } from '@mui/icons-material';
 import { type Interaction } from '../../types';
 import { makeImageSVGUnique, generateShapeUniqueId } from '../../utils/svgUtils';
+import { useDiagramStore } from '../../store/useDiagramStore';
 
 interface ShapeFileEntry {
   name?: string;
@@ -144,10 +145,25 @@ const ShapeStore: React.FC = () => {
         }
         setIndexEntries(allIndexEntries);
 
-        const storedPinnedIds = localStorage.getItem('pinnedShapeCategoryIds');
+        // Determine initial pinned ids: if user is logged in, load from server; otherwise from localStorage
+        const currentUser = useDiagramStore.getState().currentUser;
         let initialPinnedIds: string[] = [];
-        if (storedPinnedIds) {
-          initialPinnedIds = JSON.parse(storedPinnedIds);
+        if (currentUser) {
+          try {
+            const resp = await fetch('/users/me/settings', { credentials: 'include' });
+            if (resp.ok) {
+              const json = await resp.json();
+              const settings = json.settings || {};
+              initialPinnedIds = settings.pinnedShapeCategoryIds || [];
+            }
+          } catch (e) {
+            console.warn('Failed to fetch user settings for pinned shapes', e);
+          }
+        } else {
+          const storedPinnedIds = localStorage.getItem('pinnedShapeCategoryIds');
+          if (storedPinnedIds) {
+            initialPinnedIds = JSON.parse(storedPinnedIds);
+          }
         }
         setPinnedCategoryIds(initialPinnedIds);
 
@@ -159,9 +175,7 @@ const ShapeStore: React.FC = () => {
         }
         setExpandedAccordions(initialExpandedIds);
 
-        const initialVisibleCategories = allIndexEntries.filter(entry =>
-          initialPinnedIds.includes(entry.id)
-        );
+        const initialVisibleCategories = allIndexEntries.filter(entry => initialPinnedIds.includes(entry.id));
         setVisibleCategories(initialVisibleCategories);
 
       } catch (error) {
@@ -172,7 +186,19 @@ const ShapeStore: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
+    // Persist pinned ids: prefer server when user is signed in, otherwise localStorage
+    const currentUser = useDiagramStore.getState().currentUser;
+    if (currentUser) {
+      (async () => {
+        try {
+          await fetch('/users/me/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ settings: { pinnedShapeCategoryIds: pinnedCategoryIds } }) });
+        } catch (e) {
+          console.warn('Failed to persist pinned categories to server', e);
+        }
+      })();
+    } else {
+      localStorage.setItem('pinnedShapeCategoryIds', JSON.stringify(pinnedCategoryIds));
+    }
   }, [pinnedCategoryIds]);
 
   // Persist expanded accordions to localStorage

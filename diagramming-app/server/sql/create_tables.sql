@@ -3,8 +3,12 @@ CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
+  password_salt TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Ensure existing users table has password_salt column
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_salt TEXT NOT NULL DEFAULT '';
 
 -- Create diagrams table
 CREATE TABLE IF NOT EXISTS diagrams (
@@ -36,6 +40,15 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens (user_id);
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens (expires_at);
+
+-- Create user_settings table to persist per-user settings (pinned shapes etc.)
+CREATE TABLE IF NOT EXISTS user_settings (
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  settings JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings (user_id);
 
 -- Create diagram_history table to store auditable versions of diagrams
 CREATE TABLE IF NOT EXISTS diagram_history (
