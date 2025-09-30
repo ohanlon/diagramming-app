@@ -1,5 +1,5 @@
 import { Toolbar, IconButton, Tooltip, type SelectChangeEvent, Menu, MenuItem } from '@mui/material';
-import { MoreHoriz as MoreHorizIcon } from '@mui/icons-material';
+import { MoreHoriz as MoreHorizIcon, AccountCircle as AccountCircleIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -11,6 +11,7 @@ import { colors as shapeColors } from '../ShapeColorPicker/colors';
 import { findClosestColor } from '../../utils/colorUtils';
 import { getInitialTools, type ToolDefinition } from './Toolbar.definitions';
 import { SNAP_TO_GRID_ICON } from './constants/svgIcons';
+import AuthDialog from '../Auth/AuthDialog';
 
 const ToolbarComponent: React.FC = () => {
   const {
@@ -40,6 +41,8 @@ const ToolbarComponent: React.FC = () => {
     groupShapes,
     toggleSnapToGrid, // Add toggleSnapToGrid from store
     isSnapToGridEnabled, // Add isSnapToGridEnabled from store
+    logout,
+    currentUser,
   } = useDiagramStore();
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
@@ -389,6 +392,32 @@ const ToolbarComponent: React.FC = () => {
 
 
 
+  const [accountMenuAnchorEl, setAccountMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDialogMode, setAuthDialogMode] = useState<'login' | 'register'>('login');
+
+  const handleAccountMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAccountMenuAnchorEl(event.currentTarget);
+  };
+  const handleAccountMenuClose = () => setAccountMenuAnchorEl(null);
+
+  const handleOpenLoginDialog = () => {
+    setAuthDialogMode('login');
+    setAuthDialogOpen(true);
+  };
+
+  const handleOpenRegisterDialog = () => {
+    setAuthDialogMode('register');
+    setAuthDialogOpen(true);
+  };
+
+  const handleCloseAuthDialog = () => setAuthDialogOpen(false);
+
+  const handleLogoutClick = () => {
+    handleAccountMenuClose();
+    logout();
+  };
+
   return (
     <Toolbar disableGutters variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }} ref={toolbarRef}>
       {visibleTools.map(tool => <React.Fragment key={tool.id}>{tool.element}</React.Fragment>)}
@@ -439,6 +468,29 @@ const ToolbarComponent: React.FC = () => {
           </Menu>
         </>
       )}
+      <Tooltip title={currentUser ? `Signed in as ${currentUser.username}` : 'Account'}>
+        <IconButton
+          onClick={handleAccountMenuClick}
+          color={currentUser ? 'primary' : 'default'}
+          sx={{ borderRadius: 0 }}
+        >
+          <AccountCircleIcon />
+        </IconButton>
+      </Tooltip>
+      <Menu
+        id="account-menu"
+        anchorEl={accountMenuAnchorEl}
+        open={Boolean(accountMenuAnchorEl)}
+        onClose={handleAccountMenuClose}
+      >
+        {currentUser ? [
+          <MenuItem key="signed-in" disabled>Signed in as {currentUser.username}</MenuItem>,
+          <MenuItem key="logout" onClick={handleLogoutClick}>Logout</MenuItem>
+        ] : [
+          <MenuItem key="login" onClick={() => { handleAccountMenuClose(); handleOpenLoginDialog(); }}>Login</MenuItem>,
+          <MenuItem key="register" onClick={() => { handleAccountMenuClose(); handleOpenRegisterDialog(); }}>Register</MenuItem>
+        ]}
+      </Menu>
       <Menu
         anchorEl={colorPickerAnchorEl}
         open={Boolean(colorPickerAnchorEl)}
@@ -453,6 +505,7 @@ const ToolbarComponent: React.FC = () => {
       >
         <ShapeColorPicker selectedColor={currentShapeColor} onColorSelect={handleShapeColorSelect} />
       </Menu>
+      <AuthDialog open={authDialogOpen} initialMode={authDialogMode} onClose={handleCloseAuthDialog} />
     </Toolbar>
   );
 };

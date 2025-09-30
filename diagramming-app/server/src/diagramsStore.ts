@@ -1,18 +1,8 @@
 import { stripSvgContentFromShapes } from './utils/removeSvgContent';
 import { v4 as uuidv4 } from 'uuid';
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
+import { pool } from './db';
 
-dotenv.config();
-
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  throw new Error('DATABASE_URL is not set in environment');
-}
-
-const pool = new Pool({ connectionString: DATABASE_URL });
-
-export async function createDiagram(state: any) {
+export async function createDiagram(state: any, ownerUserId: string | null = null) {
   const id = uuidv4();
   const now = new Date().toISOString();
 
@@ -25,8 +15,8 @@ export async function createDiagram(state: any) {
     }))
   };
 
-  const query = `INSERT INTO diagrams(id, state, created_at, updated_at) VALUES($1, $2::jsonb, $3, $4) RETURNING *`;
-  const values = [id, stateToSave, now, now];
+  const query = `INSERT INTO diagrams(id, state, owner_user_id, created_at, updated_at) VALUES($1, $2::jsonb, $3, $4, $5) RETURNING *`;
+  const values = [id, stateToSave, ownerUserId, now, now];
   const { rows } = await pool.query(query, values);
   return rows[0];
 }

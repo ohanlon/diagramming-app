@@ -4,92 +4,12 @@ info:
   version: 1.0.0
   description: API for managing diagram states.
 
-paths:
-  /diagrams:
-    post:
-      summary: Create a new diagram
-      operationId: createDiagram
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewDiagram'
-      responses:
-        '201':
-          description: Diagram created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Diagram'
-        '400':
-          description: Invalid input
-
-  /diagrams/{diagramId}:
-    parameters:
-      - in: path
-        name: diagramId
-        schema:
-          type: string
-          format: uuid
-        required: true
-        description: ID of the diagram to retrieve or update
-    get:
-      summary: Retrieve a diagram by ID
-      operationId: getDiagramById
-      responses:
-        '200':
-          description: Diagram retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Diagram'
-        '404':
-          description: Diagram not found
-    put:
-      summary: Replace an existing diagram
-      description: Replace the entire diagram document with the provided representation. This is a full-replacement operation.
-      operationId: replaceDiagram
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DiagramUpdate'
-      responses:
-        '200':
-          description: Diagram replaced successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Diagram'
-        '400':
-          description: Invalid input
-        '404':
-          description: Diagram not found
-    patch:
-      summary: Partially update a diagram
-      description: Apply a partial update to the diagram. Only top-level keys included will be merged into the stored diagram state. Note: svgContent is not persisted through this API.
-      operationId: patchDiagram
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DiagramPatch'
-      responses:
-        '200':
-          description: Diagram patched successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Diagram'
-        '400':
-          description: Invalid input
-        '404':
-          description: Diagram not found
-
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     # A Shape representation persisted by the API — intentionally excludes svgContent
     Shape:
@@ -373,3 +293,152 @@ components:
               type: string
             isSnapToGridEnabled:
               type: boolean
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '201':
+          description: User created and token returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      username: { type: string }
+                  token: { type: string }
+  /auth/login:
+    post:
+      summary: Login a user and return a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      username: { type: string }
+                  token: { type: string }
+
+  # Diagram endpoints require a bearer token (or admin Basic auth in server behavior)
+  /diagrams:
+    post:
+      security:
+        - bearerAuth: []
+      summary: Create a new diagram
+      operationId: createDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewDiagram'
+      responses:
+        '201':
+          description: Diagram created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '400':
+          description: Invalid input
+
+  /diagrams/{diagramId}:
+    parameters:
+      - in: path
+        name: diagramId
+        schema:
+          type: string
+          format: uuid
+        required: true
+        description: ID of the diagram to retrieve or update
+    get:
+      security:
+        - bearerAuth: []
+      summary: Retrieve a diagram by ID
+      operationId: getDiagramById
+      responses:
+        '200':
+          description: Diagram retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '404':
+          description: Diagram not found
+    put:
+      security:
+        - bearerAuth: []
+      summary: Replace an existing diagram
+      description: Replace the entire diagram document with the provided representation. This is a full-replacement operation.
+      operationId: replaceDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagramUpdate'
+      responses:
+        '200':
+          description: Diagram replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '400':
+          description: Invalid input
+        '404':
+          description: Diagram not found
+    patch:
+      security:
+        - bearerAuth: []
+      summary: Partially update a diagram
+      description: Apply a partial update to the diagram. Only top-level keys included will be merged into the stored diagram state. Note: svgContent is not persisted through this API.
+      operationId: patchDiagram
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagramPatch'
+      responses:
+        '200':
+          description: Diagram patched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagram'
+        '400':
+          description: Invalid input
+        '404':
+          description: Diagram not found
