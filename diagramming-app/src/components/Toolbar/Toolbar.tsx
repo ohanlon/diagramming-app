@@ -11,7 +11,7 @@ import { colors as shapeColors } from '../ShapeColorPicker/colors';
 import { findClosestColor } from '../../utils/colorUtils';
 import { getInitialTools, type ToolDefinition } from './Toolbar.definitions';
 import { SNAP_TO_GRID_ICON } from './constants/svgIcons';
-import AuthDialog from '../Auth/AuthDialog';
+import { useNavigate } from 'react-router-dom';
 
 const ToolbarComponent: React.FC = () => {
   const {
@@ -393,9 +393,8 @@ const ToolbarComponent: React.FC = () => {
 
 
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] = React.useState<null | HTMLElement>(null);
-  const authDialogOpen = useDiagramStore(state => state.showAuthDialog);
+  const navigate = useNavigate();
   const setShowAuthDialog = useDiagramStore(state => state.setShowAuthDialog);
-  const [authDialogMode, setAuthDialogMode] = useState<'login' | 'register'>('login');
 
   const handleAccountMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAccountMenuAnchorEl(event.currentTarget);
@@ -403,16 +402,15 @@ const ToolbarComponent: React.FC = () => {
   const handleAccountMenuClose = () => setAccountMenuAnchorEl(null);
 
   const handleOpenLoginDialog = () => {
-    setAuthDialogMode('login');
-    setShowAuthDialog(true);
+    // Navigate to login page. Keep a marker in store for legacy uses.
+    setShowAuthDialog(false);
+    navigate('/login');
   };
 
   const handleOpenRegisterDialog = () => {
-    setAuthDialogMode('register');
-    setShowAuthDialog(true);
+    setShowAuthDialog(false);
+    navigate('/login');
   };
-
-  const handleCloseAuthDialog = () => setShowAuthDialog(false);
 
   const handleLogoutClick = () => {
     handleAccountMenuClose();
@@ -506,7 +504,6 @@ const ToolbarComponent: React.FC = () => {
       >
         <ShapeColorPicker selectedColor={currentShapeColor} onColorSelect={handleShapeColorSelect} />
       </Menu>
-      <AuthDialog open={Boolean(authDialogOpen)} initialMode={authDialogMode} onClose={handleCloseAuthDialog} />
     </Toolbar>
   );
 };

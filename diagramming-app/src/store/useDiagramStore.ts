@@ -192,8 +192,14 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         } catch (refreshErr) {
           console.warn('Refresh attempt failed', refreshErr);
         }
-        // Open authentication dialog for interactive login
-        wrappedSet({ lastSaveError: 'Authentication required', showAuthDialog: true });
+        // Redirect user to login page (page-based auth) when refresh fails
+        wrappedSet({ lastSaveError: 'Authentication required' });
+        try {
+          // Use a hard redirect to ensure the login page is shown (routing is client-side)
+          window.location.href = '/login';
+        } catch (e) {
+          console.warn('Redirect to login failed', e);
+        }
         return;
       }
 

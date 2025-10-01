@@ -7,10 +7,12 @@ import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState } from 'react';
 import { AppBar, Box } from '@mui/material';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+function MainAppLayout() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
-
   return (
     <Box
       sx={{
@@ -33,6 +35,17 @@ function App() {
       <SheetTabs />
       <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />
     </Box>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
