@@ -10,7 +10,11 @@ function getRequestUser(req: Request) {
 
 router.get('/me/settings', async (req: Request, res: Response) => {
   const user = getRequestUser(req);
-  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  if (!user) {
+    // debug: log cookie and auth header presence when unauthenticated
+    console.warn('/me/settings called without authenticated user. Cookies:', (req as any).cookies, 'Authorization:', req.headers.authorization);
+    return res.status(401).json({ error: 'Authentication required' });
+  }
   try {
     const settings = await getUserSettings(user.id);
     res.json({ settings: settings || {} });

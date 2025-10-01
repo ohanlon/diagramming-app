@@ -23,7 +23,9 @@ function setAuthCookie(res: Response, token: string, maxAgeMs?: number) {
   res.cookie('authToken', token, {
     httpOnly: true,
     secure,
-    sameSite: 'strict',
+    // Use 'lax' so cross-site GET navigations and top-level GET requests (like credentialed fetch GETs)
+    // from the frontend at a different port can include the cookie in development.
+    sameSite: 'lax',
     maxAge: maxAgeMs || 1000 * 60 * 15, // default 15 minutes
     path: '/',
   });
@@ -34,7 +36,7 @@ function setRefreshCookie(res: Response, refreshToken: string, maxAgeMs?: number
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure,
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge: maxAgeMs || (1000 * 60 * 60 * 24 * REFRESH_EXPIRES_DAYS),
     path: '/',
   });

@@ -95,7 +95,12 @@ const ShapeStore: React.FC = () => {
     // Persist immediately: server when signed in, otherwise localStorage
     if (currentUser) {
       try {
-        await fetch(`${serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ settings: { pinnedShapeCategoryIds: newPinned } }) });
+        const { apiFetch } = await import('../../utils/apiFetch');
+        const resp = await apiFetch(`${serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { pinnedShapeCategoryIds: newPinned } }) });
+        if (!resp.ok) {
+          const text = await resp.text().catch(() => `<no response text>`);
+          console.warn('Failed to persist pinned categories to server:', resp.status, text);
+        }
       } catch (e) {
         console.warn('Failed to persist pinned categories to server', e);
       }
@@ -205,7 +210,7 @@ const ShapeStore: React.FC = () => {
         if (currentUser) {
           // Load from server
           try {
-            const resp = await fetch(`${serverUrl}/users/me/settings`, { credentials: 'include' });
+            const resp = await (await import('../../utils/apiFetch')).apiFetch(`${serverUrl}/users/me/settings`, { method: 'GET' });
             if (resp.ok) {
               const json = await resp.json();
               initialPinnedIds = json.settings?.pinnedShapeCategoryIds || [];
