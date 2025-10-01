@@ -18,6 +18,7 @@ import { Close, ExpandMore as ExpandMoreIcon, PushPin as PushPinIcon, PushPinOut
 import { type Interaction } from '../../types';
 import { makeImageSVGUnique, generateShapeUniqueId } from '../../utils/svgUtils';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import { debounce } from '../../utils/debounce';
 
 interface ShapeFileEntry {
   name?: string;
@@ -68,6 +69,13 @@ const ShapeStore: React.FC = () => {
   const [pinnedCategoryIds, setPinnedCategoryIds] = useState<string[]>([]);
   const [visibleCategories, setVisibleCategories] = useState<IndexEntry[]>([]);
   const [expandedAccordions, setExpandedAccordions] = useState<string[]>([]);
+  const [serverSearchResults, setServerSearchResults] = useState<SearchableShape[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchCache = React.useRef<Map<string, SearchableShape[]>>(new Map());
+
+  // Server configuration and current user from the central store
+  const serverUrl = useDiagramStore(state => state.serverUrl) || 'http://localhost:4000';
+  const currentUser = useDiagramStore(state => state.currentUser);
 
   const DEFAULT_VISIBLE_COUNT = 6;
 
@@ -85,8 +93,6 @@ const ShapeStore: React.FC = () => {
     });
 
     // Persist immediately: server when signed in, otherwise localStorage
-    const currentUser = useDiagramStore.getState().currentUser;
-    const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
     if (currentUser) {
       try {
         await fetch(`${serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ settings: { pinnedShapeCategoryIds: newPinned } }) });
@@ -123,16 +129,38 @@ const ShapeStore: React.FC = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const catalogResponse = await fetch('/shapes/catalog.json');
+        const catalogResponse = await fetch(`${serverUrl}/shapes/catalog.json`);
         const catalog: CatalogEntry[] = await catalogResponse.json();
         const allIndexEntries: IndexEntry[] = [];
 
         for (const entry of catalog) {
-          const indexResponse = await fetch(entry.path);
-          const index: IndexEntry[] = await indexResponse.json();
+          // Normalize entry.path to server URL to ensure we fetch from backend
+          const entryIndexPath = entry.path && entry.path.startsWith('/') ? `${serverUrl}${entry.path}` : `${serverUrl}/shapes/${entry.path.replace(/^\//, '')}`;
+          let indexRaw: string;
+          try {
+            const indexResponse = await fetch(entryIndexPath);
+            if (!indexResponse.ok) {
+              const text = await indexResponse.text().catch(() => `<failed to read response text>`);
+              throw new Error(`Failed to fetch provider index ${entryIndexPath}: ${indexResponse.status} ${indexResponse.statusText} - ${text}`);
+            }
+            indexRaw = await indexResponse.text();
+          } catch (err) {
+            console.error('Failed to fetch provider index at', entryIndexPath, err);
+            // skip this provider
+            continue;
+          }
+          let index: IndexEntry[];
+          try {
+            index = JSON.parse(indexRaw) as IndexEntry[];
+          } catch (err) {
+            console.error('Failed to parse provider index JSON from', entryIndexPath, err);
+            continue;
+          }
 
           for (const subEntry of index) {
-            const shapesResponse = await fetch(subEntry.path);
+            // Normalize path: if subEntry.path starts with '/', treat as server absolute path
+            const subPath = subEntry.path && subEntry.path.startsWith('/') ? `${serverUrl}${subEntry.path}` : `${serverUrl}/shapes/${subEntry.path.replace(/^\//, '')}`;
+            const shapesResponse = await fetch(subPath);
             const shapesInFile: ShapeFileEntry[] = await shapesResponse.json();
 
             const shapesWithSvgContent: Shape[] = await Promise.all(
@@ -147,7 +175,12 @@ const ShapeStore: React.FC = () => {
                 };
                 if (shape.path) { // Ensure path exists
                   try {
-                    const svgResponse = await fetch(shape.path);
+                    const svgPath = shape.path.startsWith('/') ? `${serverUrl}${shape.path}` : `${serverUrl}/shapes/${shape.path.replace(/^\//, '')}`;
+                    const svgResponse = await fetch(svgPath);
+                    if (!svgResponse.ok) {
+                      const text = await svgResponse.text().catch(() => '<no response text>');
+                      throw new Error(`Failed to fetch SVG ${svgPath}: ${svgResponse.status} ${svgResponse.statusText} - ${text}`);
+                    }
                     const svgContent = await svgResponse.text();
                     // Make SVG IDs unique to prevent conflicts in the DOM
                     const uniqueId = generateShapeUniqueId(normalizedShape.name || `shape_${index}`, index);
@@ -167,25 +200,28 @@ const ShapeStore: React.FC = () => {
         }
         setIndexEntries(allIndexEntries);
 
-        // Determine initial pinned ids: if user is logged in, load from server; otherwise from localStorage
-        const currentUser = useDiagramStore.getState().currentUser;
-        const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
+        // Load pinned category IDs from localStorage or server
         let initialPinnedIds: string[] = [];
         if (currentUser) {
+          // Load from server
           try {
             const resp = await fetch(`${serverUrl}/users/me/settings`, { credentials: 'include' });
             if (resp.ok) {
               const json = await resp.json();
-              const settings = json.settings || {};
-              initialPinnedIds = settings.pinnedShapeCategoryIds || [];
+              initialPinnedIds = json.settings?.pinnedShapeCategoryIds || [];
             }
           } catch (e) {
-            console.warn('Failed to fetch user settings for pinned shapes', e);
+            console.warn('Failed to load pinned categories from server', e);
           }
         } else {
-          const storedPinnedIds = localStorage.getItem('pinnedShapeCategoryIds');
-          if (storedPinnedIds) {
-            initialPinnedIds = JSON.parse(storedPinnedIds);
+          // Load from localStorage
+          try {
+            const storedPinnedIds = localStorage.getItem('pinnedShapeCategoryIds');
+            if (storedPinnedIds) {
+              initialPinnedIds = JSON.parse(storedPinnedIds);
+            }
+          } catch (e) {
+            console.warn('Failed to load pinned categories from localStorage', e);
           }
         }
         setPinnedCategoryIds(initialPinnedIds);
@@ -232,6 +268,58 @@ const ShapeStore: React.FC = () => {
     return allShapes;
   }, [indexEntries]);
 
+  // Server-side search function (debounced caller will use this)
+  const performServerSearch = async (query: string) => {
+    const q = query.trim();
+    if (!q) {
+      setServerSearchResults(null);
+      setIsSearching(false);
+      return;
+    }
+
+    const cached = searchCache.current.get(q);
+    if (cached) {
+      setServerSearchResults(cached);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const resp = await fetch(`${serverUrl}/shapes/search?q=${encodeURIComponent(q)}`);
+      if (!resp.ok) {
+        // Read server response text for diagnostics (helps debug 500 HTML/stack trace responses)
+        const text = await resp.text().catch(() => '<failed to read response text>');
+        console.warn(`Server search returned non-OK status ${resp.status} ${resp.statusText}: ${text}`);
+        setServerSearchResults(null);
+        setIsSearching(false);
+        return;
+      }
+      const json = await resp.json();
+      const results = (json.results || []).map((r: any) => {
+        // Normalize to SearchableShape shape
+        const shape: Shape = { id: r.shapeId || r.name || 'unknown', name: r.name || '', path: r.path || '', textPosition: 'outside' };
+        const category: IndexEntry = { id: r.categoryId || `${r.provider}:${r.category}`, name: r.category || '', path: r.path || '', shapes: [], provider: r.provider || '' };
+        return { shape, category } as SearchableShape;
+      });
+      searchCache.current.set(q, results);
+      setServerSearchResults(results);
+    } catch (e) {
+      console.warn('Server search failed', e);
+      setServerSearchResults(null);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const debouncedServerSearch = React.useMemo(() => debounce((...args: any[]) => { void performServerSearch(String(args[0] || '')); }, 250), [serverUrl]);
+
+  useEffect(() => {
+    return () => {
+      debouncedServerSearch.cancel && debouncedServerSearch.cancel();
+    };
+  }, [debouncedServerSearch]);
+
   return (
     <Box sx={{ 
       marginLeft: '0.5em', 
@@ -242,7 +330,7 @@ const ShapeStore: React.FC = () => {
       overflow: 'hidden'
     }}>
       <Autocomplete
-        options={searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
+        options={(searchTerm && serverSearchResults) ? serverSearchResults : searchableShapes.filter(searchable => !visibleCategories.some(vc => vc.id === searchable.category.id))}
         getOptionLabel={(option) => option.shape.name || ''}
         groupBy={(option) => `${option.category.provider}: ${option.category.name}`}
         filterOptions={filterOptions}
@@ -275,8 +363,15 @@ const ShapeStore: React.FC = () => {
         inputValue={searchTerm}
         onInputChange={(_event, newInputValue) => {
           setSearchTerm(newInputValue);
+          // If a server search is desired, call it debounced
+          if (newInputValue && newInputValue.trim().length > 1) {
+            debouncedServerSearch(newInputValue);
+          } else {
+            // if short or empty, clear server results
+            setServerSearchResults(null);
+          }
         }}
-        renderInput={(params) => <TextField {...params} label="Search Shapes & Categories" variant="outlined" size="small" />}
+        renderInput={(params) => <TextField {...params} label={isSearching ? 'Searching...' : 'Search Shapes & Categories'} variant="outlined" size="small" />}
         sx={{ mb: 0, flexShrink: 0 }}
       />
 
@@ -376,7 +471,11 @@ const ShapeStore: React.FC = () => {
                           }
                           e.dataTransfer.setData('textPosition', shape.textPosition);
                           e.dataTransfer.setData('autosize', String(shape.autosize));
-                          e.dataTransfer.setData('shapePath', shape.path); // New: Add shape.path
+                          // Normalize shape.path into a fully-qualified server URL so Canvas can fetch it directly
+                          const normalizedSvgPath = shape.path
+                            ? (shape.path.startsWith('/') ? `${serverUrl}${shape.path}` : `${serverUrl}/shapes/${shape.path.replace(/^\//, '')}`)
+                            : '';
+                          e.dataTransfer.setData('shapePath', normalizedSvgPath);
                         }}
                         sx={{ cursor: 'grab', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         data-testid={shape.id}

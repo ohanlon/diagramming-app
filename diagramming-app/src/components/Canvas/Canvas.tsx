@@ -239,7 +239,7 @@ const Canvas: React.FC = () => {
                 shapeRect.x < selectionRect.x + selectionRect.width &&
                 shapeRect.x + selectionRect.width > selectionRect.x &&
                 shapeRect.y < selectionRect.y + selectionRect.height &&
-                shapeRect.y + selectionRect.height > selectionRect.y
+                shapeRect.y + shapeRect.height > selectionRect.y
             );
         });
         setSelectedShapes(selectedIds);
@@ -397,6 +397,7 @@ const Canvas: React.FC = () => {
 
   const { shapesById, shapeIds = [], connectors, selectedShapeIds } = activeSheet;
   const selectedFont = activeSheet.selectedFont;
+  const serverUrl = useDiagramStore(state => state.serverUrl) || 'http://localhost:4000';
 
   const handleDrop = async (e: React.DragEvent) => { // Made async
     e.preventDefault();
@@ -412,9 +413,24 @@ const Canvas: React.FC = () => {
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
+    // Normalize the path into a full URL so fetch targets the server's shapes static directory
+    let fetchUrl = shapePath;
+    if (!fetchUrl.startsWith('http://') && !fetchUrl.startsWith('https://')) {
+      if (fetchUrl.startsWith('/')) {
+        fetchUrl = `${serverUrl}${fetchUrl}`;
+      } else {
+        fetchUrl = `${serverUrl}/shapes/${fetchUrl.replace(/^\//, '')}`;
+      }
+    }
+
     let fetchedSvgContent = '';
     try {
-      const response = await fetch(shapePath); // Fetch SVG content using shapePath
+      const response = await fetch(fetchUrl); // Fetch SVG content using normalized URL
+      if (!response.ok) {
+        const text = await response.text().catch(() => '<failed to read response text>');
+        console.error(`Failed to fetch SVG content from ${fetchUrl}: ${response.status} ${response.statusText} - ${text}`);
+        return; // Abort if SVG content cannot be fetched
+      }
       fetchedSvgContent = await response.text();
     } catch (error) {
       console.error('Failed to fetch SVG content:', error);
@@ -473,7 +489,7 @@ const Canvas: React.FC = () => {
       svgContent: fetchedSvgContent, // Use fetchedSvgContent
       minX: minX,
       minY: minY,
-      path: shapePath,
+      path: fetchUrl,
       fontFamily: selectedFont,
       textOffsetX: textPosition === 'inside' ? 0 : 0,
       textOffsetY: textPosition === 'inside' ? 0 : newHeight + 5,

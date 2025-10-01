@@ -7,6 +7,9 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { testConnection } from './db';
+import shapesRouter from './routes/shapes';
+import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -74,6 +77,17 @@ function combinedAuth(req: express.Request, res: express.Response, next: express
 }
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
+
+// Serve shapes static files from server/public/shapes
+// When running via ts-node-dev the static shapes live in server/public/shapes (one level up)
+const SHAPES_STATIC_DIR = path.resolve(__dirname, '../public/shapes');
+console.log(`Serving shapes static files from ${SHAPES_STATIC_DIR}`);
+if (!fs.existsSync(SHAPES_STATIC_DIR)) {
+  console.warn(`Warning: shapes static directory does not exist at ${SHAPES_STATIC_DIR}`);
+}
+app.use('/shapes', express.static(SHAPES_STATIC_DIR));
+// Mount shapes API routes (catalog/search)
+app.use('/shapes', shapesRouter);
 
 // Public auth endpoints for register/login
 app.use('/auth', authRouter);
