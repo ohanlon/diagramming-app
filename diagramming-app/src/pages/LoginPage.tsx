@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Tabs, Tab, Alert, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useDiagramStore } from '../store/useDiagramStore';
+import validator from 'validator';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,11 +22,16 @@ const LoginPage: React.FC = () => {
     return null;
   }
 
+  const isValidEmail = (s: string) => validator.isEmail(s);
+
   const submit = async () => {
     setError(null);
     if (!username) return setError('Username is required');
     if (!password) return setError('Password is required');
-    if (mode === 'register' && password.length < 6) return setError('Password must be at least 6 characters');
+    if (mode === 'register') {
+      if (!isValidEmail(username)) return setError('Username must be a valid email address');
+      if (password.length < 6) return setError('Password must be at least 6 characters');
+    }
 
     setLoading(true);
     try {
@@ -51,7 +57,7 @@ const LoginPage: React.FC = () => {
       </Tabs>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
         {error && <Alert severity="error">{error}</Alert>}
-        <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} autoFocus />
+        <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} autoFocus helperText={mode === 'register' ? 'Must be a valid email address' : undefined} error={mode === 'register' && username.length > 0 && !isValidEmail(username)} />
         <TextField label="Password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
         {mode === 'register' && <Typography variant="caption">Passwords must be at least 6 characters.</Typography>}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>

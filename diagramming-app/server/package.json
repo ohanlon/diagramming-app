@@ -23,6 +23,7 @@
     "@types/express": "^4.17.17",
     "@types/node": "^20.0.0",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/validator": "^13.7.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"
   }

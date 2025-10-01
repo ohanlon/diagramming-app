@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Tabs, Tab, Box, Alert, Typography } from '@mui/material';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import validator from 'validator';
 
 type Mode = 'login' | 'register';
 
@@ -36,6 +37,8 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
     setMode(value === 0 ? 'login' : 'register');
   };
 
+  const isValidEmail = (s: string) => validator.isEmail(s);
+
   const submit = async () => {
     setError(null);
     if (!username) {
@@ -46,9 +49,15 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
       setError('Password is required');
       return;
     }
-    if (mode === 'register' && password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
+    if (mode === 'register') {
+      if (!isValidEmail(username)) {
+        setError('Username must be a valid email address');
+        return;
+      }
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return;
+      }
     }
 
     setLoading(true);
@@ -81,7 +90,7 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
         </Tabs>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
           {error && <Alert severity="error">{error}</Alert>}
-          <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} autoFocus />
+          <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} autoFocus helperText={mode === 'register' ? 'Must be a valid email address' : undefined} error={mode === 'register' && username.length > 0 && !isValidEmail(username)} />
           <TextField label="Password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
           {mode === 'register' && <Typography variant="caption">Passwords must be at least 6 characters.</Typography>}
         </Box>

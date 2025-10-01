@@ -54,6 +54,23 @@ async function issueTokensAndSetCookies(res: Response, userId: string, username:
 router.post('/register', async (req: Request, res: Response) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Missing username or password' });
+
+  // Enforce email format for username on signup using validator
+  try {
+    const validator = require('validator');
+    if (!validator.isEmail(String(username))) {
+      console.warn('Registration attempted with invalid email:', username);
+      return res.status(400).json({ error: 'Username must be a valid email address' });
+    }
+  } catch (e) {
+    // If validator is missing or fails, fall back to previous regex as a last resort
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(String(username).toLowerCase())) {
+      console.warn('Registration attempted with invalid email (fallback):', username);
+      return res.status(400).json({ error: 'Username must be a valid email address' });
+    }
+  }
+
   try {
     const existing = await getUserByUsername(username);
     if (existing) return res.status(409).json({ error: 'Username already exists' });
