@@ -1,19 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
-import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import { ArrowRight, ArticleOutlined, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined } from '@mui/icons-material';
+import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, Tooltip, Box, Avatar } from '@mui/material';
+import { ArrowRight, ArticleOutlined, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Person as PersonIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
+import { useNavigate } from 'react-router-dom';
 
 const MainToolbar: React.FC = () => {
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [newMenuAnchorEl, setNewMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
   const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty } = useDiagramStore();
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
+  const currentUser = useDiagramStore(state => state.currentUser);
+  const logout = useDiagramStore(state => state.logout);
+  const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentUser?.avatarUrl);
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // If activeSheet is undefined, it means the store state is inconsistent
   if (!activeSheet) {
@@ -176,6 +185,32 @@ const MainToolbar: React.FC = () => {
     handleSelectMenuClose();
   };
 
+  // Load user settings (including avatar) when currentUser changes
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSettings() {
+      if (!currentUser) {
+        setAvatarUrl(undefined);
+        return;
+      }
+      try {
+        const resp = await fetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { credentials: 'include' });
+        if (!resp.ok) return;
+        const json = await resp.json();
+        const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl;
+        if (!cancelled) {
+          setAvatarUrl(avatar);
+          // also update store currentUser with avatar for global access
+          useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: avatar } as any });
+        }
+      } catch (e) {
+        console.warn('Failed to load user settings for avatar', e);
+      }
+    }
+    loadSettings();
+    return () => { cancelled = true; };
+  }, [currentUser]);
+
   return (
     <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black', minHeight: '2em' }}>
       <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black' }}>
@@ -313,6 +348,86 @@ const MainToolbar: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setConfirmNewOpen(false)}>Cancel</Button>
           <Button variant="contained" color="error" onClick={handleNewDiagramConfirmed}>Discard & New</Button>
+        </DialogActions>
+      </Dialog>
+      {/* Flexible spacer pushes account UI to far right */}
+      <Box sx={{ flex: 1 }} />
+      <Tooltip title={currentUser ? `Signed in as ${currentUser.username}` : 'Account'}>
+        <IconButton onClick={(e) => setAccountMenuAnchorEl(e.currentTarget)} color={currentUser ? 'primary' : 'default'}>
+          <Avatar src={avatarUrl} sx={{ width: 32, height: 32 }}>
+            {!avatarUrl && <PersonIcon />}
+          </Avatar>
+        </IconButton>
+      </Tooltip>
+      <Menu
+        id="main-account-menu"
+        anchorEl={accountMenuAnchorEl}
+        open={Boolean(accountMenuAnchorEl)}
+        onClose={() => setAccountMenuAnchorEl(null)}
+      >
+        {currentUser ? [
+          <MenuItem key="signed-in" disabled>Signed in as {currentUser.username}</MenuItem>,
+          <MenuItem key="change-avatar" onClick={() => { setAccountMenuAnchorEl(null); setAvatarPreview(avatarUrl); setSelectedFile(null); setAvatarDialogOpen(true); }}>Change avatar</MenuItem>,
+          <MenuItem key="remove-avatar" onClick={async () => {
+            setAccountMenuAnchorEl(null);
+            try {
+              // clear avatar in settings
+              const resp = await fetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ settings: { ...(await (await fetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { credentials: 'include' })).json())?.settings, avatarDataUrl: null } }) });
+              if (resp.ok) {
+                setAvatarUrl(undefined);
+                useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: undefined } as any });
+              }
+            } catch (e) {
+              console.warn('Failed to remove avatar', e);
+            }
+          }}>Remove avatar</MenuItem>,
+          <MenuItem key="logout" onClick={() => { setAccountMenuAnchorEl(null); logout(); }}>Logout</MenuItem>
+        ] : [
+          <MenuItem key="login" onClick={() => { setAccountMenuAnchorEl(null); navigate('/login'); }}>Login</MenuItem>,
+          <MenuItem key="register" onClick={() => { setAccountMenuAnchorEl(null); navigate('/login'); }}>Register</MenuItem>
+        ]}
+      </Menu>
+
+      <Dialog open={avatarDialogOpen} onClose={() => setAvatarDialogOpen(false)}>
+        <DialogTitle>Change avatar</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Choose an image file (PNG/JPG/SVG) to use as your avatar. It will be stored in your user settings.</DialogContentText>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 2 }}>
+            <Avatar src={avatarPreview} sx={{ width: 64, height: 64 }}>{!avatarPreview && <PersonIcon />}</Avatar>
+            <input type="file" accept="image/*" onChange={(e) => {
+              const f = e.target.files && e.target.files[0];
+              if (!f) return;
+              setSelectedFile(f);
+              const reader = new FileReader();
+              reader.onload = () => {
+                setAvatarPreview(String(reader.result));
+              };
+              reader.readAsDataURL(f);
+            }} />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAvatarDialogOpen(false)}>Cancel</Button>
+          <Button onClick={async () => {
+            if (!selectedFile && !avatarPreview) { setAvatarDialogOpen(false); return; }
+            try {
+              // Fetch existing settings to merge
+              const existingResp = await fetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { credentials: 'include' });
+              const existingJson = existingResp.ok ? await existingResp.json() : { settings: {} };
+              const mergedSettings = { ...(existingJson.settings || {}), avatarDataUrl: avatarPreview };
+              const resp = await fetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ settings: mergedSettings }) });
+              if (resp.ok) {
+                setAvatarUrl(avatarPreview);
+                useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: avatarPreview } as any });
+                setAvatarDialogOpen(false);
+              } else {
+                const text = await resp.text().catch(() => '<no text>');
+                console.error('Failed to save avatar:', text);
+              }
+            } catch (e) {
+              console.error('Failed to upload avatar', e);
+            }
+          }} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
     </Toolbar>

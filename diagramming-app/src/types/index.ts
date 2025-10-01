@@ -114,7 +114,7 @@ export type DiagramState = {
   serverAuthUser?: string | null; // Optional basic auth user
   serverAuthPass?: string | null; // Optional basic auth password
   lastSaveError?: string | null; // Last error message from save attempts
-  currentUser?: { id: string; username: string } | null; // Authenticated user's info
+  currentUser?: { id: string; username: string; avatarUrl?: string } | null; // Authenticated user's info with optional avatar
   showAuthDialog?: boolean; // Whether auth dialog should be shown (UI control)
 };
 

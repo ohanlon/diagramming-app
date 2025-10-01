@@ -237,10 +237,12 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (!resp.ok) throw new Error('Invalid credentials');
       const json = await resp.json();
       if (json && json.user) {
-        wrappedSet({ currentUser: json.user, lastSaveError: null, showAuthDialog: false });
+        const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
+        wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
         // persist user info along with other state
         const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: json.user }));
+        const augmentedUser = { ...json.user, avatarUrl: avatar };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: augmentedUser }));
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -259,9 +261,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       }
       const json = await resp.json();
       if (json && json.user) {
-        wrappedSet({ currentUser: json.user, lastSaveError: null, showAuthDialog: false });
+        const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
+        wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
         const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: json.user }));
+        const augmentedUser = { ...json.user, avatarUrl: avatar };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: augmentedUser }));
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
