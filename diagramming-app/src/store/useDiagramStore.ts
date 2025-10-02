@@ -31,7 +31,8 @@ interface DiagramStoreActions extends
   register: (username: string, password: string) => Promise<void>; // Register action
   logout: () => void; // Logout action
   setShowAuthDialog: (show: boolean) => void; // Control whether auth dialog is shown
-  createNewDiagram: () => void; // Create a fresh new diagram with generated ids
+  createNewDiagram: (name?: string) => void; // Create a fresh new diagram with optional name
+  setDiagramName: (name: string) => void; // Update the diagram's display name
 }
 
 const defaultLayerId = uuidv4();
@@ -77,6 +78,7 @@ const initialState: DiagramState = {
   serverUrl: 'http://localhost:4000',
   serverAuthUser: null,
   serverAuthPass: null,
+  diagramName: 'New Diagram',
 };
 
 const STORAGE_KEY = 'diagram-storage';
@@ -138,10 +140,13 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
 
   const saveDiagram = async () => {
     const state = get();
+    // Enforce diagram has a name; default to 'New Diagram' if missing
+    const diagramName = state.diagramName && String(state.diagramName).trim() ? String(state.diagramName).trim() : 'New Diagram';
     const toSaveRaw = {
       sheets: state.sheets,
       activeSheetId: state.activeSheetId,
       isSnapToGridEnabled: state.isSnapToGridEnabled,
+      diagramName,
     };
     // Strip svgContent client-side to reduce payload
     const toSave = stripSvgFromState(toSaveRaw);
@@ -303,7 +308,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     wrappedSet({ showAuthDialog: show });
   };
 
-  const createNewDiagram = () => {
+  const createNewDiagram = (name?: string) => {
     // Generate unique ids for layer and sheet
     const newLayerId = uuidv4();
     const newSheetId = uuidv4();
@@ -352,6 +357,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       lastSaveError: null,
       currentUser: get().currentUser || null,
       showAuthDialog: false,
+      diagramName: name && String(name).trim() ? String(name).trim() : 'New Diagram',
     } as any));
 
     // Clear persisted local storage so accidental reload doesn't rehydrate old content
@@ -398,6 +404,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
+  const setDiagramName = (name: string) => {
+    wrappedSet({ diagramName: name });
+  };
+
   return {
     ...baseState,
     // Compose all modular store actions using wrappedSet so changes mark the store dirty
@@ -422,6 +432,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     logout,
     setShowAuthDialog,
     createNewDiagram,
+    setDiagramName,
   } as any;
 });
 

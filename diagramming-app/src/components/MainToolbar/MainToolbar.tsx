@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
-import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, Tooltip, Box, Avatar } from '@mui/material';
-import { ArrowRight, ArticleOutlined, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Person as PersonIcon } from '@mui/icons-material';
+import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, Tooltip, Box, Avatar, TextField } from '@mui/material';
+import { ArticleOutlined, ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Person as PersonIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,6 @@ const MainToolbar: React.FC = () => {
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [newMenuAnchorEl, setNewMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
   const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty } = useDiagramStore();
   const { history } = useHistoryStore();
@@ -20,6 +19,11 @@ const MainToolbar: React.FC = () => {
   const currentUser = useDiagramStore(state => state.currentUser);
   const logout = useDiagramStore(state => state.logout);
   const navigate = useNavigate();
+  const diagramName = useDiagramStore(state => state.diagramName) || 'New Diagram';
+  const setDiagramName = useDiagramStore(state => state.setDiagramName);
+  const [editNameOpen, setEditNameOpen] = React.useState(false);
+  const [editingName, setEditingName] = React.useState(diagramName);
+  const [pendingNewCreation, setPendingNewCreation] = React.useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentUser?.avatarUrl);
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const [avatarSrcForEditing, setAvatarSrcForEditing] = useState<string | null>(null);
@@ -36,7 +40,7 @@ const MainToolbar: React.FC = () => {
   };
 
   // When any top-level menu is open, hovering over another top-level menu should open it
-  const isAnyTopMenuOpen = Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl || newMenuAnchorEl);
+  const isAnyTopMenuOpen = Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl);
 
   const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLButtonElement>, menu: 'file' | 'edit' | 'select') => {
     if (!isAnyTopMenuOpen) return;
@@ -59,7 +63,6 @@ const MainToolbar: React.FC = () => {
 
   const handleFileMenuClose = () => {
     setFileMenuAnchorEl(null);
-    setNewMenuAnchorEl(null);
   };
 
   const handleEditMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -76,14 +79,6 @@ const MainToolbar: React.FC = () => {
 
   const handleSelectMenuClose = () => {
     setSelectMenuAnchorEl(null);
-  };
-
-  const handleNewSubMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setNewMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleNewSubMenuClose = () => {
-    setNewMenuAnchorEl(null);
   };
 
   const handlePrint = () => {
@@ -126,17 +121,22 @@ const MainToolbar: React.FC = () => {
   const [confirmNewOpen, setConfirmNewOpen] = useState(false);
 
   const handleNewDiagramConfirmed = () => {
-    createNewDiagram();
+    // User confirmed discarding unsaved changes — proceed to prompt for a name
     setConfirmNewOpen(false);
+    setEditingName('New Diagram');
+    setEditNameOpen(true);
     handleFileMenuClose();
   };
 
   const handleNewDiagram = () => {
+    // Start the 'create new diagram' flow. If there are unsaved changes, ask the user
+    // to confirm discarding them, otherwise prompt for a name immediately.
+    setPendingNewCreation(true);
     if (isDirty) {
-      // Ask for confirmation before discarding unsaved changes
       setConfirmNewOpen(true);
     } else {
-      createNewDiagram();
+      setEditingName('New Diagram');
+      setEditNameOpen(true);
       handleFileMenuClose();
     }
   };
@@ -189,6 +189,10 @@ const MainToolbar: React.FC = () => {
     <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black', minHeight: '2em' }}>
       <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black' }}>
         File
+      </Button>
+      {/* Diagram name display and edit */}
+      <Button onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', ml: 1 }}>
+        <Typography variant="subtitle1">{diagramName}</Typography>
       </Button>
       <Menu
         elevation={0}
@@ -288,7 +292,7 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Lines</ListItemText>
         </MenuItem>
       </Menu>
-      <Dialog open={confirmNewOpen} onClose={() => setConfirmNewOpen(false)}>
+      <Dialog open={confirmNewOpen} onClose={() => { setConfirmNewOpen(false); setPendingNewCreation(false); }}>
         <DialogTitle>Discard unsaved changes?</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -296,10 +300,33 @@ const MainToolbar: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmNewOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setConfirmNewOpen(false); setPendingNewCreation(false); }}>Cancel</Button>
           <Button variant="contained" color="error" onClick={handleNewDiagramConfirmed}>Discard & New</Button>
         </DialogActions>
       </Dialog>
+      <Dialog open={editNameOpen} onClose={() => { setEditNameOpen(false); setPendingNewCreation(false); }}>
+        <DialogTitle>Edit Diagram Name</DialogTitle>
+        <DialogContent>
+          <TextField label="Diagram name" value={editingName} onChange={(e) => setEditingName(e.target.value)} fullWidth autoFocus />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setEditNameOpen(false); setPendingNewCreation(false); }}>Cancel</Button>
+          <Button onClick={() => {
+            const finalName = editingName && editingName.trim() ? editingName.trim() : 'New Diagram';
+            if (pendingNewCreation) {
+              // Creating a brand new diagram with the provided name
+              createNewDiagram(finalName);
+              setPendingNewCreation(false);
+            } else {
+              // Just renaming the current diagram
+              setDiagramName(finalName);
+            }
+            setEditNameOpen(false);
+          }} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
+      {/* Ensure pending flag is cleared if user navigates away or closes menus */}
+      {/* (Handled above in onClose handlers) */}
       {/* Flexible spacer pushes account UI to far right */}
       <Box sx={{ flex: 1 }} />
       <Tooltip title={currentUser ? `Signed in as ${currentUser.username}` : 'Account'}>

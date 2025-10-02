@@ -115,7 +115,8 @@ export type DiagramState = {
   serverAuthPass?: string | null; // Optional basic auth password
   lastSaveError?: string | null; // Last error message from save attempts
   currentUser?: { id: string; username: string; avatarUrl?: string } | null; // Authenticated user's info with optional avatar
-  showAuthDialog?: boolean; // Whether auth dialog should be shown (UI control)
+  diagramName?: string; // Human-friendly diagram name (required for save)
+  showAuthDialog?: boolean; // Legacy flag controlling auth modal visibility (kept for compatibility)
 };
 
 export type HistoryState = {

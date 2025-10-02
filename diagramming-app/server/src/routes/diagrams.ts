@@ -12,6 +12,7 @@ function getRequestUser(req: Request) {
 router.post('/', async (req: Request, res: Response) => {
   const { state } = req.body;
   if (!state) return res.status(400).json({ error: 'Missing state' });
+  if (!state.diagramName || String(state.diagramName).trim().length === 0) return res.status(400).json({ error: 'Missing diagramName' });
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   try {
@@ -47,6 +48,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   const { state } = req.body;
   if (!state) return res.status(400).json({ error: 'Missing state' });
+  if (!state.diagramName || String(state.diagramName).trim().length === 0) return res.status(400).json({ error: 'Missing diagramName' });
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   try {
@@ -69,6 +71,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   const patch = req.body;
   if (!patch || !patch.state) return res.status(400).json({ error: 'Missing patch' });
+  if (!patch.state.diagramName || String(patch.state.diagramName).trim().length === 0) return res.status(400).json({ error: 'Missing diagramName' });
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   try {
