@@ -22,7 +22,7 @@ interface DiagramStoreActions extends
   UIStoreActions,
   ClipboardStoreActions {
   toggleSnapToGrid: () => void; // Add snapping toggle action
-  saveDiagram: () => Promise<void>; // Manually save to storage/server
+  saveDiagram: (thumbnailDataUrl?: string | null) => Promise<void>; // Manually save to storage/server, optional thumbnail
   loadDiagram: (fromRemote?: boolean) => Promise<void>; // Load from storage or server
   setServerUrl: (url: string) => void;
   setServerAuth: (user: string, pass: string) => void;
@@ -138,7 +138,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     return { ...stateSnapshot, sheets: newSheets };
   };
 
-  const saveDiagram = async () => {
+  const saveDiagram = async (thumbnailDataUrl?: string | null) => {
     const state = get();
     // Enforce diagram has a name; default to 'New Diagram' if missing
     const diagramName = state.diagramName && String(state.diagramName).trim() ? String(state.diagramName).trim() : 'New Diagram';
@@ -148,8 +148,24 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       isSnapToGridEnabled: state.isSnapToGridEnabled,
       diagramName,
     };
-    // Strip svgContent client-side to reduce payload
-    const toSave = stripSvgFromState(toSaveRaw);
+    
+  // If a thumbnail wasn't supplied, attempt to generate one from the SVG in the DOM.
+  try {
+    if (!thumbnailDataUrl && typeof document !== 'undefined') {
+      // Lazy-import thumbnail helper to avoid bundling it into non-browser environments/tests
+      const { generateThumbnailFromSvgSelector } = await import('../utils/thumbnail');
+      const generated = await generateThumbnailFromSvgSelector('svg.canvas-svg', 128, 98);
+      if (generated) thumbnailDataUrl = generated;
+    }
+  } catch (e) {
+    console.warn('Thumbnail generation attempt failed:', e);
+  }
+
+  if (thumbnailDataUrl) {
+    (toSaveRaw as any).thumbnailDataUrl = thumbnailDataUrl; // include on save payload
+  }
+   // Strip svgContent client-side to reduce payload
+   const toSave = stripSvgFromState(toSaveRaw);
 
     const serverUrl = state.serverUrl || 'http://localhost:4000';
     const basicAuthHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
@@ -191,6 +207,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
             const created = await retryResp.json();
             if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
             wrappedSet({ isDirty: false, lastSaveError: null });
+            // Persist thumbnail into localStorage too
             localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id, currentUser: state.currentUser }));
             return;
           }
