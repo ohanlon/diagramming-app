@@ -5,15 +5,30 @@ import ToolbarComponent from './components/Toolbar/Toolbar';
 import LayerPanel from './components/LayerPanel/LayerPanel';
 import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppBar, Box } from '@mui/material';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
+import Dashboard from './pages/Dashboard';
+import { useDiagramStore } from './store/useDiagramStore';
 
 function MainAppLayout() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
+  const params = useParams();
+  const diagramIdFromParams = (params as any)?.id;
+  const setRemoteDiagramId = useDiagramStore(state => state.setRemoteDiagramId);
+  const loadDiagram = useDiagramStore(state => state.loadDiagram);
+
+  useEffect(() => {
+    if (diagramIdFromParams) {
+      setRemoteDiagramId(diagramIdFromParams);
+      // Attempt to load the requested diagram from the server
+      loadDiagram(true);
+    }
+  }, [diagramIdFromParams, setRemoteDiagramId, loadDiagram]);
+
   return (
     <Box
       sx={{
@@ -45,6 +60,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/diagram/:id/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>

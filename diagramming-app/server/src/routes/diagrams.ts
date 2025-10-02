@@ -1,6 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { createDiagram, getDiagram, replaceDiagram, patchDiagram } from '../diagramsStore';
+import { createDiagram, getDiagram, replaceDiagram, patchDiagram, listDiagramsByUser } from '../diagramsStore';
 import { createDiagramHistory, listDiagramHistory, getDiagramHistoryEntry } from '../historyStore';
 
 const router = express.Router();
@@ -87,6 +87,19 @@ router.patch('/:id', async (req: Request, res: Response) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to patch diagram' });
+  }
+});
+
+// List diagrams for the current authenticated user
+router.get('/', async (req: Request, res: Response) => {
+  const user = getRequestUser(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  try {
+    const list = await listDiagramsByUser(user.id === 'admin' ? null : user.id);
+    res.json({ diagrams: list });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to list diagrams' });
   }
 });
 

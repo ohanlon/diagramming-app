@@ -74,3 +74,11 @@ export async function patchDiagram(id: string, patch: any) {
   const { rows } = await pool.query(query, values);
   return rows[0];
 }
+
+export async function listDiagramsByUser(ownerUserId: string | null) {
+  // Return minimal info for listing (id, diagramName, thumbnailDataUrl, timestamps)
+  const query = `SELECT id, state->>'diagramName' AS diagram_name, state->>'thumbnailDataUrl' AS thumbnail_data_url, created_at, updated_at FROM diagrams WHERE owner_user_id = $1 ORDER BY updated_at DESC`;
+  const values = [ownerUserId];
+  const { rows } = await pool.query(query, values);
+  return rows.map((r: any) => ({ id: r.id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at }));
+}

@@ -190,6 +190,9 @@ const MainToolbar: React.FC = () => {
       <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black' }}>
         File
       </Button>
+      <Button onClick={() => { handleFileMenuClose(); navigate('/dashboard'); }} sx={{ color: 'black', ml: 1 }}>
+        Dashboard
+      </Button>
       {/* Diagram name display and edit */}
       <Button onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', ml: 1 }}>
         <Typography variant="subtitle1">{diagramName}</Typography>
