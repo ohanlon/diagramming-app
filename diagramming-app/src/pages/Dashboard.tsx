@@ -18,6 +18,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [selectedSection, setSelectedSection] = useState<'all' | 'favorites'>('all');
+  const favoritesCount = (diagrams || []).filter(d => favorites[d.id]).length;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +60,11 @@ const Dashboard: React.FC = () => {
     return () => { mounted = false; };
   }, []);
 
+  // If there are no favorites and the user is viewing the favorites section, fall back to 'all'
+  useEffect(() => {
+    if (favoritesCount === 0 && selectedSection === 'favorites') setSelectedSection('all');
+  }, [favoritesCount, selectedSection]);
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
   return (
@@ -66,9 +72,11 @@ const Dashboard: React.FC = () => {
       {/* Left sidebar: simple text sections to filter main grid */}
       <Box sx={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
         <List>
-          <ListItemButton selected={selectedSection === 'favorites'} onClick={() => setSelectedSection('favorites')}>
-            <ListItemText primary={`Favorites (${Object.keys(favorites).filter(id => favorites[id] && diagrams?.some(d => d.id === id)).length})`} />
-          </ListItemButton>
+          {favoritesCount > 0 && (
+            <ListItemButton selected={selectedSection === 'favorites'} onClick={() => setSelectedSection('favorites')}>
+              <ListItemText primary={`Favorites (${favoritesCount})`} />
+            </ListItemButton>
+          )}
           <ListItemButton selected={selectedSection === 'all'} onClick={() => setSelectedSection('all')}>
             <ListItemText primary={`All Diagrams (${diagrams?.length || 0})`} />
           </ListItemButton>
