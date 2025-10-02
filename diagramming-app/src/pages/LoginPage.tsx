@@ -16,11 +16,13 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If already logged in, redirect to diagram editor
-  if (currentUser) {
-    navigate('/diagram');
-    return null;
-  }
+  // If already logged in, redirect to diagram editor in an effect (avoid navigation during render)
+  React.useEffect(() => {
+    if (currentUser) {
+      navigate('/diagram');
+    }
+  }, [currentUser, navigate]);
+  if (currentUser) return null;
 
   const isValidEmail = (s: string) => validator.isEmail(s);
 
