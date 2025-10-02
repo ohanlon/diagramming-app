@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText } from '@mui/material';
+import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { useNavigate } from 'react-router-dom';
 import { useDiagramStore } from '../store/useDiagramStore';
 
@@ -20,6 +22,9 @@ const Dashboard: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState<'all' | 'favorites'>('all');
   const favoritesCount = (diagrams || []).filter(d => favorites[d.id]).length;
   const navigate = useNavigate();
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuForId, setMenuForId] = useState<string | null>(null);
+  const [isCloning, setIsCloning] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -88,7 +93,7 @@ const Dashboard: React.FC = () => {
         <Typography variant="h5" sx={{ mb: 2 }}>My Diagrams</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
           {((diagrams || []).filter(d => (selectedSection === 'all' ? true : !!favorites[d.id]))).map((d) => (
-             <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               {/* Favorite star at top-left */}
               <IconButton
                 aria-label={favorites[d.id] ? 'Unfavorite' : 'Favorite'}
@@ -114,6 +119,45 @@ const Dashboard: React.FC = () => {
               >
                 {favorites[d.id] ? <StarIcon color="warning" /> : <StarBorderIcon />}
               </IconButton>
+
+              {/* Menu at top-right */}
+              <IconButton aria-label="more" sx={{ position: 'absolute', right: 4, top: 4, zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setMenuAnchorEl(e.currentTarget); setMenuForId(d.id); }}>
+                <MoreVertIcon />
+              </IconButton>
+              <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl && menuForId === d.id)} onClose={() => { setMenuAnchorEl(null); setMenuForId(null); }}>
+                <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}`); }}>
+                  <ListItemIcon><FileCopyIcon fontSize="small" /></ListItemIcon>
+                  Open
+                </MenuItem>
+                <MenuItem onClick={async () => {
+                  setMenuAnchorEl(null);
+                  setIsCloning(true);
+                  try {
+                    const { apiFetch } = await import('../utils/apiFetch');
+                    // Fetch original diagram state
+                    const serverUrl = useDiagramStore.getState().serverUrl;
+                    const getResp = await apiFetch(`${serverUrl}/diagrams/${d.id}`, { method: 'GET' });
+                    if (!getResp.ok) throw new Error('Failed to fetch original diagram');
+                    const original = await getResp.json();
+                    const newState = { ...original.state };
+                    newState.diagramName = `${newState.diagramName || 'Untitled'} (Copy)`;
+                    const postResp = await apiFetch(`${serverUrl}/diagrams`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: newState }) });
+                    if (!postResp.ok) throw new Error('Failed to create clone');
+                    const created = await postResp.json();
+                    // Navigate to newly created diagram
+                    navigate(`/diagram/${created.id}`);
+                  } catch (err) {
+                    console.error('Clone failed', err);
+                    // Optionally show toast
+                  } finally {
+                    setIsCloning(false);
+                  }
+                }}>
+                  <ListItemIcon><FileCopyIcon fontSize="small" /></ListItemIcon>
+                  Clone
+                </MenuItem>
+              </Menu>
+
               {d.thumbnailDataUrl ? (
                 <CardMedia component="img" image={d.thumbnailDataUrl} alt={d.diagramName} sx={{ height: 98, width: 128, objectFit: 'contain', background: '#fff', mt: 1 }} />
               ) : (
