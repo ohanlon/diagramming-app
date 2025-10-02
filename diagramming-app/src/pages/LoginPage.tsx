@@ -16,9 +16,9 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If already logged in, redirect to root
+  // If already logged in, redirect to diagram editor
   if (currentUser) {
-    navigate('/');
+    navigate('/diagram');
     return null;
   }
 
@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
       } else {
         await register(username, password);
       }
-      navigate('/');
+      navigate('/diagram');
     } catch (e: any) {
       setError(e?.message || String(e));
     } finally {

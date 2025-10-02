@@ -10,6 +10,7 @@ import { AppBar, Box } from '@mui/material';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import HomePage from './pages/HomePage';
 
 function MainAppLayout() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
@@ -42,8 +43,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
+        <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
+        <Route path="*" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
   );

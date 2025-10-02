@@ -197,14 +197,11 @@ const MainToolbar: React.FC = () => {
         onClose={handleFileMenuClose}
         PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
       >
-        <MenuItem
-          onMouseOver={handleNewSubMenuOpen}
-          sx={{ display: 'flex', justifyContent: 'space-between' }}
-        >
-          <ListItemIcon />
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>New</ListItemText>
-          <ArrowRight sx={{ fontSize: '1.2rem', ml: 1 }} />
+        <MenuItem onClick={handleNewDiagram}>
+          <ListItemIcon><ArticleOutlined fontSize="small" /></ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>New Diagram</ListItemText>
         </MenuItem>
+        <Divider />
         <MenuItem onClick={() => { saveDiagram(); handleFileMenuClose(); }}>
           <ListItemIcon>
             <SaveOutlined fontSize="small" />
@@ -219,27 +216,6 @@ const MainToolbar: React.FC = () => {
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
-        </MenuItem>
-      </Menu>
-      <Menu
-        elevation={0}
-        anchorEl={newMenuAnchorEl}
-        open={Boolean(newMenuAnchorEl)}
-        onClose={handleNewSubMenuClose}
-        MenuListProps={{ onMouseLeave: handleNewSubMenuClose }}
-        anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'center',
-          horizontal: 'left',
-        }}
-        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
-      >
-        <MenuItem onClick={handleNewDiagram}>
-          <ListItemIcon><ArticleOutlined fontSize="small" /></ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Diagram</ListItemText>
         </MenuItem>
       </Menu>
 
