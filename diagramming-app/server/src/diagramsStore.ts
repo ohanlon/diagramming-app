@@ -62,7 +62,24 @@ export async function patchDiagram(id: string, patch: any) {
       const existingSheet = existing.sheets?.[sheetId] || {};
       const mergedSheet = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
       if (sheetPatch && sheetPatch.shapesById) {
-        mergedSheet.shapesById = stripSvgContentFromShapes(sheetPatch.shapesById || {});
+        // Merge existing shapes with incoming shapes to avoid dropping shapes that are not part of the patch
+        const incomingShapes = stripSvgContentFromShapes(sheetPatch.shapesById || {});
+        const existingShapes = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapesById) || {};
+        mergedSheet.shapesById = { ...existingShapes, ...incomingShapes };
+      }
+      // Merge shapeIds arrays (union) to avoid losing reference to shapes when a patch omits some ids
+      if (sheetPatch && Array.isArray(sheetPatch.shapeIds)) {
+        const existingIds: string[] = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapeIds) || [];
+        const incomingIds: string[] = sheetPatch.shapeIds || [];
+        const seen = new Set(existingIds);
+        const mergedIds = [...existingIds];
+        for (const id of incomingIds) {
+          if (!seen.has(id)) {
+            mergedIds.push(id);
+            seen.add(id);
+          }
+        }
+        mergedSheet.shapeIds = mergedIds;
       }
       mergedState.sheets[sheetId] = mergedSheet;
     }

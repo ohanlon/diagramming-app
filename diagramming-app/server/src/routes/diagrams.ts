@@ -16,6 +16,17 @@ router.post('/', async (req: Request, res: Response) => {
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   try {
+    // Debug: log incoming state summary
+    try {
+      const sheetCount = state.sheets ? Object.keys(state.sheets).length : 0;
+      let totalShapes = 0;
+      if (state.sheets) {
+        for (const s of Object.values(state.sheets)) {
+          totalShapes += Object.keys((s as any).shapesById || {}).length;
+        }
+      }
+      console.debug(`[diagrams.post] Creating diagram for user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
+    } catch (e) { /* ignore logging issues */ }
     const created = await createDiagram(state, user.id === 'admin' ? null : user.id);
     // Record initial history entry
     await createDiagramHistory(created.id, created.state, user.id === 'admin' ? null : user.id, 'create');
@@ -33,6 +44,17 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
+    try {
+      const state = found.state || {};
+      const sheetCount = state.sheets ? Object.keys(state.sheets).length : 0;
+      let totalShapes = 0;
+      if (state.sheets) {
+        for (const s of Object.values(state.sheets)) {
+          totalShapes += Object.keys((s as any).shapesById || {}).length;
+        }
+      }
+      console.debug(`[diagrams.get] Returning diagram ${id} for user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
+    } catch (e) {}
     // Enforce ownership unless admin
     if (found.owner_user_id && found.owner_user_id !== user.id && !user.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
@@ -52,6 +74,16 @@ router.put('/:id', async (req: Request, res: Response) => {
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   try {
+    try {
+      const sheetCount = state.sheets ? Object.keys(state.sheets).length : 0;
+      let totalShapes = 0;
+      if (state.sheets) {
+        for (const s of Object.values(state.sheets)) {
+          totalShapes += Object.keys((s as any).shapesById || {}).length;
+        }
+      }
+      console.debug(`[diagrams.put] Replacing diagram ${id} by user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
+    } catch (e) {}
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
     if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
@@ -75,6 +107,16 @@ router.patch('/:id', async (req: Request, res: Response) => {
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   try {
+    try {
+      const sheetCount = patch.state.sheets ? Object.keys(patch.state.sheets).length : 0;
+      let totalShapes = 0;
+      if (patch.state.sheets) {
+        for (const s of Object.values(patch.state.sheets)) {
+          totalShapes += Object.keys((s as any).shapesById || {}).length;
+        }
+      }
+      console.debug(`[diagrams.patch] Patching diagram ${id} by user ${user.id}: sheetsInPatch=${sheetCount}, totalShapesInPatch=${totalShapes}`);
+    } catch (e) {}
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
     if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {

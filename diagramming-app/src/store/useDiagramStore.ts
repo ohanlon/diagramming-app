@@ -171,7 +171,16 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     const basicAuthHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
 
     try {
-      let resp: Response | null = null;
+      // Debug: report summary of what we're about to save
+      try {
+        const sheetCount = Object.keys(toSave.sheets || {}).length;
+        let totalShapes = 0;
+        for (const s of Object.values((toSave as any).sheets || {})) {
+          totalShapes += Object.keys((s as any).shapesById || {}).length;
+        }
+        console.debug(`[saveDiagram] Attempting to save diagram (${state.remoteDiagramId || 'new'}): sheets=${sheetCount}, totalShapes=${totalShapes}`);
+      } catch (e) {}
+     let resp: Response | null = null;
       const doRequest = async (method: string, url: string, authHeader?: string | undefined) => {
         return await fetch(url, {
           method,
@@ -187,7 +196,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (!state.remoteDiagramId) {
         resp = await doRequest('POST', `${serverUrl}/diagrams`, basicAuthHeader);
       } else {
-        resp = await doRequest('PATCH', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
+        // Use PUT to replace the server state with a full client snapshot to avoid partial-patch loss
+        resp = await doRequest('PUT', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
       }
 
       if (resp.status === 401) {
@@ -227,10 +237,12 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
 
       if (!resp.ok) {
         const text = await resp.text().catch(() => `Status ${resp.status}`);
+        console.error('[saveDiagram] Server returned error for save:', resp.status, text);
         throw new Error(text);
       }
 
       const result = await resp.json();
+      console.debug('[saveDiagram] Save response:', result);
       if (!state.remoteDiagramId && result && result.id) {
         wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null });
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id, currentUser: state.currentUser }));
@@ -402,13 +414,35 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         });
         if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
         const json = await resp.json();
-        // Replace local state with server state (note: server strips svgContent)
-        set((s: any) => ({ ...s, ...json.state, isDirty: false }));
-        return;
-      } catch (e) {
-        console.error('Failed to load remote diagram:', e);
-      }
-    }
+        try {
+          const sheetCount = json.state && json.state.sheets ? Object.keys(json.state.sheets).length : 0;
+          let totalShapes = 0;
+          if (json.state && json.state.sheets) {
+            for (const s of Object.values(json.state.sheets)) {
+              totalShapes += Object.keys((s as any).shapesById || {}).length;
+            }
+          }
+          console.debug(`[loadDiagram] Fetched diagram ${state.remoteDiagramId} from server: sheets=${sheetCount}, totalShapes=${totalShapes}`);
+        } catch (e) {}
+         // Replace local state with server state (note: server strips svgContent)
+         set((s: any) => ({ ...s, ...json.state, isDirty: false }));
+        // Log resulting local state's counts
+        try {
+          const newState = get();
+          const sheetCountLocal = newState.sheets ? Object.keys(newState.sheets).length : 0;
+          let totalShapesLocal = 0;
+          if (newState.sheets) {
+            for (const s of Object.values(newState.sheets)) {
+              totalShapesLocal += Object.keys((s as any).shapesById || {}).length;
+            }
+          }
+          console.debug(`[loadDiagram] After applying server state to store: sheets=${sheetCountLocal}, totalShapes=${totalShapesLocal}`);
+        } catch (e) {}
+         return;
+       } catch (e) {
+         console.error('Failed to load remote diagram:', e);
+       }
+     }
 
     // Fallback: load from localStorage
     const raw = localStorage.getItem(STORAGE_KEY);
