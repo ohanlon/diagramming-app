@@ -94,8 +94,13 @@ export async function patchDiagram(id: string, patch: any) {
 
 export async function listDiagramsByUser(ownerUserId: string | null) {
   // Return minimal info for listing (id, diagramName, thumbnailDataUrl, timestamps)
-  const query = `SELECT id, state->>'diagramName' AS diagram_name, state->>'thumbnailDataUrl' AS thumbnail_data_url, created_at, updated_at FROM diagrams WHERE owner_user_id = $1 ORDER BY updated_at DESC`;
+  const query = `SELECT id, owner_user_id, state->>'diagramName' AS diagram_name, state->>'thumbnailDataUrl' AS thumbnail_data_url, created_at, updated_at FROM diagrams WHERE owner_user_id = $1 ORDER BY updated_at DESC`;
   const values = [ownerUserId];
   const { rows } = await pool.query(query, values);
-  return rows.map((r: any) => ({ id: r.id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at }));
+  return rows.map((r: any) => ({ id: r.id, ownerUserId: r.owner_user_id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at }));
+}
+
+export async function deleteDiagram(id: string) {
+  const { rows } = await pool.query('DELETE FROM diagrams WHERE id = $1 RETURNING *', [id]);
+  return rows[0] || null;
 }

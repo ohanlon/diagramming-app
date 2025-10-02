@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon } from '@mui/material';
+import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { useDiagramStore } from '../store/useDiagramStore';
 
@@ -25,6 +27,10 @@ const Dashboard: React.FC = () => {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [menuForId, setMenuForId] = useState<string | null>(null);
   const [isCloning, setIsCloning] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const currentUserId = useDiagramStore(state => state.currentUser?.id);
+  const currentUserIsAdmin = useDiagramStore(state => state.currentUser?.id === 'admin');
 
   useEffect(() => {
     let mounted = true;
@@ -126,10 +132,10 @@ const Dashboard: React.FC = () => {
               </IconButton>
               <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl && menuForId === d.id)} onClose={() => { setMenuAnchorEl(null); setMenuForId(null); }}>
                 <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}`); }}>
-                  <ListItemIcon><FileCopyIcon fontSize="small" /></ListItemIcon>
+                  <ListItemIcon><OpenInNewIcon fontSize="small" /></ListItemIcon>
                   Open
                 </MenuItem>
-                <MenuItem onClick={async () => {
+                <MenuItem disabled={isCloning && menuForId === d.id} onClick={async () => {
                   setMenuAnchorEl(null);
                   setIsCloning(true);
                   try {
@@ -153,8 +159,14 @@ const Dashboard: React.FC = () => {
                     setIsCloning(false);
                   }
                 }}>
-                  <ListItemIcon><FileCopyIcon fontSize="small" /></ListItemIcon>
+                  <ListItemIcon>
+                    {isCloning && menuForId === d.id ? <CircularProgress size={18} /> : <FileCopyIcon fontSize="small" />}
+                  </ListItemIcon>
                   Clone
+                </MenuItem>
+                <MenuItem onClick={() => { setMenuAnchorEl(null); setDeleteTargetId(d.id); setConfirmDeleteOpen(true); }} disabled={!(d as any).ownerUserId || ((d as any).ownerUserId !== currentUserId && !currentUserIsAdmin)}>
+                  <ListItemIcon><DeleteIcon fontSize="small" /></ListItemIcon>
+                  Delete
                 </MenuItem>
               </Menu>
 
@@ -180,6 +192,34 @@ const Dashboard: React.FC = () => {
           )}
         </Box>
       </Box>
+
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Delete diagram?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Are you sure you want to delete this diagram? This action cannot be undone.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={async () => {
+            if (!deleteTargetId) return;
+            try {
+              const { apiFetch } = await import('../utils/apiFetch');
+              const serverUrl = useDiagramStore.getState().serverUrl;
+              const resp = await apiFetch(`${serverUrl}/diagrams/${deleteTargetId}`, { method: 'DELETE' });
+              if (!resp.ok) throw new Error('Delete failed');
+              // Remove from local state
+              setDiagrams(prev => (prev || []).filter(x => x.id !== deleteTargetId));
+              // Remove from favorites if present
+              setFavorites(prev => { const copy = { ...prev }; delete copy[deleteTargetId]; return copy; });
+            } catch (err) {
+              console.error('Failed to delete diagram', err);
+            } finally {
+              setConfirmDeleteOpen(false);
+              setDeleteTargetId(null);
+            }
+          }}>Delete</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

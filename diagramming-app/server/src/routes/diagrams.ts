@@ -1,6 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { createDiagram, getDiagram, replaceDiagram, patchDiagram, listDiagramsByUser } from '../diagramsStore';
+import { createDiagram, getDiagram, replaceDiagram, patchDiagram, listDiagramsByUser, deleteDiagram } from '../diagramsStore';
 import { createDiagramHistory, listDiagramHistory, getDiagramHistoryEntry } from '../historyStore';
 
 const router = express.Router();
@@ -203,6 +203,25 @@ router.post('/:id/history/:historyId/restore', async (req: Request, res: Respons
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to restore history entry' });
+  }
+});
+
+// Delete a diagram (only owner or admin)
+router.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+  const user = getRequestUser(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  try {
+    const existing = await getDiagram(id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    await deleteDiagram(id);
+    res.status(204).send();
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to delete diagram' });
   }
 });
 
