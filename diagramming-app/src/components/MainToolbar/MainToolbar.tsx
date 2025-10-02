@@ -187,15 +187,16 @@ const MainToolbar: React.FC = () => {
 
   return (
     <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black', minHeight: '2em' }}>
-      <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black' }}>
+      {/* Diagram name display and edit (moved before File menu) */}
+      <Button onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', mr: 1 }}>
+        <Typography variant="subtitle1" sx={{ maxWidth: '128px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{diagramName}</Typography>
+      </Button>
+      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+      <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black', ml: 1 }}>
         File
       </Button>
       <Button onClick={() => { handleFileMenuClose(); navigate('/dashboard'); }} sx={{ color: 'black', ml: 1 }}>
         Dashboard
-      </Button>
-      {/* Diagram name display and edit */}
-      <Button onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', ml: 1 }}>
-        <Typography variant="subtitle1">{diagramName}</Typography>
       </Button>
       <Menu
         elevation={0}
@@ -307,10 +308,17 @@ const MainToolbar: React.FC = () => {
           <Button variant="contained" color="error" onClick={handleNewDiagramConfirmed}>Discard & New</Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={editNameOpen} onClose={() => { setEditNameOpen(false); setPendingNewCreation(false); }}>
+      <Dialog open={editNameOpen} onClose={() => { setEditNameOpen(false); setPendingNewCreation(false); }} PaperProps={{ sx: { minWidth: '256px' } }}>
         <DialogTitle>Edit Diagram Name</DialogTitle>
         <DialogContent>
-          <TextField label="Diagram name" value={editingName} onChange={(e) => setEditingName(e.target.value)} fullWidth autoFocus />
+          <TextField
+            label="Diagram name"
+            value={editingName}
+            onChange={(e) => setEditingName(e.target.value)}
+            autoFocus
+            sx={{ maxWidth: '256px' }}
+            InputProps={{ sx: { input: { textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' } } }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setEditNameOpen(false); setPendingNewCreation(false); }}>Cancel</Button>
