@@ -129,8 +129,15 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (s.shapesById) {
         const cleanedShapes: Record<string, any> = {};
         for (const [shapeId, shape] of Object.entries(s.shapesById || {})) {
-          const { svgContent, ...rest } = shape as any;
-          cleanedShapes[shapeId] = rest;
+          // Preserve svgContent for shapes without a 'path' (custom inline SVGs).
+          // If a shape has a 'path' (catalog-provided), we strip svgContent to reduce payload
+          // because the client can re-fetch the SVG by path on load.
+          if (shape && (shape as any).path) {
+            const { svgContent, ...rest } = shape as any;
+            cleanedShapes[shapeId] = rest;
+          } else {
+            cleanedShapes[shapeId] = { ...(shape as any) };
+          }
         }
         s.shapesById = cleanedShapes;
       }
