@@ -104,10 +104,8 @@ const Dashboard: React.FC = () => {
     return () => { mounted = false; };
   }, []);
 
-  // If there are no favorites and the user is viewing the favorites section, fall back to 'all'
-  useEffect(() => {
-    if (favoritesCount === 0 && selectedSection === 'favorites') setSelectedSection('all');
-  }, [favoritesCount, selectedSection]);
+  // No longer auto-fallback away from favorites; allow the user to view an empty favorites list
+  // (we keep favoritesCount to show counts in the sidebar)
 
   // When ownedDiagrams changes ensure selectedSection fallback if appropriate
   useEffect(() => {
@@ -155,11 +153,9 @@ const Dashboard: React.FC = () => {
       {/* Left sidebar: simple text sections to filter main grid */}
       <Box sx={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
         <List>
-          {favoritesCount > 0 && (
-            <ListItemButton selected={selectedSection === 'favorites'} onClick={() => setSelectedSection('favorites')}>
-              <ListItemText primary={`Favorites (${favoritesCount})`} />
-            </ListItemButton>
-          )}
+          <ListItemButton selected={selectedSection === 'favorites'} onClick={() => setSelectedSection('favorites')}>
+            <ListItemText primary={`Favorites (${favoritesCount})`} />
+          </ListItemButton>
           <ListItemButton selected={selectedSection === 'mine'} onClick={() => setSelectedSection('mine')}>
             <ListItemText primary={`My Diagrams (${ownedCount})`} />
           </ListItemButton>
@@ -315,7 +311,7 @@ const Dashboard: React.FC = () => {
                 ? ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id])
                 : (sharedDiagrams || []);
             if (diagramsToShow.length === 0) {
-              if (selectedSection === 'mine') return null; // Do not show a message when user has no created diagrams
+              if (selectedSection === 'mine') return null;
               let message = 'You have no saved diagrams yet.';
               if (selectedSection === 'shared') message = 'No diagrams have been shared with you.';
               if (selectedSection === 'favorites') message = 'You have no favorites yet.';
@@ -327,6 +323,52 @@ const Dashboard: React.FC = () => {
             }
           })()}
         </Box>
+
+        {/* Favorites list view (vertical list) */}
+        {selectedSection === 'favorites' && (() => {
+          const favoritesList = ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id]);
+          return (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>Favorites</Typography>
+              {favoritesList.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">You have no favorites yet.</Typography>
+              ) : (
+                <List>
+                  {favoritesList.map(f => (
+                    <ListItemButton key={f.id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }} onClick={() => navigate(`/diagram/${f.id}`)}>
+                      <Box sx={{ width: 64, height: 48, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee' }}>
+                        {f.thumbnailDataUrl ? <img src={f.thumbnailDataUrl} alt={f.diagramName} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <Typography variant="caption">No preview</Typography>}
+                      </Box>
+                      <Box sx={{ flexGrow: 1, textAlign: 'left' }}>
+                        <Typography noWrap>{f.diagramName}</Typography>
+                        <Typography variant="caption" color="text.secondary">{f.ownerUserId === currentUserId ? 'You' : 'Shared'}</Typography>
+                      </Box>
+                      <IconButton aria-label="unfavorite" onClick={async (e) => {
+                        e.stopPropagation();
+                        // Toggle favorite off locally and persist
+                        const currentlyFav = !!favorites[f.id];
+                        setFavorites(prev => ({ ...prev, [f.id]: !currentlyFav }));
+                        try {
+                          const { apiFetch } = await import('../utils/apiFetch');
+                          const settingsResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
+                          let settingsJson: any = { settings: {} };
+                          if (settingsResp.ok) settingsJson = await settingsResp.json();
+                          const existingFavs: string[] = (settingsJson.settings && settingsJson.settings.favorites) || [];
+                          const favoritesToSave = currentlyFav ? existingFavs.filter((id: string) => id !== f.id) : Array.from(new Set([...existingFavs, f.id]));
+                          await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(settingsJson.settings || {}), favorites: favoritesToSave } }) });
+                        } catch (err) {
+                          console.error('Failed to toggle favorite', err);
+                        }
+                      }}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemButton>
+                  ))}
+                </List>
+              )}
+            </Box>
+          );
+        })()}
       </Box>
 
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
