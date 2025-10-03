@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Snackbar } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ShareIcon from '@mui/icons-material/Share';
 import { useNavigate } from 'react-router-dom';
+import validator from 'validator';
 import { useDiagramStore } from '../store/useDiagramStore';
+import MuiAlert from '@mui/material/Alert';
 
 type DiagramListItem = {
   id: string;
@@ -15,14 +18,16 @@ type DiagramListItem = {
   thumbnailDataUrl?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  ownerUserId?: string | null;
 };
 
 const Dashboard: React.FC = () => {
-  const [diagrams, setDiagrams] = useState<DiagramListItem[] | null>(null);
+  const [ownedDiagrams, setOwnedDiagrams] = useState<DiagramListItem[] | null>(null);
+  const [sharedDiagrams, setSharedDiagrams] = useState<DiagramListItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
-  const [selectedSection, setSelectedSection] = useState<'all' | 'favorites'>('all');
-  const favoritesCount = (diagrams || []).filter(d => favorites[d.id]).length;
+  const [selectedSection, setSelectedSection] = useState<'all' | 'favorites' | 'shared'>('all');
+  const favoritesCount = ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id]).length;
   const navigate = useNavigate();
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [menuForId, setMenuForId] = useState<string | null>(null);
@@ -31,6 +36,17 @@ const Dashboard: React.FC = () => {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const currentUserId = useDiagramStore(state => state.currentUser?.id);
   const currentUserIsAdmin = useDiagramStore(state => state.currentUser?.id === 'admin');
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareInput, setShareInput] = useState('');
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('success');
+  const [shareList, setShareList] = useState<Array<{ userId: string; username: string; sharedBy?: string | null; createdAt?: string }>>([]);
+  const [shareListLoading, setShareListLoading] = useState(false);
+  const [unsharingMap, setUnsharingMap] = useState<Record<string, boolean>>({});
+  const [missingEmailsToInvite, setMissingEmailsToInvite] = useState<string[] | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -41,12 +57,25 @@ const Dashboard: React.FC = () => {
         const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams`, { method: 'GET' });
         if (!resp.ok) {
           console.error('Failed to fetch diagrams', resp.status);
-          setDiagrams([]);
+          setOwnedDiagrams([]);
           setLoading(false);
           return;
         }
         const json = await resp.json();
-        if (mounted) setDiagrams(json.diagrams || []);
+        if (mounted) setOwnedDiagrams(json.diagrams || []);
+        // Also fetch diagrams that have been shared with this user
+        try {
+          const sharedResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams/shared`, { method: 'GET' });
+          if (sharedResp.ok) {
+            const sharedJson = await sharedResp.json();
+            if (mounted) setSharedDiagrams(sharedJson.diagrams || []);
+          } else {
+            if (mounted) setSharedDiagrams([]);
+          }
+        } catch (e) {
+          console.warn('Failed to fetch diagrams shared with me', e);
+          if (mounted) setSharedDiagrams([]);
+        }
         // Fetch user settings to determine favorites
         try {
           const settingsResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
@@ -62,7 +91,7 @@ const Dashboard: React.FC = () => {
         }
       } catch (e) {
         console.error('Error fetching diagrams', e);
-        if (mounted) setDiagrams([]);
+        if (mounted) setOwnedDiagrams([]);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -75,6 +104,45 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (favoritesCount === 0 && selectedSection === 'favorites') setSelectedSection('all');
   }, [favoritesCount, selectedSection]);
+
+  // When ownedDiagrams changes ensure selectedSection fallback if appropriate
+  useEffect(() => {
+    if (selectedSection === 'all' && (ownedDiagrams || []).length === 0 && (sharedDiagrams || []).length > 0) {
+      // keep 'all' even if none; optional behavior
+    }
+  }, [ownedDiagrams, sharedDiagrams, selectedSection]);
+
+  // Fetch share list when dialog opens for a selected diagram, and clear the list when dialog closes
+  useEffect(() => {
+    let mounted = true;
+    const fetchShareList = async (diagramId: string) => {
+      setShareListLoading(true);
+      try {
+        const { apiFetch } = await import('../utils/apiFetch');
+        const serverUrl = useDiagramStore.getState().serverUrl;
+        const resp = await apiFetch(`${serverUrl}/diagrams/${diagramId}/shares`, { method: 'GET' });
+        if (!resp.ok) {
+          setShareList([]);
+        } else {
+          const json = await resp.json();
+          if (mounted) setShareList(json.shares || []);
+        }
+      } catch (e) {
+        console.warn('Failed to fetch share list', e);
+        if (mounted) setShareList([]);
+      } finally {
+        if (mounted) setShareListLoading(false);
+      }
+    };
+
+    if (shareDialogOpen && menuForId) {
+      fetchShareList(menuForId);
+    } else {
+      setShareList([]);
+    }
+
+    return () => { mounted = false; };
+  }, [shareDialogOpen, menuForId]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
@@ -89,8 +157,13 @@ const Dashboard: React.FC = () => {
             </ListItemButton>
           )}
           <ListItemButton selected={selectedSection === 'all'} onClick={() => setSelectedSection('all')}>
-            <ListItemText primary={`All Diagrams (${diagrams?.length || 0})`} />
+            <ListItemText primary={`All Diagrams (${ownedDiagrams?.length || 0})`} />
           </ListItemButton>
+          { (sharedDiagrams && sharedDiagrams.length > 0) && (
+            <ListItemButton selected={selectedSection === 'shared'} onClick={() => setSelectedSection('shared')}>
+              <ListItemText primary={`Shared (${sharedDiagrams.length})`} />
+            </ListItemButton>
+          )}
         </List>
       </Box>
 
@@ -98,8 +171,14 @@ const Dashboard: React.FC = () => {
       <Box sx={{ flexGrow: 1 }}>
         <Typography variant="h5" sx={{ mb: 2 }}>My Diagrams</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
-          {((diagrams || []).filter(d => (selectedSection === 'all' ? true : !!favorites[d.id]))).map((d) => (
-            <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+          {(() => {
+            const diagramsToShow = selectedSection === 'all'
+              ? (ownedDiagrams || [])
+              : selectedSection === 'favorites'
+                ? ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id])
+                : (sharedDiagrams || []);
+            return diagramsToShow.map((d) => (
+               <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               {/* Favorite star at top-left */}
               <IconButton
                 aria-label={favorites[d.id] ? 'Unfavorite' : 'Favorite'}
@@ -168,6 +247,10 @@ const Dashboard: React.FC = () => {
                   <ListItemIcon><DeleteIcon fontSize="small" /></ListItemIcon>
                   Delete
                 </MenuItem>
+                <MenuItem onClick={() => { setMenuAnchorEl(null); setShareDialogOpen(true); setMenuForId(d.id); }} disabled={!(d as any).ownerUserId || ((d as any).ownerUserId !== currentUserId && !currentUserIsAdmin)}>
+                  <ListItemIcon><ShareIcon fontSize="small" /></ListItemIcon>
+                  Share
+                </MenuItem>
               </Menu>
 
               {d.thumbnailDataUrl ? (
@@ -184,12 +267,20 @@ const Dashboard: React.FC = () => {
                 </Box>
               </CardContent>
             </Card>
-          ))}
-          {(!diagrams || diagrams.length === 0) && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">You have no saved diagrams yet.</Typography>
-            </Box>
-          )}
+            ));
+          })()}
+          {(() => {
+            const diagramsToShow = selectedSection === 'all'
+              ? (ownedDiagrams || [])
+              : selectedSection === 'favorites'
+                ? ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id])
+                : (sharedDiagrams || []);
+            return diagramsToShow.length === 0 && (
+              <Box>
+                <Typography variant="body2" color="text.secondary">You have no saved diagrams yet.</Typography>
+              </Box>
+            );
+          })()}
         </Box>
       </Box>
 
@@ -208,7 +299,7 @@ const Dashboard: React.FC = () => {
               const resp = await apiFetch(`${serverUrl}/diagrams/${deleteTargetId}`, { method: 'DELETE' });
               if (!resp.ok) throw new Error('Delete failed');
               // Remove from local state
-              setDiagrams(prev => (prev || []).filter(x => x.id !== deleteTargetId));
+              setOwnedDiagrams(prev => (prev || []).filter(x => x.id !== deleteTargetId));
               // Remove from favorites if present
               setFavorites(prev => { const copy = { ...prev }; delete copy[deleteTargetId]; return copy; });
             } catch (err) {
@@ -220,6 +311,135 @@ const Dashboard: React.FC = () => {
           }}>Delete</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Share dialog */}
+      <Dialog open={shareDialogOpen} onClose={() => { setShareDialogOpen(false); setShareInput(''); setShareError(null); setMenuForId(null); setShareList([]); }}>
+        <DialogTitle>Share diagram</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Enter one or more email addresses separated by commas. Example: alice@example.com, bob@example.com</DialogContentText>
+          {/* Existing shares list */}
+          <Box sx={{ mt: 1, mb: 1 }}>
+            <Typography variant="subtitle2">Shared with</Typography>
+            {shareListLoading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CircularProgress size={18} /></Box>
+            ) : (
+              <List dense>
+                {shareList.map(s => (
+                  <ListItemButton key={s.userId} sx={{ pl: 0, pr: 0 }}>
+                    <ListItemText primary={s.username} />
+                    {( (menuForId && ((ownedDiagrams || []).find(dd => dd.id === menuForId) as any)?.ownerUserId === currentUserId) || currentUserIsAdmin) && (
+                      <IconButton edge="end" size="small" onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!menuForId) return;
+                        setUnsharingMap(prev => ({ ...prev, [s.userId]: true }));
+                        try {
+                          const { apiFetch } = await import('../utils/apiFetch');
+                          const serverUrl = useDiagramStore.getState().serverUrl;
+                          const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/share/${s.userId}`, { method: 'DELETE' });
+                          if (!resp.ok) throw new Error('Unshare failed');
+                          setShareList(prev => prev.filter(x => x.userId !== s.userId));
+                          setSnackbarSeverity('success');
+                          setSnackbarMessage('Access revoked');
+                          setSnackbarOpen(true);
+                        } catch (err) {
+                          console.error('Failed to unshare', err);
+                        } finally {
+                          setUnsharingMap(prev => { const copy = { ...prev }; delete copy[s.userId]; return copy; });
+                        }
+                      }} disabled={!!unsharingMap[s.userId]}>
+                        {unsharingMap[s.userId] ? <CircularProgress size={16} /> : <DeleteIcon fontSize="small" />}
+                      </IconButton>
+                    )}
+                  </ListItemButton>
+                ))}
+                {shareList.length === 0 && !shareListLoading && <Typography variant="caption" color="text.secondary">Not shared with anyone yet.</Typography>}
+              </List>
+            )}
+          </Box>
+
+          <TextField fullWidth autoFocus multiline minRows={2} value={shareInput} onChange={(e) => setShareInput(e.target.value)} placeholder="email1@example.com, email2@example.com" sx={{ mt: 2 }} />
+           {shareError && <Typography color="error" variant="caption">{shareError}</Typography>}
+         </DialogContent>
+         <DialogActions>
+           <Button onClick={() => { setShareDialogOpen(false); setShareInput(''); setShareError(null); setMenuForId(null); }}>Cancel</Button>
+          <Button variant="contained" disabled={shareLoading} onClick={async () => {
+             setShareError(null);
+             const targetId = menuForId;
+             if (!targetId) return setShareError('No diagram selected');
+             // Parse emails from input
+             const parts = shareInput.split(',').map(s => s.trim()).filter(Boolean);
+             const valids = parts.filter(p => validator.isEmail(p));
+             if (valids.length === 0) return setShareError('No valid email addresses found');
+             setShareLoading(true);
+             try {
+               const { apiFetch } = await import('../utils/apiFetch');
+               const serverUrl = useDiagramStore.getState().serverUrl;
+               const resp = await apiFetch(`${serverUrl}/diagrams/${targetId}/share`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emails: valids }) });
+               if (!resp.ok) {
+                 // Try to parse missing emails payload if present
+                 let body: any = null;
+                 try { body = await resp.json(); } catch (e) { /* ignore */ }
+                 if (body && body.missing && Array.isArray(body.missing) && body.missing.length > 0) {
+                   setMissingEmailsToInvite(body.missing);
+                   return setShareError('Some emails are not registered users. You may invite them.');
+                 }
+                 const text = await resp.text().catch(() => String(resp.status));
+                 return setShareError(`Share failed: ${text}`);
+               }
+               // Success: refresh share list to show newly shared users and clear input
+               setShareInput('');
+               setShareError(null);
+               setSnackbarSeverity('success');
+               setSnackbarMessage('Shared successfully');
+               setSnackbarOpen(true);
+               // Reload share list
+               try {
+                 const sharesResp = await (await import('../utils/apiFetch')).apiFetch(`${serverUrl}/diagrams/${targetId}/shares`, { method: 'GET' });
+                 if (sharesResp.ok) {
+                   const sharesJson = await sharesResp.json();
+                   setShareList(sharesJson.shares || []);
+                 }
+               } catch (e) {
+                 console.warn('Failed to refresh share list after share', e);
+               }
+             } catch (err) {
+               console.error('Share failed', err);
+               setShareError('Share request failed');
+             } finally {
+               setShareLoading(false);
+             }
+           }}>{shareLoading ? 'Sharing...' : 'Share'}</Button>
+         </DialogActions>
+       </Dialog>
+
+       {/* Invite missing emails button */}
+       {missingEmailsToInvite && missingEmailsToInvite.length > 0 && (
+         <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
+           <Typography variant="body2">Invite these emails to register and view the diagram:</Typography>
+           <Button variant="outlined" onClick={async () => {
+             if (!menuForId) return;
+             try {
+               const { apiFetch } = await import('../utils/apiFetch');
+               const serverUrl = useDiagramStore.getState().serverUrl;
+               const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/invite`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emails: missingEmailsToInvite }) });
+               if (!resp.ok) throw new Error('Invite failed');
+               setMissingEmailsToInvite(null);
+               setSnackbarSeverity('success');
+               setSnackbarMessage('Invites sent');
+               setSnackbarOpen(true);
+             } catch (err) {
+               console.error('Invite failed', err);
+               setSnackbarSeverity('error');
+               setSnackbarMessage('Failed to send invites');
+               setSnackbarOpen(true);
+             }
+           }}>Send invites</Button>
+         </Box>
+       )}
+
+       <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={() => setSnackbarOpen(false)}>
+         <MuiAlert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} elevation={6} variant="filled">{snackbarMessage}</MuiAlert>
+       </Snackbar>
     </Box>
   );
 };

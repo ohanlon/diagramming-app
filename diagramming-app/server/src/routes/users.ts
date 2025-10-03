@@ -38,4 +38,21 @@ router.put('/me/settings', async (req: Request, res: Response) => {
   }
 });
 
+// GET /users/:id/shared-by - returns which users shared diagrams with the specified user
+router.get('/:id/shared-by', async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+  const user = getRequestUser(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  // Only allow the user themselves or an admin
+  if (user.id !== id && !user.isAdmin) return res.status(403).json({ error: 'Forbidden' });
+  try {
+    const { listSharedByForUserId } = await import('../diagramsStore');
+    const list = await listSharedByForUserId(id);
+    res.json({ sharedBy: list });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to fetch shared-by audit' });
+  }
+});
+
 export default router;

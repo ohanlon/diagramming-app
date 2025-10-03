@@ -205,9 +205,9 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         // Create a unique suffix per-shape to avoid duplicate IDs across multiple instances
         const uniqueSuffix = id.replace(/-/g, '');
         // Rename ids and references in the original serialized SVG so defs and URLs are unique per-instance
-        let renamed = original.replace(/id="([^"]+)"/g, (_, idName) => `id="${idName}_${uniqueSuffix}"`);
-        renamed = renamed.replace(/url\(#([^)]+)\)/g, (_, idName) => `url(#${idName}_${uniqueSuffix})`);
-        renamed = renamed.replace(/xlink:href="#([^"]+)"/g, (_, idName) => `xlink:href="#${idName}_${uniqueSuffix}"`);
+        let renamed = original.replace(/id="([^"]+)"/g, (_match: string, idName: string) => `id="${idName}_${uniqueSuffix}"`);
+        renamed = renamed.replace(/url\(#([^)]+)\)/g, (_match: string, idName: string) => `url(#${idName}_${uniqueSuffix})`);
+        renamed = renamed.replace(/xlink:href="#([^"]+)"/g, (_match: string, idName: string) => `xlink:href="#${idName}_${uniqueSuffix}"`);
         // Parse renamed SVG and clone it so we can safely mutate it
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(renamed, 'image/svg+xml');

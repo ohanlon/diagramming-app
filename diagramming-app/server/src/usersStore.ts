@@ -19,3 +19,14 @@ export async function getUserById(id: string) {
   const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
   return rows[0] || null;
 }
+
+// New: fetch multiple users by an array of usernames (case-insensitive matching)
+export async function getUsersByUsernames(usernames: string[]) {
+  if (!usernames || usernames.length === 0) return [];
+  // Use lower(username) matching to be case-insensitive
+  const placeholders = usernames.map((_, i) => `$${i + 1}`).join(',');
+  const query = `SELECT * FROM users WHERE lower(username) IN (${placeholders})`;
+  const values = usernames.map(u => String(u).toLowerCase());
+  const { rows } = await pool.query(query, values as any[]);
+  return rows;
+}

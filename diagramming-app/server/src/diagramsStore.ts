@@ -22,6 +22,9 @@ export async function createDiagram(state: any, ownerUserId: string | null = nul
 }
 
 export async function getDiagram(id: string) {
+  // Defensive: ensure id looks like a UUID before querying the database to avoid SQL errors
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) return null;
   const { rows } = await pool.query('SELECT * FROM diagrams WHERE id = $1', [id]);
   return rows[0] || null;
 }
@@ -100,7 +103,70 @@ export async function listDiagramsByUser(ownerUserId: string | null) {
   return rows.map((r: any) => ({ id: r.id, ownerUserId: r.owner_user_id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at }));
 }
 
+// New: list diagrams shared with a given user id using the shared_documents table
+export async function listDiagramsSharedWithUserId(userId: string) {
+  const query = `SELECT d.id, d.owner_user_id, d.state->>'diagramName' AS diagram_name, d.state->>'thumbnailDataUrl' AS thumbnail_data_url, d.created_at, d.updated_at FROM shared_documents sd JOIN diagrams d ON sd.diagram_id = d.id WHERE sd.user_id = $1 ORDER BY d.updated_at DESC`;
+  const { rows } = await pool.query(query, [userId]);
+  return rows.map((r: any) => ({ id: r.id, ownerUserId: r.owner_user_id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at }));
+}
+
+// New: share a diagram with one or more user ids (insert rows into shared_documents)
+export async function shareDiagramWithUserIds(diagramId: string, userIds: string[], sharedByUserId: string | null = null) {
+  const now = new Date().toISOString();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    for (const userId of userIds) {
+      await client.query(`INSERT INTO shared_documents(diagram_id, user_id, shared_by, created_at) VALUES($1, $2, $3, $4) ON CONFLICT (diagram_id, user_id) DO NOTHING`, [diagramId, userId, sharedByUserId, now]);
+    }
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+// New: check whether a diagram is shared with a given user id
+export async function isDiagramSharedWithUser(diagramId: string, userId: string) {
+  const { rows } = await pool.query('SELECT 1 FROM shared_documents WHERE diagram_id = $1 AND user_id = $2 LIMIT 1', [diagramId, userId]);
+  return rows.length > 0;
+}
+
 export async function deleteDiagram(id: string) {
   const { rows } = await pool.query('DELETE FROM diagrams WHERE id = $1 RETURNING *', [id]);
   return rows[0] || null;
+}
+
+export async function unshareDiagramWithUser(diagramId: string, userId: string) {
+  const { rows } = await pool.query('DELETE FROM shared_documents WHERE diagram_id = $1 AND user_id = $2 RETURNING *', [diagramId, userId]);
+  return rows[0] || null;
+}
+
+// New: list users a diagram is shared with (returns user rows and shared metadata)
+export async function listUsersSharedForDiagram(diagramId: string) {
+  const query = `
+    SELECT u.id AS user_id, u.username AS username, sd.shared_by AS shared_by, sd.created_at AS created_at
+    FROM shared_documents sd
+    JOIN users u ON sd.user_id = u.id
+    WHERE sd.diagram_id = $1
+    ORDER BY sd.created_at ASC
+  `;
+  const { rows } = await pool.query(query, [diagramId]);
+  return rows.map((r: any) => ({ userId: r.user_id, username: r.username, sharedBy: r.shared_by, createdAt: r.created_at }));
+}
+
+// New: list entries describing which users shared diagrams with the given user id
+export async function listSharedByForUserId(targetUserId: string) {
+  const query = `
+    SELECT d.id AS diagram_id, d.state->>'diagramName' AS diagram_name, sd.shared_by AS shared_by_id, u.username AS shared_by_username, sd.created_at AS shared_at
+    FROM shared_documents sd
+    JOIN diagrams d ON sd.diagram_id = d.id
+    LEFT JOIN users u ON sd.shared_by = u.id
+    WHERE sd.user_id = $1
+    ORDER BY sd.created_at DESC
+  `;
+  const { rows } = await pool.query(query, [targetUserId]);
+  return rows.map((r: any) => ({ diagramId: r.diagram_id, diagramName: r.diagram_name, sharedById: r.shared_by_id, sharedByUsername: r.shared_by_username, sharedAt: r.shared_at }));
 }
