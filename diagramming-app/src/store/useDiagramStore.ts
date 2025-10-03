@@ -400,6 +400,19 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     useHistoryStore.getState().initializeHistory({ [newSheetId]: newSheet } as any, newSheetId);
   };
 
+  // Create a new diagram locally and save it immediately to the server so a remote id exists.
+  const createAndSaveNewDiagram = async (name?: string) => {
+    // Create local state first
+    createNewDiagram(name);
+    // Persist immediately so remoteDiagramId is assigned by the server
+    try {
+      await saveDiagram();
+    } catch (e) {
+      console.error('createAndSaveNewDiagram: save failed', e);
+    }
+    return get().remoteDiagramId || null;
+  };
+
   const loadDiagram = async (fromRemote = false) => {
     const state = get();
     if (fromRemote && state.remoteDiagramId) {
@@ -483,6 +496,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     logout,
     setShowAuthDialog,
     createNewDiagram,
+    createAndSaveNewDiagram,
     setDiagramName,
   } as any;
 });

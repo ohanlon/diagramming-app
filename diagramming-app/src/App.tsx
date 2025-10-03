@@ -7,7 +7,7 @@ import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState, useEffect } from 'react';
 import { AppBar, Box } from '@mui/material';
-import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
@@ -17,17 +17,23 @@ import { useDiagramStore } from './store/useDiagramStore';
 function MainAppLayout() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
   const params = useParams();
+  const [searchParams] = useSearchParams();
   const diagramIdFromParams = (params as any)?.id;
+  // Accept an id from the querystring as well (e.g. /diagram?id=<uuid>)
+  const diagramIdFromQuery = searchParams.get('id') || searchParams.get('diagramId');
+  const effectiveDiagramId = diagramIdFromParams || diagramIdFromQuery;
+  // If there is no diagram id in path or querystring, redirect the user to the dashboard
+  if (!effectiveDiagramId) return <Navigate to="/dashboard" replace />;
   const setRemoteDiagramId = useDiagramStore(state => state.setRemoteDiagramId);
   const loadDiagram = useDiagramStore(state => state.loadDiagram);
 
   useEffect(() => {
-    if (diagramIdFromParams) {
-      setRemoteDiagramId(diagramIdFromParams);
+    if (effectiveDiagramId) {
+      setRemoteDiagramId(effectiveDiagramId);
       // Attempt to load the requested diagram from the server
       loadDiagram(true);
     }
-  }, [diagramIdFromParams, setRemoteDiagramId, loadDiagram]);
+  }, [effectiveDiagramId, setRemoteDiagramId, loadDiagram]);
 
   return (
     <Box

@@ -15,16 +15,24 @@ export const NewMenuItem: React.FC<{ onNew: () => void }> = ({ onNew }) => {
 };
 
 export const NewButton: React.FC = () => {
-  const createNewDiagram = useDiagramStore(state => state.createNewDiagram);
+  const createAndSaveNewDiagram = useDiagramStore(state => (state as any).createAndSaveNewDiagram as (name?: string) => Promise<string | null>);
   const navigate = useNavigate();
 
   const handleNew = () => {
-    try {
-      createNewDiagram();
-      navigate('/diagram');
-    } catch (e) {
-      console.error('Failed to create new diagram', e);
-    }
+    (async () => {
+      try {
+        const id = await createAndSaveNewDiagram();
+        if (id) {
+          navigate(`/diagram/${id}`);
+        } else {
+          // Fallback: navigate to diagram route (MainAppLayout will redirect to dashboard when no id)
+          navigate('/diagram');
+        }
+      } catch (e) {
+        console.error('Failed to create and save new diagram', e);
+        navigate('/diagram');
+      }
+    })();
   };
 
   return (

@@ -196,7 +196,7 @@ const Dashboard: React.FC = () => {
         {/* Spacer to avoid content being covered by the fixed AppBar */}
         <Toolbar />
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
           {(() => {
             // When showing 'all' combine owned and shared, de-duplicating by id (owned takes precedence)
             const mergedAll = (() => {

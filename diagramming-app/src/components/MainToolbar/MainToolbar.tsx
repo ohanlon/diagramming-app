@@ -317,8 +317,15 @@ const MainToolbar: React.FC = () => {
           <Button onClick={() => {
             const finalName = editingName && editingName.trim() ? editingName.trim() : 'New Diagram';
             if (pendingNewCreation) {
-              // Creating a brand new diagram with the provided name
-              createNewDiagram(finalName);
+              // Creating a brand new diagram with the provided name and persist it so a remote id exists
+              (async () => {
+                try {
+                  const createAndSave = (useDiagramStore as any).getState().createAndSaveNewDiagram as (name?: string) => Promise<string | null>;
+                  await createAndSave(finalName);
+                } catch (e) {
+                  console.error('Failed to create and save new diagram from toolbar', e);
+                }
+              })();
               setPendingNewCreation(false);
             } else {
               // Just renaming the current diagram
