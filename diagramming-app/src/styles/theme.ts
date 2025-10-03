@@ -7,8 +7,8 @@ const theme = createTheme({
     background: { default: '#f8f9fa', paper: '#ffffff' },
   },
   typography: {
-    // Ensure Lato is used first; index.html already preloads Lato from Google Fonts
-    fontFamily: 'Lato, Roboto, Helvetica, Verdana, Arial, sans-serif',
+    // Ensure Ubuntu is used first; index.html already preloads Ubuntu from Google Fonts
+    fontFamily: 'Ubuntu, Roboto, Helvetica, Verdana, Arial, sans-serif',
     h3: { fontWeight: 600 },
     h4: { fontWeight: 600 },
     h6: { fontSize: '1rem' },
