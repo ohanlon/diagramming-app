@@ -39,6 +39,20 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// Inserted: make sure literal '/shared' is handled before any '/:id' parameter routes
+router.get('/shared', async (req: Request, res: Response) => {
+  const user = getRequestUser(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  try {
+    console.debug(`[diagrams.shared] invoked by user=${user.id} username=${user.username}`);
+    const list = await listDiagramsSharedWithUserId(user.id);
+    res.json({ diagrams: list });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to list shared diagrams' });
+  }
+});
+
 router.get('/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = getRequestUser(req);
@@ -148,117 +162,6 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// NOTE: specific routes like '/shared' must be registered before the generic '/:id' route
-// List diagrams shared with current user (by user id via shared_documents)
-router.get('/shared', async (req: Request, res: Response) => {
-  const user = getRequestUser(req);
-  if (!user) return res.status(401).json({ error: 'Authentication required' });
-  try {
-    const list = await listDiagramsSharedWithUserId(user.id);
-    res.json({ diagrams: list });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to list shared diagrams' });
-  }
-});
-
-router.get('/:id', async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const user = getRequestUser(req);
-  if (!user) return res.status(401).json({ error: 'Authentication required' });
-  try {
-    const found = await getDiagram(id);
-    if (!found) return res.status(404).json({ error: 'Not found' });
-    try {
-      const state = found.state || {};
-      const sheetCount = state.sheets ? Object.keys(state.sheets).length : 0;
-      let totalShapes = 0;
-      if (state.sheets) {
-        for (const s of Object.values(state.sheets)) {
-          totalShapes += Object.keys((s as any).shapesById || {}).length;
-        }
-      }
-      console.debug(`[diagrams.get] Returning diagram ${id} for user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
-    } catch (e) {}
-    // Allow owner, admin, or users the diagram has been shared with
-    if (found.owner_user_id && found.owner_user_id !== user.id && !user.isAdmin) {
-      const shared = await isDiagramSharedWithUser(id, user.id);
-      if (!shared) return res.status(403).json({ error: 'Forbidden' });
-    }
-    res.json(found);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to fetch diagram' });
-  }
-});
-
-router.put('/:id', async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const { state } = req.body;
-  if (!state) return res.status(400).json({ error: 'Missing state' });
-  if (!state.diagramName || String(state.diagramName).trim().length === 0) return res.status(400).json({ error: 'Missing diagramName' });
-  const user = getRequestUser(req);
-  if (!user) return res.status(401).json({ error: 'Authentication required' });
-  try {
-    try {
-      const sheetCount = state.sheets ? Object.keys(state.sheets).length : 0;
-      let totalShapes = 0;
-      if (state.sheets) {
-        for (const s of Object.values(state.sheets)) {
-          totalShapes += Object.keys((s as any).shapesById || {}).length;
-        }
-      }
-      console.debug(`[diagrams.put] Replacing diagram ${id} by user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
-    } catch (e) {}
-    const existing = await getDiagram(id);
-    if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    const updated = await replaceDiagram(id, state);
-    if (!updated) return res.status(404).json({ error: 'Not found' });
-    await createDiagramHistory(id, updated.state, user.id === 'admin' ? null : user.id, 'replace');
-    res.json(updated);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to update diagram' });
-  }
-});
-
-router.patch('/:id', async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const patch = req.body;
-  if (!patch || !patch.state) return res.status(400).json({ error: 'Missing patch' });
-  if (!patch.state.diagramName || String(patch.state.diagramName).trim().length === 0) return res.status(400).json({ error: 'Missing diagramName' });
-  const user = getRequestUser(req);
-  if (!user) return res.status(401).json({ error: 'Authentication required' });
-  try {
-    try {
-      const sheetCount = patch.state.sheets ? Object.keys(patch.state.sheets).length : 0;
-      let totalShapes = 0;
-      if (patch.state.sheets) {
-        for (const s of Object.values(patch.state.sheets)) {
-          totalShapes += Object.keys((s as any).shapesById || {}).length;
-        }
-      }
-      console.debug(`[diagrams.patch] Patching diagram ${id} by user ${user.id}: sheetsInPatch=${sheetCount}, totalShapesInPatch=${totalShapes}`);
-    } catch (e) {}
-    const existing = await getDiagram(id);
-    if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    const updated = await patchDiagram(id, patch);
-    if (!updated) return res.status(404).json({ error: 'Not found' });
-    await createDiagramHistory(id, updated.state, user.id === 'admin' ? null : user.id, 'patch');
-    res.json(updated);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Failed to patch diagram' });
-  }
-});
-
-// History endpoints
 router.get('/:id/history', async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = getRequestUser(req);

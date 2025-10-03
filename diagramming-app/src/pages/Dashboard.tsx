@@ -28,6 +28,8 @@ const Dashboard: React.FC = () => {
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [selectedSection, setSelectedSection] = useState<'all' | 'favorites' | 'shared'>('all');
   const favoritesCount = ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id]).length;
+  const ownedCount = (ownedDiagrams || []).length;
+  const sharedCount = (sharedDiagrams || []).length;
   const navigate = useNavigate();
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [menuForId, setMenuForId] = useState<string | null>(null);
@@ -157,13 +159,11 @@ const Dashboard: React.FC = () => {
             </ListItemButton>
           )}
           <ListItemButton selected={selectedSection === 'all'} onClick={() => setSelectedSection('all')}>
-            <ListItemText primary={`All Diagrams (${ownedDiagrams?.length || 0})`} />
+            <ListItemText primary={`All Diagrams (${ownedCount + sharedCount})`} />
           </ListItemButton>
-          { (sharedDiagrams && sharedDiagrams.length > 0) && (
-            <ListItemButton selected={selectedSection === 'shared'} onClick={() => setSelectedSection('shared')}>
-              <ListItemText primary={`Shared (${sharedDiagrams.length})`} />
-            </ListItemButton>
-          )}
+          <ListItemButton selected={selectedSection === 'shared'} onClick={() => setSelectedSection('shared')}>
+            <ListItemText primary={`Shared (${sharedCount})`} />
+          </ListItemButton>
         </List>
       </Box>
 
@@ -172,10 +172,17 @@ const Dashboard: React.FC = () => {
         <Typography variant="h5" sx={{ mb: 2 }}>My Diagrams</Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
           {(() => {
+            // When showing 'all' combine owned and shared, de-duplicating by id (owned takes precedence)
+            const mergedAll = (() => {
+              const map = new Map<string, DiagramListItem>();
+              (ownedDiagrams || []).forEach(d => map.set(d.id, d));
+              (sharedDiagrams || []).forEach(d => { if (!map.has(d.id)) map.set(d.id, d); });
+              return Array.from(map.values());
+            })();
             const diagramsToShow = selectedSection === 'all'
-              ? (ownedDiagrams || [])
+              ? mergedAll
               : selectedSection === 'favorites'
-                ? ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id])
+                ? mergedAll.filter(d => favorites[d.id])
                 : (sharedDiagrams || []);
             return diagramsToShow.map((d) => (
                <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
