@@ -33,6 +33,7 @@ interface DiagramStoreActions extends
   setShowAuthDialog: (show: boolean) => void; // Control whether auth dialog is shown
   createNewDiagram: (name?: string) => void; // Create a fresh new diagram with optional name
   setDiagramName: (name: string) => void; // Update the diagram's display name
+  applyStateSnapshot: (snapshot: any) => void; // Apply a full state snapshot (used for opening history entries)
 }
 
 const defaultLayerId = uuidv4();
@@ -472,6 +473,29 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     wrappedSet({ diagramName: name });
   };
 
+  const applyStateSnapshot = (snapshot: any) => {
+    if (!snapshot) return;
+    try {
+      // Replace local store state with provided snapshot but preserve serverUrl and currentUser
+      set((s: any) => ({
+        ...s,
+        ...snapshot,
+        serverUrl: s.serverUrl || snapshot.serverUrl || 'http://localhost:4000',
+        currentUser: s.currentUser || snapshot.currentUser || null,
+        remoteDiagramId: s.remoteDiagramId || snapshot.remoteDiagramId || null,
+        isDirty: false,
+      }));
+      // Initialize history store from the snapshot so undo/redo make sense
+      try {
+        useHistoryStore.getState().initializeHistory(snapshot.sheets || {}, snapshot.activeSheetId || Object.keys(snapshot.sheets || {})[0]);
+      } catch (e) {
+        console.warn('Failed to init history from snapshot', e);
+      }
+    } catch (e) {
+      console.error('applyStateSnapshot failed', e);
+    }
+  };
+
   return {
     ...baseState,
     // Compose all modular store actions using wrappedSet so changes mark the store dirty
@@ -497,6 +521,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     setShowAuthDialog,
     createNewDiagram,
     createAndSaveNewDiagram,
+    applyStateSnapshot,
     setDiagramName,
   } as any;
 });

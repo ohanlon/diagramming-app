@@ -249,6 +249,10 @@ const Dashboard: React.FC = () => {
                   <ListItemIcon><OpenInNewIcon fontSize="small" /></ListItemIcon>
                   Open
                 </MenuItem>
+                <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}/history`); }}>
+                  <ListItemIcon><OpenInNewIcon fontSize="small" /></ListItemIcon>
+                  History
+                </MenuItem>
                 <MenuItem disabled={isCloning && menuForId === d.id} onClick={async () => {
                   setMenuAnchorEl(null);
                   setIsCloning(true);

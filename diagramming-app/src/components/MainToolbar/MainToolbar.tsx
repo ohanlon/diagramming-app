@@ -112,7 +112,6 @@ const MainToolbar: React.FC = () => {
     };
   }, [handlePrint, saveDiagram]);
 
-  const createNewDiagram = useDiagramStore(state => state.createNewDiagram);
   const [confirmNewOpen, setConfirmNewOpen] = useState(false);
 
   const handleNewDiagramConfirmed = () => {

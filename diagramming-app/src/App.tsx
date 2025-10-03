@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
+import DiagramHistory from './pages/DiagramHistory';
 import { useDiagramStore } from './store/useDiagramStore';
 
 function MainAppLayout() {
@@ -28,12 +29,34 @@ function MainAppLayout() {
   const loadDiagram = useDiagramStore(state => state.loadDiagram);
 
   useEffect(() => {
+    // If a historyId is present in the querystring, fetch that history entry and apply it as a snapshot
+    const historyId = searchParams.get('historyId');
     if (effectiveDiagramId) {
       setRemoteDiagramId(effectiveDiagramId);
-      // Attempt to load the requested diagram from the server
-      loadDiagram(true);
+      if (historyId) {
+        (async () => {
+          try {
+            const { apiFetch } = await import('./utils/apiFetch');
+            const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams/${effectiveDiagramId}/history/${historyId}`, { method: 'GET' });
+            if (!resp.ok) throw new Error('Failed to fetch history entry');
+            const json = await resp.json();
+            if (json && json.state) {
+              // Apply the snapshot locally but do not call loadDiagram to avoid overwriting with remote state
+              useDiagramStore.getState().applyStateSnapshot(json.state);
+              useDiagramStore.getState().setRemoteDiagramId(effectiveDiagramId);
+            }
+          } catch (e) {
+            console.error('Failed to apply history snapshot', e);
+            // Fallback: load current diagram from server
+            loadDiagram(true);
+          }
+        })();
+      } else {
+        // Normal behavior: load diagram from server
+        loadDiagram(true);
+      }
     }
-  }, [effectiveDiagramId, setRemoteDiagramId, loadDiagram]);
+  }, [effectiveDiagramId, setRemoteDiagramId, loadDiagram, searchParams]);
 
   return (
     <Box
@@ -67,6 +90,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/diagram/:id/history" element={<ProtectedRoute><DiagramHistory /></ProtectedRoute>} />
         <Route path="/diagram/:id/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
