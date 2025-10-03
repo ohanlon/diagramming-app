@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Snackbar } from '@mui/material';
+import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Snackbar, AppBar, Toolbar } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import { useDiagramStore } from '../store/useDiagramStore';
 import MuiAlert from '@mui/material/Alert';
+import NewButton from '../components/AppBar/NewMenu';
+import AccountMenu from '../components/AppBar/AccountMenu';
 
 type DiagramListItem = {
   id: string;
@@ -26,7 +28,7 @@ const Dashboard: React.FC = () => {
   const [sharedDiagrams, setSharedDiagrams] = useState<DiagramListItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
-  const [selectedSection, setSelectedSection] = useState<'all' | 'favorites' | 'shared'>('all');
+  const [selectedSection, setSelectedSection] = useState<'all' | 'favorites' | 'shared' | 'mine'>('all');
   const favoritesCount = ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id]).length;
   const ownedCount = (ownedDiagrams || []).length;
   const sharedCount = (sharedDiagrams || []).length;
@@ -158,6 +160,9 @@ const Dashboard: React.FC = () => {
               <ListItemText primary={`Favorites (${favoritesCount})`} />
             </ListItemButton>
           )}
+          <ListItemButton selected={selectedSection === 'mine'} onClick={() => setSelectedSection('mine')}>
+            <ListItemText primary={`My Diagrams (${ownedCount})`} />
+          </ListItemButton>
           <ListItemButton selected={selectedSection === 'all'} onClick={() => setSelectedSection('all')}>
             <ListItemText primary={`All Diagrams (${ownedCount + sharedCount})`} />
           </ListItemButton>
@@ -169,7 +174,16 @@ const Dashboard: React.FC = () => {
 
       {/* Main content: header + grid of diagrams */}
       <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>My Diagrams</Typography>
+        <AppBar position="static" color="default" sx={{ mb: 2, boxShadow: 'none', borderBottom: '1px solid #e0e0e0' }}>
+          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="h6">My Diagrams</Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <NewButton />
+              <AccountMenu />
+            </Box>
+          </Toolbar>
+        </AppBar>
+
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
           {(() => {
             // When showing 'all' combine owned and shared, de-duplicating by id (owned takes precedence)
@@ -181,9 +195,11 @@ const Dashboard: React.FC = () => {
             })();
             const diagramsToShow = selectedSection === 'all'
               ? mergedAll
-              : selectedSection === 'favorites'
-                ? mergedAll.filter(d => favorites[d.id])
-                : (sharedDiagrams || []);
+              : selectedSection === 'mine'
+                ? (ownedDiagrams || [])
+                : selectedSection === 'favorites'
+                  ? mergedAll.filter(d => favorites[d.id])
+                  : (sharedDiagrams || []);
             return diagramsToShow.map((d) => (
                <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               {/* Favorite star at top-left */}
@@ -282,11 +298,17 @@ const Dashboard: React.FC = () => {
               : selectedSection === 'favorites'
                 ? ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id])
                 : (sharedDiagrams || []);
-            return diagramsToShow.length === 0 && (
-              <Box>
-                <Typography variant="body2" color="text.secondary">You have no saved diagrams yet.</Typography>
-              </Box>
-            );
+            if (diagramsToShow.length === 0) {
+              let message = 'You have no saved diagrams yet.';
+              if (selectedSection === 'mine') message = 'You have not created any diagrams yet.';
+              if (selectedSection === 'shared') message = 'No diagrams have been shared with you.';
+              if (selectedSection === 'favorites') message = 'You have no favorites yet.';
+              return (
+                <Box>
+                  <Typography variant="body2" color="text.secondary">{message}</Typography>
+                </Box>
+              );
+            }
           })()}
         </Box>
       </Box>

@@ -23,7 +23,8 @@ describe('Dashboard shared with me display', () => {
 
     render(<Dashboard />);
 
-    // Sidebar should show Shared (1)
+    // Sidebar should show My Diagrams and Shared (1)
+    await waitFor(() => expect(screen.getByText(/My Diagrams \(0\)/)).toBeInTheDocument());
     await waitFor(() => expect(screen.getByText(/Shared \(1\)/)).toBeInTheDocument());
 
     // All Diagrams count should include the shared diagram
