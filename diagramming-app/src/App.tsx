@@ -39,7 +39,7 @@ function MainAppLayout() {
         overflow: 'hidden',
       }}
     >
-      <AppBar position="static" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+      <AppBar position="static" color='primary' sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
         <MainToolbar />
         <ToolbarComponent />
       </AppBar>

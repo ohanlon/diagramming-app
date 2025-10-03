@@ -38,7 +38,7 @@ describe('Dashboard create new diagram button', () => {
     render(<Dashboard />);
 
     // Wait for header to render
-    const newBtn = await screen.findByText('New Diagram');
+    const newBtn = await screen.findByLabelText('New diagram');
     expect(newBtn).toBeInTheDocument();
 
     fireEvent.click(newBtn);

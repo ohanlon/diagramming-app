@@ -185,7 +185,7 @@ const Dashboard: React.FC = () => {
                   ? `Shared`
                   : `Favorites`;
             return (
-              <AppBar position="fixed" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0',  top: 0, left: 0, right: 0, boxShadow: 'none', borderBottom: '1px solid #e0e0e0', zIndex: 1300 }}>
+              <AppBar color='primary' position="fixed" sx={{ top: 0, left: 0, right: 0, padding: 0, boxShadow: 'none', borderBottom: '1px solid #e0e0e0', zIndex: 1300 }}>
                 <Toolbar disableGutters variant="dense"  sx={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 1 }}>
                   <Typography variant="h6">{headerTitle}</Typography>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
