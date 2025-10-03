@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, padding: 2 }}>
+    <Box sx={{ display: 'flex', gap: 2, padding: '2' }}>
       {/* Left sidebar: simple text sections to filter main grid */}
       <Box sx={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
         <List>
@@ -174,15 +174,31 @@ const Dashboard: React.FC = () => {
 
       {/* Main content: header + grid of diagrams */}
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static" color="default" sx={{ mb: 2, boxShadow: 'none', borderBottom: '1px solid #e0e0e0' }}>
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="h6">My Diagrams</Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <NewButton />
-              <AccountMenu />
-            </Box>
-          </Toolbar>
-        </AppBar>
+        {/* Compute dynamic header title based on selected section */}
+        {
+          (() => {
+            const headerTitle = selectedSection === 'mine'
+              ? `My Diagrams`
+              : selectedSection === 'all'
+                ? `All Diagrams`
+                : selectedSection === 'shared'
+                  ? `Shared`
+                  : `Favorites`;
+            return (
+              <AppBar position="fixed" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0',  top: 0, left: 0, right: 0, boxShadow: 'none', borderBottom: '1px solid #e0e0e0', zIndex: 1300 }}>
+                <Toolbar disableGutters variant="dense"  sx={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 1 }}>
+                  <Typography variant="h6">{headerTitle}</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <NewButton />
+                    <AccountMenu />
+                  </Box>
+                </Toolbar>
+              </AppBar>
+            );
+          })()
+        }
+        {/* Spacer to avoid content being covered by the fixed AppBar */}
+        <Toolbar />
 
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 16 }}>
           {(() => {

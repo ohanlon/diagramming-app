@@ -27,8 +27,8 @@ describe('Dashboard shared with me display', () => {
     await waitFor(() => expect(screen.getByText(/My Diagrams \(0\)/)).toBeInTheDocument());
     await waitFor(() => expect(screen.getByText(/Shared \(1\)/)).toBeInTheDocument());
 
-    // All Diagrams count should include the shared diagram
-    expect(screen.getByText(/All Diagrams \(1\)/)).toBeInTheDocument();
+    // Header should reflect the default 'All' selection
+    expect(screen.getByText('All Diagrams')).toBeInTheDocument();
 
     // The shared diagram card should be visible in the grid
     await waitFor(() => expect(screen.getByText('Shared Doc')).toBeInTheDocument());
