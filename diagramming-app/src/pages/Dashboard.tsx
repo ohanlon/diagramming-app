@@ -299,8 +299,8 @@ const Dashboard: React.FC = () => {
                 ? ((ownedDiagrams || []).concat(sharedDiagrams || [])).filter(d => favorites[d.id])
                 : (sharedDiagrams || []);
             if (diagramsToShow.length === 0) {
+              if (selectedSection === 'mine') return null; // Do not show a message when user has no created diagrams
               let message = 'You have no saved diagrams yet.';
-              if (selectedSection === 'mine') message = 'You have not created any diagrams yet.';
               if (selectedSection === 'shared') message = 'No diagrams have been shared with you.';
               if (selectedSection === 'favorites') message = 'You have no favorites yet.';
               return (
