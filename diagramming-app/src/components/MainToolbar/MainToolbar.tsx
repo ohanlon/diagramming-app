@@ -213,6 +213,7 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
         </MenuItem>
+        <Divider />
         <MenuItem onClick={() => { handleFileMenuClose(); navigate('/dashboard'); }}>
           <ListItemIcon>
             <Dashboard fontSize="small" />
