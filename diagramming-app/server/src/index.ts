@@ -98,6 +98,31 @@ app.use('/users', combinedAuth, require('./routes/users').default);
 // Protect diagram endpoints with combined auth middleware
 app.use('/diagrams', combinedAuth, diagramsRouter);
 
+// Prefer mounting a real Connect handler if available; otherwise fall back
+// to the lightweight shim. This shows how to replace the shim cleanly.
+let mountedConnect = false;
+try {
+  // Try to mount the handwritten Connect handler implementation
+  const { mountDiagramsConnectHandler } = require('./grpc/diagrams_connect_impl');
+  mountedConnect = !!mountDiagramsConnectHandler(app as any);
+} catch (e) {
+  console.warn('Connect handler not available (ok during migration):', e);
+}
+
+if (!mountedConnect) {
+  try {
+    const { mountDiagramsGrpcShims } = require('./grpc/diagrams');
+    // Ensure combinedAuth is applied to these routes as well
+    app.post('/diagrams.v1.Diagrams/*', combinedAuth, (req, res, next) => next());
+    mountDiagramsGrpcShims(app as any);
+    console.log('Mounted gRPC shims (legacy REST-backed endpoints)');
+  } catch (e) {
+    console.warn('Failed to mount gRPC shims (this is optional during migration):', e);
+  }
+} else {
+  console.log('Connect handler mounted; shim not mounted');
+}
+
 const PORT = Number(process.env.PORT || 4000);
 
 // Test DB connectivity on startup so connection refused / db down is clear in logs

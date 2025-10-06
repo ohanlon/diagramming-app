@@ -1,0 +1,25 @@
+syntax = "proto3";
+package diagrams.v1;
+
+option go_package = "diagrams/v1;diagramsv1";
+
+// Minimal proto describing diagram listing for an initial Connect migration.
+message ListDiagramsRequest {
+  // Optional pagination or filters can be added later.
+}
+
+message DiagramSummary {
+  string id = 1;
+  string diagramName = 2;
+  string thumbnailDataUrl = 3;
+  string ownerUserId = 4;
+}
+
+message ListDiagramsResponse {
+  repeated DiagramSummary diagrams = 1;
+}
+
+service Diagrams {
+  // List diagrams owned by the authenticated user
+  rpc ListDiagrams (ListDiagramsRequest) returns (ListDiagramsResponse);
+}
