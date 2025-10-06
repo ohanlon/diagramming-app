@@ -15,8 +15,8 @@ export async function createDiagram(state: any, ownerUserId: string | null = nul
     }))
   };
 
-  const query = `INSERT INTO diagrams(id, state, owner_user_id, created_at, updated_at) VALUES($1, $2::jsonb, $3, $4, $5) RETURNING *`;
-  const values = [id, stateToSave, ownerUserId, now, now];
+  const query = `INSERT INTO diagrams(id, state, owner_user_id, created_at, updated_at, version) VALUES($1, $2::jsonb, $3, $4, $5, $6) RETURNING *`;
+  const values = [id, stateToSave, ownerUserId, now, now, 1];
   const { rows } = await pool.query(query, values);
   return rows[0];
 }
@@ -44,7 +44,7 @@ export async function replaceDiagram(id: string, state: any) {
   };
 
   const now = new Date().toISOString();
-  const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2 WHERE id=$3 RETURNING *`;
+  const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2, version = version + 1 WHERE id=$3 RETURNING *`;
   const values = [stateToSave, now, id];
   const { rows } = await pool.query(query, values);
   return rows[0];
@@ -89,7 +89,7 @@ export async function patchDiagram(id: string, patch: any) {
   }
 
   const now = new Date().toISOString();
-  const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2 WHERE id=$3 RETURNING *`;
+  const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2, version = version + 1 WHERE id=$3 RETURNING *`;
   const values = [mergedState, now, id];
   const { rows } = await pool.query(query, values);
   return rows[0];

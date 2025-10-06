@@ -102,6 +102,8 @@ app.use('/users', combinedAuth, require('./routes/users').default);
 app.use('/diagrams', combinedAuth, diagramsRouter);
 
 const PORT = Number(process.env.PORT || 4000);
+import http from 'http';
+import { initDiagramsWebsocketServer } from './ws/diagramsWs';
 
 // Test DB connectivity on startup so connection refused / db down is clear in logs
 (async () => {
@@ -112,7 +114,16 @@ const PORT = Number(process.env.PORT || 4000);
     console.error('Database connectivity test failed at startup (diagrams may fail):', e);
   }
 
-  app.listen(PORT, () => {
+  const server = http.createServer(app);
+  // Initialize WebSocket server for diagrams real-time updates
+  try {
+    initDiagramsWebsocketServer(server);
+    console.log('Initialized diagrams WebSocket server at /ws');
+  } catch (e) {
+    console.warn('Failed to initialize WebSocket server for diagrams', e);
+  }
+
+  server.listen(PORT, () => {
     console.log(`Diagram server listening on port ${PORT}`);
   });
 })();

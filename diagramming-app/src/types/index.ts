@@ -110,6 +110,13 @@ export type DiagramState = {
   isDirty?: boolean; // Whether the store has unsaved changes
   // Server integration
   remoteDiagramId?: string | null; // Persisted diagram id on backend
+  serverVersion?: number | null; // Server-side integer version for optimistic concurrency
+  // Conflict handling fields when a save fails due to concurrent updates
+  conflictServerState?: any | null;
+  conflictServerVersion?: number | null;
+  conflictUpdatedBy?: { id?: string; username?: string } | null;
+  conflictOpen?: boolean;
+  conflictLocalState?: any | null;
   serverUrl?: string; // Base URL of diagram server
   serverAuthUser?: string | null; // Optional basic auth user
   serverAuthPass?: string | null; // Optional basic auth password

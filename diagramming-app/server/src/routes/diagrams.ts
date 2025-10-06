@@ -2,6 +2,7 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import { createDiagram, getDiagram, replaceDiagram, patchDiagram, listDiagramsByUser, deleteDiagram, listDiagramsSharedWithUserId, shareDiagramWithUserIds, isDiagramSharedWithUser, listUsersSharedForDiagram, unshareDiagramWithUser } from '../diagramsStore';
 import { createDiagramHistory, listDiagramHistory, getDiagramHistoryEntry } from '../historyStore';
+import { broadcastDiagramUpdate } from '../ws/diagramsWs';
 import { getUsersByUsernames } from '../usersStore';
 import validator from 'validator';
 
@@ -32,7 +33,8 @@ router.post('/', async (req: Request, res: Response) => {
     const created = await createDiagram(state, user.id === 'admin' ? null : user.id);
     // Record initial history entry
     await createDiagramHistory(created.id, created.state, user.id === 'admin' ? null : user.id, 'create');
-    res.status(201).json(created);
+  try { res.setHeader('ETag', `"v${created.version || 1}"`); } catch (e) {}
+  res.status(201).json(created);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to create diagram' });
@@ -76,6 +78,11 @@ router.get('/:id', async (req: Request, res: Response) => {
       const shared = await isDiagramSharedWithUser(id, user.id);
       if (!shared) return res.status(403).json({ error: 'Forbidden' });
     }
+    // Include ETag header based on version to allow optimistic concurrency
+    try {
+      const v = (found as any).version || 1;
+      res.setHeader('ETag', `"v${v}"`);
+    } catch (e) {}
     res.json(found);
   } catch (e) {
     console.error(e);
@@ -106,10 +113,22 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const updated = await replaceDiagram(id, state);
+    // If-Match header handling for optimistic concurrency
+    const ifMatch = (req.headers['if-match'] || '') as string;
+    if (ifMatch) {
+      const match = (ifMatch.match(/v(\d+)/) || [])[1];
+      const expected = match ? Number(match) : null;
+      const current = (existing as any).version || 1;
+      if (expected === null || expected !== current) {
+        return res.status(412).json({ error: 'Precondition Failed', currentVersion: current });
+      }
+    }
+  const updated = await replaceDiagram(id, state);
     if (!updated) return res.status(404).json({ error: 'Not found' });
-    await createDiagramHistory(id, updated.state, user.id === 'admin' ? null : user.id, 'replace');
-    res.json(updated);
+  await createDiagramHistory(id, updated.state, user.id === 'admin' ? null : user.id, 'replace');
+  try { broadcastDiagramUpdate(id, { version: updated.version, state: updated.state, updatedBy: { id: user.id, username: user.username } }); } catch (e) {}
+  try { res.setHeader('ETag', `"v${updated.version || 1}"`); } catch (e) {}
+  res.json(updated);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to update diagram' });
@@ -139,10 +158,22 @@ router.patch('/:id', async (req: Request, res: Response) => {
     if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const updated = await patchDiagram(id, patch);
+    // If-Match header handling for optimistic concurrency
+    const ifMatch = (req.headers['if-match'] || '') as string;
+    if (ifMatch) {
+      const match = (ifMatch.match(/v(\d+)/) || [])[1];
+      const expected = match ? Number(match) : null;
+      const current = (existing as any).version || 1;
+      if (expected === null || expected !== current) {
+        return res.status(412).json({ error: 'Precondition Failed', currentVersion: current });
+      }
+    }
+  const updated = await patchDiagram(id, patch);
     if (!updated) return res.status(404).json({ error: 'Not found' });
-    await createDiagramHistory(id, updated.state, user.id === 'admin' ? null : user.id, 'patch');
-    res.json(updated);
+  await createDiagramHistory(id, updated.state, user.id === 'admin' ? null : user.id, 'patch');
+  try { broadcastDiagramUpdate(id, { version: updated.version, state: updated.state, updatedBy: { id: user.id, username: user.username } }); } catch (e) {}
+  try { res.setHeader('ETag', `"v${updated.version || 1}"`); } catch (e) {}
+  res.json(updated);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to patch diagram' });
@@ -212,10 +243,12 @@ router.post('/:id/history/:historyId/restore', async (req: Request, res: Respons
     const entry = await getDiagramHistoryEntry(historyId);
     if (!entry) return res.status(404).json({ error: 'History entry not found' });
     // Replace diagram with history state (this will also create a new history entry recording the restore)
-    const replaced = await replaceDiagram(id, entry.state);
+  const replaced = await replaceDiagram(id, entry.state);
     if (!replaced) return res.status(500).json({ error: 'Failed to restore history' });
-    await createDiagramHistory(id, entry.state, user.id === 'admin' ? null : user.id, 'restore');
-    res.json(replaced);
+  await createDiagramHistory(id, entry.state, user.id === 'admin' ? null : user.id, 'restore');
+  try { broadcastDiagramUpdate(id, { version: replaced.version, state: replaced.state, updatedBy: { id: user.id, username: user.username } }); } catch (e) {}
+  try { res.setHeader('ETag', `"v${replaced.version || 1}"`); } catch (e) {}
+  res.json(replaced);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to restore history entry' });
@@ -233,8 +266,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
     if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    await deleteDiagram(id);
-    res.status(204).send();
+  await deleteDiagram(id);
+  try { broadcastDiagramUpdate(id, { deleted: true, deletedBy: { id: user.id, username: user.username } }); } catch (e) {}
+  res.status(204).send();
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to delete diagram' });

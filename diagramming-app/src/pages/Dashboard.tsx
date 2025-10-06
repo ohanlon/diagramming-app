@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const currentUserId = useDiagramStore(state => state.currentUser?.id);
-  const currentUserIsAdmin = useDiagramStore(state => state.currentUser?.id === 'admin');
+  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.isAdmin);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareInput, setShareInput] = useState('');
   const [shareError, setShareError] = useState<string | null>(null);
@@ -165,6 +165,11 @@ const Dashboard: React.FC = () => {
           <ListItemButton selected={selectedSection === 'shared'} onClick={() => setSelectedSection('shared')}>
             <ListItemText primary={`Shared (${sharedCount})`} />
           </ListItemButton>
+          {useDiagramStore.getState().currentUser?.isAdmin && (
+            <ListItemButton onClick={() => navigate('/admin')}>
+              <ListItemText primary={`Admin`} />
+            </ListItemButton>
+          )}
         </List>
       </Box>
 

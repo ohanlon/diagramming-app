@@ -221,8 +221,8 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
         </MenuItem>
         {currentUserIsAdmin && (
-          <MenuItem onClick={() => { handleFileMenuClose(); navigate('/admin/settings'); }}>
-            <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Admin Settings</ListItemText>
+          <MenuItem onClick={() => { handleFileMenuClose(); navigate('/admin'); }}>
+            <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Admin</ListItemText>
           </MenuItem>
         )}
       </Menu>

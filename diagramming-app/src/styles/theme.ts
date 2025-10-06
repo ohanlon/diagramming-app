@@ -8,7 +8,7 @@ const theme = createTheme({
   },
   typography: {
     // Ensure Ubuntu is used first; index.html already preloads Ubuntu from Google Fonts
-    fontFamily: 'Ubuntu, Roboto, Helvetica, Verdana, Arial, sans-serif',
+    fontFamily: 'Poppins, Ubuntu, Roboto, Helvetica, Verdana, Arial, sans-serif',
     h3: { fontWeight: 600 },
     h4: { fontWeight: 600 },
     h6: { fontSize: '1rem' },
@@ -20,6 +20,14 @@ const theme = createTheme({
           textTransform: 'none',
           borderRadius: 0,
           color: '#000'
+        },
+      },
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        root: {
+          minHeight: '2.5rem',
+          height: '2.5rem',
         },
       },
     },

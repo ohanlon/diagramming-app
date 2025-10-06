@@ -6,13 +6,15 @@ import LayerPanel from './components/LayerPanel/LayerPanel';
 import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState, useEffect } from 'react';
-import { AppBar, Box } from '@mui/material';
+import { AppBar, Box, Snackbar, Alert } from '@mui/material';
+import ConflictDialog from './components/ConflictDialog/ConflictDialog';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import AdminSettings from './pages/AdminSettings';
+import AdminHome from './pages/AdminHome';
 import AdminRoute from './components/AdminRoute';
 import DiagramHistory from './pages/DiagramHistory';
 import { useDiagramStore } from './store/useDiagramStore';
@@ -58,7 +60,57 @@ function MainAppLayout() {
         loadDiagram(true);
       }
     }
+  // Open a WebSocket to receive real-time updates for this diagram
+    let ws: WebSocket | null = null;
+    try {
+      const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
+      const wsUrl = serverUrl.replace(/^http/, 'ws') + `/ws?diagramId=${encodeURIComponent(effectiveDiagramId || '')}`;
+  ws = new WebSocket(wsUrl);
+  // Expose a short-lived global reference so other small UI effects can attach listeners
+  (window as any)._diagramWs = ws;
+      // No-op here; listeners will attach via the notification effect
+    } catch (e) {
+      console.warn('Failed to open diagram websocket', e);
+    }
+
+    return () => {
+      if (ws) try { ws.close(); } catch (e) {}
+      try { delete (window as any)._diagramWs; } catch (e) {}
+    };
   }, [effectiveDiagramId, setRemoteDiagramId, loadDiagram, searchParams]);
+
+  // Local UI state for transient update notifications
+  const [notifyOpen, setNotifyOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState('');
+  // Replace the earlier message handler with one that also triggers notifications
+  useEffect(() => {
+    const currentWs = (window as any)._diagramWs as WebSocket | undefined;
+    if (!currentWs) return;
+    const handler = (ev: MessageEvent) => {
+      try {
+        const m = JSON.parse(ev.data as string);
+        if (m && m.type === 'update' && m.payload) {
+          const payload = m.payload as any;
+          if (payload && payload.state) {
+            useDiagramStore.getState().applyStateSnapshot(payload.state);
+            useDiagramStore.setState({ serverVersion: payload.version || null } as any);
+          }
+          const updater = payload && payload.updatedBy && payload.updatedBy.username ? payload.updatedBy.username : null;
+          // Expose the metadata in the store for UI consumers (e.g. conflict dialog)
+          if (payload && payload.updatedBy) useDiagramStore.setState({ conflictUpdatedBy: payload.updatedBy } as any);
+          const msg = updater ? `Document updated by ${updater}` : 'Document updated';
+          setNotifyMessage(msg);
+          setNotifyOpen(true);
+        }
+      } catch (e) {
+        console.warn('Failed to handle diagram websocket message', e);
+      }
+    };
+    currentWs.addEventListener('message', handler as any);
+    return () => {
+      try { currentWs.removeEventListener('message', handler as any); } catch (e) {}
+    };
+  }, [effectiveDiagramId]);
 
   return (
     <Box
@@ -81,6 +133,10 @@ function MainAppLayout() {
       {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}
       <SheetTabs />
       <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />
+      <ConflictDialog />
+      <Snackbar open={notifyOpen} autoHideDuration={4000} onClose={() => setNotifyOpen(false)}>
+        <Alert onClose={() => setNotifyOpen(false)} severity="info" sx={{ width: '100%' }}>{notifyMessage}</Alert>
+      </Snackbar>
     </Box>
   );
 }
@@ -94,8 +150,9 @@ function App() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/diagram/:id/history" element={<ProtectedRoute><DiagramHistory /></ProtectedRoute>} />
         <Route path="/diagram/:id/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
-  <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
-  <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
+        <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminRoute><AdminHome /></AdminRoute></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </BrowserRouter>

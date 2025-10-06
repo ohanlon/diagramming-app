@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { IconButton, Avatar, Menu, MenuItem, ListItemText, Tooltip, Dialog, DialogContent, Typography, Box } from '@mui/material';
 import { Person as PersonIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import { getCurrentUserFromCookie } from '../../utils/userCookie';
+import { useNavigate } from 'react-router-dom';
 import AvatarEditorComponent from '../AvatarEditor/AvatarEditor';
 
 const AccountMenu: React.FC = () => {
   const currentUser = useDiagramStore(state => state.currentUser);
+  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.isAdmin);
   const logout = useDiagramStore(state => state.logout);
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentUser?.avatarUrl);
@@ -14,6 +18,17 @@ const AccountMenu: React.FC = () => {
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
+  // If the in-memory store is not yet hydrated but a cookie exists, hydrate it
+  React.useEffect(() => {
+    if (!currentUser) {
+      const cookie = getCurrentUserFromCookie();
+      if (cookie) {
+        useDiagramStore.setState({ currentUser: cookie } as any);
+        setAvatarUrl(cookie.avatarUrl);
+      }
+    }
+  }, [currentUser]);
 
   return (
     <>
@@ -25,33 +40,42 @@ const AccountMenu: React.FC = () => {
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose} id="account-menu">
-        {currentUser ? ( [
-          <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>,
-          <MenuItem key="change-avatar" onClick={() => { handleClose(); setAvatarEditorOpen(true); }}>Change avatar</MenuItem>,
-          <MenuItem key="remove-avatar" onClick={async () => {
-            handleClose();
-            try {
-              const { apiFetch } = await import('../../utils/apiFetch');
-              const existingResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
-              const existingJson = existingResp.ok ? await existingResp.json() : { settings: {} };
-              const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(existingJson.settings || {}), avatarDataUrl: null } }) });
-              if (resp.ok) {
-                setAvatarUrl(undefined);
-                useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: undefined } as any });
+        {currentUser ? (
+          <>
+            <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>
+            <MenuItem key="change-avatar" onClick={() => { handleClose(); setAvatarEditorOpen(true); }}>Change avatar</MenuItem>
+            <MenuItem key="remove-avatar" onClick={async () => {
+              handleClose();
+              try {
+                const { apiFetch } = await import('../../utils/apiFetch');
+                const existingResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
+                const existingJson = existingResp.ok ? await existingResp.json() : { settings: {} };
+                const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(existingJson.settings || {}), avatarDataUrl: null } }) });
+                if (resp.ok) {
+                  setAvatarUrl(undefined);
+                  useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: undefined } as any });
+                }
+              } catch (e) {
+                console.warn('Failed to remove avatar', e);
               }
-            } catch (e) {
-              console.warn('Failed to remove avatar', e);
-            }
-          }}>
-            <ListItemText>Remove avatar</ListItemText>
-          </MenuItem>,
-          <MenuItem key="logout" onClick={() => { handleClose(); logout(); }}>
-            <ListItemText>Logout</ListItemText>
-          </MenuItem>
-        ]) : ( [
-          <MenuItem key="login" onClick={() => { handleClose(); window.location.href = '/login'; }}>Login</MenuItem>,
-          <MenuItem key="register" onClick={() => { handleClose(); window.location.href = '/login'; }}>Register</MenuItem>,
-        ])}
+            }}>
+              <ListItemText>Remove avatar</ListItemText>
+            </MenuItem>
+            <MenuItem key="logout" onClick={() => { handleClose(); logout(); }}>
+              <ListItemText>Logout</ListItemText>
+            </MenuItem>
+            {currentUserIsAdmin && (
+              <MenuItem key="admin" onClick={() => { handleClose(); navigate('/admin'); }}>
+                <ListItemText>Admin Settings</ListItemText>
+              </MenuItem>
+            )}
+          </>
+        ) : (
+          <>
+            <MenuItem key="login" onClick={() => { handleClose(); window.location.href = '/login'; }}>Login</MenuItem>
+            <MenuItem key="register" onClick={() => { handleClose(); window.location.href = '/login'; }}>Register</MenuItem>
+          </>
+        )}
       </Menu>
 
       {/* Avatar editor dialog */}

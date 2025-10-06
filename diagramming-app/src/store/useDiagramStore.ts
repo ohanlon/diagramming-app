@@ -5,6 +5,7 @@ import { useHistoryStore } from './useHistoryStore';
 
 // Import modular stores
 import { createShapeActions, type ShapeStoreActions } from './stores/shapeStore';
+import { getCurrentUserFromCookie, setCurrentUserCookie, clearCurrentUserCookie } from '../utils/userCookie';
 import { createConnectorActions, type ConnectorStoreActions } from './stores/connectorStore';
 import { createSelectionActions, type SelectionStoreActions } from './stores/selectionStore';
 import { createLayerActions, type LayerStoreActions } from './stores/layerStore';
@@ -22,7 +23,10 @@ interface DiagramStoreActions extends
   UIStoreActions,
   ClipboardStoreActions {
   toggleSnapToGrid: () => void; // Add snapping toggle action
-  saveDiagram: (thumbnailDataUrl?: string | null) => Promise<void>; // Manually save to storage/server, optional thumbnail
+  saveDiagram: (thumbnailDataUrl?: string | null, force?: boolean) => Promise<void>; // Manually save to storage/server, optional thumbnail
+  resolveConflictAcceptServer: () => void;
+  resolveConflictForceOverwrite: () => Promise<void>;
+  dismissConflict: () => void;
   loadDiagram: (fromRemote?: boolean) => Promise<void>; // Load from storage or server
   setServerUrl: (url: string) => void;
   setServerAuth: (user: string, pass: string) => void;
@@ -79,6 +83,12 @@ const initialState: DiagramState = {
   serverUrl: 'http://localhost:4000',
   serverAuthUser: null,
   serverAuthPass: null,
+  serverVersion: null,
+  conflictServerState: null,
+  conflictServerVersion: null,
+  conflictUpdatedBy: null,
+  conflictOpen: false,
+  conflictLocalState: null,
   diagramName: 'New Diagram',
 };
 
@@ -98,8 +108,30 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
-  const persisted = loadFromStorage();
+  let persisted: any = loadFromStorage();
+  // One-time migration: if persisted snapshot contains a legacy currentUser,
+  // move it into a cookie and rewrite the stored snapshot without the user so
+  // user info does not live inside the sheet payload.
+  try {
+    if (persisted && persisted.currentUser) {
+      try {
+        if (!getCurrentUserFromCookie()) setCurrentUserCookie(persisted.currentUser);
+      } catch (e) {
+        // ignore cookie set failures
+      }
+      try {
+        const { currentUser, ...rest } = persisted;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
+        persisted = rest;
+      } catch (e) {
+        // ignore rewrite failures
+      }
+    }
+  } catch (e) {}
+
   const baseState: any = persisted ? { ...initialState, ...persisted, isDirty: false } : initialState;
+  // Do not source the initial currentUser from persisted snapshots — read it from cookie
+  baseState.currentUser = getCurrentUserFromCookie() || null;
 
   // Helper function for adding history
   const addHistoryFn = () => {
@@ -146,7 +178,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     return { ...stateSnapshot, sheets: newSheets };
   };
 
-  const saveDiagram = async (thumbnailDataUrl?: string | null) => {
+  const saveDiagram = async (thumbnailDataUrl?: string | null, force: boolean = false) => {
     const state = get();
     // Enforce diagram has a name; default to 'New Diagram' if missing
     const diagramName = state.diagramName && String(state.diagramName).trim() ? String(state.diagramName).trim() : 'New Diagram';
@@ -190,12 +222,16 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       } catch (e) {}
      let resp: Response | null = null;
       const doRequest = async (method: string, url: string, authHeader?: string | undefined) => {
+        const headers: any = {
+          'Content-Type': 'application/json',
+          ...(authHeader ? { Authorization: authHeader } : {}),
+        };
+        const sv = state.serverVersion;
+        // If the caller has explicitly requested a forced overwrite, do not send If-Match
+        if (!force && sv !== undefined && sv !== null) headers['If-Match'] = `"v${sv}"`;
         return await fetch(url, {
           method,
-          headers: {
-            'Content-Type': 'application/json',
-            ...(authHeader ? { Authorization: authHeader } : {}),
-          },
+          headers,
           body: JSON.stringify({ state: toSave }),
           credentials: 'include',
         });
@@ -225,8 +261,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
             const created = await retryResp.json();
             if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
             wrappedSet({ isDirty: false, lastSaveError: null });
-            // Persist thumbnail into localStorage too
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id, currentUser: state.currentUser }));
+            // Persist thumbnail into localStorage too (do not store currentUser)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id }));
             return;
           }
         } catch (refreshErr) {
@@ -244,6 +280,29 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       }
 
       if (!resp.ok) {
+        // Handle optimistic concurrency failure (412)
+        if (resp.status === 412) {
+          // Fetch the latest server version and present a conflict resolution UI instead
+          try {
+            const latest = await fetch(`${serverUrl}/diagrams/${state.remoteDiagramId}`, { credentials: 'include' });
+            if (latest.ok) {
+              const latestJson = await latest.json();
+              if (latestJson && latestJson.state) {
+                // Do not auto-apply server state. Instead, present a conflict UI so user can choose.
+                wrappedSet({
+                  conflictServerState: latestJson.state,
+                  conflictServerVersion: latestJson.version || null,
+                  conflictUpdatedBy: null, // server GET doesn't include updatedBy; will be populated by WS if available
+                  conflictOpen: true,
+                  conflictLocalState: toSave,
+                } as any);
+              }
+            }
+          } catch (e) { }
+          const text = await resp.text().catch(() => `Status ${resp.status}`);
+          wrappedSet({ lastSaveError: `Save failed due to concurrent update: ${text}` });
+          return;
+        }
         const text = await resp.text().catch(() => `Status ${resp.status}`);
         console.error('[saveDiagram] Server returned error for save:', resp.status, text);
         throw new Error(text);
@@ -252,18 +311,18 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       const result = await resp.json();
       console.debug('[saveDiagram] Save response:', result);
       if (!state.remoteDiagramId && result && result.id) {
-        wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id, currentUser: state.currentUser }));
+        wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null, serverVersion: result.version || null });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id }));
       } else {
-        wrappedSet({ isDirty: false, lastSaveError: null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, currentUser: state.currentUser }));
+        wrappedSet({ isDirty: false, lastSaveError: null, serverVersion: result.version || null });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
       }
     } catch (e: any) {
       console.error('Failed to save diagram to server:', e);
       wrappedSet({ lastSaveError: e?.message || String(e) });
       // Fallback: persist locally so work is not lost
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, currentUser: state.currentUser }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
         wrappedSet({ isDirty: false });
       } catch (localErr) {
         console.error('Failed to save diagram locally as fallback:', localErr);
@@ -281,10 +340,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (json && json.user) {
         const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
         wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
-        // persist user info along with other state
-        const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        const augmentedUser = { ...json.user, avatarUrl: avatar };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: augmentedUser }));
+  // Persist user in a cookie (do not store it inside localStorage with diagram sheets)
+  const augmentedUser = { ...json.user, avatarUrl: avatar };
+  try { setCurrentUserCookie(augmentedUser); } catch (e) {}
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -305,9 +363,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (json && json.user) {
         const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
         wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
-        const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        const augmentedUser = { ...json.user, avatarUrl: avatar };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: augmentedUser }));
+  const augmentedUser = { ...json.user, avatarUrl: avatar };
+  try { setCurrentUserCookie(augmentedUser); } catch (e) {}
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -323,7 +380,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     } catch (e) {
       console.warn('Logout failed on server', e);
     }
-    wrappedSet({ currentUser: null, showAuthDialog: false });
+  try { clearCurrentUserCookie(); } catch (e) {}
+  wrappedSet({ currentUser: null, showAuthDialog: false });
     const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId }));
   };
@@ -446,7 +504,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
           console.debug(`[loadDiagram] Fetched diagram ${state.remoteDiagramId} from server: sheets=${sheetCount}, totalShapes=${totalShapes}`);
         } catch (e) {}
          // Replace local state with server state (note: server strips svgContent)
-         set((s: any) => ({ ...s, ...json.state, isDirty: false }));
+         set((s: any) => ({ ...s, ...json.state, serverVersion: json.version || null, isDirty: false }));
         // Log resulting local state's counts
         try {
           const newState = get();
@@ -470,7 +528,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw);
-      set((state: any) => ({ ...state, ...parsed, isDirty: false }));
+      // Ignore any legacy currentUser saved in the persisted snapshot
+      if ((parsed as any).currentUser) delete (parsed as any).currentUser;
+      set((state: any) => ({ ...state, ...parsed, serverVersion: parsed.serverVersion || null, isDirty: false }));
     } catch (e) {
       console.error('Failed to load diagram from storage:', e);
     }
@@ -483,12 +543,13 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   const applyStateSnapshot = (snapshot: any) => {
     if (!snapshot) return;
     try {
-      // Replace local store state with provided snapshot but preserve serverUrl and currentUser
+        // Replace local store state with provided snapshot but preserve serverUrl and do
+        // not accept currentUser from the snapshot (user info is stored in a cookie).
       set((s: any) => ({
         ...s,
         ...snapshot,
         serverUrl: s.serverUrl || snapshot.serverUrl || 'http://localhost:4000',
-        currentUser: s.currentUser || snapshot.currentUser || null,
+        currentUser: s.currentUser || getCurrentUserFromCookie() || null,
         remoteDiagramId: s.remoteDiagramId || snapshot.remoteDiagramId || null,
         isDirty: false,
       }));
@@ -530,6 +591,30 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     createAndSaveNewDiagram,
     applyStateSnapshot,
     setDiagramName,
+    resolveConflictAcceptServer: () => {
+      const s = get();
+      if (!s.conflictServerState) {
+        // Nothing to accept
+        wrappedSet({ conflictOpen: false, conflictServerState: null, conflictServerVersion: null, conflictUpdatedBy: null, conflictLocalState: null });
+        return;
+      }
+      // Apply server snapshot and clear conflict
+      set((state: any) => ({ ...state, ...s.conflictServerState, serverVersion: s.conflictServerVersion || null, isDirty: false, conflictOpen: false, conflictServerState: null, conflictServerVersion: null, conflictUpdatedBy: null, conflictLocalState: null }));
+    },
+    resolveConflictForceOverwrite: async () => {
+      // Retry save with force=true to overwrite server state with local changes
+      try {
+        await saveDiagram(undefined, true);
+        // Clear conflict state on success
+        wrappedSet({ conflictOpen: false, conflictServerState: null, conflictServerVersion: null, conflictUpdatedBy: null, conflictLocalState: null });
+      } catch (e) {
+        console.error('Force-overwrite save failed', e);
+        wrappedSet({ lastSaveError: String(e) });
+      }
+    },
+    dismissConflict: () => {
+      wrappedSet({ conflictOpen: false, conflictServerState: null, conflictServerVersion: null, conflictUpdatedBy: null, conflictLocalState: null });
+    },
   } as any;
 });
 
