@@ -4,8 +4,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createUser, getUserByUsername } from '../usersStore';
 import { createRefreshToken, getRefreshTokenRowById, revokeRefreshTokenById } from '../refreshTokensStore';
+import { getAppSetting } from '../appSettingsStore';
 import { getUserSettings } from '../userSettingsStore';
 import dotenv from 'dotenv';
+import { pool } from '../db';
 
 dotenv.config();
 
@@ -31,13 +33,24 @@ function setAuthCookie(res: Response, token: string, maxAgeMs?: number) {
   });
 }
 
-function setRefreshCookie(res: Response, refreshToken: string, maxAgeMs?: number) {
+async function setRefreshCookie(res: Response, refreshToken: string, maxAgeMs?: number) {
   const secure = process.env.NODE_ENV === 'production';
+  let finalMax = maxAgeMs;
+  if (!finalMax) {
+    // consult runtime app setting if present
+    try {
+      const configured = await getAppSetting('refresh_expires_days');
+      const days = configured && typeof configured === 'number' ? configured as number : Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+      finalMax = 1000 * 60 * 60 * 24 * days;
+    } catch (e) {
+      finalMax = 1000 * 60 * 60 * 24 * Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+    }
+  }
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure,
     sameSite: 'lax',
-    maxAge: maxAgeMs || (1000 * 60 * 60 * 24 * REFRESH_EXPIRES_DAYS),
+    maxAge: finalMax,
     path: '/',
   });
 }
@@ -45,10 +58,10 @@ function setRefreshCookie(res: Response, refreshToken: string, maxAgeMs?: number
 async function issueTokensAndSetCookies(res: Response, userId: string, username: string) {
   // Create access token
   const accessToken = (jwt as any).sign({ id: userId, username }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES });
-  // Create refresh token stored in DB and return token string
-  const refreshToken = await createRefreshToken(userId, REFRESH_EXPIRES_DAYS);
+  // Create refresh token stored in DB and return token string (createRefreshToken will consult app settings if needed)
+  const refreshToken = await createRefreshToken(userId);
   setAuthCookie(res, accessToken);
-  setRefreshCookie(res, refreshToken);
+  await setRefreshCookie(res, refreshToken);
 }
 
 router.post('/register', async (req: Request, res: Response) => {
@@ -78,9 +91,9 @@ router.post('/register', async (req: Request, res: Response) => {
     const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS);
     const passwordHash = bcrypt.hashSync(password, salt);
     const created = await createUser(username, passwordHash, salt);
-    await issueTokensAndSetCookies(res, created.id, created.username);
-    const settings = await getUserSettings(created.id);
-    res.status(201).json({ user: { id: created.id, username: created.username }, settings });
+  await issueTokensAndSetCookies(res, created.id, created.username);
+  const settings = await getUserSettings(created.id);
+  res.status(201).json({ user: { id: created.id, username: created.username, isAdmin: !!created.is_admin }, settings });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to register user' });
@@ -95,9 +108,9 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
     const ok = bcrypt.compareSync(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-    await issueTokensAndSetCookies(res, user.id, user.username);
-    const settings = await getUserSettings(user.id);
-    res.json({ user: { id: user.id, username: user.username }, settings });
+  await issueTokensAndSetCookies(res, user.id, user.username);
+  const settings = await getUserSettings(user.id);
+  res.json({ user: { id: user.id, username: user.username, isAdmin: !!user.is_admin }, settings });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to login' });
@@ -152,7 +165,7 @@ router.post('/logout', async (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-router.get('/me', (req: Request, res: Response) => {
+router.get('/me', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   const cookieToken = (req as any).cookies?.authToken;
   if (!authHeader && !cookieToken) return res.status(401).json({ error: 'Not authenticated' });
@@ -164,7 +177,15 @@ router.get('/me', (req: Request, res: Response) => {
       payload = (jwt as any).verify(cookieToken, JWT_SECRET);
     }
     if (!payload) return res.status(401).json({ error: 'Not authenticated' });
-    res.json({ user: { id: payload.id, username: payload.username } });
+    // Include isAdmin in /me by reading authoritative user row
+    try {
+      const { rows } = await pool.query('SELECT is_admin FROM users WHERE id=$1', [payload.id]);
+      const isAdmin = rows && rows[0] ? !!rows[0].is_admin : false;
+      res.json({ user: { id: payload.id, username: payload.username, isAdmin } });
+    } catch (e) {
+      console.warn('Failed to fetch user is_admin flag for /me', e);
+      res.json({ user: { id: payload.id, username: payload.username, isAdmin: false } });
+    }
   } catch (e) {
     console.error('Failed to verify token in /me', e);
     res.status(401).json({ error: 'Invalid token' });

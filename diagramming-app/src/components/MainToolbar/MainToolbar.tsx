@@ -18,6 +18,7 @@ const MainToolbar: React.FC = () => {
   const activeSheet = sheets[activeSheetId];
   const navigate = useNavigate();
   const diagramName = useDiagramStore(state => state.diagramName) || 'New Diagram';
+  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.isAdmin);
   const setDiagramName = useDiagramStore(state => state.setDiagramName);
   const [editNameOpen, setEditNameOpen] = React.useState(false);
   const [editingName, setEditingName] = React.useState(diagramName);
@@ -219,6 +220,11 @@ const MainToolbar: React.FC = () => {
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
         </MenuItem>
+        {currentUserIsAdmin && (
+          <MenuItem onClick={() => { handleFileMenuClose(); navigate('/admin/settings'); }}>
+            <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Admin Settings</ListItemText>
+          </MenuItem>
+        )}
       </Menu>
 
       <Button onClick={handleEditMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')} sx={{ color: 'black' }}>

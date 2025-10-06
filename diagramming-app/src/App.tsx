@@ -12,6 +12,8 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
+import AdminSettings from './pages/AdminSettings';
+import AdminRoute from './components/AdminRoute';
 import DiagramHistory from './pages/DiagramHistory';
 import { useDiagramStore } from './store/useDiagramStore';
 
@@ -92,7 +94,8 @@ function App() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/diagram/:id/history" element={<ProtectedRoute><DiagramHistory /></ProtectedRoute>} />
         <Route path="/diagram/:id/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
-        <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
+  <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
+  <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </BrowserRouter>

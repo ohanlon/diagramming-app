@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Ensure existing users table has password_salt column
 ALTER TABLE users ADD COLUMN IF NOT EXISTS password_salt TEXT NOT NULL DEFAULT '';
+-- Add an is_admin flag to users for role-based authorization
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- Create diagrams table
 CREATE TABLE IF NOT EXISTS diagrams (
@@ -90,6 +92,17 @@ CREATE TABLE IF NOT EXISTS pending_invites (
 
 CREATE INDEX IF NOT EXISTS idx_pending_invites_token ON pending_invites (token);
 CREATE INDEX IF NOT EXISTS idx_pending_invites_email ON pending_invites (lower(invited_email));
+
+-- Application-level settings that can be changed at runtime by an admin.
+-- Key is a text identifier and value is stored as jsonb so it can hold simple scalars
+-- or richer structures. We use this to persist 'refresh_expires_days'.
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_app_settings_key ON app_settings (key);
 
 -- Backfill existing state.sharedWith arrays into the shared_documents table for users that exist.
 -- For each diagram that has a state.sharedWith array of emails, insert a row for each email that corresponds to

@@ -114,7 +114,7 @@ export type DiagramState = {
   serverAuthUser?: string | null; // Optional basic auth user
   serverAuthPass?: string | null; // Optional basic auth password
   lastSaveError?: string | null; // Last error message from save attempts
-  currentUser?: { id: string; username: string; avatarUrl?: string } | null; // Authenticated user's info with optional avatar
+  currentUser?: { id: string; username: string; avatarUrl?: string; isAdmin?: boolean } | null; // Authenticated user's info with optional avatar and admin flag
   diagramName?: string; // Human-friendly diagram name (required for save)
   thumbnailDataUrl?: string | null; // Base64-encoded PNG data URL for a small thumbnail preview
   showAuthDialog?: boolean; // Legacy flag controlling auth modal visibility (kept for compatibility)

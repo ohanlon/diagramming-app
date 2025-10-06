@@ -92,6 +92,9 @@ app.use('/shapes', shapesRouter);
 // Public auth endpoints for register/login
 app.use('/auth', authRouter);
 
+// Admin routes for runtime configuration (requires combinedAuth and admin credentials)
+app.use('/admin', combinedAuth, require('./routes/admin').default);
+
 // Protect user endpoints (settings etc.) with combined auth
 app.use('/users', combinedAuth, require('./routes/users').default);
 
