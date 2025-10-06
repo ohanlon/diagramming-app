@@ -5,6 +5,7 @@ import { useHistoryStore } from './useHistoryStore';
 
 // Import modular stores
 import { createShapeActions, type ShapeStoreActions } from './stores/shapeStore';
+import { getCurrentUserFromCookie, setCurrentUserCookie, clearCurrentUserCookie } from '../utils/userCookie';
 import { createConnectorActions, type ConnectorStoreActions } from './stores/connectorStore';
 import { createSelectionActions, type SelectionStoreActions } from './stores/selectionStore';
 import { createLayerActions, type LayerStoreActions } from './stores/layerStore';
@@ -99,7 +100,21 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   };
 
   const persisted = loadFromStorage();
+  // If a persisted blob contains a legacy currentUser, migrate it into a cookie so
+  // user information is no longer stored inside the diagram/sheet payload.
+  if (persisted && (persisted as any).currentUser && !getCurrentUserFromCookie()) {
+    try {
+      setCurrentUserCookie((persisted as any).currentUser);
+      // remove currentUser from persisted blob so it won't be merged into state
+      delete (persisted as any).currentUser;
+    } catch (e) {
+      // ignore.
+    }
+  }
+
+  // Build base state but do NOT take currentUser from persisted state — read from cookie
   const baseState: any = persisted ? { ...initialState, ...persisted, isDirty: false } : initialState;
+  baseState.currentUser = getCurrentUserFromCookie() || null;
 
   // Helper function for adding history
   const addHistoryFn = () => {
@@ -208,7 +223,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         resp = await doRequest('PUT', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
       }
 
-      if (resp.status === 401) {
+    if (resp.status === 401) {
         // Try to refresh the access token via refresh endpoint (send cookies)
         try {
           const refreshResp = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
@@ -225,8 +240,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
             const created = await retryResp.json();
             if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
             wrappedSet({ isDirty: false, lastSaveError: null });
-            // Persist thumbnail into localStorage too
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id, currentUser: state.currentUser }));
+            // Persist thumbnail into localStorage too (do not store currentUser here)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id }));
             return;
           }
         } catch (refreshErr) {
@@ -253,17 +268,18 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       console.debug('[saveDiagram] Save response:', result);
       if (!state.remoteDiagramId && result && result.id) {
         wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id, currentUser: state.currentUser }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id }));
       } else {
         wrappedSet({ isDirty: false, lastSaveError: null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, currentUser: state.currentUser }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
       }
     } catch (e: any) {
       console.error('Failed to save diagram to server:', e);
       wrappedSet({ lastSaveError: e?.message || String(e) });
       // Fallback: persist locally so work is not lost
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId, currentUser: state.currentUser }));
+        // Do not store currentUser inside the sheet/diagram payload
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
         wrappedSet({ isDirty: false });
       } catch (localErr) {
         console.error('Failed to save diagram locally as fallback:', localErr);
@@ -280,11 +296,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       const json = await resp.json();
       if (json && json.user) {
         const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
-        wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
-        // persist user info along with other state
-        const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        const augmentedUser = { ...json.user, avatarUrl: avatar };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: augmentedUser }));
+  const augmentedUser = { ...json.user, avatarUrl: avatar };
+  // Persist user in a cookie (do not store it inside localStorage with diagram sheets)
+  setCurrentUserCookie(augmentedUser);
+  wrappedSet({ currentUser: augmentedUser, lastSaveError: null, showAuthDialog: false });
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -304,10 +319,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       const json = await resp.json();
       if (json && json.user) {
         const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
-        wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
-        const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-        const augmentedUser = { ...json.user, avatarUrl: avatar };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId, currentUser: augmentedUser }));
+  const augmentedUser = { ...json.user, avatarUrl: avatar };
+  // Persist user in a cookie (do not store it inside localStorage with diagram sheets)
+  setCurrentUserCookie(augmentedUser);
+  wrappedSet({ currentUser: augmentedUser, lastSaveError: null, showAuthDialog: false });
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -323,6 +338,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     } catch (e) {
       console.warn('Logout failed on server', e);
     }
+    // Clear client-side profile cookie and remove in-memory user
+    try {
+      clearCurrentUserCookie();
+    } catch (e) {}
     wrappedSet({ currentUser: null, showAuthDialog: false });
     const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId }));
@@ -470,6 +489,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw);
+      // Ensure any legacy currentUser inside persisted snapshot is ignored
+      if ((parsed as any).currentUser) delete (parsed as any).currentUser;
       set((state: any) => ({ ...state, ...parsed, isDirty: false }));
     } catch (e) {
       console.error('Failed to load diagram from storage:', e);
@@ -483,12 +504,13 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   const applyStateSnapshot = (snapshot: any) => {
     if (!snapshot) return;
     try {
-      // Replace local store state with provided snapshot but preserve serverUrl and currentUser
+        // Replace local store state with provided snapshot but preserve serverUrl and do
+        // not accept currentUser from the snapshot (user info is stored in a cookie).
       set((s: any) => ({
         ...s,
         ...snapshot,
         serverUrl: s.serverUrl || snapshot.serverUrl || 'http://localhost:4000',
-        currentUser: s.currentUser || snapshot.currentUser || null,
+        currentUser: s.currentUser || getCurrentUserFromCookie() || null,
         remoteDiagramId: s.remoteDiagramId || snapshot.remoteDiagramId || null,
         isDirty: false,
       }));

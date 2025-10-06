@@ -12,9 +12,9 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES || '15m';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || ACCESS_TOKEN_EXPIRES;
-const REFRESH_EXPIRES_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '7');
+const REFRESH_EXPIRES_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || '10');
-const COOKIE_MAX_AGE_MS = Number(process.env.COOKIE_MAX_AGE_MS || String(24 * 60 * 60 * 1000));
+const COOKIE_MAX_AGE_MS = Number(process.env.COOKIE_MAX_AGE_MS || String(30 * 24 * 60 * 60 * 1000));
 
 const router = express.Router();
 
