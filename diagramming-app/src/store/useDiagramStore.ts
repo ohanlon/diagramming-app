@@ -244,7 +244,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         resp = await doRequest('PUT', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
       }
 
-      if (resp.status === 401) {
+    if (resp.status === 401) {
         // Try to refresh the access token via refresh endpoint (send cookies)
         try {
           const refreshResp = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });

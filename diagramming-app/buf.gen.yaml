@@ -1,0 +1,6 @@
+version: v1
+plugins:
+  - name: protoc-gen-connect-es
+    out: src/generated
+    opt:
+      - target=es2019

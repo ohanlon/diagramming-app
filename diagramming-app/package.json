@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "proto:gen": "buf generate",
+    "proto:gen:protoc": "echo 'Use protoc with the protoc-gen-connect-es plugin to generate files (see proto/README.md for platform-specific examples)'",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -29,7 +31,8 @@
     "react-easy-crop": "^4.4.0",
     "react-router-dom": "^6.17.0",
     "validator": "^13.9.0",
-    "zustand": "^5.0.7"
+    "zustand": "^5.0.7",
+    "@bufbuild/connect-web": "^0.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

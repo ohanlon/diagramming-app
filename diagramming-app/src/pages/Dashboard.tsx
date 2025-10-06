@@ -57,32 +57,19 @@ const Dashboard: React.FC = () => {
     const fetchDiagrams = async () => {
       setLoading(true);
       try {
-        const { apiFetch } = await import('../utils/apiFetch');
-        const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams`, { method: 'GET' });
-        if (!resp.ok) {
-          console.error('Failed to fetch diagrams', resp.status);
-          setOwnedDiagrams([]);
-          setLoading(false);
-          return;
-        }
-        const json = await resp.json();
-        if (mounted) setOwnedDiagrams(json.diagrams || []);
+        const diagrams = await import('../utils/grpc/diagramsClient').then(m => m.listDiagrams());
+        if (mounted) setOwnedDiagrams(diagrams || []);
         // Also fetch diagrams that have been shared with this user
         try {
-          const sharedResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams/shared`, { method: 'GET' });
-          if (sharedResp.ok) {
-            const sharedJson = await sharedResp.json();
-            if (mounted) setSharedDiagrams(sharedJson.diagrams || []);
-          } else {
-            if (mounted) setSharedDiagrams([]);
-          }
+          const shared = await import('../utils/grpc/diagramsClient').then(m => m.listSharedDiagrams());
+          if (mounted) setSharedDiagrams(shared || []);
         } catch (e) {
           console.warn('Failed to fetch diagrams shared with me', e);
           if (mounted) setSharedDiagrams([]);
         }
         // Fetch user settings to determine favorites
         try {
-          const settingsResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
+          const settingsResp = await (await import('../utils/apiFetch')).apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
           if (settingsResp.ok) {
             const settingsJson = await settingsResp.json();
             const favList: string[] = (settingsJson.settings && settingsJson.settings.favorites) || [];

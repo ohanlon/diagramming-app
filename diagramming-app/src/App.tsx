@@ -12,6 +12,7 @@ import { BrowserRouter, Routes, Route, useParams, useSearchParams, Navigate } fr
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
+import useBackgroundTokenRefresh from './hooks/useBackgroundTokenRefresh';
 import Dashboard from './pages/Dashboard';
 import AdminSettings from './pages/AdminSettings';
 import AdminHome from './pages/AdminHome';
@@ -142,6 +143,9 @@ function MainAppLayout() {
 }
 
 function App() {
+  // Start background refresh to keep the session alive while the app is open
+  useBackgroundTokenRefresh();
+
   return (
     <BrowserRouter>
       <Routes>
