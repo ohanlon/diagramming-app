@@ -92,45 +92,10 @@ const initialState: DiagramState = {
   diagramName: 'New Diagram',
 };
 
-const STORAGE_KEY = 'diagram-storage';
-
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set, get) => {
-  // Attempt to load persisted state from localStorage during store initialization
-  const loadFromStorage = () => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    try {
-      const parsed = JSON.parse(raw);
-      return parsed;
-    } catch (e) {
-      console.warn('Failed to parse stored diagram state:', e);
-      return null;
-    }
-  };
-
-  let persisted: any = loadFromStorage();
-  // One-time migration: if persisted snapshot contains a legacy currentUser,
-  // move it into a cookie and rewrite the stored snapshot without the user so
-  // user info does not live inside the sheet payload.
-  try {
-    if (persisted && persisted.currentUser) {
-      try {
-        if (!getCurrentUserFromCookie()) setCurrentUserCookie(persisted.currentUser);
-      } catch (e) {
-        // ignore cookie set failures
-      }
-      try {
-        const { currentUser, ...rest } = persisted;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
-        persisted = rest;
-      } catch (e) {
-        // ignore rewrite failures
-      }
-    }
-  } catch (e) {}
-
-  const baseState: any = persisted ? { ...initialState, ...persisted, isDirty: false } : initialState;
-  // Do not source the initial currentUser from persisted snapshots — read it from cookie
+  // We intentionally do NOT persist full diagram state locally; the database is
+  // the source of truth. Only hydrate the lightweight currentUser from cookie.
+  const baseState: any = { ...initialState };
   baseState.currentUser = getCurrentUserFromCookie() || null;
 
   // Helper function for adding history
@@ -240,8 +205,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (!state.remoteDiagramId) {
         resp = await doRequest('POST', `${serverUrl}/diagrams`, basicAuthHeader);
       } else {
-        // Use PUT to replace the server state with a full client snapshot to avoid partial-patch loss
-        resp = await doRequest('PUT', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
+        // Use PATCH to merge incoming changes into server state. PATCH avoids accidental
+        // data loss if the client snapshot omits fields (server will merge shapes and ids).
+        resp = await doRequest('PATCH', `${serverUrl}/diagrams/${state.remoteDiagramId}`, basicAuthHeader);
       }
 
     if (resp.status === 401) {
@@ -261,8 +227,6 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
             const created = await retryResp.json();
             if (!state.remoteDiagramId) wrappedSet({ remoteDiagramId: created.id });
             wrappedSet({ isDirty: false, lastSaveError: null });
-            // Persist thumbnail into localStorage too (do not store currentUser)
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId || created.id }));
             return;
           }
         } catch (refreshErr) {
@@ -312,21 +276,15 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       console.debug('[saveDiagram] Save response:', result);
       if (!state.remoteDiagramId && result && result.id) {
         wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null, serverVersion: result.version || null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: result.id }));
       } else {
         wrappedSet({ isDirty: false, lastSaveError: null, serverVersion: result.version || null });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
       }
     } catch (e: any) {
       console.error('Failed to save diagram to server:', e);
       wrappedSet({ lastSaveError: e?.message || String(e) });
       // Fallback: persist locally so work is not lost
-      try {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSave, remoteDiagramId: state.remoteDiagramId }));
-        wrappedSet({ isDirty: false });
-      } catch (localErr) {
-        console.error('Failed to save diagram locally as fallback:', localErr);
-      }
+      // Do not persist full diagram locally; rely on the server/database as the source of truth.
+      wrappedSet({ isDirty: false });
     }
   };
 
@@ -382,8 +340,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   try { clearCurrentUserCookie(); } catch (e) {}
   wrappedSet({ currentUser: null, showAuthDialog: false });
-    const toSaveLocal = stripSvgFromState({ sheets: state.sheets, activeSheetId: state.activeSheetId, isSnapToGridEnabled: state.isSnapToGridEnabled });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...toSaveLocal, remoteDiagramId: state.remoteDiagramId }));
+  // Do not persist full diagram locally on logout.
   };
 
   const setServerUrl = (url: string) => {
@@ -455,12 +412,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       diagramName: name && String(name).trim() ? String(name).trim() : 'New Diagram',
     } as any));
 
-    // Clear persisted local storage so accidental reload doesn't rehydrate old content
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.warn('Failed to clear stored diagram on new:', e);
-    }
+    // Do not persist full diagram locally; nothing to clear here.
 
     // Initialize history for the new diagram
     useHistoryStore.getState().initializeHistory({ [newSheetId]: newSheet } as any, newSheetId);
@@ -523,17 +475,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
        }
      }
 
-    // Fallback: load from localStorage
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw);
-      // Ignore any legacy currentUser saved in the persisted snapshot
-      if ((parsed as any).currentUser) delete (parsed as any).currentUser;
-      set((state: any) => ({ ...state, ...parsed, serverVersion: parsed.serverVersion || null, isDirty: false }));
-    } catch (e) {
-      console.error('Failed to load diagram from storage:', e);
-    }
+    // No local fallback load. If remote load fails, leave the current in-memory state intact.
   };
 
   const setDiagramName = (name: string) => {
