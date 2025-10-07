@@ -27,11 +27,12 @@ router.post('/refresh-token-days', async (req: Request, res: Response) => {
     if (!Number.isFinite(days) || days < 1 || days > 3650) return res.status(400).json({ error: 'Invalid days' });
     // Ensure the requester is an admin. combinedAuth sets req.user but may not include isAdmin
     const reqUser = (req as any).user;
-    let isAdmin = !!reqUser?.isAdmin;
+    let isAdmin = Array.isArray((req as any).user?.roles) ? (req as any).user.roles.includes('admin') : false;
     if (!isAdmin && reqUser?.id) {
-      const userRow = await getUserById(reqUser.id);
-      isAdmin = !!userRow?.is_admin;
-      if (isAdmin) (req as any).user.isAdmin = true;
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(reqUser.id);
+      isAdmin = roles.includes('admin');
+      if (isAdmin) (req as any).user.roles = roles;
     }
     if (!isAdmin) return res.status(403).json({ error: 'Admin required' });
     await upsertAppSetting('refresh_expires_days', days);
@@ -47,21 +48,24 @@ router.post('/promote', async (req: Request, res: Response) => {
   try {
     // Ensure requester is admin
     const reqUser = (req as any).user;
-    let isAdmin = !!reqUser?.isAdmin;
+    let isAdmin = Array.isArray((req as any).user?.roles) ? (req as any).user.roles.includes('admin') : false;
     if (!isAdmin && reqUser?.id) {
-      const userRow = await getUserById(reqUser.id);
-      isAdmin = !!userRow?.is_admin;
-      if (isAdmin) (req as any).user.isAdmin = true;
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(reqUser.id);
+      isAdmin = roles.includes('admin');
+      if (isAdmin) (req as any).user.roles = roles;
     }
     if (!isAdmin) return res.status(403).json({ error: 'Admin required' });
 
-    const { username, id } = req.body || {};
-    if (!username && !id) return res.status(400).json({ error: 'Provide username or id' });
-    const where = username ? { field: 'username', value: String(username) } : { field: 'id', value: String(id) };
-    const query = `UPDATE users SET is_admin=true WHERE ${where.field} = $1 RETURNING id, username, is_admin`;
-    const { rows } = await (require('../db').pool.query)(query, [where.value]);
-    if (!rows || rows.length === 0) return res.status(404).json({ error: 'User not found' });
-    res.json({ ok: true, user: rows[0] });
+  const { username, id, role } = req.body || {};
+  const desiredRole = role && typeof role === 'string' ? String(role) : 'admin';
+  if (!username && !id) return res.status(400).json({ error: 'Provide username or id' });
+  const targetUser = username ? await (require('../usersStore').getUserByUsername)(username) : await (require('../usersStore').getUserById)(id);
+  if (!targetUser) return res.status(404).json({ error: 'User not found' });
+  // Promote to desired role
+  await (require('../usersStore').addUserRole)(targetUser.id, desiredRole);
+  const roles = await (require('../usersStore').getUserRoles)(targetUser.id);
+  res.json({ ok: true, user: { id: targetUser.id, username: targetUser.username, roles } });
   } catch (e) {
     console.error('Failed to promote user', e);
     res.status(500).json({ error: 'Failed to promote user' });
@@ -73,15 +77,16 @@ router.get('/admins', async (req: Request, res: Response) => {
   try {
     // Ensure requester is admin
     const reqUser = (req as any).user;
-    let isAdmin = !!reqUser?.isAdmin;
+    let isAdmin = Array.isArray((req as any).user?.roles) ? (req as any).user.roles.includes('admin') : false;
     if (!isAdmin && reqUser?.id) {
-      const userRow = await getUserById(reqUser.id);
-      isAdmin = !!userRow?.is_admin;
-      if (isAdmin) (req as any).user.isAdmin = true;
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(reqUser.id);
+      isAdmin = roles.includes('admin');
+      if (isAdmin) (req as any).user.roles = roles;
     }
     if (!isAdmin) return res.status(403).json({ error: 'Admin required' });
 
-    const { rows } = await (require('../db').pool.query)('SELECT id, username FROM users WHERE is_admin = true');
+    const rows = await (require('../usersStore').getUsersWithRole)('admin');
     res.json({ admins: rows || [] });
   } catch (e) {
     console.error('Failed to list admins', e);

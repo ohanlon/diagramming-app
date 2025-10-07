@@ -12,7 +12,10 @@ type Options = { intervalMs?: number };
  * - Calls /auth/refresh initially on mount and then every intervalMs (default 24h).
  * - After a successful refresh it calls /auth/me to refresh the client-side profile
  *   and persists that profile into the visible user cookie and in-memory store.
- * - If refresh returns 401/403, logs the user out via the store logout action.
+ * - If refresh returns 401 (unauthenticated), logs the user out via the store logout action.
+ *   If refresh returns 403 (forbidden) the hook will NOT log the user out — 403s
+ *   typically indicate permission issues and should be handled at the request
+ *   level or by route guards rather than forcing a logout.
  * - When the page becomes visible after being hidden, an immediate refresh is attempted.
  */
 export default function useBackgroundTokenRefresh(opts?: Options) {
@@ -52,7 +55,7 @@ export default function useBackgroundTokenRefresh(opts?: Options) {
           return;
         }
 
-        if (resp.status === 401 || resp.status === 403) {
+        if (resp.status === 401) {
           // refresh token invalid/expired -> force logout
           try {
             await useDiagramStore.getState().logout();
@@ -60,6 +63,16 @@ export default function useBackgroundTokenRefresh(opts?: Options) {
             console.warn('background refresh: logout failed', e);
             useDiagramStore.setState({ currentUser: null });
           }
+          return;
+        }
+
+        // If the refresh returned 403 (forbidden) don't auto-logout the user.
+        // A 403 likely indicates a permission issue for the refresh operation
+        // and should be surfaced to the UI or handled per-request rather than
+        // terminating the user's session. We log a warning so developers can
+        // investigate if this occurs in production.
+        if (resp.status === 403) {
+          console.warn('background refresh returned 403 Forbidden — not logging out the user automatically');
           return;
         }
 

@@ -13,10 +13,13 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import useBackgroundTokenRefresh from './hooks/useBackgroundTokenRefresh';
+import { getCurrentUserFromCookie } from './utils/userCookie';
 import Dashboard from './pages/Dashboard';
 import AdminSettings from './pages/AdminSettings';
 import AdminHome from './pages/AdminHome';
 import AdminRoute from './components/AdminRoute';
+import SalesRoute from './components/SalesRoute';
+import OnboardingPage from './pages/Onboarding';
 import DiagramHistory from './pages/DiagramHistory';
 import { useDiagramStore } from './store/useDiagramStore';
 
@@ -61,22 +64,22 @@ function MainAppLayout() {
         loadDiagram(true);
       }
     }
-  // Open a WebSocket to receive real-time updates for this diagram
+    // Open a WebSocket to receive real-time updates for this diagram
     let ws: WebSocket | null = null;
     try {
       const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
       const wsUrl = serverUrl.replace(/^http/, 'ws') + `/ws?diagramId=${encodeURIComponent(effectiveDiagramId || '')}`;
-  ws = new WebSocket(wsUrl);
-  // Expose a short-lived global reference so other small UI effects can attach listeners
-  (window as any)._diagramWs = ws;
+      ws = new WebSocket(wsUrl);
+      // Expose a short-lived global reference so other small UI effects can attach listeners
+      (window as any)._diagramWs = ws;
       // No-op here; listeners will attach via the notification effect
     } catch (e) {
       console.warn('Failed to open diagram websocket', e);
     }
 
     return () => {
-      if (ws) try { ws.close(); } catch (e) {}
-      try { delete (window as any)._diagramWs; } catch (e) {}
+      if (ws) try { ws.close(); } catch (e) { }
+      try { delete (window as any)._diagramWs; } catch (e) { }
     };
   }, [effectiveDiagramId, setRemoteDiagramId, loadDiagram, searchParams]);
 
@@ -109,7 +112,7 @@ function MainAppLayout() {
     };
     currentWs.addEventListener('message', handler as any);
     return () => {
-      try { currentWs.removeEventListener('message', handler as any); } catch (e) {}
+      try { currentWs.removeEventListener('message', handler as any); } catch (e) { }
     };
   }, [effectiveDiagramId]);
 
@@ -146,6 +149,27 @@ function App() {
   // Start background refresh to keep the session alive while the app is open
   useBackgroundTokenRefresh();
 
+  // Centralized cookie hydration: read the lightweight current-user cookie once
+  // at app startup and populate the in-memory store. This avoids races where
+  // route-level guards attempt to hydrate from the cookie independently and may
+  // run in different mount orders, which can produce transient `currentUser`
+  // being null while navigating between routes (observed when navigating to
+  // /onboarding). Centralizing here ensures all route guards see the same
+  // hydrated store value.
+  useEffect(() => {
+    try {
+      const cookie = getCurrentUserFromCookie();
+      if (cookie && !useDiagramStore.getState().currentUser) {
+        useDiagramStore.setState({ currentUser: cookie } as any);
+        // helpful debug: uncomment if you need to trace hydration
+        // console.debug('Hydrated currentUser from cookie at app mount', cookie.username);
+      }
+    } catch (e) {
+      // non-fatal
+      console.warn('App-level cookie hydration failed', e);
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -156,6 +180,7 @@ function App() {
         <Route path="/diagram/:id/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminRoute><AdminHome /></AdminRoute></ProtectedRoute>} />
+        <Route path="/onboarding" element={<ProtectedRoute><SalesRoute><OnboardingPage /></SalesRoute></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>

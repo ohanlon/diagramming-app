@@ -9,7 +9,26 @@ import validator from 'validator';
 const router = express.Router();
 
 function getRequestUser(req: Request) {
-  return (req as any).user as { id: string; username?: string; isAdmin?: boolean } | undefined;
+  return (req as any).user as { id: string; username?: string; roles?: string[] } | undefined;
+}
+
+async function isAdminForUser(user: { id?: string; roles?: string[] } | undefined) {
+  if (!user) return false;
+  if (Array.isArray(user.roles)) return user.roles.includes('admin');
+  if (user.id) {
+    try {
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(user.id);
+      if (roles && roles.includes('admin')) {
+        // cache roles on the user object for subsequent checks
+        (user as any).roles = roles;
+        return true;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return false;
 }
 
 router.post('/', async (req: Request, res: Response) => {
@@ -74,7 +93,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       console.debug(`[diagrams.get] Returning diagram ${id} for user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
     } catch (e) {}
     // Allow owner, admin, or users the diagram has been shared with
-    if (found.owner_user_id && found.owner_user_id !== user.id && !user.isAdmin) {
+    if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       const shared = await isDiagramSharedWithUser(id, user.id);
       if (!shared) return res.status(403).json({ error: 'Forbidden' });
     }
@@ -110,7 +129,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     } catch (e) {}
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     // If-Match header handling for optimistic concurrency
@@ -155,7 +174,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     } catch (e) {}
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     // If-Match header handling for optimistic concurrency
@@ -200,7 +219,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
   try {
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
-    if (found.owner_user_id && found.owner_user_id !== user.id && !user.isAdmin) {
+    if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     const list = await listDiagramHistory(id);
@@ -218,7 +237,7 @@ router.get('/:id/history/:historyId', async (req: Request, res: Response) => {
   try {
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
-    if (found.owner_user_id && found.owner_user_id !== user.id && !user.isAdmin) {
+    if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     const entry = await getDiagramHistoryEntry(historyId);
@@ -237,7 +256,7 @@ router.post('/:id/history/:historyId/restore', async (req: Request, res: Respons
   try {
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
-    if (found.owner_user_id && found.owner_user_id !== user.id && !user.isAdmin) {
+    if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     const entry = await getDiagramHistoryEntry(historyId);
@@ -263,7 +282,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
   await deleteDiagram(id);
@@ -285,7 +304,7 @@ router.post('/:id/share', async (req: Request, res: Response) => {
   try {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -336,7 +355,7 @@ router.post('/:id/invite', async (req: Request, res: Response) => {
   try {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -412,7 +431,7 @@ router.post('/invites/:token/accept', async (req: Request, res: Response) => {
     const invite = await getInviteByToken(token);
     if (!invite) return res.status(404).json({ error: 'Invite not found' });
     // Require that the authenticated user's username/email match the invited_email or admin
-    if (!user.isAdmin && String(user.username).toLowerCase() !== String(invite.invited_email).toLowerCase()) {
+    if (!(await isAdminForUser(user)) && String(user.username).toLowerCase() !== String(invite.invited_email).toLowerCase()) {
       return res.status(403).json({ error: 'Invite not for this user' });
     }
     // Create share row and mark invite accepted
@@ -434,7 +453,7 @@ router.get('/:id/shares', async (req: Request, res: Response) => {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
     // Only owner or admin can list shares
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     const shares = await listUsersSharedForDiagram(id);
@@ -454,7 +473,7 @@ router.delete('/:id/share/:userId', async (req: Request, res: Response) => {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
     // Only owner or admin can revoke shares
-    if (existing.owner_user_id && existing.owner_user_id !== user.id && !user.isAdmin) {
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     await unshareDiagramWithUser(id, userId);

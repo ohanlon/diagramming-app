@@ -79,7 +79,13 @@ export function initDiagramsWebsocketServer(server: any) {
           try {
             const { getUserById } = require('../usersStore');
             const ur = await getUserById(userId);
-            if (ur && ur.is_admin) allowed = true;
+            if (ur) {
+              try {
+                const { getUserRoles } = require('../usersStore');
+                const roles = await getUserRoles(userId);
+                if (roles && roles.includes('admin')) allowed = true;
+              } catch (e) {}
+            }
           } catch (e) {}
         }
         if (!allowed) {

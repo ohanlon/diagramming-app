@@ -5,7 +5,21 @@ import { getUserSettings, upsertUserSettings } from '../userSettingsStore';
 const router = express.Router();
 
 function getRequestUser(req: Request) {
-  return (req as any).user as { id: string; username?: string; isAdmin?: boolean } | undefined;
+  return (req as any).user as { id: string; username?: string; roles?: string[] } | undefined;
+}
+
+async function isAdminForUser(user: { id?: string; roles?: string[] } | undefined) {
+  if (!user) return false;
+  if (Array.isArray(user.roles)) return user.roles.includes('admin');
+  if (user.id) {
+    try {
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(user.id);
+      (user as any).roles = roles;
+      return roles.includes('admin');
+    } catch (e) {}
+  }
+  return false;
 }
 
 router.get('/me/settings', async (req: Request, res: Response) => {
@@ -44,7 +58,7 @@ router.get('/:id/shared-by', async (req: Request, res: Response) => {
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
   // Only allow the user themselves or an admin
-  if (user.id !== id && !user.isAdmin) return res.status(403).json({ error: 'Forbidden' });
+  if (user.id !== id && !(await isAdminForUser(user))) return res.status(403).json({ error: 'Forbidden' });
   try {
     const { listSharedByForUserId } = await import('../diagramsStore');
     const list = await listSharedByForUserId(id);

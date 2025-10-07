@@ -26,7 +26,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 
 // Combined auth middleware: accept either Bearer <token>, cookie, or Basic admin credentials
-function combinedAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
+async function combinedAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
   const authHeader = req.headers.authorization;
   const cookieToken = (req as any).cookies?.authToken;
 
@@ -40,6 +40,13 @@ function combinedAuth(req: express.Request, res: express.Response, next: express
     try {
       const payload = jwt.verify(token, JWT_SECRET) as any;
       (req as any).user = { id: payload.id, username: payload.username };
+      try {
+        const { getUserRoles } = require('./usersStore');
+        const roles = await getUserRoles(payload.id);
+        (req as any).user.roles = roles || [];
+      } catch (e) {
+        // ignore role fetch errors; leave roles undefined
+      }
       return next();
     } catch (e) {
       console.warn('Invalid JWT', e);
@@ -48,10 +55,15 @@ function combinedAuth(req: express.Request, res: express.Response, next: express
     }
   }
 
-  if (cookieToken) {
+    if (cookieToken) {
     try {
       const payload = jwt.verify(cookieToken, JWT_SECRET) as any;
       (req as any).user = { id: payload.id, username: payload.username };
+      try {
+        const { getUserRoles } = require('./usersStore');
+        const roles = await getUserRoles(payload.id);
+        (req as any).user.roles = roles || [];
+      } catch (e) {}
       return next();
     } catch (e) {
       console.warn('Invalid JWT in cookie', e);
@@ -65,7 +77,7 @@ function combinedAuth(req: express.Request, res: express.Response, next: express
     const decoded = Buffer.from(base64, 'base64').toString('utf8');
     const [user, pass] = decoded.split(':');
     if (user === ADMIN_USER && pass === ADMIN_PASSWORD) {
-      (req as any).user = { id: 'admin', username: ADMIN_USER, isAdmin: true };
+      (req as any).user = { id: 'admin', username: ADMIN_USER, roles: ['admin'] };
       return next();
     }
     res.setHeader('WWW-Authenticate', 'Basic realm="Diagram API"');
@@ -100,6 +112,9 @@ app.use('/users', combinedAuth, require('./routes/users').default);
 
 // Protect diagram endpoints with combined auth middleware
 app.use('/diagrams', combinedAuth, diagramsRouter);
+
+// Onboarding routes (create organisations) - require combined auth; route-level checks enforce 'sales' or 'admin'
+app.use('/onboarding', combinedAuth, require('./routes/onboarding').default);
 
 // Prefer mounting a real Connect handler if available; otherwise fall back
 // to the lightweight shim. This shows how to replace the shim cleanly.

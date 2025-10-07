@@ -20,6 +20,29 @@ export async function getUserById(id: string) {
   return rows[0] || null;
 }
 
+export async function getUserRoles(userId: string) {
+  const { rows } = await pool.query('SELECT role FROM user_roles WHERE user_id = $1', [userId]);
+  return rows.map((r: any) => r.role);
+}
+
+export async function addUserRole(userId: string, role: string) {
+  const now = new Date().toISOString();
+  const query = `INSERT INTO user_roles (user_id, role, created_at) VALUES ($1, $2, $3) ON CONFLICT (user_id, role) DO NOTHING RETURNING *`;
+  const { rows } = await pool.query(query, [userId, role, now]);
+  return rows[0] || null;
+}
+
+export async function addUserRoleByUsername(username: string, role: string) {
+  const user = await getUserByUsername(username);
+  if (!user) return null;
+  return addUserRole(user.id, role);
+}
+
+export async function getUsersWithRole(role: string) {
+  const { rows } = await pool.query('SELECT u.id, u.username FROM users u JOIN user_roles ur ON u.id = ur.user_id WHERE ur.role = $1', [role]);
+  return rows;
+}
+
 // New: fetch multiple users by an array of usernames (case-insensitive matching)
 export async function getUsersByUsernames(usernames: string[]) {
   if (!usernames || usernames.length === 0) return [];

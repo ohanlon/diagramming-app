@@ -26,9 +26,11 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit, opt
       return retryResp;
     }
 
-    // If refresh failed due to unauthorized/forbidden, it means the user has been logged out (refresh revoked/expired).
-    // In that case redirect to login so user can re-authenticate.
-    if (refreshResp.status === 401 || refreshResp.status === 403) {
+    // If refresh failed due to unauthorized (401) it means the user has been logged out
+    // (refresh revoked/expired). In that case redirect to login so user can re-authenticate.
+    // Do NOT auto-redirect on 403 (forbidden) because that often indicates a permission
+    // issue for the requested resource and should not terminate the user's session.
+    if (refreshResp.status === 401) {
       try {
         useDiagramStore.setState({ lastSaveError: 'Authentication required' } as any);
       } catch (e) {
@@ -39,6 +41,14 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit, opt
       } catch (e) {
         // ignore
       }
+      return response;
+    }
+
+    // If the refresh returned 403 (forbidden) treat it as a permission issue for the
+    // refresh operation and do NOT force a redirect to login. Return the original
+    // response so callers can handle 403 as appropriate (e.g. show a 403 page or
+    // redirect locally to dashboard without logging the user out).
+    if (refreshResp.status === 403) {
       return response;
     }
 

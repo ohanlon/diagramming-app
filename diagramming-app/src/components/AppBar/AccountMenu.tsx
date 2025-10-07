@@ -8,7 +8,7 @@ import AvatarEditorComponent from '../AvatarEditor/AvatarEditor';
 
 const AccountMenu: React.FC = () => {
   const currentUser = useDiagramStore(state => state.currentUser);
-  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.isAdmin);
+  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.roles?.includes('admin'));
   const logout = useDiagramStore(state => state.logout);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

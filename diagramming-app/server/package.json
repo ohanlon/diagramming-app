@@ -4,6 +4,8 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
+    "migrate:roles": "node ./scripts/migrate_roles.js",
+    "migrate:roles:drop": "node ./scripts/migrate_roles.js --drop-is-admin",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc -p .",
     "start": "node dist/index.js",

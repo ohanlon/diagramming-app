@@ -93,7 +93,13 @@ router.post('/register', async (req: Request, res: Response) => {
     const created = await createUser(username, passwordHash, salt);
   await issueTokensAndSetCookies(res, created.id, created.username);
   const settings = await getUserSettings(created.id);
-  res.status(201).json({ user: { id: created.id, username: created.username, isAdmin: !!created.is_admin }, settings });
+  try {
+    const { getUserRoles } = require('../usersStore');
+    const roles = await getUserRoles(created.id);
+    res.status(201).json({ user: { id: created.id, username: created.username, roles }, settings });
+  } catch (e) {
+    res.status(201).json({ user: { id: created.id, username: created.username, roles: [] }, settings });
+  }
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to register user' });
@@ -110,7 +116,13 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
   await issueTokensAndSetCookies(res, user.id, user.username);
   const settings = await getUserSettings(user.id);
-  res.json({ user: { id: user.id, username: user.username, isAdmin: !!user.is_admin }, settings });
+  try {
+    const { getUserRoles } = require('../usersStore');
+    const roles = await getUserRoles(user.id);
+    res.json({ user: { id: user.id, username: user.username, roles }, settings });
+  } catch (e) {
+    res.json({ user: { id: user.id, username: user.username, roles: [] }, settings });
+  }
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to login' });
@@ -179,12 +191,12 @@ router.get('/me', async (req: Request, res: Response) => {
     if (!payload) return res.status(401).json({ error: 'Not authenticated' });
     // Include isAdmin in /me by reading authoritative user row
     try {
-      const { rows } = await pool.query('SELECT is_admin FROM users WHERE id=$1', [payload.id]);
-      const isAdmin = rows && rows[0] ? !!rows[0].is_admin : false;
-      res.json({ user: { id: payload.id, username: payload.username, isAdmin } });
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(payload.id);
+      res.json({ user: { id: payload.id, username: payload.username, roles } });
     } catch (e) {
-      console.warn('Failed to fetch user is_admin flag for /me', e);
-      res.json({ user: { id: payload.id, username: payload.username, isAdmin: false } });
+      console.warn('Failed to fetch user roles for /me', e);
+      res.json({ user: { id: payload.id, username: payload.username, roles: [] } });
     }
   } catch (e) {
     console.error('Failed to verify token in /me', e);

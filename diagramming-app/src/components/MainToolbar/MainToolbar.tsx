@@ -18,7 +18,7 @@ const MainToolbar: React.FC = () => {
   const activeSheet = sheets[activeSheetId];
   const navigate = useNavigate();
   const diagramName = useDiagramStore(state => state.diagramName) || 'New Diagram';
-  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.isAdmin);
+  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.roles?.includes('admin'));
   const setDiagramName = useDiagramStore(state => state.setDiagramName);
   const [editNameOpen, setEditNameOpen] = React.useState(false);
   const [editingName, setEditingName] = React.useState(diagramName);

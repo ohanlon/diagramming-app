@@ -12,6 +12,35 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS password_salt TEXT NOT NULL DEFAULT '
 -- Add an is_admin flag to users for role-based authorization
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE;
 
+-- New: normalized user roles table to support multiple roles per user (admin, sales, etc.)
+CREATE TABLE IF NOT EXISTS user_roles (
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, role)
+);
+
+-- Backfill: convert existing is_admin flags into the user_roles table
+INSERT INTO user_roles(user_id, role, created_at)
+SELECT id, 'admin', NOW() FROM users WHERE is_admin = true
+ON CONFLICT (user_id, role) DO NOTHING;
+
+-- Remove deprecated is_admin column now that roles are normalized
+ALTER TABLE users DROP COLUMN IF EXISTS is_admin;
+
+-- Enterprises / organisations onboarding table
+CREATE TABLE IF NOT EXISTS organisations (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  primary_contact_email TEXT NOT NULL,
+  localadmin_email TEXT NOT NULL,
+  created_by UUID NULL REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Enforce case-insensitive uniqueness on organisation names (Apple == apple)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_organisations_name_ci ON organisations (lower(name));
+
 -- Create diagrams table
 CREATE TABLE IF NOT EXISTS diagrams (
   id UUID PRIMARY KEY,

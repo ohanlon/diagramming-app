@@ -4,10 +4,10 @@
    read it) but is set with SameSite=Lax and a reasonable Max-Age. If your server
    also sets authentication cookies (HttpOnly access/refresh tokens) those should
    remain authoritative for auth; this cookie is only used to cache the user's
-   profile details (id, username, avatarUrl, isAdmin) for UI convenience.
+  profile details (id, username, avatarUrl, roles) for UI convenience.
 */
 
-export type MinimalUser = { id: string; username: string; avatarUrl?: string; isAdmin?: boolean } | null;
+export type MinimalUser = { id: string; username: string; avatarUrl?: string; roles?: string[] } | null;
 
 const COOKIE_NAME = 'diagram_current_user';
 const DEFAULT_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
