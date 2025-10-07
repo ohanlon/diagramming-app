@@ -56,6 +56,30 @@ export function clearCurrentUserCookie() {
     const secure = typeof window !== 'undefined' && window.location && window.location.protocol === 'https:';
     const secureFlag = secure ? '; Secure' : '';
     document.cookie = `${COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax${secureFlag}`;
+    // Dev-only: log when cookie is cleared so we can trace unexpected clears
+    const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
+    const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
+    const isDevMode = process.env.NODE_ENV !== 'production';
+    if (isDevMode || urlFlag || lsFlag) {
+      try {
+        const evt = { type: 'clearCurrentUserCookie', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown' };
+        try {
+          const key = 'dev_user_events';
+          const raw = typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
+          const arr = raw ? JSON.parse(raw) : [];
+          arr.push(evt);
+          if (typeof window !== 'undefined') window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
+        } catch (e) {
+          // ignore
+        }
+        // eslint-disable-next-line no-console
+        console.warn('[dev-watch] clearCurrentUserCookie called', evt);
+        // eslint-disable-next-line no-console
+        console.warn(new Error('clearCurrentUserCookie stack').stack);
+      } catch (e) {
+        // ignore
+      }
+    }
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn('Failed to clear current user cookie', e);

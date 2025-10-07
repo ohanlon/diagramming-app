@@ -170,6 +170,221 @@ function App() {
     }
   }, []);
 
+  // Dev-only: subscribe to currentUser changes to detect unexpected clears.
+  // Enabled when NODE_ENV !== 'production' OR when the URL contains ?dev_watch=1
+  // OR when localStorage 'dev_watch_currentUser' is set to '1'. This allows
+  // enabling the watcher in environments that resemble production.
+  useEffect(() => {
+    // Maintain a tiny in-memory 'lastKnownUser' so route guards can avoid
+    // transient false-negatives while the store or cookie hydrates.
+    try {
+      if (typeof window !== 'undefined') {
+        (window as any).__lastKnownUser = useDiagramStore.getState().currentUser || getCurrentUserFromCookie() || null;
+      }
+    } catch (e) {}
+    const unsubLast = useDiagramStore.subscribe((s) => {
+      const u = s.currentUser;
+      try { if (typeof window !== 'undefined') (window as any).__lastKnownUser = u || null; } catch (e) {}
+      return u;
+    });
+    const isDevMode = process.env.NODE_ENV !== 'production';
+    const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
+    const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
+    const enabled = isDevMode || urlFlag || lsFlag;
+    if (!enabled) return;
+    try {
+      let prev: any = useDiagramStore.getState().currentUser;
+      const pushDevEvent = (evt: any) => {
+        try {
+          const key = 'dev_user_events';
+          const raw = typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
+          const arr = raw ? JSON.parse(raw) : [];
+          arr.push(evt);
+          // Keep a bounded history
+          if (typeof window !== 'undefined') window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
+        } catch (e) {
+          // ignore
+        }
+      };
+
+      // On startup, surface any pending events left behind by prior navigations.
+      try {
+        const key = 'dev_user_events';
+        const raw = typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
+        if (raw) {
+          const arr = JSON.parse(raw || '[]');
+          if (arr && arr.length) {
+            // eslint-disable-next-line no-console
+            console.warn('[dev-watch] pending events from prior navigation', arr);
+            try { if (typeof window !== 'undefined') window.localStorage.removeItem(key); } catch (e) {}
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      // Wrap setState so we reliably detect any code path that clears currentUser
+      // (including mutations performed inside functional setState calls).
+      try {
+        const storeRef: any = useDiagramStore as any;
+        const origSetState = storeRef.setState?.bind(storeRef);
+        if (origSetState) {
+          storeRef.setState = (fnOrPartial: any, replace?: boolean) => {
+            try {
+              const before = storeRef.getState().currentUser;
+              const res = origSetState(fnOrPartial, replace);
+              const after = storeRef.getState().currentUser;
+              if (before && !after) {
+                    try {
+                      const evt = { type: 'setState_cleared', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown', before };
+                      // eslint-disable-next-line no-console
+                      console.warn('[dev-watch] setState cleared currentUser', evt);
+                      // eslint-disable-next-line no-console
+                      console.warn(new Error('setState cleared currentUser stack').stack);
+                      pushDevEvent(evt);
+                    } catch (e) {}
+                  }
+              return res;
+            } catch (e) {
+              return origSetState(fnOrPartial, replace);
+            }
+          };
+        }
+      } catch (e) {
+        console.warn('Dev-watch failed to wrap setState', e);
+      }
+
+      const unsub = useDiagramStore.subscribe((s) => {
+        try {
+          const newUser: any = s.currentUser;
+          if (newUser === prev) return;
+          const oldUser: any = prev;
+          prev = newUser;
+          const info = {
+            time: new Date().toISOString(),
+            url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+            oldUser: oldUser ? { id: oldUser.id, username: oldUser.username, roles: oldUser.roles } : null,
+            newUser: newUser ? { id: newUser.id, username: newUser.username, roles: newUser.roles } : null,
+          };
+          // Use warn so the message is visible by default in many consoles
+          // even when debug-level messages are filtered.
+          // eslint-disable-next-line no-console
+          console.warn('[dev-watch] currentUser change', info);
+          pushDevEvent({ type: 'sub_change', ...info });
+          // If the user was cleared unexpectedly, capture a stack to help track the origin
+          if (!newUser && oldUser) {
+            // eslint-disable-next-line no-console
+            console.warn('[dev-watch] currentUser cleared unexpectedly — stack follows');
+            const stack = new Error('currentUser cleared').stack;
+            // eslint-disable-next-line no-console
+            console.warn(stack);
+          }
+        } catch (inner) {
+          console.warn('[dev-watch] error while logging currentUser change', inner);
+        }
+      });
+
+      // Also watch the cookie directly (polling) to catch cookie clears that
+      // happen before our store subscription is active. Polling interval is
+      // intentionally low frequency to minimize overhead.
+      let prevCookie: string | null = null;
+      if (typeof document !== 'undefined') {
+        try {
+          prevCookie = document.cookie || null;
+        } catch (e) {
+          prevCookie = null;
+        }
+      }
+      const cookiePollInterval = 1000; // 1s
+      const pollTimer = typeof window !== 'undefined' ? window.setInterval(() => {
+        try {
+          const currentCookie = typeof document !== 'undefined' ? (document.cookie || null) : null;
+          if (currentCookie !== prevCookie) {
+            const evt = { type: 'cookie_changed', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown' };
+            // eslint-disable-next-line no-console
+            console.warn('[dev-watch] document.cookie changed', evt);
+            pushDevEvent(evt);
+            prevCookie = currentCookie;
+          }
+        } catch (e) {
+          // ignore
+        }
+      }, cookiePollInterval) : null;
+
+      // Intercept navigation APIs to capture who is triggering navigations
+      const wrapNavigation = () => {
+        try {
+          const pushStateOrig = history.pushState.bind(history);
+          history.pushState = function (state: any, title: string, url?: string | null) {
+            try {
+              const evt = { type: 'history.pushState', time: new Date().toISOString(), url: String(url || window.location.href), stack: (new Error('pushState called')).stack };
+              pushDevEvent(evt);
+              // eslint-disable-next-line no-console
+              console.warn('[dev-watch] history.pushState', evt);
+            } catch (e) {}
+            return pushStateOrig(state, title, url);
+          };
+        } catch (e) {}
+        try {
+          const replaceStateOrig = history.replaceState.bind(history);
+          history.replaceState = function (state: any, title: string, url?: string | null) {
+            try {
+              const evt = { type: 'history.replaceState', time: new Date().toISOString(), url: String(url || window.location.href), stack: (new Error('replaceState called')).stack };
+              pushDevEvent(evt);
+              // eslint-disable-next-line no-console
+              console.warn('[dev-watch] history.replaceState', evt);
+            } catch (e) {}
+            return replaceStateOrig(state, title, url);
+          };
+        } catch (e) {}
+        try {
+          const assignOrig = (window.location as any).assign?.bind(window.location);
+          if (assignOrig) {
+            (window.location as any).assign = function (url: string) {
+              try {
+                const evt = { type: 'location.assign', time: new Date().toISOString(), url: String(url), stack: (new Error('location.assign called')).stack };
+                pushDevEvent(evt);
+                console.warn('[dev-watch] location.assign', evt);
+              } catch (e) {}
+              return assignOrig(url);
+            };
+          }
+        } catch (e) {}
+        try {
+          const replaceOrig = (window.location as any).replace?.bind(window.location);
+          if (replaceOrig) {
+            (window.location as any).replace = function (url: string) {
+              try {
+                const evt = { type: 'location.replace', time: new Date().toISOString(), url: String(url), stack: (new Error('location.replace called')).stack };
+                pushDevEvent(evt);
+                console.warn('[dev-watch] location.replace', evt);
+              } catch (e) {}
+              return replaceOrig(url);
+            };
+          }
+        } catch (e) {}
+      };
+      try { wrapNavigation(); } catch (e) { console.warn('dev-watch: wrapNavigation failed', e); }
+
+      // Track hard navigations/unloads and persist context so it survives reloads
+      const beforeUnload = () => {
+        try {
+          const evt = { type: 'beforeunload', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown', currentUser: useDiagramStore.getState().currentUser || null };
+          pushDevEvent(evt);
+        } catch (e) {}
+      };
+      if (typeof window !== 'undefined') window.addEventListener('beforeunload', beforeUnload);
+
+      return () => {
+        try { unsub(); } catch (e) {}
+        try { if (pollTimer) clearInterval(pollTimer); } catch (e) {}
+        try { if (typeof window !== 'undefined') window.removeEventListener('beforeunload', beforeUnload); } catch (e) {}
+        try { unsubLast?.(); } catch (e) {}
+      };
+    } catch (e) {
+      console.warn('Dev currentUser watcher failed to subscribe', e);
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

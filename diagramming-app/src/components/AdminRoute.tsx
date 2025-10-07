@@ -27,7 +27,25 @@ const AdminRoute: React.FC<Props> = ({ children }) => {
   if (!hydrated) return null;
   const effectiveUser = currentUser || cookie;
   if (!effectiveUser) return <Navigate to="/login" replace />;
-  if (!effectiveUser.roles?.includes('admin')) return <Navigate to="/dashboard" replace />;
+  if (!effectiveUser.roles?.includes('admin')) {
+    try {
+      const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
+      const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
+      const enabled = urlFlag || lsFlag || process.env.NODE_ENV !== 'production';
+      if (enabled && typeof window !== 'undefined') {
+        try {
+          const key = 'dev_user_events';
+          const raw = window.localStorage.getItem(key);
+          const arr = raw ? JSON.parse(raw) : [];
+          arr.push({ type: 'admin_redirect', time: new Date().toISOString(), url: window.location.href, effectiveUser });
+          window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
+          // eslint-disable-next-line no-console
+          console.warn('[dev-watch] AdminRoute redirect persisted', { effectiveUser });
+        } catch (e) {}
+      }
+    } catch (e) {}
+    return <Navigate to="/dashboard" replace />;
+  }
   return <>{children}</>;
 };
 

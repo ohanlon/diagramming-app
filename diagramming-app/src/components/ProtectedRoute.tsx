@@ -8,11 +8,8 @@ interface Props {
 }
 
 const ProtectedRoute: React.FC<Props> = ({ children }) => {
-  const currentUser = useDiagramStore(state => state.currentUser);
-  // Read cookie synchronously so we can use it as a fallback for route
-  // decision-making on the first render. This avoids transient nulls when
-  // navigating between routes (store hydration can be async). We still run
-  // the effect below to populate the store from the cookie if needed.
+  console.log('ProtectedRoute render start');
+ const currentUser = useDiagramStore(state => state.currentUser);
   const cookie = getCurrentUserFromCookie();
   const [hydrated, setHydrated] = useState<boolean>(() => !!currentUser || !!cookie);
 
@@ -28,12 +25,37 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
     setHydrated(true);
   }, []);
 
-  // If we haven't finished hydration yet, don't render/redirect
   if (!hydrated) return null;
-
-  // Use cookie as immediate fallback if the store hasn't yet been hydrated
-  const effectiveUser = currentUser || cookie;
+  let effectiveUser = currentUser || cookie;
+  if (!effectiveUser && typeof window !== 'undefined') {
+    const last = (window as any).__lastKnownUser;
+    if (last) {
+      // Rehydrate the store from the last known user so subsequent renders
+      // see the user immediately and avoid an unnecessary redirect.
+      try { useDiagramStore.setState({ currentUser: last } as any); } catch (e) {}
+      effectiveUser = last;
+    }
+  }
   if (!effectiveUser) {
+    try {
+      // Dev-only persistent event so we can inspect after navigation
+      const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
+      const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
+      const enabled = urlFlag || lsFlag || process.env.NODE_ENV !== 'production';
+      if (enabled && typeof window !== 'undefined') {
+        try {
+          const key = 'dev_user_events';
+          const raw = window.localStorage.getItem(key);
+          const arr = raw ? JSON.parse(raw) : [];
+          arr.push({ type: 'protected_redirect', time: new Date().toISOString(), url: window.location.href, currentUser: currentUser || null, cookie: getCurrentUserFromCookie(), stack: (new Error('ProtectedRoute redirect')).stack });
+          window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
+          // eslint-disable-next-line no-console
+          console.warn('[dev-watch] ProtectedRoute redirect persisted', { currentUser: currentUser || null });
+        } catch (e) {
+          // ignore
+        }
+      }
+    } catch (e) {}
     return <Navigate to="/login" replace />;
   }
   return <>{children}</>;

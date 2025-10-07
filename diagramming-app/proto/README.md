@@ -59,3 +59,24 @@ Notes
   (see package.json). The server-side Connect runtime also needs to be
   installed and handlers wired; the repository includes a shimbed HTTP route
   that mirrors Connect paths so you can test incrementally.
+
+Local protoc downloader
+-----------------------
+
+If you don't want to install protoc globally you can use the included helper
+to download a prebuilt protoc binary into the repository. This is useful for
+CI or when working on Windows where installing global tools can be cumbersome.
+
+Run:
+
+  npm run proto:install-protoc
+
+This will attempt to download a platform-appropriate protoc release and
+place it under `tools/protoc`. After running, add `tools/protoc/bin` to your
+PATH or invoke `tools/protoc/bin/protoc` directly from the helper scripts.
+
+You can customize the version via the PROTOC_VERSION environment variable,
+for example:
+
+  PROTOC_VERSION=23.4.1 npm run proto:install-protoc
+

@@ -21,18 +21,28 @@ export async function listDiagrams(): Promise<DiagramListItem[]> {
   // Try to dynamically load a generated Connect client, if present. This allows
   // running codegen and flipping the client without changing UI code.
   try {
-    const path = '../../generated/' + 'diagrams_connect';
+    // Use import.meta.glob to detect generated client modules at build time
+    // without triggering a network fetch for a missing file. If the
+    // generated client exists (e.g. after running codegen) we'll dynamically
+    // import it via the function returned by the glob map. This avoids the
+    // noisy 404 in the network panel when the generated client is absent.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod: any = await import(path as any);
-    if (mod && mod.DiagramsService) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const client: any = new mod.DiagramsService(`${serverUrl}`);
-      const resp = await client.listDiagrams({});
-      return (resp && resp.diagrams) || [];
+    const moduleMap: Record<string, () => Promise<any>> = import.meta.glob('../../generated/diagrams_connect.*');
+    const keys = Object.keys(moduleMap || {});
+    if (keys.length > 0) {
+      const loader = moduleMap[keys[0]];
+      if (loader) {
+        const mod = await loader();
+        if (mod && mod.DiagramsService) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const client: any = new mod.DiagramsService(`${serverUrl}`);
+          const resp = await client.listDiagrams({});
+          return (resp && resp.diagrams) || [];
+        }
+      }
     }
   } catch (e) {
     // No generated client available yet — fall back to REST.
-    // Keep this silent to avoid noisy logs during development.
   }
 
   // REST fallback
@@ -51,14 +61,19 @@ export async function listDiagrams(): Promise<DiagramListItem[]> {
 export async function listSharedDiagrams(): Promise<DiagramListItem[]> {
   const serverUrl = useDiagramStore.getState().serverUrl;
   try {
-    const path = '../../generated/' + 'diagrams_connect';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod: any = await import(path as any);
-    if (mod && mod.DiagramsService) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const client: any = new mod.DiagramsService(`${serverUrl}`);
-      const resp = await client.listSharedDiagrams?.({}) || { diagrams: [] };
-      return resp.diagrams || [];
+    const moduleMap: Record<string, () => Promise<any>> = import.meta.glob('../../generated/diagrams_connect.*');
+    const keys = Object.keys(moduleMap || {});
+    if (keys.length > 0) {
+      const loader = moduleMap[keys[0]];
+      if (loader) {
+        const mod = await loader();
+        if (mod && mod.DiagramsService) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const client: any = new mod.DiagramsService(`${serverUrl}`);
+          const resp = await client.listSharedDiagrams?.({}) || { diagrams: [] };
+          return resp.diagrams || [];
+        }
+      }
     }
   } catch (e) {
     // No generated client available yet — fall back to REST.

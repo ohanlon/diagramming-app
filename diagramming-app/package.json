@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "proto:gen": "buf generate",
-    "proto:gen:protoc": "echo 'Use protoc with the protoc-gen-connect-es plugin to generate files (see proto/README.md for platform-specific examples)'",
+  "proto:gen": "node ./scripts/proto_gen_protoc.cjs",
+  "proto:gen:protoc": "node ./scripts/proto_gen_protoc.cjs",
+  "proto:gen:protoc:run": "node ./scripts/proto_gen_protoc.cjs --run",
+  "proto:install-protoc": "node ./scripts/download_protoc.cjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -56,6 +58,7 @@
     "ts-jest": "^29.4.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.5"
+    "vite": "^7.1.5",
+    "extract-zip": "^2.0.1"
   }
 }
