@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Ignore previously-vendored protoc/tooling now that protobuf support was removed
+/tools/protoc/
+/tools/tmp/
+/tools/plugins/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

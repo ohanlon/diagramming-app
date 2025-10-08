@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Download prebuilt protoc binaries into ./tools/protoc for local use.
+console.error('Protobuf support has been removed; download_protoc is deprecated.');
+process.exit(1);
 // This helper attempts to download a matching binary for your platform and
 // extract it. It does not require protoc to be installed globally.
 

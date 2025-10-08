@@ -7,6 +7,7 @@ const SalesRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const currentUser = useDiagramStore(state => state.currentUser);
   const cookie = getCurrentUserFromCookie();
   const [hydrated, setHydrated] = useState<boolean>(() => !!currentUser || !!cookie);
+  const [validating, setValidating] = useState<boolean>(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -20,8 +21,48 @@ const SalesRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     setHydrated(true);
   }, []);
 
+  // Determine effectiveUser candidate and register validation effect
+  const effectiveUserCandidate = currentUser || cookie;
+  useEffect(() => {
+    let mounted = true;
+    if (!effectiveUserCandidate && typeof window !== 'undefined') {
+      const last = (window as any).__lastKnownUser;
+      if (last && !validating) {
+        (async () => {
+          setValidating(true);
+          try {
+            const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
+            const meResp = await fetch(`${serverUrl}/auth/me`, { method: 'GET', credentials: 'include' });
+            if (meResp.ok) {
+              const json = await meResp.json().catch(() => null);
+              if (mounted && json && json.user) {
+                try { useDiagramStore.setState({ currentUser: json.user } as any); } catch (e) {}
+              }
+            } else if (meResp.status === 401) {
+              try {
+                const r = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
+                if (r.ok) {
+                  const me2 = await fetch(`${serverUrl}/auth/me`, { method: 'GET', credentials: 'include' });
+                  if (me2.ok) {
+                    const json2 = await me2.json().catch(() => null);
+                    if (mounted && json2 && json2.user) {
+                      try { useDiagramStore.setState({ currentUser: json2.user } as any); } catch (e) {}
+                    }
+                  }
+                }
+              } catch (e) {}
+            }
+          } catch (e) {}
+          finally { if (mounted) setValidating(false); }
+        })();
+      }
+    }
+    return () => { mounted = false; };
+  }, [currentUser, cookie, validating]);
+
   if (!hydrated) return null;
-  const effectiveUser = currentUser || cookie;
+  if (validating) return null;
+  const effectiveUser = effectiveUserCandidate;
   const roles = effectiveUser?.roles || [];
   const allowed = roles.includes('sales') || roles.includes('admin');
   if (!allowed) {

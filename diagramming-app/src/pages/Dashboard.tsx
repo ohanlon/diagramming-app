@@ -10,6 +10,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import { useDiagramStore } from '../store/useDiagramStore';
+import { listDiagrams, listSharedDiagrams } from '../utils/grpc/diagramsClient';
 import MuiAlert from '@mui/material/Alert';
 import NewButton from '../components/AppBar/NewMenu';
 import AccountMenu from '../components/AppBar/AccountMenu';
@@ -54,14 +55,14 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
-    const fetchDiagrams = async () => {
+      const fetchDiagrams = async () => {
       setLoading(true);
       try {
-        const diagrams = await import('../utils/grpc/diagramsClient').then(m => m.listDiagrams());
+        const diagrams = await listDiagrams();
         if (mounted) setOwnedDiagrams(diagrams || []);
         // Also fetch diagrams that have been shared with this user
         try {
-          const shared = await import('../utils/grpc/diagramsClient').then(m => m.listSharedDiagrams());
+          const shared = await listSharedDiagrams();
           if (mounted) setSharedDiagrams(shared || []);
         } catch (e) {
           console.warn('Failed to fetch diagrams shared with me', e);

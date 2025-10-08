@@ -1,6 +1,2 @@
-version: v1
-plugins:
-  - name: protoc-gen-connect-es
-    out: src/generated
-    opt:
-      - target=es2019
+# Protobuf support has been removed. This file is retained for historical
+# reference only and will not be used by the build.

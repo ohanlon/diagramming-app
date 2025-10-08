@@ -12,6 +12,11 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
  const currentUser = useDiagramStore(state => state.currentUser);
   const cookie = getCurrentUserFromCookie();
   const [hydrated, setHydrated] = useState<boolean>(() => !!currentUser || !!cookie);
+  const [validating, setValidating] = useState<boolean>(false);
+
+  // Compute effectiveUser candidate deterministically before any hooks so
+  // hooks registration order is stable across renders.
+  let effectiveUser = currentUser || cookie;
 
   useEffect(() => {
     if (currentUser) {
@@ -24,18 +29,61 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
     }
     setHydrated(true);
   }, []);
-
-  if (!hydrated) return null;
-  let effectiveUser = currentUser || cookie;
-  if (!effectiveUser && typeof window !== 'undefined') {
-    const last = (window as any).__lastKnownUser;
-    if (last) {
-      // Rehydrate the store from the last known user so subsequent renders
-      // see the user immediately and avoid an unnecessary redirect.
-      try { useDiagramStore.setState({ currentUser: last } as any); } catch (e) {}
-      effectiveUser = last;
+  // If we have no effective user but have a last-known user, attempt a
+  // short, silent validation against the server to confirm the session is
+  // still valid before rehydrating the store and avoiding a redirect.
+  useEffect(() => {
+    let mounted = true;
+    if (!effectiveUser && typeof window !== 'undefined') {
+      const last = (window as any).__lastKnownUser;
+      if (last && !validating) {
+        (async () => {
+          setValidating(true);
+          try {
+            const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
+            // First attempt to fetch /auth/me; if it fails with 401 try a
+            // silent refresh and re-fetch. We purposely avoid calling
+            // apiFetch here because that may trigger redirect behavior.
+            const meResp = await fetch(`${serverUrl}/auth/me`, { method: 'GET', credentials: 'include' });
+            if (meResp.ok) {
+              const json = await meResp.json().catch(() => null);
+              if (mounted && json && json.user) {
+                try { useDiagramStore.setState({ currentUser: json.user } as any); } catch (e) {}
+                try { /* update cookie for future loads */ } catch (e) {}
+              }
+            } else if (meResp.status === 401) {
+              // Try refresh once silently
+              try {
+                const r = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
+                if (r.ok) {
+                  const me2 = await fetch(`${serverUrl}/auth/me`, { method: 'GET', credentials: 'include' });
+                  if (me2.ok) {
+                    const json2 = await me2.json().catch(() => null);
+                    if (mounted && json2 && json2.user) {
+                      try { useDiagramStore.setState({ currentUser: json2.user } as any); } catch (e) {}
+                      try { /* update cookie for future loads */ } catch (e) {}
+                    }
+                  }
+                }
+              } catch (e) {
+                // network/refresh error — treat as unauthenticated
+              }
+            }
+          } catch (e) {
+            // ignore validation errors — we'll redirect below if still unauthenticated
+          } finally {
+            if (mounted) setValidating(false);
+          }
+        })();
+      }
     }
-  }
+    return () => { mounted = false; };
+  }, [currentUser, cookie, validating]);
+
+  // If we're actively validating, render nothing so we don't redirect
+  // prematurely while the silent validation completes.
+  if (validating) return null;
+  if (!hydrated) return null;
   if (!effectiveUser) {
     try {
       // Dev-only persistent event so we can inspect after navigation

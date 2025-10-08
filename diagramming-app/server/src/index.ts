@@ -118,27 +118,18 @@ app.use('/onboarding', combinedAuth, require('./routes/onboarding').default);
 
 // Prefer mounting a real Connect handler if available; otherwise fall back
 // to the lightweight shim. This shows how to replace the shim cleanly.
-let mountedConnect = false;
+// Connect/Protobuf support has been removed. Mount the REST-backed gRPC shims
+// directly to provide the same HTTP endpoints that generated Connect handlers
+// would have exposed. This keeps runtime behavior stable and avoids any
+// dependency on Connect runtimes or generated server code.
 try {
-  // Try to mount the handwritten Connect handler implementation
-  const { mountDiagramsConnectHandler } = require('./grpc/diagrams_connect_impl');
-  mountedConnect = !!mountDiagramsConnectHandler(app as any);
+  const { mountDiagramsGrpcShims } = require('./grpc/diagrams');
+  // Ensure combinedAuth is applied to these routes as well
+  app.post('/diagrams.v1.Diagrams/*', combinedAuth, (req, res, next) => next());
+  mountDiagramsGrpcShims(app as any);
+  console.log('Mounted gRPC shims (legacy REST-backed endpoints)');
 } catch (e) {
-  console.warn('Connect handler not available (ok during migration):', e);
-}
-
-if (!mountedConnect) {
-  try {
-    const { mountDiagramsGrpcShims } = require('./grpc/diagrams');
-    // Ensure combinedAuth is applied to these routes as well
-    app.post('/diagrams.v1.Diagrams/*', combinedAuth, (req, res, next) => next());
-    mountDiagramsGrpcShims(app as any);
-    console.log('Mounted gRPC shims (legacy REST-backed endpoints)');
-  } catch (e) {
-    console.warn('Failed to mount gRPC shims (this is optional during migration):', e);
-  }
-} else {
-  console.log('Connect handler mounted; shim not mounted');
+  console.warn('Failed to mount gRPC shims:', e);
 }
 
 const PORT = Number(process.env.PORT || 4000);
