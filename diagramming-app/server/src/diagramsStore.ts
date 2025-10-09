@@ -1,4 +1,3 @@
-import { stripSvgContentFromShapes } from './utils/removeSvgContent';
 import { v4 as uuidv4 } from 'uuid';
 import { pool } from './db';
 
@@ -6,11 +5,13 @@ export async function createDiagram(state: any, ownerUserId: string | null = nul
   const id = uuidv4();
   const now = new Date().toISOString();
 
+  // Persist the full incoming state (including svgContent). We clone the
+  // shapesById map to avoid mutating the caller's object.
   const stateToSave = {
     ...state,
     sheets: Object.fromEntries(Object.entries(state.sheets || {}).map(([sheetId, sheet]: any) => {
       const cloned = { ...(sheet as any) };
-      cloned.shapesById = stripSvgContentFromShapes(cloned.shapesById || {});
+      cloned.shapesById = { ...(cloned.shapesById || {}) };
       return [sheetId, cloned];
     }))
   };
@@ -40,11 +41,12 @@ export async function replaceDiagram(id: string, state: any) {
   const existing = await getDiagram(id);
   if (!existing) return null;
 
+  // Persist the full replacement state including svgContent
   const stateToSave = {
     ...state,
     sheets: Object.fromEntries(Object.entries(state.sheets || {}).map(([sheetId, sheet]: any) => {
       const cloned = { ...(sheet as any) };
-      cloned.shapesById = stripSvgContentFromShapes(cloned.shapesById || {});
+      cloned.shapesById = { ...(cloned.shapesById || {}) };
       return [sheetId, cloned];
     }))
   };
@@ -76,8 +78,10 @@ export async function patchDiagram(id: string, patch: any) {
       const existingSheet = existing.sheets?.[sheetId] || {};
       const mergedSheet = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
       if (sheetPatch && sheetPatch.shapesById) {
-        // Merge existing shapes with incoming shapes to avoid dropping shapes that are not part of the patch
-        const incomingShapes = stripSvgContentFromShapes(sheetPatch.shapesById || {});
+        // Merge existing shapes with incoming shapes. We keep svgContent
+        // from the incoming shapes (no stripping) and merge on top of server
+        // existing shapes so updated fields replace older ones.
+        const incomingShapes = sheetPatch.shapesById || {};
         const existingShapes = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapesById) || {};
         mergedSheet.shapesById = { ...existingShapes, ...incomingShapes };
       }
@@ -103,43 +107,7 @@ export async function patchDiagram(id: string, patch: any) {
   const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2, version = version + 1 WHERE id=$3 RETURNING *`;
   const values = [mergedState, now, id];
   const { rows } = await pool.query(query, values);
-
-  // Build a return-state that preserves svgContent for shapes the client
-  // provided in the patch while still storing a stripped version server-side.
-  const mergedReturnState: any = { ...existing, ...(patch.state || {}) };
-  if (patch.state && patch.state.sheets) {
-    mergedReturnState.sheets = { ...existing.sheets };
-    for (const [sheetId, sheetPatchRaw] of Object.entries(patch.state.sheets)) {
-      const sheetPatch = sheetPatchRaw as any;
-      const existingSheet = existing.sheets?.[sheetId] || {};
-      const mergedSheetReturn = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
-      if (sheetPatch && sheetPatch.shapesById) {
-        // For the returned state we keep incoming SVG content intact; merge
-        // incoming shapes (unstripped) on top of existing shapes.
-        const incomingShapesRaw = sheetPatch.shapesById || {};
-        const existingShapes = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapesById) || {};
-        mergedSheetReturn.shapesById = { ...existingShapes, ...incomingShapesRaw };
-      }
-      if (sheetPatch && Array.isArray(sheetPatch.shapeIds)) {
-        const existingIds: string[] = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapeIds) || [];
-        const incomingIds: string[] = sheetPatch.shapeIds || [];
-        const seen = new Set(existingIds);
-        const mergedIds = [...existingIds];
-        for (const id of incomingIds) {
-          if (!seen.has(id)) {
-            mergedIds.push(id);
-            seen.add(id);
-          }
-        }
-        mergedSheetReturn.shapeIds = mergedIds;
-      }
-      mergedReturnState.sheets[sheetId] = mergedSheetReturn;
-    }
-  }
-
-  if (rows && rows[0]) {
-    rows[0].state = mergedReturnState;
-  }
+  // Return the server state as stored (which now includes svgContent)
   return rows[0];
 }
 

@@ -117,31 +117,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
-  // Helper to remove svgContent from shapes in a state snapshot
-  const stripSvgFromState = (stateSnapshot: any) => {
-    if (!stateSnapshot || !stateSnapshot.sheets) return stateSnapshot;
-    const newSheets: Record<string, any> = {};
-    for (const [sheetId, sheet] of Object.entries(stateSnapshot.sheets)) {
-      const s: any = { ...(sheet as any) };
-      if (s.shapesById) {
-        const cleanedShapes: Record<string, any> = {};
-        for (const [shapeId, shape] of Object.entries(s.shapesById || {})) {
-          // Preserve svgContent for shapes without a 'path' (custom inline SVGs).
-          // If a shape has a 'path' (catalog-provided), we strip svgContent to reduce payload
-          // because the client can re-fetch the SVG by path on load.
-          if (shape && (shape as any).path) {
-            const { svgContent, ...rest } = shape as any;
-            cleanedShapes[shapeId] = rest;
-          } else {
-            cleanedShapes[shapeId] = { ...(shape as any) };
-          }
-        }
-        s.shapesById = cleanedShapes;
-      }
-      newSheets[sheetId] = s;
-    }
-    return { ...stateSnapshot, sheets: newSheets };
-  };
+  // Previously we stripped svgContent before saving to reduce payloads.
+  // The product decision changed: we now persist svgContent so saves include
+  // inline/custom SVGs. Therefore we no longer strip svg content client-side.
 
   const saveDiagram = async (thumbnailDataUrl?: string | null, force: boolean = false) => {
     const state = get();
@@ -169,8 +147,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   if (thumbnailDataUrl) {
     (toSaveRaw as any).thumbnailDataUrl = thumbnailDataUrl; // include on save payload
   }
-   // Strip svgContent client-side to reduce payload
-   const toSave = stripSvgFromState(toSaveRaw);
+  // Persist full state including svgContent
+  const toSave = toSaveRaw;
 
     const serverUrl = state.serverUrl || 'http://localhost:4000';
     const basicAuthHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
