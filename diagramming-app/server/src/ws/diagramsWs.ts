@@ -1,5 +1,9 @@
-const WebSocketLib = require('ws');
-const WebSocketServer = WebSocketLib.Server;
+// Defer requiring the optional `ws` package until runtime so the server
+// process does not crash when the dependency is not installed. We will
+// attempt to require it when initializing the WebSocket server and log a
+// friendly message if it's not available.
+let WebSocketLib: any = null;
+let WebSocketServer: any = null;
 const INSTANCE_ID = process.env.INSTANCE_ID || `${process.pid}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
 // Redis pub/sub (optional). If REDIS_URL is provided we will publish updates so
@@ -36,6 +40,22 @@ type Subscriber = {
 const subscribers = new Set<Subscriber>();
 
 export function initDiagramsWebsocketServer(server: any) {
+  try {
+    // Attempt to require 'ws' on-demand
+    if (!WebSocketLib) {
+      try {
+        WebSocketLib = require('ws');
+        WebSocketServer = WebSocketLib.Server;
+      } catch (e) {
+        console.warn('WebSocket library `ws` not installed — websocket support disabled. Install `ws` to enable real-time updates.');
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to initialize WebSocket support (require failed)', e);
+    return;
+  }
+
   const wss = new WebSocketServer({ server, path: '/ws' });
   wss.on('connection', async (ws: any, req: any) => {
     try {
