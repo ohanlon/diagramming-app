@@ -18,6 +18,12 @@ export async function createDiagram(state: any, ownerUserId: string | null = nul
   const query = `INSERT INTO diagrams(id, state, owner_user_id, created_at, updated_at, version) VALUES($1, $2::jsonb, $3, $4, $5, $6) RETURNING *`;
   const values = [id, stateToSave, ownerUserId, now, now, 1];
   const { rows } = await pool.query(query, values);
+  // Return the original (unstripped) state to the caller so the client
+  // retains any svgContent it had locally. We still store a stripped
+  // version in the DB to avoid persisting large SVG blobs.
+  if (rows && rows[0]) {
+    rows[0].state = state;
+  }
   return rows[0];
 }
 
@@ -47,6 +53,11 @@ export async function replaceDiagram(id: string, state: any) {
   const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2, version = version + 1 WHERE id=$3 RETURNING *`;
   const values = [stateToSave, now, id];
   const { rows } = await pool.query(query, values);
+  // Return the original (unstripped) incoming state so the client does not
+  // lose svgContent after a replace/save operation.
+  if (rows && rows[0]) {
+    rows[0].state = state;
+  }
   return rows[0];
 }
 
@@ -92,6 +103,43 @@ export async function patchDiagram(id: string, patch: any) {
   const query = `UPDATE diagrams SET state=$1::jsonb, updated_at=$2, version = version + 1 WHERE id=$3 RETURNING *`;
   const values = [mergedState, now, id];
   const { rows } = await pool.query(query, values);
+
+  // Build a return-state that preserves svgContent for shapes the client
+  // provided in the patch while still storing a stripped version server-side.
+  const mergedReturnState: any = { ...existing, ...(patch.state || {}) };
+  if (patch.state && patch.state.sheets) {
+    mergedReturnState.sheets = { ...existing.sheets };
+    for (const [sheetId, sheetPatchRaw] of Object.entries(patch.state.sheets)) {
+      const sheetPatch = sheetPatchRaw as any;
+      const existingSheet = existing.sheets?.[sheetId] || {};
+      const mergedSheetReturn = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
+      if (sheetPatch && sheetPatch.shapesById) {
+        // For the returned state we keep incoming SVG content intact; merge
+        // incoming shapes (unstripped) on top of existing shapes.
+        const incomingShapesRaw = sheetPatch.shapesById || {};
+        const existingShapes = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapesById) || {};
+        mergedSheetReturn.shapesById = { ...existingShapes, ...incomingShapesRaw };
+      }
+      if (sheetPatch && Array.isArray(sheetPatch.shapeIds)) {
+        const existingIds: string[] = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapeIds) || [];
+        const incomingIds: string[] = sheetPatch.shapeIds || [];
+        const seen = new Set(existingIds);
+        const mergedIds = [...existingIds];
+        for (const id of incomingIds) {
+          if (!seen.has(id)) {
+            mergedIds.push(id);
+            seen.add(id);
+          }
+        }
+        mergedSheetReturn.shapeIds = mergedIds;
+      }
+      mergedReturnState.sheets[sheetId] = mergedSheetReturn;
+    }
+  }
+
+  if (rows && rows[0]) {
+    rows[0].state = mergedReturnState;
+  }
   return rows[0];
 }
 

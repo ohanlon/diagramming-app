@@ -96,8 +96,54 @@ function MainAppLayout() {
         if (m && m.type === 'update' && m.payload) {
           const payload = m.payload as any;
           if (payload && payload.state) {
-            useDiagramStore.getState().applyStateSnapshot(payload.state);
-            useDiagramStore.setState({ serverVersion: payload.version || null } as any);
+            try {
+              // Merge server state into local store but preserve svgContent for
+              // any shapes that currently have svgContent locally while the
+              // incoming server state may be stripped. This prevents the UI
+              // from losing inline/custom SVGs when the server broadcasts
+              // a stripped representation after a save.
+              const local = useDiagramStore.getState();
+              const incoming = payload.state as any;
+              const merged: any = { ...local, ...incoming };
+              // Merge sheets carefully
+              merged.sheets = { ...(local.sheets || {}) };
+              for (const [sheetId, incSheetRaw] of Object.entries(incoming.sheets || {})) {
+                const incSheet = incSheetRaw as any;
+                const localSheet = (local.sheets && local.sheets[sheetId]) || {};
+                const mergedSheet: any = { ...localSheet, ...incSheet };
+                // Merge shapes by id and preserve svgContent where local has it
+                const mergedShapes: Record<string, any> = { ...(localSheet.shapesById || {}) };
+                const incShapes: Record<string, any> = incSheet.shapesById || {};
+                for (const [shapeId, incShapeRaw] of Object.entries(incShapes)) {
+                  const incShape = incShapeRaw as any;
+                  const localShape = (localSheet.shapesById && localSheet.shapesById[shapeId]) || null;
+                  // If incoming shape lacks svgContent but local has it, preserve it
+                  if ((incShape.svgContent === undefined || incShape.svgContent === null) && localShape && localShape.svgContent) {
+                    mergedShapes[shapeId] = { ...incShape, svgContent: localShape.svgContent };
+                  } else {
+                    mergedShapes[shapeId] = { ...localShape, ...incShape };
+                  }
+                }
+                mergedSheet.shapesById = mergedShapes;
+                // Merge shapeIds (union) to avoid losing references
+                const existingIds: string[] = (localSheet.shapeIds || []);
+                const incomingIds: string[] = (incSheet.shapeIds || []);
+                const seen = new Set(existingIds);
+                const mergedIds = [...existingIds];
+                for (const id of incomingIds) {
+                  if (!seen.has(id)) { mergedIds.push(id); seen.add(id); }
+                }
+                mergedSheet.shapeIds = mergedIds;
+                merged.sheets[sheetId] = mergedSheet;
+              }
+              // Apply merged snapshot to store and update server version
+              useDiagramStore.getState().applyStateSnapshot(merged);
+              useDiagramStore.setState({ serverVersion: payload.version || null } as any);
+            } catch (e) {
+              // Fallback: if merge fails, fall back to original snapshot apply
+              useDiagramStore.getState().applyStateSnapshot(payload.state);
+              useDiagramStore.setState({ serverVersion: payload.version || null } as any);
+            }
           }
           const updater = payload && payload.updatedBy && payload.updatedBy.username ? payload.updatedBy.username : null;
           // Expose the metadata in the store for UI consumers (e.g. conflict dialog)
@@ -156,18 +202,46 @@ function App() {
   // being null while navigating between routes (observed when navigating to
   // /onboarding). Centralizing here ensures all route guards see the same
   // hydrated store value.
+  // sessionChecked prevents ProtectedRoute from redirecting prematurely on
+  // page refresh when the server may hold HttpOnly auth cookies we cannot
+  // inspect from JS. We attempt a silent /auth/me check when no lightweight
+  // cookie is available so the UI remains logged in across reloads.
+  const [sessionChecked, setSessionChecked] = useState(false);
   useEffect(() => {
-    try {
-      const cookie = getCurrentUserFromCookie();
-      if (cookie && !useDiagramStore.getState().currentUser) {
-        useDiagramStore.setState({ currentUser: cookie } as any);
-        // helpful debug: uncomment if you need to trace hydration
-        // console.debug('Hydrated currentUser from cookie at app mount', cookie.username);
+    let mounted = true;
+    (async () => {
+      try {
+        const cookie = getCurrentUserFromCookie();
+        const currentUser = useDiagramStore.getState().currentUser;
+        if (cookie && !currentUser) {
+          useDiagramStore.setState({ currentUser: cookie } as any);
+          if (mounted) setSessionChecked(true);
+          return;
+        }
+
+        if (!cookie && !currentUser) {
+          // Perform a silent /auth/me check to let the server validate any
+          // HttpOnly auth cookies and return user info if session is valid.
+          try {
+            const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
+            const meResp = await fetch(`${serverUrl}/auth/me`, { method: 'GET', credentials: 'include' });
+            if (meResp.ok) {
+              const json = await meResp.json().catch(() => null);
+              if (json && json.user && mounted) {
+                useDiagramStore.setState({ currentUser: json.user } as any);
+              }
+            }
+          } catch (e) {
+            // ignore network errors; user will be treated as unauthenticated
+          }
+        }
+      } catch (e) {
+        console.warn('App-level session hydration failed', e);
+      } finally {
+        if (mounted) setSessionChecked(true);
       }
-    } catch (e) {
-      // non-fatal
-      console.warn('App-level cookie hydration failed', e);
-    }
+    })();
+    return () => { mounted = false; };
   }, []);
 
   // Dev-only: subscribe to currentUser changes to detect unexpected clears.
@@ -384,6 +458,11 @@ function App() {
       console.warn('Dev currentUser watcher failed to subscribe', e);
     }
   }, []);
+
+  // Avoid rendering routes until sessionChecked is true so ProtectedRoute
+  // does not redirect on a cold reload when the server may validate session
+  // using HttpOnly cookies we can't read from JS.
+  if (!sessionChecked) return null;
 
   return (
     <BrowserRouter>
