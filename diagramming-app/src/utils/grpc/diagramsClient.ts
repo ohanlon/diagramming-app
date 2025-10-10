@@ -15,6 +15,8 @@ export type DiagramListItem = {
   createdAt?: string;
   updatedAt?: string;
   ownerUserId?: string | null;
+  permission?: string; // 'view' or 'edit' when this diagram was shared with current user
+  canCopy?: boolean;
 };
 
 export async function listDiagrams(): Promise<DiagramListItem[]> {

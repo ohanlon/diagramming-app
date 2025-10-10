@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
-import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard } from '@mui/icons-material';
+import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, History } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
@@ -94,6 +94,7 @@ const MainToolbar: React.FC = () => {
 
   const { saveDiagram } = useDiagramStore();
   const isEditable = useDiagramStore(state => state.isEditable !== false);
+  const remoteDiagramId = useDiagramStore(state => state.remoteDiagramId);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -221,6 +222,12 @@ const MainToolbar: React.FC = () => {
             <Dashboard fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => { handleFileMenuClose(); if (remoteDiagramId) navigate(`/diagram/${remoteDiagramId}/history`); }} disabled={!isEditable || !remoteDiagramId}>
+          <ListItemIcon>
+            <History fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>History</ListItemText>
         </MenuItem>
         {currentUserIsAdmin && (
           <MenuItem onClick={() => { handleFileMenuClose(); navigate('/admin'); }}>

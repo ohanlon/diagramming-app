@@ -245,7 +245,9 @@ router.get('/:id/history', async (req: Request, res: Response) => {
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
     if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
-      return res.status(403).json({ error: 'Forbidden' });
+      const { isDiagramEditableByUser } = require('../diagramsStore');
+      const editable = await isDiagramEditableByUser(id, user.id);
+      if (!editable) return res.status(403).json({ error: 'Forbidden' });
     }
     const list = await listDiagramHistory(id);
     res.json(list);
@@ -263,7 +265,9 @@ router.get('/:id/history/:historyId', async (req: Request, res: Response) => {
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
     if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
-      return res.status(403).json({ error: 'Forbidden' });
+      const { isDiagramEditableByUser } = require('../diagramsStore');
+      const editable = await isDiagramEditableByUser(id, user.id);
+      if (!editable) return res.status(403).json({ error: 'Forbidden' });
     }
     const entry = await getDiagramHistoryEntry(historyId);
     if (!entry) return res.status(404).json({ error: 'History entry not found' });
@@ -282,7 +286,9 @@ router.post('/:id/history/:historyId/restore', async (req: Request, res: Respons
     const found = await getDiagram(id);
     if (!found) return res.status(404).json({ error: 'Not found' });
     if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
-      return res.status(403).json({ error: 'Forbidden' });
+      const { isDiagramEditableByUser } = require('../diagramsStore');
+      const editable = await isDiagramEditableByUser(id, user.id);
+      if (!editable) return res.status(403).json({ error: 'Forbidden' });
     }
     const entry = await getDiagramHistoryEntry(historyId);
     if (!entry) return res.status(404).json({ error: 'History entry not found' });
