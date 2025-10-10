@@ -13,9 +13,9 @@ describe('invitesStore', () => {
   });
 
   it('creates an invite and returns the inserted row', async () => {
-    const fakeRow = { id: 'uuid-1', token: 'token-1', invited_email: 'alice@example.com', diagram_id: 'd1' };
+    const fakeRow = { id: 'uuid-1', token: 'token-1', invited_email: 'alice@example.com', diagram_id: 'd1', permission: 'edit', can_copy: false };
     (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [fakeRow] });
-    const res = await createInvite('d1', 'alice@example.com', 'inviter-1', null);
+    const res = await createInvite('d1', 'alice@example.com', 'inviter-1', null, 'edit', false);
     expect(res).toEqual(fakeRow);
     expect(pool.query).toHaveBeenCalled();
   });

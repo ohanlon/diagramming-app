@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Snackbar, AppBar, Toolbar } from '@mui/material';
+import { Box, Card, CardMedia, CardContent, Typography, CircularProgress, IconButton, Button, List, ListItemButton, ListItemText, Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Snackbar, AppBar, Toolbar, FormControl, InputLabel, Select, Switch, FormControlLabel } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -7,6 +7,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
+// ...existing code...
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import { useDiagramStore } from '../store/useDiagramStore';
@@ -14,6 +15,7 @@ import { listDiagrams, listSharedDiagrams } from '../utils/grpc/diagramsClient';
 import MuiAlert from '@mui/material/Alert';
 import NewButton from '../components/AppBar/NewMenu';
 import AccountMenu from '../components/AppBar/AccountMenu';
+// ...existing code...
 
 type DiagramListItem = {
   id: string;
@@ -48,10 +50,14 @@ const Dashboard: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'info' | 'warning' | 'error'>('success');
-  const [shareList, setShareList] = useState<Array<{ userId: string; username: string; sharedBy?: string | null; createdAt?: string }>>([]);
+  const [shareList, setShareList] = useState<Array<{ userId: string; username: string; sharedBy?: string | null; createdAt?: string; permission?: string; canCopy?: boolean }>>([]);
   const [shareListLoading, setShareListLoading] = useState(false);
   const [unsharingMap, setUnsharingMap] = useState<Record<string, boolean>>({});
-  const [missingEmailsToInvite, setMissingEmailsToInvite] = useState<string[] | null>(null);
+  const [missingEmailsToInvite, setMissingEmailsToInvite] = useState<Array<{ email: string; permission?: string; canCopy?: boolean }> | null>(null);
+  const [recipients, setRecipients] = useState<Array<{ email: string; permission: 'view' | 'edit'; canCopy: boolean }>>([]);
+  const [defaultPermission, setDefaultPermission] = useState<'view' | 'edit'>('view');
+  const [defaultCanCopy, setDefaultCanCopy] = useState<boolean>(true);
+  const [shareUpdateLoading, setShareUpdateLoading] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -133,6 +139,146 @@ const Dashboard: React.FC = () => {
 
     return () => { mounted = false; };
   }, [shareDialogOpen, menuForId]);
+
+  // Parse a comma-separated string into valid email addresses
+  function parseEmails(input: string) {
+    const parts = String(input || '').split(',').map(s => s.trim()).filter(Boolean);
+    const valids: string[] = [];
+    for (const p of parts) {
+      try {
+        if (validator.isEmail(p)) valids.push(p.toLowerCase());
+      } catch (e) { }
+    }
+    return Array.from(new Set(valids));
+  }
+
+  function addRecipientsFromInput() {
+    const list = parseEmails(shareInput);
+    if (list.length === 0) {
+      setShareError('No valid email addresses found');
+      return;
+    }
+    setRecipients(prev => {
+      const seen = new Set(prev.map(r => r.email.toLowerCase()));
+      const added = [] as Array<{ email: string; permission: 'view'|'edit'; canCopy: boolean }>;
+      for (const e of list) {
+        if (!seen.has(e)) {
+          added.push({ email: e, permission: defaultPermission, canCopy: defaultCanCopy });
+          seen.add(e);
+        }
+      }
+      return [...prev, ...added];
+    });
+    setShareInput('');
+    setShareError(null);
+  }
+
+  function removeRecipient(email: string) {
+    setRecipients(prev => prev.filter(r => String(r.email).toLowerCase() !== String(email).toLowerCase()));
+  }
+
+  function updateRecipient(email: string, patch: Partial<{ permission: 'view'|'edit'; canCopy: boolean }>) {
+    setRecipients(prev => prev.map(r => r.email.toLowerCase() === String(email).toLowerCase() ? { ...r, ...patch } : r));
+  }
+
+  async function onShareClick() {
+    setShareError(null);
+    const targetId = menuForId;
+    if (!targetId) return setShareError('No diagram selected');
+    // If no explicit recipients created, parse from textarea on the fly
+    let toShare = recipients;
+    if (!toShare || toShare.length === 0) {
+      const list = parseEmails(shareInput);
+      if (list.length === 0) return setShareError('No valid email addresses found');
+      toShare = list.map(e => ({ email: e, permission: defaultPermission, canCopy: defaultCanCopy }));
+    }
+    setShareLoading(true);
+    try {
+      const { apiFetch } = await import('../utils/apiFetch');
+      const serverUrl = useDiagramStore.getState().serverUrl;
+      const resp = await apiFetch(`${serverUrl}/diagrams/${targetId}/share`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shares: toShare }) });
+      if (!resp.ok) {
+        let body: any = null;
+        try { body = await resp.json(); } catch (e) { /* ignore */ }
+        if (body && body.missing && Array.isArray(body.missing) && body.missing.length > 0) {
+          // Map missing emails back to recipient objects so we can invite with flags
+          const missingItems = toShare.filter((r: any) => body.missing.includes(String(r.email).toLowerCase()) || body.missing.includes(r.email));
+          setMissingEmailsToInvite(missingItems.map((m: any) => ({ email: m.email, permission: m.permission, canCopy: m.canCopy })));
+          return setShareError('Some emails are not registered users. You may invite them.');
+        }
+        const text = await resp.text().catch(() => String(resp.status));
+        return setShareError(`Share failed: ${text}`);
+      }
+
+      // Success: clear inputs and refresh share list
+      setRecipients([]);
+      setShareInput('');
+      setShareError(null);
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Shared successfully');
+      setSnackbarOpen(true);
+      try {
+        const sharesResp = await (await import('../utils/apiFetch')).apiFetch(`${serverUrl}/diagrams/${targetId}/shares`, { method: 'GET' });
+        if (sharesResp.ok) {
+          const sharesJson = await sharesResp.json();
+          setShareList(sharesJson.shares || []);
+        }
+      } catch (e) {
+        console.warn('Failed to refresh share list after share', e);
+      }
+    } catch (err) {
+      console.error('Share failed', err);
+      setShareError('Share request failed');
+    } finally {
+      setShareLoading(false);
+    }
+  }
+
+  async function sendInvitesForMissing() {
+    if (!menuForId) return;
+    if (!missingEmailsToInvite || missingEmailsToInvite.length === 0) return;
+    try {
+      const { apiFetch } = await import('../utils/apiFetch');
+      const serverUrl = useDiagramStore.getState().serverUrl;
+      const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/invite`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shares: missingEmailsToInvite }) });
+      if (!resp.ok) throw new Error('Invite failed');
+      setMissingEmailsToInvite(null);
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Invites sent');
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error('Invite failed', err);
+      setSnackbarSeverity('error');
+      setSnackbarMessage('Failed to send invites');
+      setSnackbarOpen(true);
+    }
+  }
+
+  async function updateShareSettingsForUser(userId: string, permission?: string, canCopy?: boolean) {
+    if (!menuForId) return;
+    setShareUpdateLoading(prev => ({ ...prev, [userId]: true }));
+    try {
+      const { apiFetch } = await import('../utils/apiFetch');
+      const serverUrl = useDiagramStore.getState().serverUrl;
+      const body: any = {};
+      if (permission) body.permission = permission;
+      if (typeof canCopy !== 'undefined') body.canCopy = canCopy;
+      const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/share/${userId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!resp.ok) throw new Error('Update failed');
+      // Update local shareList
+      setShareList(prev => prev.map(s => s.userId === userId ? { ...s, permission: permission || s.permission, canCopy: typeof canCopy === 'boolean' ? canCopy : s.canCopy } : s));
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Share settings updated');
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error('Failed to update share settings', err);
+      setSnackbarSeverity('error');
+      setSnackbarMessage('Failed to update share settings');
+      setSnackbarOpen(true);
+    } finally {
+      setShareUpdateLoading(prev => { const copy = { ...prev }; delete copy[userId]; return copy; });
+    }
+  }
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
@@ -410,29 +556,44 @@ const Dashboard: React.FC = () => {
               <List dense>
                 {shareList.map(s => (
                   <ListItemButton key={s.userId} sx={{ pl: 0, pr: 0 }}>
-                    <ListItemText primary={s.username} />
-                    {( (menuForId && ((ownedDiagrams || []).find(dd => dd.id === menuForId) as any)?.ownerUserId === currentUserId) || currentUserIsAdmin) && (
-                      <IconButton edge="end" size="small" onClick={async (e) => {
-                        e.stopPropagation();
-                        if (!menuForId) return;
-                        setUnsharingMap(prev => ({ ...prev, [s.userId]: true }));
-                        try {
-                          const { apiFetch } = await import('../utils/apiFetch');
-                          const serverUrl = useDiagramStore.getState().serverUrl;
-                          const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/share/${s.userId}`, { method: 'DELETE' });
-                          if (!resp.ok) throw new Error('Unshare failed');
-                          setShareList(prev => prev.filter(x => x.userId !== s.userId));
-                          setSnackbarSeverity('success');
-                          setSnackbarMessage('Access revoked');
-                          setSnackbarOpen(true);
-                        } catch (err) {
-                          console.error('Failed to unshare', err);
-                        } finally {
-                          setUnsharingMap(prev => { const copy = { ...prev }; delete copy[s.userId]; return copy; });
-                        }
-                      }} disabled={!!unsharingMap[s.userId]}>
-                        {unsharingMap[s.userId] ? <CircularProgress size={16} /> : <DeleteIcon fontSize="small" />}
-                      </IconButton>
+                    <ListItemText primary={s.username} secondary={s.permission ? `Permission: ${s.permission}${typeof s.canCopy !== 'undefined' ? ` · Can copy: ${s.canCopy ? 'yes' : 'no'}` : ''}` : undefined} />
+                    {( (menuForId && ((ownedDiagrams || []).find(dd => dd.id === menuForId) as any)?.ownerUserId === currentUserId) || currentUserIsAdmin) ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <FormControl size="small" sx={{ minWidth: 120 }}>
+                                    <Select value={s.permission || 'view'} onChange={(e: any) => updateShareSettingsForUser(s.userId, String(e.target.value).toLowerCase(), undefined)} disabled={!!shareUpdateLoading[s.userId]}>
+                            <MenuItem value="view">View</MenuItem>
+                            <MenuItem value="edit">Edit</MenuItem>
+                          </Select>
+                        </FormControl>
+                        <FormControlLabel control={<Switch checked={!!s.canCopy} onChange={(e) => updateShareSettingsForUser(s.userId, undefined, (e.target as HTMLInputElement).checked)} disabled={!!shareUpdateLoading[s.userId]} />} label="Allow copy" />
+                        <IconButton edge="end" size="small" onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!menuForId) return;
+                          setUnsharingMap(prev => ({ ...prev, [s.userId]: true }));
+                          try {
+                            const { apiFetch } = await import('../utils/apiFetch');
+                            const serverUrl = useDiagramStore.getState().serverUrl;
+                            const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/share/${s.userId}`, { method: 'DELETE' });
+                            if (!resp.ok) throw new Error('Unshare failed');
+                            setShareList(prev => prev.filter(x => x.userId !== s.userId));
+                            setSnackbarSeverity('success');
+                            setSnackbarMessage('Access revoked');
+                            setSnackbarOpen(true);
+                          } catch (err) {
+                            console.error('Failed to unshare', err);
+                          } finally {
+                            setUnsharingMap(prev => { const copy = { ...prev }; delete copy[s.userId]; return copy; });
+                          }
+                        }} disabled={!!unsharingMap[s.userId]}>
+                          {unsharingMap[s.userId] ? <CircularProgress size={16} /> : <DeleteIcon fontSize="small" />}
+                        </IconButton>
+                      </Box>
+                    ) : (
+                      // Read-only display for non-owners
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="caption" color="text.secondary">{s.permission || 'view'}</Typography>
+                        <Typography variant="caption" color="text.secondary">{typeof s.canCopy !== 'undefined' ? (s.canCopy ? 'Can copy' : 'Cannot copy') : ''}</Typography>
+                      </Box>
                     )}
                   </ListItemButton>
                 ))}
@@ -441,58 +602,53 @@ const Dashboard: React.FC = () => {
             )}
           </Box>
 
-          <TextField fullWidth autoFocus multiline minRows={2} value={shareInput} onChange={(e) => setShareInput(e.target.value)} placeholder="email1@example.com, email2@example.com" sx={{ mt: 2 }} />
-           {shareError && <Typography color="error" variant="caption">{shareError}</Typography>}
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel id="permission-label">Permission</InputLabel>
+              <Select
+                labelId="permission-label"
+                value={defaultPermission}
+                label="Permission"
+                onChange={(e: any) => setDefaultPermission((e.target.value as 'view'|'edit'))}
+              >
+                <MenuItem value="view">View</MenuItem>
+                <MenuItem value="edit">Edit</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControlLabel control={<Switch checked={defaultCanCopy} onChange={(e) => setDefaultCanCopy((e.target as HTMLInputElement).checked)} />} label="Allow copy" />
+          </Box>
+
+          <TextField fullWidth autoFocus multiline minRows={2} value={shareInput} onChange={(e) => setShareInput(e.target.value)} placeholder="email1@example.com, email2@example.com" sx={{ mt: 1 }} />
+          <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+            <Button size="small" onClick={() => addRecipientsFromInput()}>Add recipients</Button>
+            <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center' }}>or edit recipients below</Typography>
+          </Box>
+          {shareError && <Typography color="error" variant="caption">{shareError}</Typography>}
+
+          {recipients.length > 0 && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="subtitle2">Recipients</Typography>
+              <List dense>
+                {recipients.map(r => (
+                  <ListItemButton key={r.email} sx={{ pl: 0, pr: 0 }}>
+                    <ListItemText primary={r.email} />
+                    <FormControl size="small" sx={{ minWidth: 120, mr: 1 }}>
+                      <Select value={r.permission} onChange={(e: any) => updateRecipient(r.email, { permission: e.target.value as 'view'|'edit' })} disabled={false}>
+                        <MenuItem value="view">View</MenuItem>
+                        <MenuItem value="edit">Edit</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControlLabel control={<Switch checked={r.canCopy} onChange={(e) => updateRecipient(r.email, { canCopy: (e.target as HTMLInputElement).checked })} />} label="Allow copy" />
+                    <IconButton edge="end" size="small" onClick={() => removeRecipient(r.email)}><DeleteIcon fontSize="small" /></IconButton>
+                  </ListItemButton>
+                ))}
+              </List>
+            </Box>
+          )}
          </DialogContent>
          <DialogActions>
            <Button onClick={() => { setShareDialogOpen(false); setShareInput(''); setShareError(null); setMenuForId(null); }}>Cancel</Button>
-          <Button variant="contained" disabled={shareLoading} onClick={async () => {
-             setShareError(null);
-             const targetId = menuForId;
-             if (!targetId) return setShareError('No diagram selected');
-             // Parse emails from input
-             const parts = shareInput.split(',').map(s => s.trim()).filter(Boolean);
-             const valids = parts.filter(p => validator.isEmail(p));
-             if (valids.length === 0) return setShareError('No valid email addresses found');
-             setShareLoading(true);
-             try {
-               const { apiFetch } = await import('../utils/apiFetch');
-               const serverUrl = useDiagramStore.getState().serverUrl;
-               const resp = await apiFetch(`${serverUrl}/diagrams/${targetId}/share`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emails: valids }) });
-               if (!resp.ok) {
-                 // Try to parse missing emails payload if present
-                 let body: any = null;
-                 try { body = await resp.json(); } catch (e) { /* ignore */ }
-                 if (body && body.missing && Array.isArray(body.missing) && body.missing.length > 0) {
-                   setMissingEmailsToInvite(body.missing);
-                   return setShareError('Some emails are not registered users. You may invite them.');
-                 }
-                 const text = await resp.text().catch(() => String(resp.status));
-                 return setShareError(`Share failed: ${text}`);
-               }
-               // Success: refresh share list to show newly shared users and clear input
-               setShareInput('');
-               setShareError(null);
-               setSnackbarSeverity('success');
-               setSnackbarMessage('Shared successfully');
-               setSnackbarOpen(true);
-               // Reload share list
-               try {
-                 const sharesResp = await (await import('../utils/apiFetch')).apiFetch(`${serverUrl}/diagrams/${targetId}/shares`, { method: 'GET' });
-                 if (sharesResp.ok) {
-                   const sharesJson = await sharesResp.json();
-                   setShareList(sharesJson.shares || []);
-                 }
-               } catch (e) {
-                 console.warn('Failed to refresh share list after share', e);
-               }
-             } catch (err) {
-               console.error('Share failed', err);
-               setShareError('Share request failed');
-             } finally {
-               setShareLoading(false);
-             }
-           }}>{shareLoading ? 'Sharing...' : 'Share'}</Button>
+          <Button variant="contained" disabled={shareLoading} onClick={async () => { await onShareClick(); }}>{shareLoading ? 'Sharing...' : 'Share'}</Button>
          </DialogActions>
        </Dialog>
 
@@ -500,24 +656,7 @@ const Dashboard: React.FC = () => {
        {missingEmailsToInvite && missingEmailsToInvite.length > 0 && (
          <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
            <Typography variant="body2">Invite these emails to register and view the diagram:</Typography>
-           <Button variant="outlined" onClick={async () => {
-             if (!menuForId) return;
-             try {
-               const { apiFetch } = await import('../utils/apiFetch');
-               const serverUrl = useDiagramStore.getState().serverUrl;
-               const resp = await apiFetch(`${serverUrl}/diagrams/${menuForId}/invite`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ emails: missingEmailsToInvite }) });
-               if (!resp.ok) throw new Error('Invite failed');
-               setMissingEmailsToInvite(null);
-               setSnackbarSeverity('success');
-               setSnackbarMessage('Invites sent');
-               setSnackbarOpen(true);
-             } catch (err) {
-               console.error('Invite failed', err);
-               setSnackbarSeverity('error');
-               setSnackbarMessage('Failed to send invites');
-               setSnackbarOpen(true);
-             }
-           }}>Send invites</Button>
+           <Button variant="outlined" onClick={async () => { await sendInvitesForMissing(); }}>Send invites</Button>
          </Box>
        )}
 

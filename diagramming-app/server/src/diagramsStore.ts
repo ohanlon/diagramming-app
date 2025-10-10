@@ -121,24 +121,32 @@ export async function listDiagramsByUser(ownerUserId: string | null) {
 
 // New: list diagrams shared with a given user id using the shared_documents table
 export async function listDiagramsSharedWithUserId(userId: string) {
-  const query = `SELECT d.id, d.owner_user_id, d.state->>'diagramName' AS diagram_name, d.state->>'thumbnailDataUrl' AS thumbnail_data_url, d.created_at, d.updated_at FROM shared_documents sd JOIN diagrams d ON sd.diagram_id = d.id WHERE sd.user_id = $1 ORDER BY d.updated_at DESC`;
+  const query = `SELECT d.id, d.owner_user_id, d.state->>'diagramName' AS diagram_name, d.state->>'thumbnailDataUrl' AS thumbnail_data_url, d.created_at, d.updated_at, sd.permission AS permission, sd.can_copy AS can_copy FROM shared_documents sd JOIN diagrams d ON sd.diagram_id = d.id WHERE sd.user_id = $1 ORDER BY d.updated_at DESC`;
   const { rows } = await pool.query(query, [userId]);
-  return rows.map((r: any) => ({ id: r.id, ownerUserId: r.owner_user_id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at }));
+  return rows.map((r: any) => ({ id: r.id, ownerUserId: r.owner_user_id, diagramName: r.diagram_name, thumbnailDataUrl: r.thumbnail_data_url, createdAt: r.created_at, updatedAt: r.updated_at, permission: r.permission || 'view', canCopy: !!r.can_copy }));
 }
 
 // New: share a diagram with one or more user ids (insert rows into shared_documents)
-export async function shareDiagramWithUserIds(diagramId: string, userIds: string[], sharedByUserId: string | null = null) {
+export async function shareDiagramWithUserIds(diagramId: string, userIds: string[], sharedByUserId: string | null = null, permission: string = 'view', canCopy: boolean = true) {
+  const entries = userIds.map(id => ({ userId: id, permission, canCopy }));
+  return upsertShares(diagramId, entries, sharedByUserId);
+}
+
+// Upsert an array of share entries with per-user permission and can_copy flags.
+export async function upsertShares(diagramId: string, entries: Array<{ userId: string; permission?: string; canCopy?: boolean }>, sharedByUserId: string | null = null) {
   const now = new Date().toISOString();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    for (const userId of userIds) {
-      await client.query(`INSERT INTO shared_documents(diagram_id, user_id, shared_by, created_at) VALUES($1, $2, $3, $4) ON CONFLICT (diagram_id, user_id) DO NOTHING`, [diagramId, userId, sharedByUserId, now]);
+    for (const e of entries) {
+      const permission = e.permission || 'view';
+      const canCopy = typeof e.canCopy === 'boolean' ? e.canCopy : true;
+      await client.query(`INSERT INTO shared_documents(diagram_id, user_id, shared_by, permission, can_copy, created_at) VALUES($1, $2, $3, $4, $5, $6) ON CONFLICT (diagram_id, user_id) DO UPDATE SET permission = EXCLUDED.permission, can_copy = EXCLUDED.can_copy, shared_by = EXCLUDED.shared_by`, [diagramId, e.userId, sharedByUserId, permission, canCopy, now]);
     }
     await client.query('COMMIT');
-  } catch (e) {
+  } catch (err) {
     await client.query('ROLLBACK');
-    throw e;
+    throw err;
   } finally {
     client.release();
   }
@@ -148,6 +156,13 @@ export async function shareDiagramWithUserIds(diagramId: string, userIds: string
 export async function isDiagramSharedWithUser(diagramId: string, userId: string) {
   const { rows } = await pool.query('SELECT 1 FROM shared_documents WHERE diagram_id = $1 AND user_id = $2 LIMIT 1', [diagramId, userId]);
   return rows.length > 0;
+}
+
+export async function isDiagramEditableByUser(diagramId: string, userId: string) {
+  const { rows } = await pool.query("SELECT permission FROM shared_documents WHERE diagram_id = $1 AND user_id = $2 LIMIT 1", [diagramId, userId]);
+  if (!rows || rows.length === 0) return false;
+  const p = rows[0].permission || 'view';
+  return p === 'edit';
 }
 
 export async function deleteDiagram(id: string) {
@@ -163,14 +178,14 @@ export async function unshareDiagramWithUser(diagramId: string, userId: string) 
 // New: list users a diagram is shared with (returns user rows and shared metadata)
 export async function listUsersSharedForDiagram(diagramId: string) {
   const query = `
-    SELECT u.id AS user_id, u.username AS username, sd.shared_by AS shared_by, sd.created_at AS created_at
+    SELECT u.id AS user_id, u.username AS username, sd.shared_by AS shared_by, sd.created_at AS created_at, sd.permission AS permission, sd.can_copy AS can_copy
     FROM shared_documents sd
     JOIN users u ON sd.user_id = u.id
     WHERE sd.diagram_id = $1
     ORDER BY sd.created_at ASC
   `;
   const { rows } = await pool.query(query, [diagramId]);
-  return rows.map((r: any) => ({ userId: r.user_id, username: r.username, sharedBy: r.shared_by, createdAt: r.created_at }));
+  return rows.map((r: any) => ({ userId: r.user_id, username: r.username, sharedBy: r.shared_by, createdAt: r.created_at, permission: r.permission || 'view', canCopy: !!r.can_copy }));
 }
 
 // New: list entries describing which users shared diagrams with the given user id

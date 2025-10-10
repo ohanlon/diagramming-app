@@ -31,6 +31,27 @@ const theme = createTheme({
         },
       },
     },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          '&.Mui-checked': {
+            color: '#1976d2', // thumb color when checked (blue)
+            '& + .MuiSwitch-track': {
+              backgroundColor: '#81b3e6ff', // track color when checked
+              opacity: 1,
+            },
+          },
+        },
+        thumb: {
+           color: '#1976d2'
+          // default thumb size/color — leave default but ensure contrast when unchecked
+        },
+        track: {
+          backgroundColor: '#81b3e6ff',
+          opacity: 1,
+        },
+      },
+    },
   },
 });
 

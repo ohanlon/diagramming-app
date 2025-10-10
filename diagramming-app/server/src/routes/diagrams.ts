@@ -1,6 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { createDiagram, getDiagram, replaceDiagram, patchDiagram, listDiagramsByUser, deleteDiagram, listDiagramsSharedWithUserId, shareDiagramWithUserIds, isDiagramSharedWithUser, listUsersSharedForDiagram, unshareDiagramWithUser } from '../diagramsStore';
+import { createDiagram, getDiagram, replaceDiagram, patchDiagram, listDiagramsByUser, deleteDiagram, listDiagramsSharedWithUserId, isDiagramSharedWithUser, listUsersSharedForDiagram, unshareDiagramWithUser } from '../diagramsStore';
 import { createDiagramHistory, listDiagramHistory, getDiagramHistoryEntry } from '../historyStore';
 import { broadcastDiagramUpdate } from '../ws/diagramsWs';
 import { getUsersByUsernames } from '../usersStore';
@@ -299,8 +299,10 @@ router.post('/:id/share', async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
-  const { emails } = req.body || {};
-  if (!emails) return res.status(400).json({ error: 'Missing emails' });
+  const rawInput = (req.body && (req.body.shares || req.body.emails)) as any;
+  const defaultPermission = (req.body && req.body.permission) || 'view';
+  const defaultCanCopy = typeof (req.body && req.body.canCopy) === 'boolean' ? req.body.canCopy : (typeof (req.body && req.body.can_copy) === 'boolean' ? req.body.can_copy : true);
+  if (!rawInput) return res.status(400).json({ error: 'Missing emails/shares' });
   try {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
@@ -308,37 +310,54 @@ router.post('/:id/share', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    // Normalize input (allow comma-separated string or array)
-    let list: string[] = [];
-    if (typeof emails === 'string') {
-      list = emails.split(',').map(s => s.trim()).filter(Boolean);
-    } else if (Array.isArray(emails)) {
-      list = emails.map((s: any) => String(s).trim()).filter(Boolean);
+    // Normalize input into an array of { email, permission?, canCopy? } objects
+    const items: Array<{ email: string; permission?: string; canCopy?: boolean }> = [];
+    if (typeof rawInput === 'string') {
+      const parts = rawInput.split(',').map((s: string) => s.trim()).filter(Boolean);
+      for (const p of parts) items.push({ email: p });
+    } else if (Array.isArray(rawInput)) {
+      for (const it of rawInput) {
+        if (typeof it === 'string') {
+          items.push({ email: it });
+        } else if (it && typeof it.email === 'string') {
+          items.push({ email: it.email, permission: it.permission, canCopy: typeof it.canCopy === 'boolean' ? it.canCopy : (typeof it.can_copy === 'boolean' ? it.can_copy : undefined) });
+        }
+      }
     } else {
-      return res.status(400).json({ error: 'Invalid emails format' });
+      return res.status(400).json({ error: 'Invalid emails/shares format' });
     }
 
-    // Validate emails
+    // Validate and dedupe emails
     const valid: string[] = [];
-    for (const e of list) {
-      if (validator.isEmail(e)) valid.push(e.toLowerCase());
+    for (const it of items) {
+      if (it && it.email && validator.isEmail(String(it.email))) valid.push(String(it.email).toLowerCase());
     }
     const unique = Array.from(new Set(valid));
     if (unique.length === 0) return res.status(400).json({ error: 'No valid email addresses provided' });
 
-    // Resolve emails to user ids
+  // Resolve emails to user ids
     const users = await getUsersByUsernames(unique);
     const foundUsernames = users.map((u: any) => String(u.username).toLowerCase());
     const missing = unique.filter(u => !foundUsernames.includes(u));
     if (missing.length > 0) {
       return res.status(400).json({ error: 'Some emails are not registered users', missing });
     }
-    const userIds = users.map((u: any) => u.id);
+    // Map found users back to input items to preserve per-item flags
+    const entries: Array<{ userId: string; permission?: string; canCopy?: boolean }> = [];
+    for (const u of users) {
+      const matchingInput = items.find(it => String(it.email).toLowerCase() === String(u.username).toLowerCase());
+      const permission = matchingInput && typeof matchingInput.permission === 'string' && ['view', 'edit'].includes(String(matchingInput.permission).toLowerCase()) ? String(matchingInput.permission).toLowerCase() : defaultPermission;
+      const canCopy = matchingInput && typeof matchingInput.canCopy === 'boolean' ? matchingInput.canCopy : defaultCanCopy;
+      entries.push({ userId: u.id, permission, canCopy });
+    }
 
-    // Insert into shared_documents
-    await shareDiagramWithUserIds(id, userIds, user.id === 'admin' ? null : user.id);
+    // Insert into shared_documents with per-share permission and canCopy
+    if (entries.length > 0) {
+      const { upsertShares } = await import('../diagramsStore');
+      await upsertShares(id, entries, user.id === 'admin' ? null : user.id);
+    }
 
-    res.json({ success: true, sharedWith: userIds });
+    res.json({ success: true, sharedWith: entries });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to share diagram' });
@@ -350,8 +369,10 @@ router.post('/:id/invite', async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const user = getRequestUser(req);
   if (!user) return res.status(401).json({ error: 'Authentication required' });
-  const { emails } = req.body || {};
-  if (!emails) return res.status(400).json({ error: 'Missing emails' });
+  const rawInput = (req.body && (req.body.shares || req.body.emails)) as any;
+  const defaultPermission = (req.body && req.body.permission) || 'view';
+  const defaultCanCopy = typeof (req.body && req.body.canCopy) === 'boolean' ? req.body.canCopy : (typeof (req.body && req.body.can_copy) === 'boolean' ? req.body.can_copy : true);
+  if (!rawInput) return res.status(400).json({ error: 'Missing emails/shares' });
   try {
     const existing = await getDiagram(id);
     if (!existing) return res.status(404).json({ error: 'Not found' });
@@ -359,18 +380,27 @@ router.post('/:id/invite', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    let list: string[] = [];
-    if (typeof emails === 'string') {
-      list = emails.split(',').map(s => s.trim()).filter(Boolean);
-    } else if (Array.isArray(emails)) {
-      list = emails.map((s: any) => String(s).trim()).filter(Boolean);
+    // Normalize input into an array of { email, permission?, canCopy? } objects
+    const items: Array<{ email: string; permission?: string; canCopy?: boolean }> = [];
+    if (typeof rawInput === 'string') {
+      const parts = rawInput.split(',').map((s: string) => s.trim()).filter(Boolean);
+      for (const p of parts) items.push({ email: p });
+    } else if (Array.isArray(rawInput)) {
+      for (const it of rawInput) {
+        if (typeof it === 'string') {
+          items.push({ email: it });
+        } else if (it && typeof it.email === 'string') {
+          items.push({ email: it.email, permission: it.permission, canCopy: typeof it.canCopy === 'boolean' ? it.canCopy : (typeof it.can_copy === 'boolean' ? it.can_copy : undefined) });
+        }
+      }
     } else {
-      return res.status(400).json({ error: 'Invalid emails format' });
+      return res.status(400).json({ error: 'Invalid emails/shares format' });
     }
 
+    // Validate and dedupe emails
     const valid: string[] = [];
-    for (const e of list) {
-      if (validator.isEmail(e)) valid.push(e.toLowerCase());
+    for (const it of items) {
+      if (it && it.email && validator.isEmail(String(it.email))) valid.push(String(it.email).toLowerCase());
     }
     const unique = Array.from(new Set(valid));
     if (unique.length === 0) return res.status(400).json({ error: 'No valid email addresses provided' });
@@ -379,16 +409,29 @@ router.post('/:id/invite', async (req: Request, res: Response) => {
     const users = await getUsersByUsernames(unique);
     const foundUsernames = users.map((u: any) => String(u.username).toLowerCase());
     const missing = unique.filter(u => !foundUsernames.includes(u));
-    const userIds = users.map((u: any) => u.id);
+    // Build per-user entries for registered users, preserving per-item flags
+    const entries: Array<{ userId: string; permission?: string; canCopy?: boolean }> = [];
+    for (const u of users) {
+      const matchingInput = items.find(it => String(it.email).toLowerCase() === String(u.username).toLowerCase());
+      const permission = matchingInput && typeof matchingInput.permission === 'string' && ['view', 'edit'].includes(String(matchingInput.permission).toLowerCase()) ? String(matchingInput.permission).toLowerCase() : defaultPermission;
+      const canCopy = matchingInput && typeof matchingInput.canCopy === 'boolean' ? matchingInput.canCopy : defaultCanCopy;
+      entries.push({ userId: u.id, permission, canCopy });
+    }
 
-    // Share with any registered user ids immediately
-    if (userIds.length > 0) await shareDiagramWithUserIds(id, userIds, user.id === 'admin' ? null : user.id);
+    // Share with any registered user ids immediately, applying per-item flags
+    if (entries.length > 0) {
+      const { upsertShares } = await import('../diagramsStore');
+      await upsertShares(id, entries, user.id === 'admin' ? null : user.id);
+    }
 
     // Create pending invites for missing emails and send emails
     const createdInvites: any[] = [];
-    for (const m of missing) {
-      const invite = await (await import('../invitesStore')).createInvite(id, m, user.id === 'admin' ? null : user.id, null);
-      createdInvites.push(invite);
+  for (const m of missing) {
+    const matchingInput = items.find((it: any) => String(it.email).toLowerCase() === String(m).toLowerCase());
+    const p = matchingInput && typeof matchingInput.permission === 'string' && ['view', 'edit'].includes(String(matchingInput.permission).toLowerCase()) ? String(matchingInput.permission).toLowerCase() : defaultPermission;
+    const c = matchingInput && typeof matchingInput.canCopy === 'boolean' ? matchingInput.canCopy : defaultCanCopy;
+    const invite = await (await import('../invitesStore')).createInvite(id, m, user.id === 'admin' ? null : user.id, null, p, c);
+    createdInvites.push(invite);
       // Construct invite link briefly using FRONTEND_ORIGIN env var or fallback
       const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
       const inviteLink = `${FRONTEND_ORIGIN}/accept-invite?token=${invite.token}`;
@@ -400,7 +443,7 @@ router.post('/:id/invite', async (req: Request, res: Response) => {
       }
     }
 
-    res.json({ success: true, sharedUserIds: userIds, invites: createdInvites, missingEmails: missing });
+    res.json({ success: true, sharedUserIds: entries.map(e => e.userId), shares: entries, invites: createdInvites, missingEmails: missing });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to create invites' });
@@ -435,7 +478,9 @@ router.post('/invites/:token/accept', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Invite not for this user' });
     }
     // Create share row and mark invite accepted
-    await shareDiagramWithUserIds(invite.diagram_id, [user.id], invite.invited_by);
+    // Apply permission/can_copy from the invite when creating the share
+    const { upsertShares } = await import('../diagramsStore');
+    await upsertShares(invite.diagram_id, [{ userId: user.id, permission: invite.permission || 'view', canCopy: typeof invite.can_copy === 'boolean' ? invite.can_copy : true }], invite.invited_by);
     await acceptInvite(token, user.id);
     res.json({ success: true });
   } catch (e) {
@@ -481,6 +526,31 @@ router.delete('/:id/share/:userId', async (req: Request, res: Response) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to revoke share' });
+  }
+});
+
+// Update a user's share settings (permission and canCopy)
+router.put('/:id/share/:userId', async (req: Request, res: Response) => {
+  const { id, userId } = req.params as { id: string; userId: string };
+  const user = getRequestUser(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  const { permission, canCopy } = req.body || {};
+  if (!permission && typeof canCopy === 'undefined') return res.status(400).json({ error: 'Missing permission or canCopy to update' });
+  if (permission && !['view', 'edit'].includes(String(permission).toLowerCase())) return res.status(400).json({ error: 'Invalid permission' });
+  try {
+    const existing = await getDiagram(id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    // Only owner or admin can change share settings
+    if (existing.owner_user_id && existing.owner_user_id !== user.id && !(await isAdminForUser(user))) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const entry = { userId, permission: permission ? String(permission).toLowerCase() : undefined, canCopy: typeof canCopy === 'boolean' ? canCopy : undefined } as any;
+    const { upsertShares } = await import('../diagramsStore');
+    await upsertShares(id, [entry], user.id === 'admin' ? null : user.id);
+    res.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to update share settings' });
   }
 });
 

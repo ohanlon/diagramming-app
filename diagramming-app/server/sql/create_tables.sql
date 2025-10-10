@@ -102,6 +102,10 @@ CREATE TABLE IF NOT EXISTS shared_documents (
   diagram_id UUID NOT NULL REFERENCES diagrams(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   shared_by UUID NULL REFERENCES users(id),
+  -- Permission can be 'view' or 'edit'. Presence of a row implies at least view access.
+  permission TEXT NOT NULL DEFAULT 'view',
+  -- Whether the recipient is allowed to copy/duplicate the diagram for their own use.
+  can_copy BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (diagram_id, user_id)
 );
@@ -116,6 +120,8 @@ CREATE TABLE IF NOT EXISTS pending_invites (
   invited_email TEXT NOT NULL,
   diagram_id UUID NOT NULL REFERENCES diagrams(id) ON DELETE CASCADE,
   invited_by UUID NULL REFERENCES users(id),
+  permission TEXT NOT NULL DEFAULT 'view',
+  can_copy BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMPTZ NULL,
   accepted BOOLEAN NOT NULL DEFAULT FALSE
