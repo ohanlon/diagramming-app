@@ -93,6 +93,7 @@ const MainToolbar: React.FC = () => {
   };
 
   const { saveDiagram } = useDiagramStore();
+  const isEditable = useDiagramStore(state => state.isEditable !== false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -102,7 +103,7 @@ const MainToolbar: React.FC = () => {
       }
       if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
         event.preventDefault();
-        saveDiagram();
+        if (isEditable) saveDiagram();
       }
     };
 
@@ -199,7 +200,7 @@ const MainToolbar: React.FC = () => {
       >
         <NewMenuItem onNew={handleNewDiagram} />
         <Divider />
-        <MenuItem onClick={() => { saveDiagram(); handleFileMenuClose(); }}>
+        <MenuItem onClick={() => { if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
           <ListItemIcon>
             <SaveOutlined fontSize="small" />
           </ListItemIcon>

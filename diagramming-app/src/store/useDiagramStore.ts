@@ -90,6 +90,10 @@ const initialState: DiagramState = {
   conflictOpen: false,
   conflictLocalState: null,
   diagramName: 'New Diagram',
+  // Whether the currently opened diagram is editable by the current user.
+  // Defaults to true for locally-created diagrams; this will be set by
+  // loadDiagram when a remote diagram is loaded.
+  isEditable: true,
 };
 
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set, get) => {
@@ -434,7 +438,29 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
           console.debug(`[loadDiagram] Fetched diagram ${state.remoteDiagramId} from server: sheets=${sheetCount}, totalShapes=${totalShapes}`);
         } catch (e) {}
          // Replace local state with server state (note: server strips svgContent)
-         set((s: any) => ({ ...s, ...json.state, serverVersion: json.version || null, isDirty: false }));
+         // Also set isEditable based on whether the current user is the owner,
+         // an admin, or the shared entry grants 'edit' permission.
+         const currentUser = get().currentUser as any;
+         let editable = true;
+         try {
+           if (json.owner_user_id) {
+             if (currentUser && currentUser.id === json.owner_user_id) {
+               editable = true;
+             } else if (currentUser && Array.isArray(currentUser.roles) && currentUser.roles.includes('admin')) {
+               editable = true;
+             } else if (json.current_user_permission && String(json.current_user_permission).toLowerCase() === 'edit') {
+               editable = true;
+             } else {
+               editable = false;
+             }
+           } else {
+             // Diagram has no owner (maybe created by system) - default to editable
+             editable = true;
+           }
+         } catch (e) {
+           editable = true;
+         }
+         set((s: any) => ({ ...s, ...json.state, serverVersion: json.version || null, isDirty: false, isEditable: editable }));
         // Log resulting local state's counts
         try {
           const newState = get();

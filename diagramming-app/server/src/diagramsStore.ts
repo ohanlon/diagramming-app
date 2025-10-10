@@ -188,6 +188,13 @@ export async function listUsersSharedForDiagram(diagramId: string) {
   return rows.map((r: any) => ({ userId: r.user_id, username: r.username, sharedBy: r.shared_by, createdAt: r.created_at, permission: r.permission || 'view', canCopy: !!r.can_copy }));
 }
 
+// New: get the share metadata (permission and can_copy) for a given diagram/user pair
+export async function getShareMetadata(diagramId: string, userId: string) {
+  const { rows } = await pool.query('SELECT permission, can_copy FROM shared_documents WHERE diagram_id = $1 AND user_id = $2 LIMIT 1', [diagramId, userId]);
+  if (!rows || rows.length === 0) return null;
+  return { permission: rows[0].permission || 'view', canCopy: !!rows[0].can_copy };
+}
+
 // New: list entries describing which users shared diagrams with the given user id
 export async function listSharedByForUserId(targetUserId: string) {
   const query = `

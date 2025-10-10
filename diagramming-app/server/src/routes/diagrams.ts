@@ -97,6 +97,31 @@ router.get('/:id', async (req: Request, res: Response) => {
       const shared = await isDiagramSharedWithUser(id, user.id);
       if (!shared) return res.status(403).json({ error: 'Forbidden' });
     }
+    // Attach current user's permission and can_copy flags so the client can
+    // decide whether to allow editing and copying in the UI. Owners and
+    // admins implicitly have edit rights.
+    try {
+      const { getShareMetadata } = require('../diagramsStore');
+      let currentPermission: string | null = null;
+      let currentCanCopy: boolean | null = null;
+      if (found.owner_user_id && found.owner_user_id === user.id) {
+        currentPermission = 'edit';
+        currentCanCopy = true;
+      } else if (await isAdminForUser(user)) {
+        currentPermission = 'edit';
+        currentCanCopy = true;
+      } else {
+        const meta = await getShareMetadata(id, user.id);
+        if (meta) {
+          currentPermission = meta.permission || 'view';
+          currentCanCopy = !!meta.canCopy;
+        }
+      }
+      (found as any).current_user_permission = currentPermission;
+      (found as any).current_user_can_copy = currentCanCopy;
+    } catch (e) {
+      // ignore permission metadata attach failures
+    }
     // Include ETag header based on version to allow optimistic concurrency
     try {
       const v = (found as any).version || 1;

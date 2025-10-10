@@ -162,6 +162,8 @@ function MainAppLayout() {
     };
   }, [effectiveDiagramId]);
 
+  const isEditable = useDiagramStore(state => state.isEditable !== false);
+
   return (
     <Box
       sx={{
@@ -177,7 +179,7 @@ function MainAppLayout() {
         <ToolbarComponent />
       </AppBar>
       <Box sx={{ display: 'flex', flexGrow: 1, minHeight: 0 }}>
-        <ResizableShapeStore />
+        {isEditable && <ResizableShapeStore />}
         <Canvas />
       </Box>
       {showLayerPanel && <LayerPanel showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />}
