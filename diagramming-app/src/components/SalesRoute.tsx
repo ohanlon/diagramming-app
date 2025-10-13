@@ -78,7 +78,7 @@ const SalesRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           arr.push({ type: 'sales_redirect', time: new Date().toISOString(), url: window.location.href, effectiveUser, roles: roles });
           window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
           // eslint-disable-next-line no-console
-          console.warn('[dev-watch] SalesRoute redirect persisted', { effectiveUser, roles });
+          // console.warn('[dev-watch] SalesRoute redirect persisted', { effectiveUser, roles });
         } catch (e) {}
       }
     } catch (e) {}

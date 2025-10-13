@@ -73,7 +73,7 @@ export function clearCurrentUserCookie() {
           // ignore
         }
         // eslint-disable-next-line no-console
-        console.warn('[dev-watch] clearCurrentUserCookie called', evt);
+        // console.warn('[dev-watch] clearCurrentUserCookie called', evt);
         // eslint-disable-next-line no-console
         console.warn(new Error('clearCurrentUserCookie stack').stack);
       } catch (e) {

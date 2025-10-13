@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
-import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, History } from '@mui/icons-material';
+import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
@@ -183,13 +183,13 @@ const MainToolbar: React.FC = () => {
   };
 
   return (
-    <Toolbar disableGutters variant="dense" sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black', minHeight: '2em' }}>
+  <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'text.primary', minHeight: '2em' }}>
       {/* Diagram name display and edit (moved before File menu) */}
       <Button onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', mr: 1 }}>
         <Typography variant="subtitle1" sx={{ maxWidth: '128px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{diagramName}</Typography>
       </Button>
       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-      <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'black', ml: 1 }}>
+  <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'text.primary', ml: 1 }}>
         File
       </Button>
       <Menu
@@ -223,20 +223,9 @@ const MainToolbar: React.FC = () => {
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => { handleFileMenuClose(); if (remoteDiagramId) navigate(`/diagram/${remoteDiagramId}/history`); }} disabled={!isEditable || !remoteDiagramId}>
-          <ListItemIcon>
-            <History fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>History</ListItemText>
-        </MenuItem>
-        {currentUserIsAdmin && (
-          <MenuItem onClick={() => { handleFileMenuClose(); navigate('/admin'); }}>
-            <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Admin</ListItemText>
-          </MenuItem>
-        )}
       </Menu>
 
-      <Button onClick={handleEditMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')} sx={{ color: 'black' }}>
+  <Button onClick={handleEditMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')} sx={{ color: 'text.primary' }}>
         Edit
       </Button>
       <Menu
@@ -284,7 +273,7 @@ const MainToolbar: React.FC = () => {
         </MenuItem>
       </Menu>
 
-      <Button onClick={handleSelectMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'select')} sx={{ color: 'black' }}>
+  <Button onClick={handleSelectMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'select')} sx={{ color: 'text.primary' }}>
         Select
       </Button>
       <Menu

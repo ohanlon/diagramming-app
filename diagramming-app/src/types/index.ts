@@ -124,6 +124,8 @@ export type DiagramState = {
   currentUser?: { id: string; username: string; avatarUrl?: string; roles?: string[] } | null; // Authenticated user's info with optional roles
   isEditable?: boolean; // Whether the currently opened diagram is editable by the current user
   diagramName?: string; // Human-friendly diagram name (required for save)
+  // UI theme mode for the application ('light' or 'dark')
+  themeMode?: 'light' | 'dark';
   thumbnailDataUrl?: string | null; // Base64-encoded PNG data URL for a small thumbnail preview
   showAuthDialog?: boolean; // Legacy flag controlling auth modal visibility (kept for compatibility)
 };

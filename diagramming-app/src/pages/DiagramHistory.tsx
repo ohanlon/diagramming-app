@@ -94,7 +94,7 @@ const DiagramHistory: React.FC = () => {
         {entries.map(entry => (
           <Paper key={entry.id} sx={{ p: 2, width: 320 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <Box sx={{ width: 120, height: 80, background: '#fff', border: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box sx={{ width: 120, height: 80, background: (theme) => theme.palette.background.paper, border: (theme) => `1px solid ${theme.palette.divider}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {thumbnails[entry.id] ? (
                   <img src={thumbnails[entry.id] as string} alt="preview" style={{ maxWidth: '100%', maxHeight: '100%' }} />
                 ) : loadingMap[entry.id] ? <CircularProgress size={24} /> : <Typography variant="caption">No preview</Typography>}

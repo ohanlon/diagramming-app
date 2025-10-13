@@ -81,7 +81,7 @@ const AdminRoute: React.FC<Props> = ({ children }) => {
           arr.push({ type: 'admin_redirect', time: new Date().toISOString(), url: window.location.href, effectiveUser });
           window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
           // eslint-disable-next-line no-console
-          console.warn('[dev-watch] AdminRoute redirect persisted', { effectiveUser });
+          // console.warn('[dev-watch] AdminRoute redirect persisted', { effectiveUser });
         } catch (e) {}
       }
     } catch (e) {}

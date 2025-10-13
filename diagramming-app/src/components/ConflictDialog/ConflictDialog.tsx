@@ -20,9 +20,9 @@ export default function ConflictDialog() {
           The diagram has been changed on the server since you last saved (server version: {conflictServerVersion ?? 'unknown'}).
         </DialogContentText>
         <Typography variant="subtitle2" sx={{ mt: 2 }}>Server snapshot preview</Typography>
-        <pre style={{ maxHeight: 240, overflow: 'auto', background: '#f5f5f5', padding: 8 }}>{JSON.stringify(conflictServerState || {}, null, 2)}</pre>
+  <pre style={{ maxHeight: 240, overflow: 'auto', background: 'var(--conflict-server-bg, #f5f5f5)', padding: 8 }}>{JSON.stringify(conflictServerState || {}, null, 2)}</pre>
         <Typography variant="subtitle2" sx={{ mt: 2 }}>Your local changes</Typography>
-        <pre style={{ maxHeight: 240, overflow: 'auto', background: '#fff9c4', padding: 8 }}>{JSON.stringify(conflictLocalState || {}, null, 2)}</pre>
+  <pre style={{ maxHeight: 240, overflow: 'auto', background: 'var(--conflict-local-bg, #fff9c4)', padding: 8 }}>{JSON.stringify(conflictLocalState || {}, null, 2)}</pre>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => dismiss()}>Dismiss</Button>

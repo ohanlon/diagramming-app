@@ -19,14 +19,28 @@ code {
     monospace;
 }
 
+/* Theme-aware CSS variables used by some non-MUI elements */
+:root {
+  --conflict-server-bg: #f5f5f5;
+  --conflict-local-bg: #fff9c4;
+  --button-bg: #eee;
+  --button-border: #ccc;
+}
+
+[data-theme="dark"] {
+  --conflict-server-bg: #222;
+  --conflict-local-bg: #3a3a2a;
+  --button-bg: #333;
+  --button-border: #444;
+}
+
 button {
   padding: 8px 8px;
-  border: 1px solid #ccc;
-  /* border-radius: 4px; */
-  background-color: #eee;
+  border: 1px solid var(--button-border);
+  background-color: var(--button-bg);
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #ddd;
+  filter: brightness(1.05);
 }

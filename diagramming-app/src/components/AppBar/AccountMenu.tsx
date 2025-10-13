@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IconButton, Avatar, Menu, MenuItem, ListItemText, Tooltip, Dialog, DialogContent, Typography, Box } from '@mui/material';
+import { IconButton, Avatar, Menu, MenuItem, ListItemText, Tooltip, Dialog, DialogContent, Typography, Box, FormControlLabel, Switch } from '@mui/material';
 import { Person as PersonIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { getCurrentUserFromCookie } from '../../utils/userCookie';
@@ -15,6 +15,8 @@ const AccountMenu: React.FC = () => {
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentUser?.avatarUrl);
   const [avatarSrcForEditing, setAvatarSrcForEditing] = useState<string | null>(null);
+  const themeMode = useDiagramStore(state => state.themeMode || 'light');
+  const setThemeMode = useDiagramStore(state => state.setThemeMode as (mode: 'light'|'dark') => void);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -40,7 +42,7 @@ const AccountMenu: React.FC = () => {
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose} id="account-menu">
-        {currentUser ? [
+  {currentUser ? [
           <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>,
           <MenuItem key="change-avatar" onClick={() => { handleClose(); setAvatarEditorOpen(true); }}>Change avatar</MenuItem>,
           <MenuItem key="remove-avatar" onClick={async () => {
@@ -63,12 +65,26 @@ const AccountMenu: React.FC = () => {
           <MenuItem key="logout" onClick={() => { handleClose(); logout(); }}>
             <ListItemText>Logout</ListItemText>
           </MenuItem>,
+          <MenuItem key="theme-toggle">
+            <ListItemText>Theme</ListItemText>
+            <FormControlLabel
+              control={<Switch checked={themeMode === 'dark'} onChange={(e) => { setThemeMode(e.target.checked ? 'dark' : 'light'); handleClose(); }} />}
+              label={themeMode === 'dark' ? 'Dark' : 'Light'}
+            />
+          </MenuItem>,
           currentUserIsAdmin ? (
             <MenuItem key="admin" onClick={() => { handleClose(); navigate('/admin'); }}>
               <ListItemText>Admin Settings</ListItemText>
             </MenuItem>
           ) : null
         ] : [
+          <MenuItem key="theme-toggle-guest">
+            <ListItemText>Theme</ListItemText>
+            <FormControlLabel
+              control={<Switch checked={themeMode === 'dark'} onChange={(e) => { setThemeMode(e.target.checked ? 'dark' : 'light'); handleClose(); }} />}
+              label={themeMode === 'dark' ? 'Dark' : 'Light'}
+            />
+          </MenuItem>,
           <MenuItem key="login" onClick={() => { handleClose(); window.location.href = '/login'; }}>Login</MenuItem>,
           <MenuItem key="register" onClick={() => { handleClose(); window.location.href = '/login'; }}>Register</MenuItem>
         ]}

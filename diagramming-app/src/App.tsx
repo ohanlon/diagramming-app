@@ -5,7 +5,7 @@ import ToolbarComponent from './components/Toolbar/Toolbar';
 import LayerPanel from './components/LayerPanel/LayerPanel';
 import StatusBar from './components/StatusBar/StatusBar';
 import SheetTabs from './components/SheetTabs/SheetTabs';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { AppBar, Box, Snackbar, Alert } from '@mui/material';
 import ConflictDialog from './components/ConflictDialog/ConflictDialog';
 import { BrowserRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
@@ -174,7 +174,7 @@ function MainAppLayout() {
         overflow: 'hidden',
       }}
     >
-      <AppBar position="static" color='primary' sx={{ borderBottom: '1px solid #e0e0e0', padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'black' }}>
+      <AppBar position="static" color='primary' sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'text.primary' }}>
         <MainToolbar />
         <ToolbarComponent />
       </AppBar>
@@ -291,7 +291,7 @@ function App() {
           const arr = JSON.parse(raw || '[]');
           if (arr && arr.length) {
             // eslint-disable-next-line no-console
-            console.warn('[dev-watch] pending events from prior navigation', arr);
+            // console.warn('[dev-watch] pending events from prior navigation', arr);
             try { if (typeof window !== 'undefined') window.localStorage.removeItem(key); } catch (e) {}
           }
         }
@@ -313,7 +313,7 @@ function App() {
                     try {
                       const evt = { type: 'setState_cleared', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown', before };
                       // eslint-disable-next-line no-console
-                      console.warn('[dev-watch] setState cleared currentUser', evt);
+                      // console.warn('[dev-watch] setState cleared currentUser', evt);
                       // eslint-disable-next-line no-console
                       console.warn(new Error('setState cleared currentUser stack').stack);
                       pushDevEvent(evt);
@@ -344,18 +344,18 @@ function App() {
           // Use warn so the message is visible by default in many consoles
           // even when debug-level messages are filtered.
           // eslint-disable-next-line no-console
-          console.warn('[dev-watch] currentUser change', info);
+          // console.warn('[dev-watch] currentUser change', info);
           pushDevEvent({ type: 'sub_change', ...info });
           // If the user was cleared unexpectedly, capture a stack to help track the origin
           if (!newUser && oldUser) {
             // eslint-disable-next-line no-console
-            console.warn('[dev-watch] currentUser cleared unexpectedly — stack follows');
+            // console.warn('[dev-watch] currentUser cleared unexpectedly — stack follows');
             const stack = new Error('currentUser cleared').stack;
             // eslint-disable-next-line no-console
             console.warn(stack);
           }
         } catch (inner) {
-          console.warn('[dev-watch] error while logging currentUser change', inner);
+          // console.warn('[dev-watch] error while logging currentUser change', inner);
         }
       });
 
@@ -377,7 +377,7 @@ function App() {
           if (currentCookie !== prevCookie) {
             const evt = { type: 'cookie_changed', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown' };
             // eslint-disable-next-line no-console
-            console.warn('[dev-watch] document.cookie changed', evt);
+            // console.warn('[dev-watch] document.cookie changed', evt);
             pushDevEvent(evt);
             prevCookie = currentCookie;
           }
@@ -395,7 +395,7 @@ function App() {
               const evt = { type: 'history.pushState', time: new Date().toISOString(), url: String(url || window.location.href), stack: (new Error('pushState called')).stack };
               pushDevEvent(evt);
               // eslint-disable-next-line no-console
-              console.warn('[dev-watch] history.pushState', evt);
+              // console.warn('[dev-watch] history.pushState', evt);
             } catch (e) {}
             return pushStateOrig(state, title, url);
           };
@@ -407,7 +407,7 @@ function App() {
               const evt = { type: 'history.replaceState', time: new Date().toISOString(), url: String(url || window.location.href), stack: (new Error('replaceState called')).stack };
               pushDevEvent(evt);
               // eslint-disable-next-line no-console
-              console.warn('[dev-watch] history.replaceState', evt);
+              // console.warn('[dev-watch] history.replaceState', evt);
             } catch (e) {}
             return replaceStateOrig(state, title, url);
           };
@@ -419,7 +419,7 @@ function App() {
               try {
                 const evt = { type: 'location.assign', time: new Date().toISOString(), url: String(url), stack: (new Error('location.assign called')).stack };
                 pushDevEvent(evt);
-                console.warn('[dev-watch] location.assign', evt);
+                // console.warn('[dev-watch] location.assign', evt);
               } catch (e) {}
               return assignOrig(url);
             };
@@ -432,7 +432,7 @@ function App() {
               try {
                 const evt = { type: 'location.replace', time: new Date().toISOString(), url: String(url), stack: (new Error('location.replace called')).stack };
                 pushDevEvent(evt);
-                console.warn('[dev-watch] location.replace', evt);
+                // console.warn('[dev-watch] location.replace', evt);
               } catch (e) {}
               return replaceOrig(url);
             };
@@ -459,6 +459,21 @@ function App() {
     } catch (e) {
       console.warn('Dev currentUser watcher failed to subscribe', e);
     }
+  }, []);
+
+  // Ensure the document data-theme attribute reflects the current themeMode
+  useLayoutEffect(() => {
+    try {
+      const unsub = useDiagramStore.subscribe((s) => {
+        try {
+          const mode = s.themeMode || 'light';
+          if (typeof document !== 'undefined') document.documentElement.setAttribute('data-theme', mode === 'dark' ? 'dark' : 'light');
+        } catch (e) {}
+      });
+      // Set initial value synchronously
+      try { const initial = useDiagramStore.getState().themeMode || 'light'; if (typeof document !== 'undefined') document.documentElement.setAttribute('data-theme', initial === 'dark' ? 'dark' : 'light'); } catch (e) {}
+      return () => { try { unsub(); } catch (e) {} };
+    } catch (e) {}
   }, []);
 
   // Avoid rendering routes until sessionChecked is true so ProtectedRoute

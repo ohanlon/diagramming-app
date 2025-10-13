@@ -98,7 +98,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
           arr.push({ type: 'protected_redirect', time: new Date().toISOString(), url: window.location.href, currentUser: currentUser || null, cookie: getCurrentUserFromCookie(), stack: (new Error('ProtectedRoute redirect')).stack });
           window.localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
           // eslint-disable-next-line no-console
-          console.warn('[dev-watch] ProtectedRoute redirect persisted', { currentUser: currentUser || null });
+          // console.warn('[dev-watch] ProtectedRoute redirect persisted', { currentUser: currentUser || null });
         } catch (e) {
           // ignore
         }

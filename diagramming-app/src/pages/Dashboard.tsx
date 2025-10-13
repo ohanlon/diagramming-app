@@ -7,6 +7,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
+import History from '@mui/icons-material/History';
 // ...existing code...
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
@@ -389,7 +390,7 @@ const Dashboard: React.FC = () => {
                   Open
                 </MenuItem>
                 <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}/history`); }}>
-                  <ListItemIcon><OpenInNewIcon fontSize="small" /></ListItemIcon>
+                  <ListItemIcon><History fontSize="small" /></ListItemIcon>
                   History
                 </MenuItem>
                 <MenuItem disabled={isCloning && menuForId === d.id} onClick={async () => {
@@ -432,9 +433,9 @@ const Dashboard: React.FC = () => {
               </Menu>
 
               {d.thumbnailDataUrl ? (
-                <CardMedia component="img" image={d.thumbnailDataUrl} alt={d.diagramName} sx={{ height: 98, width: 128, objectFit: 'contain', background: '#fff', mt: 1 }} />
+                <CardMedia component="img" image={d.thumbnailDataUrl} alt={d.diagramName} sx={{ height: 98, width: 128, objectFit: 'contain', background: (theme) => theme.palette.background.paper, mt: 1 }} />
               ) : (
-                <Box sx={{ height: 98, width: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eee', mt: 1 }}>
+                <Box sx={{ height: 98, width: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: (theme) => theme.palette.background.paper, mt: 1 }}>
                   <Typography variant="caption">No preview</Typography>
                 </Box>
               )}
@@ -479,7 +480,7 @@ const Dashboard: React.FC = () => {
                 <List>
                   {favoritesList.map(f => (
                     <ListItemButton key={f.id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }} onClick={() => navigate(`/diagram/${f.id}`)}>
-                      <Box sx={{ width: 64, height: 48, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee' }}>
+                        <Box sx={{ width: 64, height: 48, background: (theme) => theme.palette.background.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', border: (theme) => `1px solid ${theme.palette.divider}` }}>
                         {f.thumbnailDataUrl ? <img src={f.thumbnailDataUrl} alt={f.diagramName} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <Typography variant="caption">No preview</Typography>}
                       </Box>
                       <Box sx={{ flexGrow: 1, textAlign: 'left' }}>

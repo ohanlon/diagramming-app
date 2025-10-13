@@ -38,6 +38,7 @@ interface DiagramStoreActions extends
   createNewDiagram: (name?: string) => void; // Create a fresh new diagram with optional name
   setDiagramName: (name: string) => void; // Update the diagram's display name
   applyStateSnapshot: (snapshot: any) => void; // Apply a full state snapshot (used for opening history entries)
+  setThemeMode: (mode: 'light' | 'dark') => void;
 }
 
 const defaultLayerId = uuidv4();
@@ -94,6 +95,8 @@ const initialState: DiagramState = {
   // Defaults to true for locally-created diagrams; this will be set by
   // loadDiagram when a remote diagram is loaded.
   isEditable: true,
+  // Default theme mode
+  themeMode: 'light',
 };
 
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set, get) => {
@@ -101,6 +104,13 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   // the source of truth. Only hydrate the lightweight currentUser from cookie.
   const baseState: any = { ...initialState };
   baseState.currentUser = getCurrentUserFromCookie() || null;
+  // Attempt to initialize themeMode from localStorage for users who have previously selected a theme
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = window.localStorage.getItem('themeMode');
+      if (stored === 'dark' || stored === 'light') baseState.themeMode = stored as 'light'|'dark';
+    }
+  } catch (e) {}
 
   // Helper function for adding history
   const addHistoryFn = () => {
@@ -537,6 +547,28 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     createAndSaveNewDiagram,
     applyStateSnapshot,
     setDiagramName,
+    // Theme control
+    setThemeMode: (mode: 'light' | 'dark') => {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) window.localStorage.setItem('themeMode', mode);
+      } catch (e) {}
+      set({ themeMode: mode } as any);
+      // If user is logged in, persist preference server-side in their settings
+      try {
+        const currentUser = get().currentUser;
+        if (currentUser) {
+          (async () => {
+            try {
+              const { apiFetch } = await import('../utils/apiFetch');
+              const serverUrl = get().serverUrl;
+              const existingResp = await apiFetch(`${serverUrl}/users/me/settings`, { method: 'GET' });
+              const existingJson = existingResp.ok ? await existingResp.json() : { settings: {} };
+              await apiFetch(`${serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(existingJson.settings || {}), themeMode: mode } }) });
+            } catch (e) { /* ignore server-side persistence failures */ }
+          })();
+        }
+      } catch (e) {}
+    },
     resolveConflictAcceptServer: () => {
       const s = get();
       if (!s.conflictServerState) {
