@@ -46,7 +46,7 @@ export const LINE_STYLE_SVG: Record<LineStyle, string> = {
 
 export const CONNECTION_TYPE_SVG: Record<ConnectionType, string> = {
     direct: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 10L55 10" stroke="currentColor" stroke-width="2"/></svg>`,
-    orthogonal: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15L20 15L20 5L55 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+    orthogonal: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15 L 30 15 L 30 5 L 55 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
     bezier: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15 Q 20 15, 25 10 T 55 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>`
 };
 
