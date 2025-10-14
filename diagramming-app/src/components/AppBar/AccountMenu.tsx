@@ -66,10 +66,9 @@ const AccountMenu: React.FC = () => {
             <ListItemText>Logout</ListItemText>
           </MenuItem>,
           <MenuItem key="theme-toggle">
-            <FormControlLabel
-              control={<Switch checked={themeMode === 'dark'} onChange={(e) => { setThemeMode(e.target.checked ? 'dark' : 'light'); handleClose(); }} />}
-              label={themeMode === 'dark' ? 'Dark' : 'Light'}
-            />
+            <ListItemText>Light&nbsp;</ListItemText>
+            <Switch checked={themeMode === 'dark'} onChange={(e) => { setThemeMode(e.target.checked ? 'dark' : 'light'); handleClose(); }} />
+            <ListItemText>&nbsp;Dark</ListItemText>
           </MenuItem>,
           currentUserIsAdmin ? (
             <MenuItem key="admin" onClick={() => { handleClose(); navigate('/admin'); }}>

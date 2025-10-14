@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
@@ -31,50 +31,192 @@ const MainToolbar: React.FC = () => {
   }
 
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    // Open File and ensure other menus are closed
     setFileMenuAnchorEl(event.currentTarget as HTMLElement);
+    setEditMenuAnchorEl(null);
+    setSelectMenuAnchorEl(null);
+    clearHoverTimer();
+    setMenubarActive(true);
   };
 
   // When any top-level menu is open, hovering over another top-level menu should open it
-  const isAnyTopMenuOpen = Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl);
+  const [menubarActive, setMenubarActive] = useState(false);
+  // Refs for top-level menu items so we can open/ focus them programmatically
+  const fileRef = useRef<HTMLButtonElement | null>(null);
+  const editRef = useRef<HTMLButtonElement | null>(null);
+  const selectRef = useRef<HTMLButtonElement | null>(null);
+  // Hover-delay timer to avoid accidental menu switches
+  const hoverTimerRef = useRef<number | null>(null);
+  const HOVER_DELAY_MS = 200;
+  const hoverCandidateRef = useRef<'file'|'edit'|'select' | null>(null);
 
   const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLElement>, menu: 'file' | 'edit' | 'select') => {
-    if (!isAnyTopMenuOpen) return;
-    // Open the hovered menu and close others
-    const target = event.currentTarget;
-    if (menu === 'file') {
-      setFileMenuAnchorEl(target);
-      setEditMenuAnchorEl(null);
-      setSelectMenuAnchorEl(null);
-    } else if (menu === 'edit') {
-      setEditMenuAnchorEl(target);
-      setFileMenuAnchorEl(null);
-      setSelectMenuAnchorEl(null);
-    } else if (menu === 'select') {
-      setSelectMenuAnchorEl(target);
-      setFileMenuAnchorEl(null);
-      setEditMenuAnchorEl(null);
+    // Only allow hover-to-open if the menubar has been activated (menu opened)
+    if (!menubarActive) return;
+    // Debounce switching menus on hover to avoid accidental switches
+    if (hoverTimerRef.current) {
+      window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    hoverTimerRef.current = window.setTimeout(() => {
+      const target = event.currentTarget as HTMLElement;
+      if (menu === 'file') {
+        setFileMenuAnchorEl(target);
+        setEditMenuAnchorEl(null);
+        setSelectMenuAnchorEl(null);
+      } else if (menu === 'edit') {
+        setEditMenuAnchorEl(target);
+        setFileMenuAnchorEl(null);
+        setSelectMenuAnchorEl(null);
+      } else if (menu === 'select') {
+        setSelectMenuAnchorEl(target);
+        setFileMenuAnchorEl(null);
+        setEditMenuAnchorEl(null);
+      }
+    }, HOVER_DELAY_MS);
+  };
+
+  const clearHoverTimer = () => {
+    if (hoverTimerRef.current) {
+      window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
     }
   };
 
+  // Fallback: listen to global mouse movements when menubar is active so
+  // overlaying popovers don't prevent us from detecting pointer location
+  useEffect(() => {
+    if (!menubarActive) return;
+    const onMove = (ev: MouseEvent) => {
+      try {
+        const x = ev.clientX;
+        const y = ev.clientY;
+        const checkRect = (el: HTMLElement | null) => {
+          if (!el) return false;
+          const r = el.getBoundingClientRect();
+          return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+        };
+        let candidate: 'file'|'edit'|'select' | null = null;
+        if (checkRect(fileRef.current)) candidate = 'file';
+        else if (checkRect(editRef.current)) candidate = 'edit';
+        else if (checkRect(selectRef.current)) candidate = 'select';
+
+        if (candidate === hoverCandidateRef.current) return;
+        hoverCandidateRef.current = candidate;
+        if (hoverTimerRef.current) {
+          window.clearTimeout(hoverTimerRef.current);
+          hoverTimerRef.current = null;
+        }
+        if (!candidate) return;
+        hoverTimerRef.current = window.setTimeout(() => {
+          openMenuByName(candidate as 'file'|'edit'|'select');
+          hoverTimerRef.current = null;
+          hoverCandidateRef.current = null;
+        }, HOVER_DELAY_MS);
+      } catch (e) {
+        // ignore
+      }
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      clearHoverTimer();
+      hoverCandidateRef.current = null;
+    };
+  }, [menubarActive]);
+
   const handleFileMenuClose = () => {
     setFileMenuAnchorEl(null);
+    setMenubarActive(false);
+    clearHoverTimer();
   };
 
   const handleEditMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    // Open Edit and ensure other menus are closed
+    clearHoverTimer();
     setEditMenuAnchorEl(event.currentTarget as HTMLElement);
+    setFileMenuAnchorEl(null);
+    setSelectMenuAnchorEl(null);
+    setMenubarActive(true);
   };
 
   const handleEditMenuClose = () => {
     setEditMenuAnchorEl(null);
+    setMenubarActive(false);
+    clearHoverTimer();
   };
 
   const handleSelectMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    // Open Select and ensure other menus are closed
+    clearHoverTimer();
     setSelectMenuAnchorEl(event.currentTarget as HTMLElement);
+    setFileMenuAnchorEl(null);
+    setEditMenuAnchorEl(null);
+    setMenubarActive(true);
   };
 
   const handleSelectMenuClose = () => {
     setSelectMenuAnchorEl(null);
+    setMenubarActive(false);
+    clearHoverTimer();
   };
+
+  // Ensure menubarActive reflects whether any menu is open (covers keyboard-open cases)
+  useEffect(() => {
+    setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl));
+  }, [fileMenuAnchorEl, editMenuAnchorEl, selectMenuAnchorEl]);
+
+  const openMenuByName = (name: 'file' | 'edit' | 'select') => {
+    // Clear any pending hover timers and open the requested menu while
+    // ensuring other menus are closed.
+    clearHoverTimer();
+    if (name === 'file') {
+      if (fileRef.current) setFileMenuAnchorEl(fileRef.current);
+      setEditMenuAnchorEl(null);
+      setSelectMenuAnchorEl(null);
+    } else if (name === 'edit') {
+      if (editRef.current) setEditMenuAnchorEl(editRef.current);
+      setFileMenuAnchorEl(null);
+      setSelectMenuAnchorEl(null);
+    } else {
+      if (selectRef.current) setSelectMenuAnchorEl(selectRef.current);
+      setFileMenuAnchorEl(null);
+      setEditMenuAnchorEl(null);
+    }
+    setMenubarActive(true);
+  };
+
+  const closeAllMenus = () => {
+    setFileMenuAnchorEl(null);
+    setEditMenuAnchorEl(null);
+    setSelectMenuAnchorEl(null);
+    setMenubarActive(false);
+    clearHoverTimer();
+  };
+
+  const handleMenuKeyDown = (e: React.KeyboardEvent, current: 'file' | 'edit' | 'select') => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      const order: ('file'|'edit'|'select')[] = ['file','edit','select'];
+      const idx = order.indexOf(current);
+      const next = order[(idx + 1) % order.length];
+      openMenuByName(next);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const order: ('file'|'edit'|'select')[] = ['file','edit','select'];
+      const idx = order.indexOf(current);
+      const prev = order[(idx + order.length - 1) % order.length];
+      openMenuByName(prev);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeAllMenus();
+    }
+  };
+
+  // Keep menubarActive in sync with any open anchor so keyboard-open also enables hover switching
+  useEffect(() => {
+    setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl));
+  }, [fileMenuAnchorEl, editMenuAnchorEl, selectMenuAnchorEl]);
 
   const handlePrint = () => {
     const printContainer = document.createElement('div');
@@ -188,10 +330,13 @@ const MainToolbar: React.FC = () => {
         <Typography variant="subtitle1" sx={{ maxWidth: '128px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{diagramName}</Typography>
       </Button>
       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-      <MenuList role="menubar" aria-label="Main menu" sx={{ display: 'flex', alignItems: 'center' }}>
+      <MenuList role="menubar" aria-label="Main menu" sx={{ display: 'flex', alignItems: 'center' }} onMouseLeave={() => clearHoverTimer()}>
         <MenuItem
+          component="button"
+          ref={fileRef}
           onClick={handleFileMenuOpen}
           onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')}
+          onMouseLeave={() => clearHoverTimer()}
           aria-haspopup="true"
           aria-controls={fileMenuAnchorEl ? 'file-menu' : undefined}
           aria-expanded={Boolean(fileMenuAnchorEl)}
@@ -200,8 +345,11 @@ const MainToolbar: React.FC = () => {
           File
         </MenuItem>
         <MenuItem
+          component="button"
+          ref={editRef}
           onClick={handleEditMenuOpen}
           onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')}
+          onMouseLeave={() => clearHoverTimer()}
           aria-haspopup="true"
           aria-controls={editMenuAnchorEl ? 'edit-menu' : undefined}
           aria-expanded={Boolean(editMenuAnchorEl)}
@@ -210,8 +358,11 @@ const MainToolbar: React.FC = () => {
           Edit
         </MenuItem>
         <MenuItem
+          component="button"
+          ref={selectRef}
           onClick={handleSelectMenuOpen}
           onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'select')}
+          onMouseLeave={() => clearHoverTimer()}
           aria-haspopup="true"
           aria-controls={selectMenuAnchorEl ? 'select-menu' : undefined}
           aria-expanded={Boolean(selectMenuAnchorEl)}
@@ -228,7 +379,31 @@ const MainToolbar: React.FC = () => {
         anchorEl={fileMenuAnchorEl}
         open={Boolean(fileMenuAnchorEl)}
         onClose={handleFileMenuClose}
-        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
+        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'file')}
+        PaperProps={{
+          style: { border: '1px solid #a0a0a0' },
+          onMouseMove: (ev: React.MouseEvent) => {
+            // If user moves pointer over the opened popover, interpret their
+            // horizontal position relative to the menubar and switch menus
+            if (!menubarActive) return;
+            try {
+              const x = ev.clientX;
+              const y = ev.clientY;
+              const checkRect = (el: HTMLElement | null) => {
+                if (!el) return false;
+                const r = el.getBoundingClientRect();
+                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+              };
+              let candidate: 'file'|'edit'|'select' | null = null;
+              if (checkRect(fileRef.current)) candidate = 'file';
+              else if (checkRect(editRef.current)) candidate = 'edit';
+              else if (checkRect(selectRef.current)) candidate = 'select';
+              if (!candidate) return;
+              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) {}
+          }
+        }}
       >
         <NewMenuItem onNew={handleNewDiagram} />
         <Divider />
@@ -269,7 +444,29 @@ const MainToolbar: React.FC = () => {
         anchorEl={editMenuAnchorEl}
         open={Boolean(editMenuAnchorEl)}
         onClose={handleEditMenuClose}
-        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
+        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'edit')}
+        PaperProps={{
+          style: { border: '1px solid #a0a0a0' },
+          onMouseMove: (ev: React.MouseEvent) => {
+            if (!menubarActive) return;
+            try {
+              const x = ev.clientX;
+              const y = ev.clientY;
+              const checkRect = (el: HTMLElement | null) => {
+                if (!el) return false;
+                const r = el.getBoundingClientRect();
+                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+              };
+              let candidate: 'file'|'edit'|'select' | null = null;
+              if (checkRect(fileRef.current)) candidate = 'file';
+              else if (checkRect(editRef.current)) candidate = 'edit';
+              else if (checkRect(selectRef.current)) candidate = 'select';
+              if (!candidate) return;
+              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) {}
+          }
+        }}
       >
         <MenuItem onClick={handleUndo} disabled={history.past.length === 0}>
           <ListItemIcon>
@@ -316,7 +513,29 @@ const MainToolbar: React.FC = () => {
         anchorEl={selectMenuAnchorEl}
         open={Boolean(selectMenuAnchorEl)}
         onClose={handleSelectMenuClose}
-        PaperProps={{ style: { border: '1px solid #a0a0a0' } }}
+        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'select')}
+        PaperProps={{
+          style: { border: '1px solid #a0a0a0' },
+          onMouseMove: (ev: React.MouseEvent) => {
+            if (!menubarActive) return;
+            try {
+              const x = ev.clientX;
+              const y = ev.clientY;
+              const checkRect = (el: HTMLElement | null) => {
+                if (!el) return false;
+                const r = el.getBoundingClientRect();
+                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+              };
+              let candidate: 'file'|'edit'|'select' | null = null;
+              if (checkRect(fileRef.current)) candidate = 'file';
+              else if (checkRect(editRef.current)) candidate = 'edit';
+              else if (checkRect(selectRef.current)) candidate = 'select';
+              if (!candidate) return;
+              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) {}
+          }
+        }}
       >
         <MenuItem onClick={handleSelectAll}>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>All</ListItemText>
