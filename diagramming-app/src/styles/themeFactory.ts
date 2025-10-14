@@ -33,6 +33,11 @@ export function createAppTheme(mode: 'light' | 'dark') {
           },
         },
       },
+      MuiTooltip: {
+        defaultProps: {
+          arrow: true,
+        },
+      },
       // MuiSwitch: {
       //   styleOverrides: {
       //     switchBase: {

@@ -327,13 +327,13 @@ const ShapeStore: React.FC = () => {
 
   return (
     <Box sx={{
-      backgroundColor: 'background', // match toolbar / AppBar background
+      // backgroundColor: 'primary.main', // match toolbar / AppBar background
       color: 'primary.contrastText' // ensure readable text over the primary background
     }}>
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
-        // height: 'calc(100vh - 12.5em)',
+        height: 'calc(100vh - 12.5em)', // constrain height so inner area can scroll
         overflow: 'hidden',
         marginLeft: '0.5em',
         marginTop: '0.5em',
@@ -393,15 +393,15 @@ const ShapeStore: React.FC = () => {
             width: '8px',
           },
           '&::-webkit-scrollbar-track': {
-            // background: '#f1f1f1',
+            background: '#f1f1f1',
             borderRadius: '4px',
           },
           '&::-webkit-scrollbar-thumb': {
-            // background: '#c1c1c1',
+            background: '#c1c1c1',
             borderRadius: '4px',
           },
           '&::-webkit-scrollbar-thumb:hover': {
-            // background: '#a1a1a1',
+            background: '#a1a1a1',
           },
         }}>
           {visibleCategories.map(entry => (

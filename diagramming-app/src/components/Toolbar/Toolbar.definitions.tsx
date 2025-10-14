@@ -34,20 +34,20 @@ import { CUSTOM_PATTERN_1_LINE_STYLE, CUSTOM_PATTERN_2_LINE_STYLE, DASHED_LINE_S
 import { ARROW_STYLE_SVG } from './constants/svgIcons';
 
 export const LINE_STYLE_SVG: Record<LineStyle, string> = {
-    continuous: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2"/></svg>`,
-    'long-dash-space': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${LONG_DASH_SPACE_PATTERN_LINE_STYLE}"/></svg>`,
-    dashed: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${DASHED_LINE_STYLE}"/></svg>`,
-    'long-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${LONG_DASH_PATTERN_LINE_STYLE}"/></svg>`,
-    'dot-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${DOT_DASH_PATTERN_LINE_STYLE}"/></svg>`,
-    'custom-1': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${CUSTOM_PATTERN_1_LINE_STYLE}"/></svg>`,
-    'custom-2': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${CUSTOM_PATTERN_2_LINE_STYLE}"/></svg>`,
-    'long-space-short-dot': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="black" stroke-width="2" stroke-dasharray="${LONG_SPACE_SHORT_DOT_PATTERN_STYLE}"/></svg>`,
+    continuous: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2"/></svg>`,
+    'long-dash-space': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${LONG_DASH_SPACE_PATTERN_LINE_STYLE}"/></svg>`,
+    dashed: `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${DASHED_LINE_STYLE}"/></svg>`,
+    'long-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${LONG_DASH_PATTERN_LINE_STYLE}"/></svg>`,
+    'dot-dash': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${DOT_DASH_PATTERN_LINE_STYLE}"/></svg>`,
+    'custom-1': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${CUSTOM_PATTERN_1_LINE_STYLE}"/></svg>`,
+    'custom-2': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${CUSTOM_PATTERN_2_LINE_STYLE}"/></svg>`,
+    'long-space-short-dot': `<svg width="80" height="2" viewBox="0 0 80 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 1H80" stroke="currentColor" stroke-width="2" stroke-dasharray="${LONG_SPACE_SHORT_DOT_PATTERN_STYLE}"/></svg>`,
 };
 
 export const CONNECTION_TYPE_SVG: Record<ConnectionType, string> = {
-    direct: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 10L55 10" stroke="black" stroke-width="2"/></svg>`,
-    orthogonal: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15L20 15L20 5L55 5" stroke="black" stroke-width="2" fill="none"/></svg>`,
-    bezier: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15 Q 20 15, 25 10 T 55 5" stroke="black" stroke-width="2" fill="none"/></svg>`
+    direct: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 10L55 10" stroke="currentColor" stroke-width="2"/></svg>`,
+    orthogonal: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15L20 15L20 5L55 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+    bezier: `<svg width="60" height="20" viewBox="0 0 60 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 15 Q 20 15, 25 10 T 55 5" stroke="currentColor" stroke-width="2" fill="none"/></svg>`
 };
 
 export const lineStyles: { name: string, value: LineStyle }[] = [
@@ -212,10 +212,10 @@ export const getInitialTools = ({
                         onChange={handleFontChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Without label' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
                     >
                         {googleFonts.map((font) => (
-                            <MenuItem key={font.value} value={font.value} sx={{ fontFamily: font.value }}>
+                            <MenuItem key={font.value} value={font.value} sx={{ fontFamily: font.value, color: 'text.primary' }}>
                                 {font.name}
                             </MenuItem>
                         ))}
@@ -233,10 +233,10 @@ export const getInitialTools = ({
                         onChange={handleFontSizeChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Without label' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
                     >
                         {fontSizes.map((size) => (
-                            <MenuItem key={size} value={size}>
+                            <MenuItem key={size} value={size} sx={{ color: 'text.primary' }}>
                                 {size}
                             </MenuItem>
                         ))}
@@ -249,7 +249,7 @@ export const getInitialTools = ({
             id: 'bold',
             element: (
                 <Tooltip title="Bold">
-                    <IconButton onClick={() => handleClick(toggleBold)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isBoldActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(toggleBold)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: (theme) => (isBoldActive ? theme.palette.action.selected : 'transparent') }}>
                         <FormatBold />
                     </IconButton>
                 </Tooltip>
@@ -260,7 +260,7 @@ export const getInitialTools = ({
             id: 'italic',
             element: (
                 <Tooltip title="Italic">
-                    <IconButton onClick={() => handleClick(toggleItalic)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isItalicActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(toggleItalic)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: (theme) => (isItalicActive ? theme.palette.action.selected : 'transparent') }}>
                         <FormatItalic />
                     </IconButton>
                 </Tooltip>
@@ -271,7 +271,7 @@ export const getInitialTools = ({
             id: 'underline',
             element: (
                 <Tooltip title="Underline">
-                    <IconButton onClick={() => handleClick(toggleUnderlined)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: isUnderlinedActive ? 'rgba(0, 0, 0, 0.1)' : 'transparent' }}>
+                    <IconButton onClick={() => handleClick(toggleUnderlined)} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0, backgroundColor: (theme) => (isUnderlinedActive ? theme.palette.action.selected : 'transparent') }}>
                         <FormatUnderlined />
                     </IconButton>
                 </Tooltip>
@@ -314,13 +314,13 @@ export const getInitialTools = ({
                         onChange={handleLineStyleChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Line Style' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
                         renderValue={(selected) => (
                             <span dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[selected] }} />
                         )}
                     >
                         {lineStyles.map((style) => (
-                            <MenuItem key={style.value} value={style.value}>
+                            <MenuItem key={style.value} value={style.value} sx={{ color: 'text.primary' }}>
                                 <span dangerouslySetInnerHTML={{ __html: LINE_STYLE_SVG[style.value] }} />
                             </MenuItem>
                         ))}
@@ -337,7 +337,7 @@ export const getInitialTools = ({
                     value={currentLineWidth}
                     onChange={handleLineWidthChange}
                     inputProps={{ min: 1, max: 12, step: 1 }}
-                    sx={{ width: 40, margin: '8px' }}
+                    sx={{ width: 40, margin: '8px', '& .MuiInputBase-input': { color: 'inherit' } }}
                     variant="standard"
                     disabled={!hasSelectedConnectors}
                 />
@@ -353,13 +353,13 @@ export const getInitialTools = ({
                         onChange={handleConnectionTypeChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Connection Type' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
                         renderValue={(selected) => (
                             <span dangerouslySetInnerHTML={{ __html: CONNECTION_TYPE_SVG[selected as ConnectionType] }} />
                         )}
                     >
                         {connectionTypes.map((type) => (
-                            <MenuItem key={type.value} value={type.value}>
+                            <MenuItem key={type.value} value={type.value} sx={{ color: 'text.primary' }}>
                                 <span dangerouslySetInnerHTML={{ __html: CONNECTION_TYPE_SVG[type.value] }} />
                             </MenuItem>
                         ))}
@@ -377,13 +377,13 @@ export const getInitialTools = ({
                         onChange={handleStartArrowChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Start Arrow' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
                         renderValue={(selected) => (
                             <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[selected as ArrowStyle].start }} />
                         )}
                     >
                         {Object.keys(ARROW_STYLE_SVG).map((style) => (
-                            <MenuItem key={style} value={style}>
+                            <MenuItem key={style} value={style} sx={{ color: 'text.primary' }}>
                                 <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[style as ArrowStyle].start }} />
                             </MenuItem>
                         ))}
@@ -401,13 +401,13 @@ export const getInitialTools = ({
                         onChange={handleEndArrowChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'End Arrow' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' } }}
+                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
                         renderValue={(selected) => (
                             <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[selected as ArrowStyle].end }} />
                         )}
                     >
                         {Object.keys(ARROW_STYLE_SVG).map((style) => (
-                            <MenuItem key={style} value={style}>
+                            <MenuItem key={style} value={style} sx={{ color: 'text.primary' }}>
                                 <span dangerouslySetInnerHTML={{ __html: ARROW_STYLE_SVG[style as ArrowStyle].end }} />
                             </MenuItem>
                         ))}
@@ -430,11 +430,11 @@ export const getInitialTools = ({
                     return (
                         <div>
                             <Tooltip title="Align">
-                                <IconButton
+                                    <IconButton
                                     onClick={(e) => setAnchorEl(e.currentTarget)}
                                     color="inherit"
                                     disabled={!hasSelectedShapes}
-                                    sx={{ borderRadius: 0, backgroundColor: (isVerticalAlignTopActive && isVerticalAlignCenterActive && isVerticalAlignBottomActive && isHorizontalAlignLeftActive && isHorizontalAlignCenterActive && isHorizontalAlignRightActive) ? 'rgba(0,0,0,0.1)' : 'transparent' }}
+                                    sx={{ borderRadius: 0, backgroundColor: (theme) => ((isVerticalAlignTopActive && isVerticalAlignCenterActive && isVerticalAlignBottomActive && isHorizontalAlignLeftActive && isHorizontalAlignCenterActive && isHorizontalAlignRightActive) ? theme.palette.action.selected : 'transparent') }}
                                 >
                                     <AlignHorizontalCenter />
                                 </IconButton>
@@ -449,33 +449,33 @@ export const getInitialTools = ({
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     {/* First row: Vertical alignment (icons arranged horizontally) */}
                                     <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('top')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
-                                            <VerticalAlignTop />
-                                            <Box component="span" sx={{ fontSize: 12 }}>Top</Box>
-                                        </MenuItem>
-                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('middle')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                            <MenuItem onClick={() => { handleClick(() => setVerticalAlign('top')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto', color: 'text.primary' }}>
+                                                <VerticalAlignTop />
+                                                <Box component="span" sx={{ fontSize: 12, color: 'text.primary' }}>Top</Box>
+                                            </MenuItem>
+                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('middle')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto', color: 'text.primary' }}>
                                             <VerticalAlignCenter />
-                                            <Box component="span" sx={{ fontSize: 12 }}>Middle</Box>
+                                            <Box component="span" sx={{ fontSize: 12, color: 'text.primary' }}>Middle</Box>
                                         </MenuItem>
-                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('bottom')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                        <MenuItem onClick={() => { handleClick(() => setVerticalAlign('bottom')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto', color: 'text.primary' }}>
                                             <VerticalAlignBottom />
-                                            <Box component="span" sx={{ fontSize: 12 }}>Bottom</Box>
+                                            <Box component="span" sx={{ fontSize: 12, color: 'text.primary' }}>Bottom</Box>
                                         </MenuItem>
                                     </Box>
 
                                     {/* Second row: Horizontal alignment (icons arranged horizontally) */}
                                     <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('left')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('left')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto', color: 'text.primary' }}>
                                             <AlignHorizontalLeft />
-                                            <Box component="span" sx={{ fontSize: 12 }}>Left</Box>
+                                            <Box component="span" sx={{ fontSize: 12, color: 'text.primary' }}>Left</Box>
                                         </MenuItem>
-                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('center')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('center')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto', color: 'text.primary' }}>
                                             <AlignHorizontalCenter />
-                                            <Box component="span" sx={{ fontSize: 12 }}>Center</Box>
+                                            <Box component="span" sx={{ fontSize: 12, color: 'text.primary' }}>Center</Box>
                                         </MenuItem>
-                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('right')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto' }}>
+                                        <MenuItem onClick={() => { handleClick(() => setHorizontalAlign('right')); setAnchorEl(null); }} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'auto', color: 'text.primary' }}>
                                             <AlignHorizontalRight />
-                                            <Box component="span" sx={{ fontSize: 12 }}>Right</Box>
+                                            <Box component="span" sx={{ fontSize: 12, color: 'text.primary' }}>Right</Box>
                                         </MenuItem>
                                     </Box>
                                 </Box>

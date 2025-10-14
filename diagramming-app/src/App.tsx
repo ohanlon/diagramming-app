@@ -174,7 +174,7 @@ function MainAppLayout() {
         overflow: 'hidden',
       }}
     >
-      <AppBar position="static" color='primary' sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'text.primary' }}>
+  <AppBar position="static" color='primary' sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: (theme) => theme.palette.primary.contrastText }}>
         <MainToolbar />
         <ToolbarComponent />
       </AppBar>

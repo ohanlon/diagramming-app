@@ -324,9 +324,9 @@ const MainToolbar: React.FC = () => {
   };
 
   return (
-    <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'text.primary', minHeight: '2em' }}>
+  <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'inherit', minHeight: '2em' }}>
       {/* Diagram name display and edit (moved before File menu) */}
-      <Button onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', mr: 1 }}>
+  <Button color="inherit" onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', mr: 1 }}>
         <Typography variant="subtitle1" sx={{ maxWidth: '128px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{diagramName}</Typography>
       </Button>
       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
@@ -340,7 +340,7 @@ const MainToolbar: React.FC = () => {
           aria-haspopup="true"
           aria-controls={fileMenuAnchorEl ? 'file-menu' : undefined}
           aria-expanded={Boolean(fileMenuAnchorEl)}
-          sx={{ color: 'text.primary', ml: 1 }}
+          sx={{ color: 'inherit', ml: 1 }}
         >
           File
         </MenuItem>
@@ -353,7 +353,7 @@ const MainToolbar: React.FC = () => {
           aria-haspopup="true"
           aria-controls={editMenuAnchorEl ? 'edit-menu' : undefined}
           aria-expanded={Boolean(editMenuAnchorEl)}
-          sx={{ color: 'text.primary' }}
+          sx={{ color: 'inherit' }}
         >
           Edit
         </MenuItem>
@@ -366,7 +366,7 @@ const MainToolbar: React.FC = () => {
           aria-haspopup="true"
           aria-controls={selectMenuAnchorEl ? 'select-menu' : undefined}
           aria-expanded={Boolean(selectMenuAnchorEl)}
-          sx={{ color: 'text.primary' }}
+          sx={{ color: 'inherit' }}
         >
           Select
         </MenuItem>

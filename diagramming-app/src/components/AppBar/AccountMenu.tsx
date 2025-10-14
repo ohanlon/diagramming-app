@@ -35,7 +35,7 @@ const AccountMenu: React.FC = () => {
   return (
     <>
       <Tooltip title={currentUser ? `Signed in as ${currentUser.username}` : 'Account'}>
-        <IconButton onClick={handleOpen} color={currentUser ? 'primary' : 'default'}>
+        <IconButton onClick={handleOpen} color="inherit">
           <Avatar src={avatarUrl} sx={{ width: 32, height: 32 }}>
             {!avatarUrl && <PersonIcon />}
           </Avatar>
