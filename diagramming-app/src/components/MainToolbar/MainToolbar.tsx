@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
-import { Toolbar, Button, Menu, MenuItem, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
-import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard } from '@mui/icons-material';
+import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
+import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, History } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
@@ -30,14 +30,14 @@ const MainToolbar: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  const handleFileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setFileMenuAnchorEl(event.currentTarget);
+  const handleFileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setFileMenuAnchorEl(event.currentTarget as HTMLElement);
   };
 
   // When any top-level menu is open, hovering over another top-level menu should open it
   const isAnyTopMenuOpen = Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl);
 
-  const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLButtonElement>, menu: 'file' | 'edit' | 'select') => {
+  const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLElement>, menu: 'file' | 'edit' | 'select') => {
     if (!isAnyTopMenuOpen) return;
     // Open the hovered menu and close others
     const target = event.currentTarget;
@@ -60,16 +60,16 @@ const MainToolbar: React.FC = () => {
     setFileMenuAnchorEl(null);
   };
 
-  const handleEditMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setEditMenuAnchorEl(event.currentTarget);
+  const handleEditMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setEditMenuAnchorEl(event.currentTarget as HTMLElement);
   };
 
   const handleEditMenuClose = () => {
     setEditMenuAnchorEl(null);
   };
 
-  const handleSelectMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setSelectMenuAnchorEl(event.currentTarget);
+  const handleSelectMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setSelectMenuAnchorEl(event.currentTarget as HTMLElement);
   };
 
   const handleSelectMenuClose = () => {
@@ -93,6 +93,7 @@ const MainToolbar: React.FC = () => {
 
   const { saveDiagram } = useDiagramStore();
   const isEditable = useDiagramStore(state => state.isEditable !== false);
+  const remoteDiagramId = useDiagramStore(state => state.remoteDiagramId);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -187,10 +188,42 @@ const MainToolbar: React.FC = () => {
         <Typography variant="subtitle1" sx={{ maxWidth: '128px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{diagramName}</Typography>
       </Button>
       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-      <Button onClick={handleFileMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')} sx={{ color: 'text.primary', ml: 1 }}>
-        File
-      </Button>
+      <MenuList role="menubar" aria-label="Main menu" sx={{ display: 'flex', alignItems: 'center' }}>
+        <MenuItem
+          onClick={handleFileMenuOpen}
+          onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'file')}
+          aria-haspopup="true"
+          aria-controls={fileMenuAnchorEl ? 'file-menu' : undefined}
+          aria-expanded={Boolean(fileMenuAnchorEl)}
+          sx={{ color: 'text.primary', ml: 1 }}
+        >
+          File
+        </MenuItem>
+        <MenuItem
+          onClick={handleEditMenuOpen}
+          onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')}
+          aria-haspopup="true"
+          aria-controls={editMenuAnchorEl ? 'edit-menu' : undefined}
+          aria-expanded={Boolean(editMenuAnchorEl)}
+          sx={{ color: 'text.primary' }}
+        >
+          Edit
+        </MenuItem>
+        <MenuItem
+          onClick={handleSelectMenuOpen}
+          onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'select')}
+          aria-haspopup="true"
+          aria-controls={selectMenuAnchorEl ? 'select-menu' : undefined}
+          aria-expanded={Boolean(selectMenuAnchorEl)}
+          sx={{ color: 'text.primary' }}
+        >
+          Select
+        </MenuItem>
+      </MenuList>
+
+      {/* File menu */}
       <Menu
+        id="file-menu"
         elevation={0}
         anchorEl={fileMenuAnchorEl}
         open={Boolean(fileMenuAnchorEl)}
@@ -221,12 +254,17 @@ const MainToolbar: React.FC = () => {
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
         </MenuItem>
+        <MenuItem onClick={() => { handleFileMenuClose(); if (remoteDiagramId) navigate(`/diagram/${remoteDiagramId}/history`); }} disabled={!isEditable || !remoteDiagramId}>
+          <ListItemIcon>
+            <History fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>History</ListItemText>
+        </MenuItem>
       </Menu>
 
-      <Button onClick={handleEditMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'edit')} sx={{ color: 'text.primary' }}>
-        Edit
-      </Button>
+      {/* Edit menu */}
       <Menu
+        id="edit-menu"
         elevation={0}
         anchorEl={editMenuAnchorEl}
         open={Boolean(editMenuAnchorEl)}
@@ -271,10 +309,9 @@ const MainToolbar: React.FC = () => {
         </MenuItem>
       </Menu>
 
-      <Button onClick={handleSelectMenuOpen} onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'select')} sx={{ color: 'text.primary' }}>
-        Select
-      </Button>
+      {/* Select menu */}
       <Menu
+        id="select-menu"
         elevation={0}
         anchorEl={selectMenuAnchorEl}
         open={Boolean(selectMenuAnchorEl)}
