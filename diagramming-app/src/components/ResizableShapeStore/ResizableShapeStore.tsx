@@ -130,6 +130,8 @@ const ResizableShapeStore: React.FC<ResizableShapeStoreProps> = ({
           paddingRight: '8px',
           display: 'flex',
           flexDirection: 'column',
+          backgroundColor: 'background.default', // match toolbar / AppBar background
+          color: 'primary.contrastText' // ensure readable text over the primary background
         }}
       >
         <ShapeStore />

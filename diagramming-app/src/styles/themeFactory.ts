@@ -5,10 +5,10 @@ export function createAppTheme(mode: 'light' | 'dark') {
   const base: ThemeOptions = {
     palette: {
       mode,
-      primary: { main: isDark ? '#90caf9' : '#1976d2' },
+      primary: { main: '#3f51b5' },
       secondary: { main: '#ff5722' },
       background: { default: isDark ? '#121212' : '#f8f9fa', paper: isDark ? '#1e1e1e' : '#ffffff' },
-      text: { primary: isDark ? '#ffffff' : '#000000' },
+      // text: { primary: isDark ? '#ffffff' : '#000000' },
     },
     typography: {
       fontFamily: 'Poppins, Ubuntu, Roboto, Helvetica, Verdana, Arial, sans-serif',
@@ -17,15 +17,14 @@ export function createAppTheme(mode: 'light' | 'dark') {
       h6: { fontSize: '1rem' },
     },
     components: {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            textTransform: 'none',
-            borderRadius: 0,
-            color: isDark ? '#fff' : '#000',
-          },
-        },
-      },
+      // MuiButton: {
+      //   styleOverrides: {
+      //     root: {
+      //       textTransform: 'none',
+      //       // borderRadius: 0,
+      //     },
+      //   },
+      // },
       MuiToolbar: {
         styleOverrides: {
           root: {
@@ -34,26 +33,26 @@ export function createAppTheme(mode: 'light' | 'dark') {
           },
         },
       },
-      MuiSwitch: {
-        styleOverrides: {
-          switchBase: {
-            '&.Mui-checked': {
-              color: isDark ? '#90caf9' : '#1976d2',
-              '& + .MuiSwitch-track': {
-                backgroundColor: isDark ? '#4f83cc' : '#81b3e6ff',
-                opacity: 1,
-              },
-            },
-          },
-          thumb: {
-            color: isDark ? '#90caf9' : '#1976d2',
-          },
-          track: {
-            backgroundColor: isDark ? '#4f83cc' : '#81b3e6ff',
-            opacity: 1,
-          },
-        },
-      },
+      // MuiSwitch: {
+      //   styleOverrides: {
+      //     switchBase: {
+      //       '&.Mui-checked': {
+      //         color: isDark ? '#90caf9' : '#1976d2',
+      //         '& + .MuiSwitch-track': {
+      //           backgroundColor: isDark ? '#4f83cc' : '#81b3e6ff',
+      //           opacity: 1,
+      //         },
+      //       },
+      //     },
+      //     thumb: {
+      //       color: isDark ? '#90caf9' : '#1976d2',
+      //     },
+      //     track: {
+      //       backgroundColor: isDark ? '#4f83cc' : '#81b3e6ff',
+      //       opacity: 1,
+      //     },
+      //   },
+      // },
     },
   };
   return createTheme(base);
