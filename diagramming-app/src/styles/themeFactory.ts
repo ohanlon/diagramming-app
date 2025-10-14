@@ -2,12 +2,20 @@ import { createTheme, type ThemeOptions } from '@mui/material/styles';
 
 export function createAppTheme(mode: 'light' | 'dark') {
   const isDark = mode === 'dark';
-  const base: ThemeOptions = {
-    palette: {
-      mode,
-      primary: { main: '#3f51b5' },
-      secondary: { main: '#ff5722' },
-      background: { default: isDark ? '#121212' : '#f8f9fa', paper: isDark ? '#1e1e1e' : '#ffffff' },
+    const actionHover = isDark ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.02)';
+    const actionSelected = isDark ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.04)';
+
+    const base: ThemeOptions = {
+      palette: {
+        mode,
+        primary: { main: '#3f51b5' },
+        secondary: { main: '#ff5722' },
+        background: { default: isDark ? '#121212' : '#f8f9fa', paper: isDark ? '#1e1e1e' : '#ffffff' },
+        action: {
+          // Use subtle overlays for both themes so hover/selected states are not too strong
+          hover: actionHover,
+          selected: actionSelected,
+        },
       // text: { primary: isDark ? '#ffffff' : '#000000' },
     },
     typography: {
@@ -37,6 +45,34 @@ export function createAppTheme(mode: 'light' | 'dark') {
         defaultProps: {
           arrow: true,
         },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            // Use the shared subtle hover color for IconButtons
+            '&:hover': {
+              backgroundColor: actionHover
+            }
+          }
+        }
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            '&:hover': {
+              backgroundColor: actionHover
+            }
+          }
+        }
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            '&:hover': {
+              backgroundColor: actionHover
+            }
+          }
+        }
       },
       // MuiSwitch: {
       //   styleOverrides: {

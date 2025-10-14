@@ -42,5 +42,10 @@ button {
 }
 
 button:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.03);
+}
+
+/* In dark theme, reduce hover darkness so buttons don't appear overly dark on hover */
+[data-theme="dark"] button:hover {
+  filter: brightness(0.97);
 }
