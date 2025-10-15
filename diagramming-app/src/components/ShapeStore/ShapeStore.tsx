@@ -77,7 +77,9 @@ const ShapeStore: React.FC = () => {
   const serverUrl = useDiagramStore(state => state.serverUrl) || 'http://localhost:4000';
   const currentUser = useDiagramStore(state => state.currentUser);
 
-  const DEFAULT_VISIBLE_COUNT = 6;
+  // Default unpinned count was removed in favor of showing only pinned
+  // categories when a user has pinned entries; keep constant here for
+  // future configurability if needed.
 
   const handlePinToggle = async (entry: IndexEntry) => {
     // compute new pinned ids synchronously so we can persist immediately
@@ -86,8 +88,13 @@ const ShapeStore: React.FC = () => {
     const newPinned = isPinned ? prevPinned.filter(id => id !== entry.id) : [...prevPinned, entry.id];
     setPinnedCategoryIds(newPinned);
 
-    // Ensure the category is visible when pinned
+    // Ensure the category is visible when pinned; when unpinning remove it
     setVisibleCategories(prev => {
+      if (isPinned) {
+        // We are unpinning -> remove from visible list
+        return prev.filter(c => c.id !== entry.id);
+      }
+      // We are pinning -> add to visible list if not already present
       if (prev.some(c => c.id === entry.id)) return prev;
       return [...prev, entry];
     });
@@ -241,12 +248,16 @@ const ShapeStore: React.FC = () => {
 
         // If the user has no pinned categories, show no categories until they search/select one.
         // Otherwise show pinned categories plus a small number of default unpinned categories.
+        // If the user has pinned categories, show only those by default.
+        // Previously we added a few default unpinned categories as well; that
+        // made the UI display extra categories when a user expected only their
+        // pinned ones to be shown. For now show only pinned categories so the
+        // visible list reflects the user's explicit choice.
         if (!initialPinnedIds || initialPinnedIds.length === 0) {
           setVisibleCategories([]);
         } else {
           const pinnedEntries = allIndexEntries.filter(entry => initialPinnedIds.includes(entry.id));
-          const unpinnedDefaults = allIndexEntries.filter(entry => !initialPinnedIds.includes(entry.id)).slice(0, DEFAULT_VISIBLE_COUNT);
-          setVisibleCategories([...pinnedEntries, ...unpinnedDefaults]);
+          setVisibleCategories(pinnedEntries);
         }
 
       } catch (error) {
