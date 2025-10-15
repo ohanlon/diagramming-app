@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Select, FormControl, InputLabel, Slider } from '@mui/material';
 import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
-import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, History } from '@mui/icons-material';
+import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,8 @@ const MainToolbar: React.FC = () => {
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [exportMenuAnchorEl, setExportMenuAnchorEl] = useState<null | HTMLElement>(null);
   const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty } = useDiagramStore();
+  const currentUser = useDiagramStore(state => state.currentUser);
+  const serverUrl = useDiagramStore(state => state.serverUrl) || 'http://localhost:4000';
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
   const navigate = useNavigate();
@@ -47,7 +49,9 @@ const MainToolbar: React.FC = () => {
   const fileRef = useRef<HTMLButtonElement | null>(null);
   const editRef = useRef<HTMLButtonElement | null>(null);
   const selectRef = useRef<HTMLButtonElement | null>(null);
+  // Export is now its own top-level menu
   const exportRef = useRef<HTMLButtonElement | null>(null);
+  // data-attribute will be used to detect clicks on the Export menu item
   // Hover-delay timer to avoid accidental menu switches
   const hoverTimerRef = useRef<number | null>(null);
   const HOVER_DELAY_MS = 200;
@@ -97,6 +101,7 @@ const MainToolbar: React.FC = () => {
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     clearHoverTimer();
     setExportMenuAnchorEl(event.currentTarget as HTMLElement);
+    // Standard top-level behavior: close other top-level menus when opening Export
     setFileMenuAnchorEl(null);
     setEditMenuAnchorEl(null);
     setSelectMenuAnchorEl(null);
@@ -105,7 +110,8 @@ const MainToolbar: React.FC = () => {
 
   const handleExportMenuClose = () => {
     setExportMenuAnchorEl(null);
-    setMenubarActive(false);
+    // Preserve menubarActive if any top-level menu is still open (for example File)
+    setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl));
     clearHoverTimer();
   };
 
@@ -146,6 +152,7 @@ const MainToolbar: React.FC = () => {
     } else {
       alert('Failed to render sheet for PNG export');
     }
+    handleFileMenuClose(); 
     handleExportMenuClose();
   };
 
@@ -160,6 +167,7 @@ const MainToolbar: React.FC = () => {
     } else {
       alert('Failed to render sheet for JPG export');
     }
+    handleFileMenuClose(); 
     handleExportMenuClose();
   };
 
@@ -170,6 +178,7 @@ const MainToolbar: React.FC = () => {
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.dataUrl) {
       alert('Failed to render sheet for PDF export');
+      handleFileMenuClose(); 
       handleExportMenuClose();
       return;
     }
@@ -213,7 +222,7 @@ const MainToolbar: React.FC = () => {
       console.error('PDF export failed', e);
       alert('PDF export failed. Please ensure jspdf is installed.');
     }
-    handleExportMenuClose();
+  handleFileMenuClose(); handleExportMenuClose();
   };
 
   const handleExportCurrentAsGif = async () => {
@@ -223,6 +232,7 @@ const MainToolbar: React.FC = () => {
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.canvas) {
       alert('Failed to render sheet for GIF export');
+      handleFileMenuClose(); 
       handleExportMenuClose();
       return;
     }
@@ -302,7 +312,18 @@ const MainToolbar: React.FC = () => {
 
       if (workerUrl) gifOptions.workerScript = workerUrl;
       const gif = new GIFClass(gifOptions);
-      gif.addFrame(res.canvas, { copy: true, delay: 0 });
+      // Ensure GIF background is white: composite the rendered canvas onto
+      // a new canvas with a white fill so transparent areas become white.
+      const whiteCanvas = document.createElement('canvas');
+      whiteCanvas.width = (res.canvas as HTMLCanvasElement).width;
+      whiteCanvas.height = (res.canvas as HTMLCanvasElement).height;
+      const wctx = whiteCanvas.getContext('2d');
+      if (wctx) {
+        wctx.fillStyle = '#ffffff';
+        wctx.fillRect(0, 0, whiteCanvas.width, whiteCanvas.height);
+        wctx.drawImage(res.canvas as HTMLCanvasElement, 0, 0);
+      }
+      gif.addFrame(whiteCanvas, { copy: true, delay: 0 });
       gif.on('finished', (blob: Blob) => {
         const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.gif`;
         downloadBlob(blob, name);
@@ -319,7 +340,7 @@ const MainToolbar: React.FC = () => {
       if (res.dataUrl) downloadDataUrl(res.dataUrl, name);
       alert('GIF export requires gif.js. PNG has been saved instead.');
     }
-    handleExportMenuClose();
+  handleFileMenuClose(); handleExportMenuClose();
   };
 
   const handleExportCurrentAsTiff = async () => {
@@ -329,6 +350,7 @@ const MainToolbar: React.FC = () => {
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.canvas) {
       alert('Failed to render sheet for TIFF export');
+      handleFileMenuClose(); 
       handleExportMenuClose();
       return;
     }
@@ -363,7 +385,7 @@ const MainToolbar: React.FC = () => {
       if (res.dataUrl) downloadDataUrl(res.dataUrl, name);
       alert('TIFF export requires a TIFF encoder (utif). PNG has been saved instead.');
     }
-    handleExportMenuClose();
+  handleFileMenuClose(); handleExportMenuClose();
   };
 
   // Fallback: listen to global mouse movements when menubar is active so
@@ -379,12 +401,12 @@ const MainToolbar: React.FC = () => {
           const r = el.getBoundingClientRect();
           return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
         };
-        let candidate: 'file'|'edit'|'select'|'export' | null = null;
-        if (checkRect(fileRef.current)) candidate = 'file';
-        else if (checkRect(editRef.current)) candidate = 'edit';
-        else if (checkRect(selectRef.current)) candidate = 'select';
-        else if (checkRect(exportRef.current)) candidate = 'export';
-
+  let candidate: 'file'|'edit'|'select'|'export' | null = null;
+  if (checkRect(fileRef.current)) candidate = 'file';
+  else if (checkRect(editRef.current)) candidate = 'edit';
+  else if (checkRect(selectRef.current)) candidate = 'select';
+  else if (checkRect(exportRef.current)) candidate = 'export';
+        
         if (candidate === hoverCandidateRef.current) return;
         hoverCandidateRef.current = candidate;
         if (hoverTimerRef.current) {
@@ -464,18 +486,16 @@ const MainToolbar: React.FC = () => {
       setFileMenuAnchorEl(null);
       setSelectMenuAnchorEl(null);
       setExportMenuAnchorEl(null);
-    } else {
-      if (name === 'select') {
-        if (selectRef.current) setSelectMenuAnchorEl(selectRef.current);
-        setFileMenuAnchorEl(null);
-        setEditMenuAnchorEl(null);
-        setExportMenuAnchorEl(null);
-      } else if (name === 'export') {
-        if (exportRef.current) setExportMenuAnchorEl(exportRef.current);
-        setFileMenuAnchorEl(null);
-        setEditMenuAnchorEl(null);
-        setSelectMenuAnchorEl(null);
-      }
+    } else if (name === 'select') {
+      if (selectRef.current) setSelectMenuAnchorEl(selectRef.current);
+      setFileMenuAnchorEl(null);
+      setEditMenuAnchorEl(null);
+      setExportMenuAnchorEl(null);
+    } else if (name === 'export') {
+      if (exportRef.current) setExportMenuAnchorEl(exportRef.current);
+      setFileMenuAnchorEl(null);
+      setEditMenuAnchorEl(null);
+      setSelectMenuAnchorEl(null);
     }
     setMenubarActive(true);
   };
@@ -492,13 +512,13 @@ const MainToolbar: React.FC = () => {
     if (e.key === 'ArrowRight') {
       e.preventDefault();
       const order: ('file'|'edit'|'select'|'export')[] = ['file','edit','select','export'];
-      const idx = order.indexOf(current);
+      const idx = order.indexOf(current as any);
       const next = order[(idx + 1) % order.length];
       openMenuByName(next);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       const order: ('file'|'edit'|'select'|'export')[] = ['file','edit','select','export'];
-      const idx = order.indexOf(current);
+      const idx = order.indexOf(current as any);
       const prev = order[(idx + order.length - 1) % order.length];
       openMenuByName(prev);
     } else if (e.key === 'Escape') {
@@ -511,6 +531,38 @@ const MainToolbar: React.FC = () => {
   useEffect(() => {
     setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl || exportMenuAnchorEl));
   }, [fileMenuAnchorEl, editMenuAnchorEl, selectMenuAnchorEl, exportMenuAnchorEl]);
+
+  // When the Export submenu is open, clicking anywhere in the document outside
+  // the menubar or any menu popover should close the Export submenu. This
+  // handles clicks on the canvas or other document areas so the submenu isn't
+  // left open when the user interacts with the diagram.
+  useEffect(() => {
+    if (!exportMenuAnchorEl) return;
+
+    const handleDocumentMouseDown = (ev: MouseEvent) => {
+      try {
+        const target = ev.target as Element | null;
+        if (!target) return;
+
+        // If the click occurred inside any MUI menu popover, ignore it
+        // (lets the menu items handle their own clicks).
+        if (target.closest('.MuiMenu-paper')) return;
+
+        // If the click occurred within the menubar (toolbar) itself, ignore
+        // because interactions there should not implicitly close the Export submenu.
+        if (target.closest('[role="menubar"]')) return;
+
+        // Otherwise the click is outside the menubar/menus (e.g. on the
+        // document/canvas) — close the Export submenu.
+        handleExportMenuClose();
+      } catch (e) {
+        // swallow any errors so we don't break global click handling
+      }
+    };
+
+    document.addEventListener('mousedown', handleDocumentMouseDown);
+    return () => document.removeEventListener('mousedown', handleDocumentMouseDown);
+  }, [exportMenuAnchorEl, handleExportMenuClose]);
 
   const handlePrint = () => {
     const printContainer = document.createElement('div');
@@ -549,30 +601,36 @@ const MainToolbar: React.FC = () => {
     pdfCustomWidthIn: number;
     pdfCustomHeightIn: number;
   };
-  const EXPORT_SETTINGS_KEY = 'exportSettings';
+  // Persist export settings on the server only. LocalStorage mirror removed.
   const prevExportSettingsRef = React.useRef<ExportSettings | null>(null);
 
-  // Load any persisted export settings on mount
+  // Load any persisted export settings from server when the user is signed in.
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(EXPORT_SETTINGS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<ExportSettings> | null;
-        if (parsed) {
-          if (parsed.exportResolutionOption) setExportResolutionOption(parsed.exportResolutionOption as any);
-          if (typeof parsed.exportWidthPx === 'number') setExportWidthPx(parsed.exportWidthPx);
-          if (typeof parsed.exportHeightPx === 'number') setExportHeightPx(parsed.exportHeightPx);
-          if (typeof parsed.jpegQuality === 'number') setJpegQuality(parsed.jpegQuality);
-          if (parsed.pdfPageSize) setPdfPageSize(parsed.pdfPageSize as any);
-          if (typeof parsed.pdfCustomWidthIn === 'number') setPdfCustomWidthIn(parsed.pdfCustomWidthIn);
-          if (typeof parsed.pdfCustomHeightIn === 'number') setPdfCustomHeightIn(parsed.pdfCustomHeightIn);
+    let cancelled = false;
+    const load = async () => {
+      if (!currentUser) return; // server-only persistence
+      try {
+        const { apiFetch } = await import('../../utils/apiFetch');
+        const resp = await apiFetch(`${serverUrl}/users/me/settings`, { method: 'GET' });
+        if (!resp.ok) return;
+        const json = await resp.json();
+        const srv = json.settings && json.settings.exportSettings;
+        if (srv && !cancelled) {
+          if (srv.exportResolutionOption) setExportResolutionOption(srv.exportResolutionOption as any);
+          if (typeof srv.exportWidthPx === 'number') setExportWidthPx(srv.exportWidthPx);
+          if (typeof srv.exportHeightPx === 'number') setExportHeightPx(srv.exportHeightPx);
+          if (typeof srv.jpegQuality === 'number') setJpegQuality(srv.jpegQuality);
+          if (srv.pdfPageSize) setPdfPageSize(srv.pdfPageSize as any);
+          if (typeof srv.pdfCustomWidthIn === 'number') setPdfCustomWidthIn(srv.pdfCustomWidthIn);
+          if (typeof srv.pdfCustomHeightIn === 'number') setPdfCustomHeightIn(srv.pdfCustomHeightIn);
         }
+      } catch (e) {
+        console.warn('Failed to load export settings from server', e);
       }
-    } catch (e) {
-      // ignore localStorage parse failures
-      console.warn('Failed to load export settings from localStorage', e);
-    }
-  }, []);
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [currentUser, serverUrl]);
 
   // Open settings helper that snapshots current values so Cancel can revert
   const openExportSettings = () => {
@@ -702,13 +760,12 @@ const MainToolbar: React.FC = () => {
     } finally {
       setIsExportingPpt(false);
       setExportProgress(null);
-      handleExportMenuClose();
+      handleFileMenuClose(); handleExportMenuClose();
     }
   };
 
   const { saveDiagram } = useDiagramStore();
   const isEditable = useDiagramStore(state => state.isEditable !== false);
-  const remoteDiagramId = useDiagramStore(state => state.remoteDiagramId);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -736,12 +793,15 @@ const MainToolbar: React.FC = () => {
     setConfirmNewOpen(false);
     setEditingName('New Diagram');
     setEditNameOpen(true);
+    handleExportMenuClose();
     handleFileMenuClose();
   };
 
   const handleNewDiagram = () => {
     // Start the 'create new diagram' flow. If there are unsaved changes, ask the user
     // to confirm discarding them, otherwise prompt for a name immediately.
+    // Close any open export submenu before proceeding
+    handleExportMenuClose();
     setPendingNewCreation(true);
     if (isDirty) {
       setConfirmNewOpen(true);
@@ -846,7 +906,7 @@ const MainToolbar: React.FC = () => {
         <MenuItem
           component="button"
           ref={exportRef}
-          onClick={handleExportMenuOpen}
+          onClick={(e) => { handleExportMenuOpen(e); /* close other top menus like a normal menubar click */ setFileMenuAnchorEl(null); }}
           onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'export')}
           onMouseLeave={() => clearHoverTimer()}
           aria-haspopup="true"
@@ -865,9 +925,17 @@ const MainToolbar: React.FC = () => {
         anchorEl={fileMenuAnchorEl}
         open={Boolean(fileMenuAnchorEl)}
         onClose={handleFileMenuClose}
-        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'file')}
+  onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'file')}
         PaperProps={{
           style: { border: '1px solid #a0a0a0' },
+          onMouseDown: (_ev: React.MouseEvent) => {
+            try {
+              // Always close any open Export submenu on mousedown inside the File menu
+              handleExportMenuClose();
+            } catch (e) {
+              // ignore
+            }
+          },
           onMouseMove: (ev: React.MouseEvent) => {
             // If user moves pointer over the opened popover, interpret their
             // horizontal position relative to the menubar and switch menus
@@ -892,12 +960,10 @@ const MainToolbar: React.FC = () => {
           }
         }}
       >
-        <NewMenuItem onNew={handleNewDiagram} />
+  <NewMenuItem onNew={() => { handleExportMenuClose(); handleNewDiagram(); }} />
         <Divider />
-        <MenuItem onClick={() => { openExportSettings(); handleFileMenuClose(); }}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Export Settings...</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => { if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
+        {/* Export moved back to its own top-level menu */}
+  <MenuItem onClick={() => { handleExportMenuClose(); if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
           <ListItemIcon>
             <SaveOutlined fontSize="small" />
           </ListItemIcon>
@@ -905,26 +971,20 @@ const MainToolbar: React.FC = () => {
           <Typography variant="body2" color="text.secondary">Ctrl+S</Typography>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handlePrint}>
+  <MenuItem onClick={() => { handleExportMenuClose(); handlePrint(); }}>
           <ListItemIcon>
             <PrintOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
         </MenuItem>
-        {/* Export moved to the top-level Export menu */}
+  {/* (Export moved back to top-level) */}
         <Divider />
-        <MenuItem onClick={() => { handleFileMenuClose(); navigate('/dashboard'); }}>
+  <MenuItem onClick={() => { handleExportMenuClose(); handleFileMenuClose(); navigate('/dashboard'); }}>
           <ListItemIcon>
             <Dashboard fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => { handleFileMenuClose(); if (remoteDiagramId) navigate(`/diagram/${remoteDiagramId}/history`); }} disabled={!isEditable || !remoteDiagramId}>
-          <ListItemIcon>
-            <History fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>History</ListItemText>
         </MenuItem>
       </Menu>
 
@@ -935,7 +995,9 @@ const MainToolbar: React.FC = () => {
         anchorEl={exportMenuAnchorEl}
         open={Boolean(exportMenuAnchorEl)}
         onClose={handleExportMenuClose}
-        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'export')}
+  onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'export')}
+  anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+  transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         PaperProps={{
           style: { border: '1px solid #a0a0a0' },
           onMouseMove: (ev: React.MouseEvent) => {
@@ -960,7 +1022,7 @@ const MainToolbar: React.FC = () => {
           }
         }}
       >
-        <MenuItem onClick={() => { handleExportToPowerPoint(); handleExportMenuClose(); }} disabled={!sheets || Object.keys(sheets).length === 0}>
+        <MenuItem onClick={() => { handleExportToPowerPoint(); handleFileMenuClose(); handleExportMenuClose(); }} disabled={!sheets || Object.keys(sheets).length === 0}>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>PowerPoint</ListItemText>
         </MenuItem>
         <Divider />
@@ -980,10 +1042,9 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>PDF (current sheet)</ListItemText>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={() => { openExportSettings(); handleExportMenuClose(); }}>
+        <MenuItem onClick={() => { openExportSettings(); handleFileMenuClose(); handleExportMenuClose(); }}>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Export Settings...</ListItemText>
         </MenuItem>
-        <Divider />
       </Menu>
 
       {/* Edit menu */}
@@ -1199,7 +1260,7 @@ const MainToolbar: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Slider value={Math.round(jpegQuality * 100)} onChange={(_, v) => setJpegQuality((v as number) / 100)} min={10} max={100} />
                 <TextField
-                  sx={{ width: 72 }}
+                  sx={{ width: 100 }}
                   size="small"
                   type="number"
                   inputProps={{ min: 10, max: 100 }}
@@ -1252,7 +1313,7 @@ const MainToolbar: React.FC = () => {
             }
             setExportSettingsOpen(false);
           }}>Cancel</Button>
-          <Button onClick={() => {
+          <Button onClick={async () => {
             // Compute chosen resolution (unless custom) and persist settings
             let newWidth = exportWidthPx;
             let newHeight = exportHeightPx;
@@ -1272,20 +1333,34 @@ const MainToolbar: React.FC = () => {
                 setExportHeightPx(newHeight);
               }
             }
-            try {
-              const payload = {
-                exportResolutionOption,
-                exportWidthPx: newWidth,
-                exportHeightPx: newHeight,
-                jpegQuality,
-                pdfPageSize,
-                pdfCustomWidthIn,
-                pdfCustomHeightIn,
-              };
-              localStorage.setItem(EXPORT_SETTINGS_KEY, JSON.stringify(payload));
-            } catch (e) {
-              console.warn('Failed to save export settings', e);
+            const payload = {
+              exportResolutionOption,
+              exportWidthPx: newWidth,
+              exportHeightPx: newHeight,
+              jpegQuality,
+              pdfPageSize,
+              pdfCustomWidthIn,
+              pdfCustomHeightIn,
+            };
+
+            // Persist to server only. Require sign-in to save settings.
+            if (!currentUser) {
+              alert('Please sign in to persist export settings to your account.');
+            } else {
+              try {
+                const { apiFetch } = await import('../../utils/apiFetch');
+                const resp = await apiFetch(`${serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { exportSettings: payload } }) });
+                if (!resp.ok) {
+                  const text = await resp.text().catch(() => '<no response text>');
+                  console.warn('Failed to persist export settings to server:', resp.status, text);
+                  alert('Failed to save export settings to server. See console for details.');
+                }
+              } catch (e) {
+                console.warn('Failed to persist export settings to server', e);
+                alert('Failed to save export settings to server. See console for details.');
+              }
             }
+
             setExportSettingsOpen(false);
           }} variant="contained">Save</Button>
         </DialogActions>
