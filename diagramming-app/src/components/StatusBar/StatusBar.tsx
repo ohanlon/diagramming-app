@@ -44,7 +44,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel
         justifyContent: 'flex-end',
         p: 1,
         bgcolor: 'background.paper',
-        borderTop: '1px solid #e0e0e0',
+        borderTop: '1px solid ${theme.palette.divider}',
         height: '1em',
         alignItems: 'center',
       }}

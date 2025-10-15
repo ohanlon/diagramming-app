@@ -55,7 +55,7 @@ const SheetTabs: React.FC = () => {
   }, [editingSheetId]);
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2em' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', borderTop: 1, borderColor: 'divider', height: '2em', backgroundColor: 'background.paper' }}>
       <Tabs
         value={activeSheetId}
         onChange={(_event, newValue) => setActiveSheet(newValue)}
@@ -77,7 +77,7 @@ const SheetTabs: React.FC = () => {
                 minHeight: '2em',
                 padding: '0 .625em',
                 '&.Mui-selected': {
-                  bgcolor: '#A0A0A0', // Background color for selected tab
+                  bgcolor: '#f7ededff', // Background color for selected tab
                 },
               }}
               label={
@@ -123,10 +123,10 @@ const SheetTabs: React.FC = () => {
           );
         })}
       </Tabs>
-      <Divider orientation="vertical" flexItem />
+      <Divider orientation="vertical" flexItem  />
       <Tooltip title="Add New Sheet">
         <Box onClick={handleAddSheet} sx={{
-          height: '2em', minHeight: '2em', width: 32,
+          height: '2em', minHeight: '2em', width: '2rem', color: 'text.secondary', 
           '&:hover': {
             bgcolor: 'rgba(0, 0, 0, 0.04)',
           },
