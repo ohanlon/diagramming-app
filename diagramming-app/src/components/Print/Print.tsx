@@ -5,9 +5,14 @@ import Node from '../Node/Node';
 import Connector from '../Connector/Connector';
 import './Print.less';
 
-const Print: React.FC = () => {
+interface PrintProps {
+  /** If provided, Print will render this specific sheet instead of the store active sheet */
+  sheetId?: string;
+}
+
+const Print: React.FC<PrintProps> = ({ sheetId }) => {
   const { sheets, activeSheetId } = useDiagramStore();
-  const activeSheet = sheets[activeSheetId];
+  const activeSheet = sheetId ? sheets[sheetId] : sheets[activeSheetId];
 
   if (!activeSheet) {
     return null;

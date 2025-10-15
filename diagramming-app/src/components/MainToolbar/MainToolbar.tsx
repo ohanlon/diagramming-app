@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
+import { generateThumbnailFromSvgElement } from '../../utils/thumbnail';
 import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
 import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, History } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
@@ -233,6 +234,127 @@ const MainToolbar: React.FC = () => {
     handleFileMenuClose();
   };
 
+  const [isExportingPpt, setIsExportingPpt] = useState(false);
+  const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
+
+  const renderSheetToPng = async (sheetId: string, widthPx = 1600, heightPx = 900): Promise<string | null> => {
+    if (typeof document === 'undefined') return null;
+    return new Promise<string | null>(async (resolve) => {
+      const container = document.createElement('div');
+      // Keep offscreen but renderable
+      container.style.position = 'fixed';
+      container.style.left = '-9999px';
+      container.style.top = '0px';
+      container.style.width = `${widthPx}px`;
+      container.style.height = `${heightPx}px`;
+      container.style.overflow = 'hidden';
+      container.style.visibility = 'hidden';
+      document.body.appendChild(container);
+
+      try {
+        const root = createRoot(container);
+        root.render(<Print sheetId={sheetId} />);
+
+        // Wait for the SVG to be present in the rendered output
+        const waitForSvg = (): Promise<SVGSVGElement | null> => new Promise((res) => {
+          let attempts = 0;
+          const interval = window.setInterval(() => {
+            const svg = container.querySelector('svg.print-svg') as SVGSVGElement | null;
+            if (svg) {
+              window.clearInterval(interval);
+              res(svg);
+              return;
+            }
+            attempts += 1;
+            // timeout after ~5s
+            if (attempts > 50) {
+              window.clearInterval(interval);
+              res(null);
+            }
+          }, 100);
+        });
+
+        const svg = await waitForSvg();
+        if (!svg) {
+          try { root.unmount(); } catch (e) {}
+          document.body.removeChild(container);
+          resolve(null);
+          return;
+        }
+
+        const dataUrl = await generateThumbnailFromSvgElement(svg, widthPx, heightPx);
+        try { root.unmount(); } catch (e) {}
+        document.body.removeChild(container);
+        resolve(dataUrl || null);
+      } catch (err) {
+        console.error('Error rendering sheet for export', err);
+        try { document.body.removeChild(container); } catch (e) {}
+        resolve(null);
+      }
+    });
+  };
+
+  const handleExportToPowerPoint = async () => {
+    setIsExportingPpt(true);
+    const sheetIds = Object.keys(sheets || {});
+    setExportProgress({ current: 0, total: sheetIds.length });
+    try {
+      const pptxMod: any = await import('pptxgenjs');
+      const PPTXClass = (pptxMod && (pptxMod.default || pptxMod)) as any;
+      const pptx = new PPTXClass();
+
+      // Standard widescreen slide width in inches -- use 16:9 at 10 inches wide
+      const slideWidthInches = 10;
+      const slideHeightInches = 10 * (9 / 16); // 5.625
+
+      for (let i = 0; i < sheetIds.length; i++) {
+        const id = sheetIds[i];
+        setExportProgress({ current: i + 1, total: sheetIds.length });
+        // Render a reasonably high-resolution PNG for embedding
+        const png = await renderSheetToPng(id, 1600, 900);
+        if (!png) {
+          // Add an empty slide with sheet name if rendering failed
+          const slide = pptx.addSlide();
+          slide.addText(sheets[id]?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
+          continue;
+        }
+
+        const slide = pptx.addSlide();
+        // Add image covering the entire slide
+        try {
+          slide.addImage({ data: png, x: 0, y: 0, w: slideWidthInches, h: slideHeightInches });
+        } catch (e) {
+          console.warn('Failed to add image to slide using numeric dimensions, trying percent fallback', e);
+          try {
+            // Some pptxgenjs versions accept percentage strings
+            slide.addImage({ data: png, x: '0%', y: '0%', w: '100%', h: '100%' });
+          } catch (e2) {
+            console.error('Failed to add image to slide', e2);
+            slide.addText(sheets[id]?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
+          }
+        }
+      }
+
+      // Attempt to write file; API varies between versions but writeFile with fileName is widely supported
+      const fileName = `${diagramName || 'diagram'}.pptx`;
+      if (typeof pptx.writeFile === 'function') {
+        await pptx.writeFile({ fileName });
+      } else if (typeof pptx.save === 'function') {
+        // older alias
+        await pptx.save(fileName);
+      } else {
+        throw new Error('pptx export API not found');
+      }
+    } catch (err) {
+      console.error('Export to PowerPoint failed', err);
+      alert('Export to PowerPoint failed. See console for details.');
+    } finally {
+      setIsExportingPpt(false);
+      setExportProgress(null);
+      handleFileMenuClose();
+    }
+  };
+
   const { saveDiagram } = useDiagramStore();
   const isEditable = useDiagramStore(state => state.isEditable !== false);
   const remoteDiagramId = useDiagramStore(state => state.remoteDiagramId);
@@ -422,6 +544,9 @@ const MainToolbar: React.FC = () => {
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
         </MenuItem>
+        <MenuItem onClick={handleExportToPowerPoint} disabled={!sheets || Object.keys(sheets).length === 0}>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Export to PowerPoint</ListItemText>
+        </MenuItem>
         <Divider />
         <MenuItem onClick={() => { handleFileMenuClose(); navigate('/dashboard'); }}>
           <ListItemIcon>
@@ -594,6 +719,14 @@ const MainToolbar: React.FC = () => {
             setEditNameOpen(false);
           }} variant="contained">Save</Button>
         </DialogActions>
+      </Dialog>
+      <Dialog open={isExportingPpt} onClose={() => { /* modal only */ }} PaperProps={{ sx: { minWidth: '320px' } }}>
+        <DialogTitle>Exporting to PowerPoint</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {exportProgress ? `Exporting sheet ${exportProgress.current} of ${exportProgress.total}...` : 'Preparing export...'}
+          </DialogContentText>
+        </DialogContent>
       </Dialog>
       {/* Ensure pending flag is cleared if user navigates away or closes menus */}
       {/* (Handled above in onClose handlers) */}
