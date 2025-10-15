@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
+import { Select, FormControl, InputLabel, Slider } from '@mui/material';
 import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
 import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, History } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
@@ -136,8 +137,8 @@ const MainToolbar: React.FC = () => {
   // Export handlers for the currently selected sheet
   const handleExportCurrentAsPng = async () => {
     if (!activeSheet) return;
-    const widthPx = 1600;
-    const heightPx = 900;
+    const widthPx = exportWidthPx;
+    const heightPx = exportHeightPx;
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (res.dataUrl) {
       const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.png`;
@@ -150,9 +151,9 @@ const MainToolbar: React.FC = () => {
 
   const handleExportCurrentAsJpg = async () => {
     if (!activeSheet) return;
-    const widthPx = 1600;
-    const heightPx = 900;
-    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/jpeg', 0.92);
+    const widthPx = exportWidthPx;
+    const heightPx = exportHeightPx;
+    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/jpeg', jpegQuality);
     if (res.dataUrl) {
       const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.jpg`;
       downloadDataUrl(res.dataUrl, name);
@@ -164,8 +165,8 @@ const MainToolbar: React.FC = () => {
 
   const handleExportCurrentAsPdf = async () => {
     if (!activeSheet) return;
-    const widthPx = 1600;
-    const heightPx = 900;
+    const widthPx = exportWidthPx;
+    const heightPx = exportHeightPx;
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.dataUrl) {
       alert('Failed to render sheet for PDF export');
@@ -175,18 +176,37 @@ const MainToolbar: React.FC = () => {
     try {
       const jspdfModule: any = await import('jspdf');
       const jsPDFClass: any = jspdfModule && (jspdfModule.jsPDF || jspdfModule.default || jspdfModule);
-      // Use pixel units if supported; otherwise fall back to points
-      const usePx = true;
       const fileName = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.pdf`;
-      if (usePx) {
+      if (pdfPageSize === 'image') {
         const doc = new jsPDFClass({ orientation: widthPx > heightPx ? 'landscape' : 'portrait', unit: 'px', format: [widthPx, heightPx] });
         doc.addImage(res.dataUrl, 'PNG', 0, 0, widthPx, heightPx);
         doc.save(fileName);
-      } else {
-        const inchesW = widthPx / 96;
-        const inchesH = heightPx / 96;
-        const doc = new jsPDFClass({ orientation: inchesW > inchesH ? 'landscape' : 'portrait', unit: 'in', format: [inchesW, inchesH] });
-        doc.addImage(res.dataUrl, 'PNG', 0, 0, inchesW, inchesH);
+      } else if (pdfPageSize === 'a4_portrait' || pdfPageSize === 'a4_landscape' || pdfPageSize === 'letter_portrait' || pdfPageSize === 'letter_landscape') {
+        const format = pdfPageSize.startsWith('a4') ? 'a4' : 'letter';
+        const orientation = pdfPageSize.endsWith('landscape') ? 'landscape' : 'portrait';
+        const doc = new jsPDFClass({ orientation, unit: 'in', format });
+        const imgInW = widthPx / 96;
+        const imgInH = heightPx / 96;
+        // derive page dimensions in inches
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const scale = Math.min(pageW / imgInW, pageH / imgInH);
+        const w = imgInW * scale;
+        const h = imgInH * scale;
+        const x = (pageW - w) / 2;
+        const y = (pageH - h) / 2;
+        doc.addImage(res.dataUrl, 'PNG', x, y, w, h);
+        doc.save(fileName);
+      } else if (pdfPageSize === 'custom') {
+        const doc = new jsPDFClass({ orientation: pdfCustomWidthIn > pdfCustomHeightIn ? 'landscape' : 'portrait', unit: 'in', format: [pdfCustomWidthIn, pdfCustomHeightIn] });
+        const imgInW = widthPx / 96;
+        const imgInH = heightPx / 96;
+        const scale = Math.min(pdfCustomWidthIn / imgInW, pdfCustomHeightIn / imgInH);
+        const w = imgInW * scale;
+        const h = imgInH * scale;
+        const x = (pdfCustomWidthIn - w) / 2;
+        const y = (pdfCustomHeightIn - h) / 2;
+        doc.addImage(res.dataUrl, 'PNG', x, y, w, h);
         doc.save(fileName);
       }
     } catch (e) {
@@ -198,8 +218,8 @@ const MainToolbar: React.FC = () => {
 
   const handleExportCurrentAsGif = async () => {
     if (!activeSheet) return;
-    const widthPx = 800; // GIFs can be smaller; choose moderate size
-    const heightPx = Math.round((widthPx * 9) / 16);
+    const widthPx = exportWidthPx;
+    const heightPx = exportHeightPx;
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.canvas) {
       alert('Failed to render sheet for GIF export');
@@ -216,11 +236,80 @@ const MainToolbar: React.FC = () => {
         gifModule = await import('gif.js');
       }
       const GIFClass: any = gifModule && (gifModule.default || gifModule.GIF || gifModule);
-      const gif = new GIFClass({ workers: 2, quality: 10, width: widthPx, height: heightPx });
+
+      // Resolve a worker script URL in several ways:
+      // 1) Use bundler asset import with ?url (preferred for Vite)
+      // 2) Fall back to importing the raw worker script and creating a Blob URL
+      // 3) Finally let gif.js attempt to load its default worker (may fail)
+      let workerUrl: string | null = null;
+      let createdBlobUrl: string | null = null;
+      try {
+        const modUrl: any = await import('gif.js.optimized/dist/gif.worker.js?url');
+        workerUrl = modUrl && (modUrl.default || modUrl);
+      } catch (_) {
+        try {
+          const modUrl: any = await import('gif.js/dist/gif.worker.js?url');
+          workerUrl = modUrl && (modUrl.default || modUrl);
+        } catch (__) {
+          // try raw -> blob fallback
+          try {
+            const modRaw: any = await import('gif.js.optimized/dist/gif.worker.js?raw');
+            const workerText = modRaw && (modRaw.default || modRaw);
+            createdBlobUrl = URL.createObjectURL(new Blob([workerText], { type: 'application/javascript' }));
+            workerUrl = createdBlobUrl;
+          } catch (___) {
+            try {
+              const modRaw2: any = await import('gif.js/dist/gif.worker.js?raw');
+              const workerText2 = modRaw2 && (modRaw2.default || modRaw2);
+              createdBlobUrl = URL.createObjectURL(new Blob([workerText2], { type: 'application/javascript' }));
+              workerUrl = createdBlobUrl;
+            } catch (err) {
+              console.warn('Unable to resolve gif.worker.js via ?url or ?raw; gif export may fail', err);
+            }
+          }
+        }
+      }
+
+      const gifOptions: any = { workers: 2, quality: 10, width: widthPx, height: heightPx };
+      if (workerUrl) {
+        // Validate that the resolved worker URL returns JavaScript and not an HTML SPA fallback
+        try {
+          const resp = await fetch(workerUrl, { method: 'GET' });
+          const ct = resp.headers.get('content-type') || '';
+          if (!/javascript|ecmascript/.test(ct) && !/application\/javascript/.test(ct) && !/text\/javascript/.test(ct)) {
+            console.warn('Resolved worker script does not appear to be JavaScript (content-type:', ct, '). Will ignore and attempt fallbacks.');
+            workerUrl = null;
+          }
+        } catch (e) {
+          console.warn('Failed to validate worker url, will attempt fallbacks', e);
+          workerUrl = null;
+        }
+      }
+
+      // If workerUrl still not found, try a public path (/gif.worker.js) which
+      // is the simplest option for apps that serve static assets from public/.
+      if (!workerUrl) {
+        try {
+          const test = await fetch('/gif.worker.js', { method: 'HEAD' });
+          const ct2 = test.headers.get('content-type') || '';
+          if (test.ok && (/javascript|application\/javascript|text\/javascript/.test(ct2))) {
+            workerUrl = '/gif.worker.js';
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      if (workerUrl) gifOptions.workerScript = workerUrl;
+      const gif = new GIFClass(gifOptions);
       gif.addFrame(res.canvas, { copy: true, delay: 0 });
       gif.on('finished', (blob: Blob) => {
         const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.gif`;
         downloadBlob(blob, name);
+        // Clean up any created blob URL for the worker script
+        if (createdBlobUrl) {
+          URL.revokeObjectURL(createdBlobUrl);
+        }
       });
       gif.render();
     } catch (e) {
@@ -235,8 +324,8 @@ const MainToolbar: React.FC = () => {
 
   const handleExportCurrentAsTiff = async () => {
     if (!activeSheet) return;
-    const widthPx = 1600;
-    const heightPx = 900;
+    const widthPx = exportWidthPx;
+    const heightPx = exportHeightPx;
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.canvas) {
       alert('Failed to render sheet for TIFF export');
@@ -441,6 +530,64 @@ const MainToolbar: React.FC = () => {
   const [isExportingPpt, setIsExportingPpt] = useState(false);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
 
+  // Export settings state
+  const [exportSettingsOpen, setExportSettingsOpen] = useState(false);
+  const [exportResolutionOption, setExportResolutionOption] = useState<'800x450'|'1280x720'|'1600x900'|'1920x1080'|'3840x2160'|'custom'>('1600x900');
+  const [exportWidthPx, setExportWidthPx] = useState<number>(1600);
+  const [exportHeightPx, setExportHeightPx] = useState<number>(900);
+  const [jpegQuality, setJpegQuality] = useState<number>(0.92);
+  const [pdfPageSize, setPdfPageSize] = useState<'image'|'a4_portrait'|'a4_landscape'|'letter_portrait'|'letter_landscape'|'custom'>('image');
+  const [pdfCustomWidthIn, setPdfCustomWidthIn] = useState<number>(8.5);
+  const [pdfCustomHeightIn, setPdfCustomHeightIn] = useState<number>(11);
+  // Local storage key and helper for persisting export settings
+  type ExportSettings = {
+    exportResolutionOption: '800x450'|'1280x720'|'1600x900'|'1920x1080'|'3840x2160'|'custom';
+    exportWidthPx: number;
+    exportHeightPx: number;
+    jpegQuality: number;
+    pdfPageSize: 'image'|'a4_portrait'|'a4_landscape'|'letter_portrait'|'letter_landscape'|'custom';
+    pdfCustomWidthIn: number;
+    pdfCustomHeightIn: number;
+  };
+  const EXPORT_SETTINGS_KEY = 'exportSettings';
+  const prevExportSettingsRef = React.useRef<ExportSettings | null>(null);
+
+  // Load any persisted export settings on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(EXPORT_SETTINGS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<ExportSettings> | null;
+        if (parsed) {
+          if (parsed.exportResolutionOption) setExportResolutionOption(parsed.exportResolutionOption as any);
+          if (typeof parsed.exportWidthPx === 'number') setExportWidthPx(parsed.exportWidthPx);
+          if (typeof parsed.exportHeightPx === 'number') setExportHeightPx(parsed.exportHeightPx);
+          if (typeof parsed.jpegQuality === 'number') setJpegQuality(parsed.jpegQuality);
+          if (parsed.pdfPageSize) setPdfPageSize(parsed.pdfPageSize as any);
+          if (typeof parsed.pdfCustomWidthIn === 'number') setPdfCustomWidthIn(parsed.pdfCustomWidthIn);
+          if (typeof parsed.pdfCustomHeightIn === 'number') setPdfCustomHeightIn(parsed.pdfCustomHeightIn);
+        }
+      }
+    } catch (e) {
+      // ignore localStorage parse failures
+      console.warn('Failed to load export settings from localStorage', e);
+    }
+  }, []);
+
+  // Open settings helper that snapshots current values so Cancel can revert
+  const openExportSettings = () => {
+    prevExportSettingsRef.current = {
+      exportResolutionOption,
+      exportWidthPx,
+      exportHeightPx,
+      jpegQuality,
+      pdfPageSize,
+      pdfCustomWidthIn,
+      pdfCustomHeightIn,
+    };
+    setExportSettingsOpen(true);
+  };
+
   const renderSheetToImage = async (sheetId: string, widthPx = 1600, heightPx = 900, mimeType = 'image/png', quality?: number): Promise<{ dataUrl: string | null; canvas?: HTMLCanvasElement | null }> => {
     if (typeof document === 'undefined') return { dataUrl: null };
     return new Promise<{ dataUrl: string | null; canvas?: HTMLCanvasElement | null }>(async (resolve) => {
@@ -506,15 +653,15 @@ const MainToolbar: React.FC = () => {
       const PPTXClass = (pptxMod && (pptxMod.default || pptxMod)) as any;
       const pptx = new PPTXClass();
 
-      // Standard widescreen slide width in inches -- use 16:9 at 10 inches wide
-      const slideWidthInches = 10;
-      const slideHeightInches = 10 * (9 / 16); // 5.625
+  // Standard slide width in inches. Compute height to preserve chosen export aspect ratio.
+  const slideWidthInches = 10;
+  const slideHeightInches = exportWidthPx && exportHeightPx ? slideWidthInches * (exportHeightPx / exportWidthPx) : (10 * (9 / 16));
 
       for (let i = 0; i < sheetIds.length; i++) {
         const id = sheetIds[i];
         setExportProgress({ current: i + 1, total: sheetIds.length });
-        // Render a reasonably high-resolution PNG for embedding
-        const result = await renderSheetToImage(id, 1600, 900, 'image/png');
+  // Render using the configured export resolution for embedding
+  const result = await renderSheetToImage(id, exportWidthPx, exportHeightPx, 'image/png');
         const png = result.dataUrl;
         if (!png) {
           // Add an empty slide with sheet name if rendering failed
@@ -747,6 +894,9 @@ const MainToolbar: React.FC = () => {
       >
         <NewMenuItem onNew={handleNewDiagram} />
         <Divider />
+        <MenuItem onClick={() => { openExportSettings(); handleFileMenuClose(); }}>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Export Settings...</ListItemText>
+        </MenuItem>
         <MenuItem onClick={() => { if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
           <ListItemIcon>
             <SaveOutlined fontSize="small" />
@@ -828,6 +978,10 @@ const MainToolbar: React.FC = () => {
         </MenuItem>
         <MenuItem onClick={() => { handleExportCurrentAsPdf(); }} disabled={!activeSheet}>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>PDF (current sheet)</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => { openExportSettings(); handleExportMenuClose(); }}>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Export Settings...</ListItemText>
         </MenuItem>
         <Divider />
       </Menu>
@@ -999,6 +1153,142 @@ const MainToolbar: React.FC = () => {
             {exportProgress ? `Exporting sheet ${exportProgress.current} of ${exportProgress.total}...` : 'Preparing export...'}
           </DialogContentText>
         </DialogContent>
+      </Dialog>
+      <Dialog open={exportSettingsOpen} onClose={() => setExportSettingsOpen(false)} PaperProps={{ sx: { minWidth: '360px' } }}>
+        <DialogTitle>Export Settings</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel id="resolution-label">Resolution</InputLabel>
+              <Select
+                labelId="resolution-label"
+                value={exportResolutionOption}
+                onChange={(e) => setExportResolutionOption(e.target.value as any)}
+                label="Resolution"
+                size="small"
+              >
+                <MenuItem value={'800x450'}>800 × 450</MenuItem>
+                <MenuItem value={'1280x720'}>1280 × 720 (HD)</MenuItem>
+                <MenuItem value={'1600x900'}>1600 × 900</MenuItem>
+                <MenuItem value={'1920x1080'}>1920 × 1080 (Full HD)</MenuItem>
+                <MenuItem value={'3840x2160'}>3840 × 2160 (4K)</MenuItem>
+                <MenuItem value={'custom'}>Custom</MenuItem>
+              </Select>
+            </FormControl>
+            {exportResolutionOption === 'custom' && (
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  label="Width (px)"
+                  type="number"
+                  value={exportWidthPx}
+                  onChange={(e) => setExportWidthPx(Math.max(1, parseInt(e.target.value || '0', 10) || 0))}
+                  size="small"
+                />
+                <TextField
+                  label="Height (px)"
+                  type="number"
+                  value={exportHeightPx}
+                  onChange={(e) => setExportHeightPx(Math.max(1, parseInt(e.target.value || '0', 10) || 0))}
+                  size="small"
+                />
+              </Box>
+            )}
+
+            <Box>
+              <Typography variant="body2" sx={{ mb: 0.5 }}>JPEG Quality</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Slider value={Math.round(jpegQuality * 100)} onChange={(_, v) => setJpegQuality((v as number) / 100)} min={10} max={100} />
+                <TextField
+                  sx={{ width: 72 }}
+                  size="small"
+                  type="number"
+                  inputProps={{ min: 10, max: 100 }}
+                  value={Math.round(jpegQuality * 100)}
+                  onChange={(e) => {
+                    const v = Math.min(100, Math.max(10, parseInt(e.target.value || '10', 10) || 10));
+                    setJpegQuality(v / 100);
+                  }}
+                />
+              </Box>
+            </Box>
+
+            <FormControl fullWidth>
+              <InputLabel id="pdfsize-label">PDF Page Size</InputLabel>
+              <Select
+                labelId="pdfsize-label"
+                value={pdfPageSize}
+                onChange={(e) => setPdfPageSize(e.target.value as any)}
+                label="PDF Page Size"
+                size="small"
+              >
+                <MenuItem value={'image'}>Image size (match resolution)</MenuItem>
+                <MenuItem value={'a4_portrait'}>A4 (portrait)</MenuItem>
+                <MenuItem value={'a4_landscape'}>A4 (landscape)</MenuItem>
+                <MenuItem value={'letter_portrait'}>Letter (portrait)</MenuItem>
+                <MenuItem value={'letter_landscape'}>Letter (landscape)</MenuItem>
+                <MenuItem value={'custom'}>Custom (inches)</MenuItem>
+              </Select>
+            </FormControl>
+            {pdfPageSize === 'custom' && (
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField label="Width (in)" type="number" size="small" value={pdfCustomWidthIn} onChange={(e) => setPdfCustomWidthIn(Math.max(0.1, parseFloat(e.target.value || '0') || 0.1))} />
+                <TextField label="Height (in)" type="number" size="small" value={pdfCustomHeightIn} onChange={(e) => setPdfCustomHeightIn(Math.max(0.1, parseFloat(e.target.value || '0') || 0.1))} />
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            // Revert to previously-snapped settings when the dialog was opened
+            const prev = prevExportSettingsRef.current;
+            if (prev) {
+              setExportResolutionOption(prev.exportResolutionOption as any);
+              setExportWidthPx(prev.exportWidthPx);
+              setExportHeightPx(prev.exportHeightPx);
+              setJpegQuality(prev.jpegQuality);
+              setPdfPageSize(prev.pdfPageSize as any);
+              setPdfCustomWidthIn(prev.pdfCustomWidthIn);
+              setPdfCustomHeightIn(prev.pdfCustomHeightIn);
+            }
+            setExportSettingsOpen(false);
+          }}>Cancel</Button>
+          <Button onClick={() => {
+            // Compute chosen resolution (unless custom) and persist settings
+            let newWidth = exportWidthPx;
+            let newHeight = exportHeightPx;
+            if (exportResolutionOption !== 'custom') {
+              const map: Record<string, [number, number]> = {
+                '800x450': [800, 450],
+                '1280x720': [1280, 720],
+                '1600x900': [1600, 900],
+                '1920x1080': [1920, 1080],
+                '3840x2160': [3840, 2160],
+              };
+              const chosen = map[exportResolutionOption];
+              if (chosen) {
+                newWidth = chosen[0];
+                newHeight = chosen[1];
+                setExportWidthPx(newWidth);
+                setExportHeightPx(newHeight);
+              }
+            }
+            try {
+              const payload = {
+                exportResolutionOption,
+                exportWidthPx: newWidth,
+                exportHeightPx: newHeight,
+                jpegQuality,
+                pdfPageSize,
+                pdfCustomWidthIn,
+                pdfCustomHeightIn,
+              };
+              localStorage.setItem(EXPORT_SETTINGS_KEY, JSON.stringify(payload));
+            } catch (e) {
+              console.warn('Failed to save export settings', e);
+            }
+            setExportSettingsOpen(false);
+          }} variant="contained">Save</Button>
+        </DialogActions>
       </Dialog>
       {/* Ensure pending flag is cleared if user navigates away or closes menus */}
       {/* (Handled above in onClose handlers) */}
