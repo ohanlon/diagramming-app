@@ -8,7 +8,8 @@ import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { AppBar, Box, Snackbar, Alert } from '@mui/material';
 import ConflictDialog from './components/ConflictDialog/ConflictDialog';
-import { BrowserRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
+import { unstable_HistoryRouter as HistoryRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
+import { customHistory } from './customHistory';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
@@ -482,7 +483,7 @@ function App() {
   if (!sessionChecked) return null;
 
   return (
-    <BrowserRouter>
+    <HistoryRouter history={customHistory}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -495,7 +496,7 @@ function App() {
         <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>
-    </BrowserRouter>
+  </HistoryRouter>
   );
 }
 

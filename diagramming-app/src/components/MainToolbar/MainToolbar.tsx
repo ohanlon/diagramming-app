@@ -7,25 +7,28 @@ import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, Sav
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
+import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning';
 import AccountMenu from '../AppBar/AccountMenu';
 import { NewMenuItem } from '../AppBar/NewMenu';
 
 const MainToolbar: React.FC = () => {
+  // ...existing code...
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [exportMenuAnchorEl, setExportMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty } = useDiagramStore();
-  const currentUser = useDiagramStore(state => state.currentUser);
-  const serverUrl = useDiagramStore(state => state.serverUrl) || 'http://localhost:4000';
+  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty, currentUser, serverUrl: storeServerUrl, diagramName: storeDiagramName, setDiagramName } = useDiagramStore();
+  const serverUrl = storeServerUrl || 'http://localhost:4000';
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
   const navigate = useNavigate();
-  const diagramName = useDiagramStore(state => state.diagramName) || 'New Diagram';
-  const setDiagramName = useDiagramStore(state => state.setDiagramName);
+  const diagramName = storeDiagramName || 'New Diagram';
   const [editNameOpen, setEditNameOpen] = React.useState(false);
   const [editingName, setEditingName] = React.useState(diagramName);
   const [pendingNewCreation, setPendingNewCreation] = React.useState(false);
+
+  // Block in-app navigation if there are unsaved changes
+  useUnsavedChangesWarning(Boolean(isDirty));
 
 
   // If activeSheet is undefined, it means the store state is inconsistent
