@@ -27,12 +27,28 @@ const MainToolbar: React.FC = () => {
   const [editingName, setEditingName] = React.useState(diagramName);
   const [pendingNewCreation, setPendingNewCreation] = React.useState(false);
 
+
   // If activeSheet is undefined, it means the store state is inconsistent
   if (!activeSheet) {
     console.error('Active sheet not found, resetting store');
     resetStore();
     return <div>Loading...</div>;
   }
+
+  // Warn user if navigating away with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
 
   const handleFileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     // Open File and ensure other menus are closed
