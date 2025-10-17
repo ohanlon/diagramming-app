@@ -30,6 +30,24 @@ const MainToolbar: React.FC = () => {
   // Block in-app navigation if there are unsaved changes
   useUnsavedChangesWarning(Boolean(isDirty));
 
+  // Guarded navigate: if there are unsaved changes, dispatch the unsaved dialog
+  const guardedNavigate = (path: string) => {
+    // Read live isDirty from the store to avoid stale closure values
+    const liveIsDirty = useDiagramStore.getState().isDirty;
+    if (liveIsDirty) {
+      try {
+        const ev = new CustomEvent('show-unsaved-dialog', { detail: { tx: { retry: () => navigate(path) } } });
+        window.dispatchEvent(ev);
+      } catch (e) {
+        if (window.confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
+          navigate(path);
+        }
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
 
   // If activeSheet is undefined, it means the store state is inconsistent
   if (!activeSheet) {
@@ -999,7 +1017,7 @@ const MainToolbar: React.FC = () => {
         </MenuItem>
   {/* (Export moved back to top-level) */}
         <Divider />
-  <MenuItem onClick={() => { handleExportMenuClose(); handleFileMenuClose(); navigate('/dashboard'); }}>
+  <MenuItem onClick={() => { handleExportMenuClose(); handleFileMenuClose(); guardedNavigate('/dashboard'); }}>
           <ListItemIcon>
             <Dashboard fontSize="small" />
           </ListItemIcon>

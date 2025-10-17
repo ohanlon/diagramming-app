@@ -240,7 +240,9 @@ export const createShapeActions = (
 
   recordShapeMove: (id: string, newX: number, newY: number) => {
     addHistory();
-    set((state) => {
+  // Finalizing a move should mark the diagram dirty. Use wrappedSet so
+  // isDirty becomes true and history is recorded correctly.
+    wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
@@ -262,7 +264,8 @@ export const createShapeActions = (
 
   recordShapeMoves: (positions: { id: string; x: number; y: number }[]) => {
     addHistory();
-    set((state) => {
+  // Finalizing multiple moves should mark the diagram dirty as well.
+    wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 

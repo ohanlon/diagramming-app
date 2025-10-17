@@ -123,31 +123,34 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     if (typeof fnOrPartial === 'function') {
       set((state: any) => {
         const result = fnOrPartial(state);
-        // If the provided function returned nothing (undefined) or a non-object,
-        // assume it performed an in-place mutation and fall back to the previous
-        // state to avoid runtime errors when accessing result.isDirty.
         const isObjectResult = result && typeof result === 'object';
         try {
           if (!isObjectResult) {
-            return { ...state, isDirty: true };
+            const newState = { ...state, isDirty: true };
+            return newState;
           }
-          // If caller explicitly set isDirty in the returned object, respect it.
           if (Object.prototype.hasOwnProperty.call(result, 'isDirty')) {
-            return result;
+            // If caller explicitly changed isDirty (different from previous state), respect it.
+            if ((result as any).isDirty !== state.isDirty) {
+              return result;
+            }
+            // Otherwise it's likely an accidental copy from spreading state; treat as not-explicit.
+            const newState = { ...result, isDirty: true };
+            return newState;
           }
-          // Otherwise, mark dirty
-          return { ...result, isDirty: true };
+          const newState = { ...result, isDirty: true };
+          return newState;
         } catch (err) {
           return { ...state, isDirty: true };
         }
       });
     } else {
-        // If the caller explicitly provided isDirty, respect it. Otherwise mark dirty.
-        if (Object.prototype.hasOwnProperty.call(fnOrPartial, 'isDirty')) {
-          set({ ...fnOrPartial } as any);
-        } else {
-          set({ ...fnOrPartial, isDirty: true } as any);
-        }
+      // If the caller explicitly provided isDirty, respect it. Otherwise mark dirty.
+      if (Object.prototype.hasOwnProperty.call(fnOrPartial, 'isDirty')) {
+        set({ ...fnOrPartial } as any);
+      } else {
+        set({ ...fnOrPartial, isDirty: true } as any);
+      }
     }
   };
 

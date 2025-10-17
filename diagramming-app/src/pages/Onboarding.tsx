@@ -23,7 +23,14 @@ export default function OnboardingPage() {
       }
   await resp.json().catch(() => null);
   setSuccess('Organisation created');
-      setTimeout(() => navigate('/dashboard'), 800);
+      setTimeout(() => {
+        try {
+          const ev = new CustomEvent('show-unsaved-dialog', { detail: { tx: { retry: () => navigate('/dashboard') } } });
+          window.dispatchEvent(ev);
+        } catch (e) {
+          navigate('/dashboard');
+        }
+      }, 800);
     } catch (e) {
       setError(String(e));
     }
