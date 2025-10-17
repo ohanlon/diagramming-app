@@ -123,11 +123,31 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     if (typeof fnOrPartial === 'function') {
       set((state: any) => {
         const result = fnOrPartial(state);
-        // Merge returned state while ensuring isDirty is set to true
-        return { ...result, isDirty: true };
+        // If the provided function returned nothing (undefined) or a non-object,
+        // assume it performed an in-place mutation and fall back to the previous
+        // state to avoid runtime errors when accessing result.isDirty.
+        const isObjectResult = result && typeof result === 'object';
+        try {
+          if (!isObjectResult) {
+            return { ...state, isDirty: true };
+          }
+          // If caller explicitly set isDirty in the returned object, respect it.
+          if (Object.prototype.hasOwnProperty.call(result, 'isDirty')) {
+            return result;
+          }
+          // Otherwise, mark dirty
+          return { ...result, isDirty: true };
+        } catch (err) {
+          return { ...state, isDirty: true };
+        }
       });
     } else {
-      set({ ...fnOrPartial, isDirty: true } as any);
+        // If the caller explicitly provided isDirty, respect it. Otherwise mark dirty.
+        if (Object.prototype.hasOwnProperty.call(fnOrPartial, 'isDirty')) {
+          set({ ...fnOrPartial } as any);
+        } else {
+          set({ ...fnOrPartial, isDirty: true } as any);
+        }
     }
   };
 
@@ -336,20 +356,26 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   };
 
   const setServerUrl = (url: string) => {
-    wrappedSet({ serverUrl: url });
+    // serverUrl is an environment/connection setting, not a user edit to the diagram
+    // so do not mark the diagram as dirty when this changes.
+    set({ serverUrl: url } as any);
   };
 
   const setServerAuth = (user: string, pass: string) => {
     // store credentials in memory/state for convenience (not secure for production)
-    wrappedSet({ serverAuthUser: user, serverAuthPass: pass });
+    // This does not represent a diagram content change.
+    set({ serverAuthUser: user, serverAuthPass: pass } as any);
   };
 
   const setRemoteDiagramId = (id: string | null) => {
-    wrappedSet({ remoteDiagramId: id });
+    // Setting the remote diagram id is a navigation/loader concern, not a
+    // content mutation. Do not mark the diagram dirty when we set this.
+    set({ remoteDiagramId: id } as any);
   };
 
   const setShowAuthDialog = (show: boolean) => {
-    wrappedSet({ showAuthDialog: show });
+    // UI visibility toggles are not diagram edits
+    set({ showAuthDialog: show } as any);
   };
 
   const createNewDiagram = (name?: string) => {
@@ -522,14 +548,16 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
 
   return {
     ...baseState,
-    // Compose all modular store actions using wrappedSet so changes mark the store dirty
-    ...createShapeActions(wrappedSet as any, get, addHistoryFn),
-    ...createConnectorActions(wrappedSet as any, get, addHistoryFn),
-    ...createSelectionActions(wrappedSet as any, get),
-    ...createLayerActions(wrappedSet as any, get, addHistoryFn),
-    ...createSheetActions(wrappedSet as any, get, addHistoryFn),
-    ...createUIActions(wrappedSet as any, get, baseState, useHistoryStore),
-    ...createClipboardActions(wrappedSet as any, get, addHistoryFn),
+  // Compose all modular store actions. For shape actions we pass both the
+  // raw `set` and `wrappedSet` so shapeStore can choose whether to mark
+  // a mutation as dirty (wrappedSet) or perform hydration-only patches (set).
+  ...createShapeActions(set as any, wrappedSet as any, get, addHistoryFn),
+  ...createConnectorActions(wrappedSet as any, get, addHistoryFn),
+  ...createSelectionActions(set as any, get),
+  ...createLayerActions(wrappedSet as any, get, addHistoryFn),
+  ...createSheetActions(wrappedSet as any, get, addHistoryFn),
+  ...createUIActions(set as any, get, baseState, useHistoryStore),
+  ...createClipboardActions(wrappedSet as any, get, addHistoryFn),
 
     // Add snapping toggle action
     toggleSnapToGrid: () => wrappedSet((state: any) => ({ isSnapToGridEnabled: !state.isSnapToGridEnabled })),

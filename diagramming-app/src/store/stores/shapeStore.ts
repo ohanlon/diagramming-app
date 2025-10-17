@@ -128,15 +128,19 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
 // This will be imported and used in the main store
 export const createShapeActions = (
   set: (fn: (state: DiagramState) => DiagramState) => void,
+  wrappedSet: (fnOrPartial: any) => void,
   _get: () => DiagramState,
   addHistory: () => void
 ): ShapeStoreActions => ({
 
   addShapeAndRecordHistory: (shape: Shape) => {
-    set((state) => _addShapeToState(state, shape));
+    wrappedSet((state: any) => _addShapeToState(state, shape));
     addHistory();
   },
 
+  // Hydration-only update: do not mark the diagram dirty when we patch svgContent
+  // during initial load or merge from server. Use the raw `set` so wrappedSet
+  // (which forces isDirty=true) is not invoked.
   updateShapeSvgContent: (id: string, svgContent: string) => {
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
@@ -144,6 +148,9 @@ export const createShapeActions = (
 
       const shape = currentSheet.shapesById[id];
       if (!shape) return state;
+
+      // If svgContent is identical, return state unchanged to avoid unnecessary updates
+      if (shape.svgContent === svgContent) return state;
 
       return {
         ...state,
@@ -163,7 +170,7 @@ export const createShapeActions = (
 
   updateShapeText: (id: string, text: string) => {
     addHistory();
-    set((state) => {
+    wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
@@ -184,7 +191,7 @@ export const createShapeActions = (
   },
 
   updateShapePosition: (id: string, newX: number, newY: number) => {
-    set((state) => {
+    wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
@@ -208,7 +215,7 @@ export const createShapeActions = (
   },
 
   updateShapePositions: (positions: { id: string; x: number; y: number }[]) =>
-    set((state) => {
+    wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
