@@ -32,7 +32,7 @@ interface DiagramStoreActions extends
   setServerAuth: (user: string, pass: string) => void;
   setRemoteDiagramId: (id: string | null) => void;
   login: (username: string, password: string) => Promise<void>; // Login action
-  register: (username: string, password: string) => Promise<void>; // Register action
+  register: (username: string, password: string, firstName?: string, lastName?: string) => Promise<void>; // Register action
   logout: () => void; // Logout action
   setShowAuthDialog: (show: boolean) => void; // Control whether auth dialog is shown
   createNewDiagram: (name?: string) => void; // Create a fresh new diagram with optional name
@@ -116,6 +116,25 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   const addHistoryFn = () => {
     const { sheets, activeSheetId } = get();
     useHistoryStore.getState().recordHistory(sheets, activeSheetId);
+  };
+
+  const login = async (username: string, password: string) => {
+    const state = get();
+    const serverUrl = state.serverUrl || 'http://localhost:4000';
+    try {
+      const resp = await fetch(`${serverUrl}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }), credentials: 'include' });
+      if (!resp.ok) throw new Error('Invalid credentials');
+      const json = await resp.json();
+      if (json && json.user) {
+        const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
+        wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
+        const augmentedUser = { ...json.user, avatarUrl: avatar };
+        try { setCurrentUserCookie(augmentedUser); } catch (e) {}
+      }
+    } catch (e: any) {
+      wrappedSet({ lastSaveError: e?.message || String(e) });
+      throw e;
+    }
   };
 
   // Wrapped set that marks the store as dirty for any mutation
@@ -303,11 +322,14 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
-  const login = async (username: string, password: string) => {
+  const register = async (username: string, password: string, firstName?: string, lastName?: string) => {
     const state = get();
     const serverUrl = state.serverUrl || 'http://localhost:4000';
     try {
-      const resp = await fetch(`${serverUrl}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }), credentials: 'include' });
+      const body: any = { username, password };
+      if (firstName) body.firstName = firstName;
+      if (lastName) body.lastName = lastName;
+      const resp = await fetch(`${serverUrl}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'include' });
       if (!resp.ok) throw new Error('Invalid credentials');
       const json = await resp.json();
       if (json && json.user) {
@@ -323,27 +345,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   };
 
-  const register = async (username: string, password: string) => {
-    const state = get();
-    const serverUrl = state.serverUrl || 'http://localhost:4000';
-    try {
-      const resp = await fetch(`${serverUrl}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }), credentials: 'include' });
-      if (!resp.ok) {
-        const text = await resp.text().catch(() => `Status ${resp.status}`);
-        throw new Error(text);
-      }
-      const json = await resp.json();
-      if (json && json.user) {
-        const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;
-        wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
-  const augmentedUser = { ...json.user, avatarUrl: avatar };
-  try { setCurrentUserCookie(augmentedUser); } catch (e) {}
-      }
-    } catch (e: any) {
-      wrappedSet({ lastSaveError: e?.message || String(e) });
-      throw e;
-    }
-  };
+  // register (username,password,firstName?,lastName?) is defined above and used by UI
 
   const logout = async () => {
     const state = get();

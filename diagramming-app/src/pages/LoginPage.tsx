@@ -13,6 +13,8 @@ const LoginPage: React.FC = () => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +35,8 @@ const LoginPage: React.FC = () => {
     if (mode === 'register') {
       if (!isValidEmail(username)) return setError('Username must be a valid email address');
       if (password.length < 6) return setError('Password must be at least 6 characters');
+      if (!firstName || !firstName.trim()) return setError('First name is required');
+      if (!lastName || !lastName.trim()) return setError('Last name is required');
     }
 
     setLoading(true);
@@ -40,7 +44,7 @@ const LoginPage: React.FC = () => {
       if (mode === 'login') {
         await login(username, password);
       } else {
-        await register(username, password);
+        await register(username, password, firstName.trim(), lastName.trim());
       }
       navigate('/diagram');
     } catch (e: any) {
@@ -60,6 +64,12 @@ const LoginPage: React.FC = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
         {error && <Alert severity="error">{error}</Alert>}
         <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} autoFocus helperText={mode === 'register' ? 'Must be a valid email address' : undefined} error={mode === 'register' && username.length > 0 && !isValidEmail(username)} />
+        {mode === 'register' && (
+          <>
+            <TextField label="First name" value={firstName} onChange={e => setFirstName(e.target.value)} />
+            <TextField label="Last name" value={lastName} onChange={e => setLastName(e.target.value)} />
+          </>
+        )}
         <TextField label="Password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
         {mode === 'register' && <Typography variant="caption">Passwords must be at least 6 characters.</Typography>}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>

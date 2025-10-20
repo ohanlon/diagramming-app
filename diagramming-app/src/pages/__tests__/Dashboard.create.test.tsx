@@ -1,15 +1,19 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 // Mock useDiagramStore so createNewDiagram is a jest.fn we can assert was called
-jest.mock('../../store/useDiagramStore', () => ({
-  useDiagramStore: () => ({
+jest.mock('../../store/useDiagramStore', () => {
+  const mock = jest.fn(() => ({
     serverUrl: 'http://localhost:4000',
     currentUser: { id: 'user-1', username: 'me@example.com' },
     createNewDiagram: jest.fn(),
-  }),
-}));
+  }));
+  // Provide a getState function used by some components
+  (mock as any).getState = () => ({ currentUser: { id: 'user-1', username: 'me@example.com' } });
+  return { useDiagramStore: mock };
+});
 
 // Mock navigate
 const mockNavigate = jest.fn();
@@ -35,7 +39,7 @@ describe('Dashboard create new diagram button', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ diagrams: [] }) }) // GET /diagrams/shared
       .mockResolvedValueOnce({ ok: true, json: async () => ({ settings: { favorites: [] } }) }); // GET /users/me/settings
 
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
 
     // Wait for header to render
     const newBtn = await screen.findByLabelText('New diagram');

@@ -65,8 +65,10 @@ async function issueTokensAndSetCookies(res: Response, userId: string, username:
 }
 
 router.post('/register', async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, password, firstName, lastName } = req.body;
   if (!username || !password) return res.status(400).json({ error: 'Missing username or password' });
+  if (!firstName || !String(firstName).trim()) return res.status(400).json({ error: 'Missing firstName' });
+  if (!lastName || !String(lastName).trim()) return res.status(400).json({ error: 'Missing lastName' });
 
   // Enforce email format for username on signup using validator
   try {
@@ -90,15 +92,15 @@ router.post('/register', async (req: Request, res: Response) => {
     // Generate a unique salt per user and store the salt in the DB.
     const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS);
     const passwordHash = bcrypt.hashSync(password, salt);
-    const created = await createUser(username, passwordHash, salt);
+    const created = await createUser(username, passwordHash, salt, String(firstName).trim(), String(lastName).trim());
   await issueTokensAndSetCookies(res, created.id, created.username);
   const settings = await getUserSettings(created.id);
   try {
     const { getUserRoles } = require('../usersStore');
     const roles = await getUserRoles(created.id);
-    res.status(201).json({ user: { id: created.id, username: created.username, roles }, settings });
+    res.status(201).json({ user: { id: created.id, username: created.username, firstName: created.first_name || created.firstName || '', lastName: created.last_name || created.lastName || '', roles }, settings });
   } catch (e) {
-    res.status(201).json({ user: { id: created.id, username: created.username, roles: [] }, settings });
+    res.status(201).json({ user: { id: created.id, username: created.username, firstName: created.first_name || created.firstName || '', lastName: created.last_name || created.lastName || '', roles: [] }, settings });
   }
   } catch (e) {
     console.error(e);
@@ -189,14 +191,17 @@ router.get('/me', async (req: Request, res: Response) => {
       payload = (jwt as any).verify(cookieToken, JWT_SECRET);
     }
     if (!payload) return res.status(401).json({ error: 'Not authenticated' });
-    // Include isAdmin in /me by reading authoritative user row
+    // Include authoritative user details (names) and roles in /me
     try {
-      const { getUserRoles } = require('../usersStore');
+      const { getUserRoles, getUserById } = require('../usersStore');
       const roles = await getUserRoles(payload.id);
-      res.json({ user: { id: payload.id, username: payload.username, roles } });
+      const userRow = await getUserById(payload.id);
+      const firstName = userRow ? (userRow.first_name || userRow.firstName || '') : '';
+      const lastName = userRow ? (userRow.last_name || userRow.lastName || '') : '';
+      res.json({ user: { id: payload.id, username: payload.username, firstName, lastName, roles } });
     } catch (e) {
-      console.warn('Failed to fetch user roles for /me', e);
-      res.json({ user: { id: payload.id, username: payload.username, roles: [] } });
+      console.warn('Failed to fetch user roles or details for /me', e);
+      res.json({ user: { id: payload.id, username: payload.username, firstName: '', lastName: '', roles: [] } });
     }
   } catch (e) {
     console.error('Failed to verify token in /me', e);

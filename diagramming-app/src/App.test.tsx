@@ -1,5 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
+import { customHistory } from './customHistory';
+
+// Provide a minimal global.fetch implementation so background hooks don't
+// throw in the test environment.
+(global as any).fetch = (url: any, opts?: any) => Promise.resolve({ ok: true, json: async () => ({}) });
+
+// Mock cookie utility so App's session hydration completes synchronously
+jest.mock('./utils/userCookie', () => ({
+  getCurrentUserFromCookie: () => ({ id: 'user-1', username: 'me@example.com' }),
+}));
 
 // Mock child components
 jest.mock('./components/Toolbar/Toolbar', () => {
@@ -23,6 +33,9 @@ jest.mock('./components/StatusBar/StatusBar', () => {
 
 describe('App', () => {
   test('renders App component and its child components', () => {
+    // Navigate to a diagram route so the MainAppLayout mounts and renders
+    // the toolbar/canvas/layerpanel components we assert on.
+    customHistory.push('/diagram/test-diagram-id');
     render(<App />);
 
     expect(screen.getByTestId('mock-toolbar')).toBeInTheDocument();

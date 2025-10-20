@@ -1,14 +1,18 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import * as apiFetchModule from '../../utils/apiFetch';
 import Dashboard from '../Dashboard';
 
 jest.mock('../../utils/apiFetch', () => ({ apiFetch: jest.fn() }));
 
-jest.mock('../../store/useDiagramStore', () => ({
-  useDiagramStore: () => ({ serverUrl: 'http://localhost:4000', currentUser: { id: 'user-1', username: 'me@example.com' } }),
-}));
+jest.mock('../../store/useDiagramStore', () => {
+  const state = { serverUrl: 'http://localhost:4000', currentUser: { id: 'user-1', username: 'me@example.com' } };
+  const useDiagramStore = () => state;
+  (useDiagramStore as any).getState = () => state;
+  return { useDiagramStore };
+});
 
 describe('Dashboard shared with me display', () => {
   beforeEach(() => {
@@ -21,7 +25,7 @@ describe('Dashboard shared with me display', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ diagrams: [{ id: 'shared-1', diagramName: 'Shared Doc', thumbnailDataUrl: null, ownerUserId: 'other-user' }] }) }) // GET /diagrams/shared
       .mockResolvedValueOnce({ ok: true, json: async () => ({ settings: { favorites: [] } }) }); // GET /users/me/settings
 
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
 
     // Sidebar should show My Diagrams and Shared (1)
     await waitFor(() => expect(screen.getByText(/My Diagrams \(0\)/)).toBeInTheDocument());

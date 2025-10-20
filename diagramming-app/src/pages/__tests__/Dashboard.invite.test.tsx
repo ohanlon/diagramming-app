@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Dashboard from '../Dashboard';
 import * as apiFetchModule from '../../utils/apiFetch';
 import '@testing-library/jest-dom';
@@ -7,9 +8,13 @@ import '@testing-library/jest-dom';
 jest.mock('../../utils/apiFetch', () => ({ apiFetch: jest.fn() }));
 
 // Mock useDiagramStore to provide serverUrl and currentUser
-jest.mock('../../store/useDiagramStore', () => ({
-  useDiagramStore: () => ({ serverUrl: 'http://localhost:4000', currentUser: { id: 'user-1', username: 'owner@example.com' } }),
-}));
+jest.mock('../../store/useDiagramStore', () => {
+  const state = { serverUrl: 'http://localhost:4000', currentUser: { id: 'user-1', username: 'owner@example.com' } };
+  const useDiagramStore = () => state;
+  // provide getState for code that calls useDiagramStore.getState()
+  (useDiagramStore as any).getState = () => state;
+  return { useDiagramStore };
+});
 
 describe('Dashboard share/invite flows', () => {
   beforeEach(() => {
@@ -23,7 +28,7 @@ describe('Dashboard share/invite flows', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => ({ diagrams: [] }) }) // GET /diagrams/shared
       .mockResolvedValueOnce({ ok: true, json: async () => ({ settings: { favorites: [] } }) }); // GET /users/me/settings
 
-    render(<Dashboard />);
+    render(<MemoryRouter><Dashboard /></MemoryRouter>);
 
     // Wait for the diagram card to render
     await waitFor(() => expect(screen.getByText('Doc1')).toBeInTheDocument());

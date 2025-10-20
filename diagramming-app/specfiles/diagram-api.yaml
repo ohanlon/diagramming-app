@@ -304,10 +304,12 @@ paths:
           application/json:
             schema:
               type: object
-              required: [username, password]
+              required: [username, password, firstName, lastName]
               properties:
                 username: { type: string }
                 password: { type: string }
+                firstName: { type: string }
+                lastName: { type: string }
       responses:
         '201':
           description: User created and token returned
@@ -321,6 +323,8 @@ paths:
                     properties:
                       id: { type: string }
                       username: { type: string }
+                      firstName: { type: string }
+                      lastName: { type: string }
                   token: { type: string }
   /auth/login:
     post:

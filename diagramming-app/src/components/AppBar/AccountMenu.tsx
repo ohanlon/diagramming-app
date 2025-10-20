@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import AvatarEditorComponent from '../AvatarEditor/AvatarEditor';
 
 const AccountMenu: React.FC = () => {
-  const currentUser = useDiagramStore(state => state.currentUser);
+  const currentUser = useDiagramStore(state => state.currentUser as any);
   const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.roles?.includes('admin'));
   const logout = useDiagramStore(state => state.logout);
   const navigate = useNavigate();
@@ -27,14 +27,14 @@ const AccountMenu: React.FC = () => {
       const cookie = getCurrentUserFromCookie();
       if (cookie) {
         useDiagramStore.setState({ currentUser: cookie } as any);
-        setAvatarUrl(cookie.avatarUrl);
+        setAvatarUrl((cookie as any).avatarUrl);
       }
     }
   }, [currentUser]);
 
   return (
     <>
-      <Tooltip title={currentUser ? `Signed in as ${currentUser.username}` : 'Account'}>
+      <Tooltip title={currentUser ? `Signed in as ${currentUser.firstName || currentUser.username} ${currentUser.lastName || ''}`.trim() : 'Account'}>
         <IconButton onClick={handleOpen} color="inherit">
           <Avatar src={avatarUrl} sx={{ width: 32, height: 32 }}>
             {!avatarUrl && <PersonIcon />}
@@ -42,8 +42,8 @@ const AccountMenu: React.FC = () => {
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose} id="account-menu">
-  {currentUser ? [
-          <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>,
+    {currentUser ? [
+      <MenuItem key="signed" disabled>Signed in as {((currentUser.firstName || '') + ' ' + (currentUser.lastName || '')).trim() || currentUser.username}</MenuItem>,
           <MenuItem key="change-avatar" onClick={() => { handleClose(); setAvatarEditorOpen(true); }}>Change avatar</MenuItem>,
           <MenuItem key="remove-avatar" onClick={async () => {
             handleClose();

@@ -1,7 +1,7 @@
 import express from 'express';
-// Use dynamic require for supertest so TS doesn't complain about missing types
+// Use minimal local supertest replacement to avoid external dependency
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const request: any = require('supertest');
+const request: any = require('./miniSupertest');
 
 // Mock DB pool before importing modules
 jest.mock('../db', () => ({

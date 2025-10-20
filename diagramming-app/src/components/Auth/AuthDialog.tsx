@@ -15,6 +15,8 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
   const [mode, setMode] = useState<Mode>(initialMode);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +56,8 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
         setError('Username must be a valid email address');
         return;
       }
+      if (!firstName || !firstName.trim()) { setError('First name is required'); return; }
+      if (!lastName || !lastName.trim()) { setError('Last name is required'); return; }
       if (password.length < 6) {
         setError('Password must be at least 6 characters');
         return;
@@ -65,7 +69,7 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
       if (mode === 'login') {
         await login(username, password);
       } else {
-        await register(username, password);
+        await register(username, password, firstName.trim(), lastName.trim());
       }
       // success
       onClose();
@@ -91,6 +95,12 @@ const AuthDialog: React.FC<Props> = ({ open, initialMode = 'login', onClose }) =
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
           {error && <Alert severity="error">{error}</Alert>}
           <TextField label="Username" value={username} onChange={e => setUsername(e.target.value)} autoFocus helperText={mode === 'register' ? 'Must be a valid email address' : undefined} error={mode === 'register' && username.length > 0 && !isValidEmail(username)} />
+          {mode === 'register' && (
+            <>
+              <TextField label="First name" value={firstName} onChange={e => setFirstName(e.target.value)} />
+              <TextField label="Last name" value={lastName} onChange={e => setLastName(e.target.value)} />
+            </>
+          )}
           <TextField label="Password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
           {mode === 'register' && <Typography variant="caption">Passwords must be at least 6 characters.</Typography>}
         </Box>
