@@ -1,4 +1,4 @@
-import express from 'express';
+const express = require('express');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const request: any = require('./miniSupertest');
 
@@ -12,7 +12,7 @@ import { pool } from '../db';
 import authRouter from '../routes/auth';
 
 describe('auth regression tests', () => {
-  let app: express.Express;
+  let app: any;
 
   beforeEach(() => {
     app = express();

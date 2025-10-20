@@ -1,12 +1,12 @@
-import express from 'express';
+import * as express from 'express';
 import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { createUser, getUserByUsername } from '../usersStore';
 import { createRefreshToken, getRefreshTokenRowById, revokeRefreshTokenById } from '../refreshTokensStore';
 import { getAppSetting } from '../appSettingsStore';
 import { getUserSettings } from '../userSettingsStore';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import { pool } from '../db';
 
 dotenv.config();
@@ -88,7 +88,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
   try {
     const existing = await getUserByUsername(username);
-    if (existing) return res.status(409).json({ error: 'Username already exists' });
+    if (existing) return res.status(409).json({ error: 'Email address already in use' });
     // Generate a unique salt per user and store the salt in the DB.
     const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS);
     const passwordHash = bcrypt.hashSync(password, salt);

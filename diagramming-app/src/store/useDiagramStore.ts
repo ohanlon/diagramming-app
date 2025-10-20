@@ -330,7 +330,26 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       if (firstName) body.firstName = firstName;
       if (lastName) body.lastName = lastName;
       const resp = await fetch(`${serverUrl}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'include' });
-      if (!resp.ok) throw new Error('Invalid credentials');
+      if (!resp.ok) {
+        // Provide a helpful message for common registration failure modes
+        if (resp.status === 409) {
+          // Email/username already exists
+          // Try to parse server message but default to a friendly suggestion
+          let parsed: any = null;
+          try { parsed = await resp.json(); } catch (e) { /* ignore parse errors */ }
+          const serverError = parsed && parsed.error ? String(parsed.error) : '';
+          // Normalize server messaging to a friendly UX string
+          const friendly = serverError && /username|email/i.test(serverError) ? 'Email address already in use. Try logging in instead.' : 'Email address already in use. Try logging in instead.';
+          throw new Error(friendly);
+        }
+        // Other failures: surface server-provided message when possible
+        try {
+          const txt = await resp.text();
+          throw new Error(txt || `Registration failed with status ${resp.status}`);
+        } catch (e) {
+          throw new Error(`Registration failed with status ${resp.status}`);
+        }
+      }
       const json = await resp.json();
       if (json && json.user) {
         const avatar = json.settings?.avatarUrl || json.settings?.avatarDataUrl || undefined;

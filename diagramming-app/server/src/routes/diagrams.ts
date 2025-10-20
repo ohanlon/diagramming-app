@@ -90,7 +90,6 @@ router.get('/:id', async (req: Request, res: Response) => {
           totalShapes += Object.keys((s as any).shapesById || {}).length;
         }
       }
-      console.debug(`[diagrams.get] Returning diagram ${id} for user ${user.id}: sheets=${sheetCount}, totalShapes=${totalShapes}`);
     } catch (e) {}
     // Allow owner, admin, or users the diagram has been shared with
     if (found.owner_user_id && found.owner_user_id !== user.id && !(await isAdminForUser(user))) {
