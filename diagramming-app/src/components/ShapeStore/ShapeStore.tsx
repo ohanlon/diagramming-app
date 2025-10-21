@@ -420,7 +420,14 @@ const ShapeStore: React.FC = () => {
               key={entry.id}
               expanded={expandedAccordions.includes(entry.id)}
               onChange={handleAccordionChange(entry.id)}
-              sx={{ mb: 1, '&:before': { display: 'none' } }}
+              sx={{
+                mb: 1,
+                '&:before': { display: 'none' },
+                '&:hover': {
+                  backgroundColor: 'primary.light',
+                  color: 'primary.contrastText',
+                },
+              }}
             >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
