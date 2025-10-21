@@ -66,7 +66,7 @@ const initialState: DiagramState = {
       activeLayerId: defaultLayerId,
       zoom: 1,
       pan: { x: 0, y: 0 },
-      clipboard: [],
+      // clipboard: [],
       selectedFont: 'Open Sans',
       selectedFontSize: 10,
       selectedTextColor: '#000000',
@@ -181,8 +181,16 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     const state = get();
     // Enforce diagram has a name; default to 'New Diagram' if missing
     const diagramName = state.diagramName && String(state.diagramName).trim() ? String(state.diagramName).trim() : 'New Diagram';
+    
+    // Clone sheets and remove clipboard (legacy field no longer needed)
+    const sheetsToSave: any = {};
+    for (const [sheetId, sheet] of Object.entries(state.sheets || {})) {
+      const { clipboard, ...sheetWithoutClipboard } = sheet as any;
+      sheetsToSave[sheetId] = sheetWithoutClipboard;
+    }
+    
     const toSaveRaw = {
-      sheets: state.sheets,
+      sheets: sheetsToSave,
       activeSheetId: state.activeSheetId,
       isSnapToGridEnabled: state.isSnapToGridEnabled,
       diagramName,
@@ -427,7 +435,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       activeLayerId: newLayerId,
       zoom: 1,
       pan: { x: 0, y: 0 },
-      clipboard: [],
+      // clipboard: [],
       selectedFont: 'Open Sans',
       selectedFontSize: 10,
       selectedTextColor: '#000000',
