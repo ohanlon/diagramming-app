@@ -19,7 +19,7 @@ type Options = { intervalMs?: number };
  * - When the page becomes visible after being hidden, an immediate refresh is attempted.
  */
 export default function useBackgroundTokenRefresh(opts?: Options) {
-  const intervalMs = opts?.intervalMs ?? (24 * 60 * 60 * 1000); // default: 24 hours
+  const intervalMs = opts?.intervalMs ?? (10 * 60 * 1000); // default: 10 minutes (before 15m access token expires)
   const mountedRef = useRef(false);
 
   useEffect(() => {

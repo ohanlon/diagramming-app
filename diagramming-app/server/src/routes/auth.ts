@@ -14,7 +14,7 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES || '15m';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || ACCESS_TOKEN_EXPIRES;
-const REFRESH_EXPIRES_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+const REFRESH_EXPIRES_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || '10');
 const COOKIE_MAX_AGE_MS = Number(process.env.COOKIE_MAX_AGE_MS || String(30 * 24 * 60 * 60 * 1000));
 
@@ -40,10 +40,10 @@ async function setRefreshCookie(res: Response, refreshToken: string, maxAgeMs?: 
     // consult runtime app setting if present
     try {
       const configured = await getAppSetting('refresh_expires_days');
-      const days = configured && typeof configured === 'number' ? configured as number : Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+      const days = configured && typeof configured === 'number' ? configured as number : Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
       finalMax = 1000 * 60 * 60 * 24 * days;
     } catch (e) {
-      finalMax = 1000 * 60 * 60 * 24 * Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+      finalMax = 1000 * 60 * 60 * 24 * Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
     }
   }
   res.cookie('refreshToken', refreshToken, {

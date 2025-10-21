@@ -3,7 +3,7 @@ import { pool } from './db';
 import { getAppSetting } from './appSettingsStore';
 import bcrypt from 'bcryptjs';
 
-const DEFAULT_REFRESH_EXPIRE_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+const DEFAULT_REFRESH_EXPIRE_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || '10');
 
 export async function createRefreshToken(userId: string, expiresInDays?: number) {

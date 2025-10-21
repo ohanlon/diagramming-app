@@ -11,7 +11,7 @@ router.get('/refresh-token-days', async (_req: Request, res: Response) => {
     const configured = await getAppSetting('refresh_expires_days');
     if (configured && typeof configured === 'number') return res.json({ days: configured });
     // fallback to server env default
-    const fallback = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30');
+    const fallback = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
     res.json({ days: fallback });
   } catch (e) {
     console.error('Failed to read app setting', e);
