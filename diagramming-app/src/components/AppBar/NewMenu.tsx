@@ -38,7 +38,7 @@ export const NewButton: React.FC = () => {
   return (
     <Tooltip title="Create a new blank diagram">
       <span>
-        <Fab aria-label="New diagram" color="primary" size="small" onClick={handleNew}>
+        <Fab aria-label="New diagram" color="primary" size="small" onClick={handleNew} sx={{ boxShadow: 'none' }}>
           <AddIcon />
         </Fab>
       </span>

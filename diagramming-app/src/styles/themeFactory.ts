@@ -10,7 +10,7 @@ export function createAppTheme(mode: 'light' | 'dark') {
         mode,
         primary: { main: '#3f51b5' },
         secondary: { main: '#ff5722' },
-        background: { default: isDark ? '#121212' : '#f8f9fa', paper: isDark ? '#1e1e1e' : '#ffffff' },
+        background: { default: isDark ? '#121212' : '#f8f9fa', paper: isDark ? '#2c2c2c' : '#ffffff' },
         action: {
           // Use subtle overlays for both themes so hover/selected states are not too strong
           hover: actionHover,

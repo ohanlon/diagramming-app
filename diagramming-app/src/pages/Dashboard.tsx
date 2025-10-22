@@ -8,7 +8,6 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 import History from '@mui/icons-material/History';
-// ...existing code...
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import { useDiagramStore } from '../store/useDiagramStore';
@@ -16,7 +15,6 @@ import { listDiagrams, listSharedDiagrams } from '../utils/grpc/diagramsClient';
 import MuiAlert from '@mui/material/Alert';
 import NewButton from '../components/AppBar/NewMenu';
 import AccountMenu from '../components/AppBar/AccountMenu';
-// ...existing code...
 
 type DiagramListItem = {
   id: string;
@@ -203,8 +201,8 @@ const Dashboard: React.FC = () => {
         try { body = await resp.json(); } catch (e) { /* ignore */ }
         if (body && body.missing && Array.isArray(body.missing) && body.missing.length > 0) {
           // Map missing emails back to recipient objects so we can invite with flags
-          const missingItems = toShare.filter((r: any) => body.missing.includes(String(r.email).toLowerCase()) || body.missing.includes(r.email));
-          setMissingEmailsToInvite(missingItems.map((m: any) => ({ email: m.email, permission: m.permission, canCopy: m.canCopy })));
+          const missingItemsToInvite = toShare.filter((r: any) => body.missing.includes(String(r.email).toLowerCase()) || body.missing.includes(r.email));
+          setMissingEmailsToInvite(missingItemsToInvite.map((m: any) => ({ email: m.email, permission: m.permission, canCopy: m.canCopy })));
           return setShareError('Some emails are not registered users. You may invite them.');
         }
         const text = await resp.text().catch(() => String(resp.status));
@@ -284,32 +282,65 @@ const Dashboard: React.FC = () => {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, padding: '2' }}>
+    <Box sx={{ display: 'flex', gap: 2, padding: '2', color: 'inherit',
+            backgroundColor: (theme) => theme.palette.background.default }}>
       {/* Left sidebar: simple text sections to filter main grid */}
-      <Box sx={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+      <Box
+          sx={{
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: (theme) => theme.palette.background.default,
+            borderRight: (theme) => `1px solid ${theme.palette.divider}`
+          }}
+        >
         <List>
           <ListItemButton selected={selectedSection === 'favorites'} onClick={() => setSelectedSection('favorites')}>
-            <ListItemText primary={`Favorites (${favoritesCount})`} />
+            <ListItemText
+              primary={`Favorites (${favoritesCount})`}
+              primaryTypographyProps={{
+                sx: {
+                  color: (theme) => theme.palette.text.primary,
+                },
+              }}
+            />
           </ListItemButton>
           <ListItemButton selected={selectedSection === 'mine'} onClick={() => setSelectedSection('mine')}>
-            <ListItemText primary={`My Diagrams (${ownedCount})`} />
+            <ListItemText
+              primary={`My Diagrams (${ownedCount})`}
+              primaryTypographyProps={{
+                sx: {
+                  color: (theme) => theme.palette.text.primary,
+                },
+              }}
+            />
           </ListItemButton>
           <ListItemButton selected={selectedSection === 'all'} onClick={() => setSelectedSection('all')}>
-            <ListItemText primary={`All Diagrams (${ownedCount + sharedCount})`} />
+            <ListItemText
+              primary={`All Diagrams (${ownedCount + sharedCount})`}
+              primaryTypographyProps={{
+                sx: {
+                  color: (theme) => theme.palette.text.primary,
+                },
+              }}
+            />
           </ListItemButton>
           <ListItemButton selected={selectedSection === 'shared'} onClick={() => setSelectedSection('shared')}>
-            <ListItemText primary={`Shared (${sharedCount})`} />
+            <ListItemText
+              primary={`Shared (${sharedCount})`}
+              primaryTypographyProps={{
+                sx: {
+                  color: (theme) => theme.palette.text.primary,
+                },
+              }}
+            />
           </ListItemButton>
-          {useDiagramStore.getState().currentUser?.roles?.includes('admin') && (
-            <ListItemButton onClick={() => navigate('/admin')}>
-              <ListItemText primary={`Admin`} />
-            </ListItemButton>
-          )}
         </List>
       </Box>
 
       {/* Main content: header + grid of diagrams */}
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1,
+            backgroundColor: (theme) => theme.palette.background.default }}>
         {/* Compute dynamic header title based on selected section */}
         {
           (() => {
@@ -321,7 +352,17 @@ const Dashboard: React.FC = () => {
                   ? `Shared`
                   : `Favorites`;
             return (
-              <AppBar color='primary' position="fixed" sx={{ top: 0, left: 0, right: 0, padding: 0, boxShadow: 'none', borderBottom: '1px solid #e0e0e0', zIndex: 1300 }}>
+              <AppBar
+                position="fixed"
+                color="primary"
+                sx={{
+                  borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                  padding: '0 0',
+                  marginLeft: 0,
+                  boxShadow: 'none',
+                  color: (theme) => theme.palette.primary.contrastText,
+                }}
+              >
                 <Toolbar disableGutters variant="dense"  sx={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 1 }}>
                   <Typography variant="h6">{headerTitle}</Typography>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -435,7 +476,7 @@ const Dashboard: React.FC = () => {
               {d.thumbnailDataUrl ? (
                 <CardMedia component="img" image={d.thumbnailDataUrl} alt={d.diagramName} sx={{ height: 98, width: 128, objectFit: 'contain', background: (theme) => theme.palette.background.paper, mt: 1 }} />
               ) : (
-                <Box sx={{ height: 98, width: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: (theme) => theme.palette.background.paper, mt: 1 }}>
+                <Box sx={{ height: 98, width: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: (theme) => theme.palette.background.paper, mt: 1, borderRadius: 1 }}>
                   <Typography variant="caption">No preview</Typography>
                 </Box>
               )}
