@@ -92,7 +92,7 @@ const MainToolbar: React.FC = () => {
   // Hover-delay timer to avoid accidental menu switches
   const hoverTimerRef = useRef<number | null>(null);
   const HOVER_DELAY_MS = 200;
-  const hoverCandidateRef = useRef<'file'|'edit'|'select'|'export' | null>(null);
+  const hoverCandidateRef = useRef<'file' | 'edit' | 'select' | 'export' | null>(null);
 
   const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLElement>, menu: 'file' | 'edit' | 'select' | 'export') => {
     // Only allow hover-to-open if the menubar has been activated (menu opened)
@@ -189,7 +189,7 @@ const MainToolbar: React.FC = () => {
     } else {
       alert('Failed to render sheet for PNG export');
     }
-    handleFileMenuClose(); 
+    handleFileMenuClose();
     handleExportMenuClose();
   };
 
@@ -204,7 +204,7 @@ const MainToolbar: React.FC = () => {
     } else {
       alert('Failed to render sheet for JPG export');
     }
-    handleFileMenuClose(); 
+    handleFileMenuClose();
     handleExportMenuClose();
   };
 
@@ -215,7 +215,7 @@ const MainToolbar: React.FC = () => {
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.dataUrl) {
       alert('Failed to render sheet for PDF export');
-      handleFileMenuClose(); 
+      handleFileMenuClose();
       handleExportMenuClose();
       return;
     }
@@ -259,7 +259,7 @@ const MainToolbar: React.FC = () => {
       console.error('PDF export failed', e);
       alert('PDF export failed. Please ensure jspdf is installed.');
     }
-  handleFileMenuClose(); handleExportMenuClose();
+    handleFileMenuClose(); handleExportMenuClose();
   };
 
   const handleExportCurrentAsGif = async () => {
@@ -269,7 +269,7 @@ const MainToolbar: React.FC = () => {
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.canvas) {
       alert('Failed to render sheet for GIF export');
-      handleFileMenuClose(); 
+      handleFileMenuClose();
       handleExportMenuClose();
       return;
     }
@@ -377,7 +377,7 @@ const MainToolbar: React.FC = () => {
       if (res.dataUrl) downloadDataUrl(res.dataUrl, name);
       alert('GIF export requires gif.js. PNG has been saved instead.');
     }
-  handleFileMenuClose(); handleExportMenuClose();
+    handleFileMenuClose(); handleExportMenuClose();
   };
 
   const handleExportCurrentAsTiff = async () => {
@@ -387,7 +387,7 @@ const MainToolbar: React.FC = () => {
     const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
     if (!res.canvas) {
       alert('Failed to render sheet for TIFF export');
-      handleFileMenuClose(); 
+      handleFileMenuClose();
       handleExportMenuClose();
       return;
     }
@@ -422,7 +422,7 @@ const MainToolbar: React.FC = () => {
       if (res.dataUrl) downloadDataUrl(res.dataUrl, name);
       alert('TIFF export requires a TIFF encoder (utif). PNG has been saved instead.');
     }
-  handleFileMenuClose(); handleExportMenuClose();
+    handleFileMenuClose(); handleExportMenuClose();
   };
 
   // Fallback: listen to global mouse movements when menubar is active so
@@ -438,12 +438,12 @@ const MainToolbar: React.FC = () => {
           const r = el.getBoundingClientRect();
           return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
         };
-  let candidate: 'file'|'edit'|'select'|'export' | null = null;
-  if (checkRect(fileRef.current)) candidate = 'file';
-  else if (checkRect(editRef.current)) candidate = 'edit';
-  else if (checkRect(selectRef.current)) candidate = 'select';
-  else if (checkRect(exportRef.current)) candidate = 'export';
-        
+        let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
+        if (checkRect(fileRef.current)) candidate = 'file';
+        else if (checkRect(editRef.current)) candidate = 'edit';
+        else if (checkRect(selectRef.current)) candidate = 'select';
+        else if (checkRect(exportRef.current)) candidate = 'export';
+
         if (candidate === hoverCandidateRef.current) return;
         hoverCandidateRef.current = candidate;
         if (hoverTimerRef.current) {
@@ -452,7 +452,7 @@ const MainToolbar: React.FC = () => {
         }
         if (!candidate) return;
         hoverTimerRef.current = window.setTimeout(() => {
-          openMenuByName(candidate as 'file'|'edit'|'select'|'export');
+          openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export');
           hoverTimerRef.current = null;
           hoverCandidateRef.current = null;
         }, HOVER_DELAY_MS);
@@ -548,13 +548,13 @@ const MainToolbar: React.FC = () => {
   const handleMenuKeyDown = (e: React.KeyboardEvent, current: 'file' | 'edit' | 'select' | 'export') => {
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      const order: ('file'|'edit'|'select'|'export')[] = ['file','edit','select','export'];
+      const order: ('file' | 'edit' | 'select' | 'export')[] = ['file', 'edit', 'select', 'export'];
       const idx = order.indexOf(current as any);
       const next = order[(idx + 1) % order.length];
       openMenuByName(next);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      const order: ('file'|'edit'|'select'|'export')[] = ['file','edit','select','export'];
+      const order: ('file' | 'edit' | 'select' | 'export')[] = ['file', 'edit', 'select', 'export'];
       const idx = order.indexOf(current as any);
       const prev = order[(idx + order.length - 1) % order.length];
       openMenuByName(prev);
@@ -621,20 +621,20 @@ const MainToolbar: React.FC = () => {
 
   // Export settings state
   const [exportSettingsOpen, setExportSettingsOpen] = useState(false);
-  const [exportResolutionOption, setExportResolutionOption] = useState<'800x450'|'1280x720'|'1600x900'|'1920x1080'|'3840x2160'|'custom'>('1600x900');
+  const [exportResolutionOption, setExportResolutionOption] = useState<'800x450' | '1280x720' | '1600x900' | '1920x1080' | '3840x2160' | 'custom'>('1600x900');
   const [exportWidthPx, setExportWidthPx] = useState<number>(1600);
   const [exportHeightPx, setExportHeightPx] = useState<number>(900);
   const [jpegQuality, setJpegQuality] = useState<number>(0.92);
-  const [pdfPageSize, setPdfPageSize] = useState<'image'|'a4_portrait'|'a4_landscape'|'letter_portrait'|'letter_landscape'|'custom'>('image');
+  const [pdfPageSize, setPdfPageSize] = useState<'image' | 'a4_portrait' | 'a4_landscape' | 'letter_portrait' | 'letter_landscape' | 'custom'>('image');
   const [pdfCustomWidthIn, setPdfCustomWidthIn] = useState<number>(8.5);
   const [pdfCustomHeightIn, setPdfCustomHeightIn] = useState<number>(11);
   // Local storage key and helper for persisting export settings
   type ExportSettings = {
-    exportResolutionOption: '800x450'|'1280x720'|'1600x900'|'1920x1080'|'3840x2160'|'custom';
+    exportResolutionOption: '800x450' | '1280x720' | '1600x900' | '1920x1080' | '3840x2160' | 'custom';
     exportWidthPx: number;
     exportHeightPx: number;
     jpegQuality: number;
-    pdfPageSize: 'image'|'a4_portrait'|'a4_landscape'|'letter_portrait'|'letter_landscape'|'custom';
+    pdfPageSize: 'image' | 'a4_portrait' | 'a4_landscape' | 'letter_portrait' | 'letter_landscape' | 'custom';
     pdfCustomWidthIn: number;
     pdfCustomHeightIn: number;
   };
@@ -721,19 +721,19 @@ const MainToolbar: React.FC = () => {
 
         const svg = await waitForSvg();
         if (!svg) {
-          try { root.unmount(); } catch (e) {}
+          try { root.unmount(); } catch (e) { }
           document.body.removeChild(container);
           resolve({ dataUrl: null });
           return;
         }
 
         const { canvas, dataUrl } = await (await import('../../utils/thumbnail')).rasterizeSvgElement(svg, widthPx, heightPx, mimeType, quality);
-        try { root.unmount(); } catch (e) {}
+        try { root.unmount(); } catch (e) { }
         document.body.removeChild(container);
         resolve({ dataUrl: dataUrl || null, canvas });
       } catch (err) {
         console.error('Error rendering sheet for export', err);
-        try { document.body.removeChild(container); } catch (e) {}
+        try { document.body.removeChild(container); } catch (e) { }
         resolve({ dataUrl: null });
       }
     });
@@ -748,15 +748,15 @@ const MainToolbar: React.FC = () => {
       const PPTXClass = (pptxMod && (pptxMod.default || pptxMod)) as any;
       const pptx = new PPTXClass();
 
-  // Standard slide width in inches. Compute height to preserve chosen export aspect ratio.
-  const slideWidthInches = 10;
-  const slideHeightInches = exportWidthPx && exportHeightPx ? slideWidthInches * (exportHeightPx / exportWidthPx) : (10 * (9 / 16));
+      // Standard slide width in inches. Compute height to preserve chosen export aspect ratio.
+      const slideWidthInches = 10;
+      const slideHeightInches = exportWidthPx && exportHeightPx ? slideWidthInches * (exportHeightPx / exportWidthPx) : (10 * (9 / 16));
 
       for (let i = 0; i < sheetIds.length; i++) {
         const id = sheetIds[i];
         setExportProgress({ current: i + 1, total: sheetIds.length });
-  // Render using the configured export resolution for embedding
-  const result = await renderSheetToImage(id, exportWidthPx, exportHeightPx, 'image/png');
+        // Render using the configured export resolution for embedding
+        const result = await renderSheetToImage(id, exportWidthPx, exportHeightPx, 'image/png');
         const png = result.dataUrl;
         if (!png) {
           // Add an empty slide with sheet name if rendering failed
@@ -894,9 +894,9 @@ const MainToolbar: React.FC = () => {
   };
 
   return (
-  <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'inherit', minHeight: '2em' }}>
+    <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'inherit', minHeight: '2em' }}>
       {/* Diagram name display and edit (moved before File menu) */}
-  <Button color="inherit" onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', mr: 1 }}>
+      <Button color="inherit" onClick={() => { setEditingName(diagramName); setEditNameOpen(true); }} sx={{ textTransform: 'none', mr: 1 }}>
         <Typography variant="subtitle1" sx={{ maxWidth: '128px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{diagramName}</Typography>
       </Button>
       <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
@@ -962,7 +962,7 @@ const MainToolbar: React.FC = () => {
         anchorEl={fileMenuAnchorEl}
         open={Boolean(fileMenuAnchorEl)}
         onClose={handleFileMenuClose}
-  onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'file')}
+        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'file')}
         PaperProps={{
           style: { border: '1px solid #a0a0a0' },
           onMouseDown: (_ev: React.MouseEvent) => {
@@ -985,22 +985,22 @@ const MainToolbar: React.FC = () => {
                 const r = el.getBoundingClientRect();
                 return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
               };
-              let candidate: 'file'|'edit'|'select'|'export' | null = null;
+              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
               if (checkRect(fileRef.current)) candidate = 'file';
               else if (checkRect(editRef.current)) candidate = 'edit';
               else if (checkRect(selectRef.current)) candidate = 'select';
               else if (checkRect(exportRef.current)) candidate = 'export';
               if (!candidate) return;
               if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'|'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) {}
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) { }
           }
         }}
       >
-  <NewMenuItem onNew={() => { handleExportMenuClose(); handleNewDiagram(); }} />
+        <NewMenuItem onNew={() => { handleExportMenuClose(); handleNewDiagram(); }} />
         <Divider />
         {/* Export moved back to its own top-level menu */}
-  <MenuItem onClick={() => { handleExportMenuClose(); if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
+        <MenuItem onClick={() => { handleExportMenuClose(); if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
           <ListItemIcon>
             <SaveOutlined fontSize="small" />
           </ListItemIcon>
@@ -1008,16 +1008,16 @@ const MainToolbar: React.FC = () => {
           <Typography variant="body2" color="text.secondary">Ctrl+S</Typography>
         </MenuItem>
         <Divider />
-  <MenuItem onClick={() => { handleExportMenuClose(); handlePrint(); }}>
+        <MenuItem onClick={() => { handleExportMenuClose(); handlePrint(); }}>
           <ListItemIcon>
             <PrintOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
         </MenuItem>
-  {/* (Export moved back to top-level) */}
+        {/* (Export moved back to top-level) */}
         <Divider />
-  <MenuItem onClick={() => { handleExportMenuClose(); handleFileMenuClose(); guardedNavigate('/dashboard'); }}>
+        <MenuItem onClick={() => { handleExportMenuClose(); handleFileMenuClose(); guardedNavigate('/dashboard'); }}>
           <ListItemIcon>
             <Dashboard fontSize="small" />
           </ListItemIcon>
@@ -1032,9 +1032,9 @@ const MainToolbar: React.FC = () => {
         anchorEl={exportMenuAnchorEl}
         open={Boolean(exportMenuAnchorEl)}
         onClose={handleExportMenuClose}
-  onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'export')}
-  anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-  transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'export')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         PaperProps={{
           style: { border: '1px solid #a0a0a0' },
           onMouseMove: (ev: React.MouseEvent) => {
@@ -1047,15 +1047,15 @@ const MainToolbar: React.FC = () => {
                 const r = el.getBoundingClientRect();
                 return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
               };
-              let candidate: 'file'|'edit'|'select'|'export' | null = null;
+              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
               if (checkRect(fileRef.current)) candidate = 'file';
               else if (checkRect(editRef.current)) candidate = 'edit';
               else if (checkRect(selectRef.current)) candidate = 'select';
               else if (checkRect(exportRef.current)) candidate = 'export';
               if (!candidate) return;
               if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'|'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) {}
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) { }
           }
         }}
       >
@@ -1104,15 +1104,15 @@ const MainToolbar: React.FC = () => {
                 const r = el.getBoundingClientRect();
                 return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
               };
-              let candidate: 'file'|'edit'|'select'|'export' | null = null;
+              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
               if (checkRect(fileRef.current)) candidate = 'file';
               else if (checkRect(editRef.current)) candidate = 'edit';
               else if (checkRect(selectRef.current)) candidate = 'select';
               else if (checkRect(exportRef.current)) candidate = 'export';
               if (!candidate) return;
               if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'|'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) {}
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) { }
           }
         }}
       >
@@ -1174,15 +1174,15 @@ const MainToolbar: React.FC = () => {
                 const r = el.getBoundingClientRect();
                 return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
               };
-              let candidate: 'file'|'edit'|'select'|'export' | null = null;
+              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
               if (checkRect(fileRef.current)) candidate = 'file';
               else if (checkRect(editRef.current)) candidate = 'edit';
               else if (checkRect(selectRef.current)) candidate = 'select';
               else if (checkRect(exportRef.current)) candidate = 'export';
               if (!candidate) return;
               if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file'|'edit'|'select'|'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) {}
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) { }
           }
         }}
       >

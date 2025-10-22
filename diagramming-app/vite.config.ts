@@ -7,4 +7,10 @@ export default defineConfig({
   optimizeDeps: {
     include: ['node_modules/zustand', 'node_modules/react', 'node_modules/react-dom'],
   },
+  resolve: {
+    alias: {
+      react: require.resolve('react'),
+      'react-dom': require.resolve('react-dom'),
+    },
+  },
 })

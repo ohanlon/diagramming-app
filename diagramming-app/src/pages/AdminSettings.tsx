@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, TextField, Button, Alert, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { Box, Typography, TextField, Button, Alert, List, ListItem, ListItemText, Divider, AppBar, Toolbar } from '@mui/material';
 import { apiFetch } from '../utils/apiFetch';
+import { useNavigate } from 'react-router-dom';
 import AdminRoute from '../components/AdminRoute';
 import { useDiagramStore } from '../store/useDiagramStore';
+import AccountMenu from '../components/AppBar/AccountMenu';
 
 const AdminSettings: React.FC = () => {
   const [days, setDays] = useState<number | null>(null);
@@ -12,6 +14,8 @@ const AdminSettings: React.FC = () => {
   const [admins, setAdmins] = useState<Array<{ id: string; username: string }>>([]);
   const [promoteName, setPromoteName] = useState('');
   const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -80,8 +84,13 @@ const AdminSettings: React.FC = () => {
 
   return (
     <AdminRoute>
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h5">Admin Settings</Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: (theme) => theme.palette.background.default }}>
+        <AppBar position="static" color="primary" sx={{ padding: '0 1rem' }}>
+          <Toolbar variant='dense' disableGutters>
+            <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/diagram')}>Settings</Typography>
+            <AccountMenu />
+          </Toolbar>
+        </AppBar>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Configure application-level settings.</Typography>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}

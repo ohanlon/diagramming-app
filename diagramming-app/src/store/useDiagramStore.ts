@@ -48,7 +48,7 @@ const initialState: DiagramState = {
   sheets: {
     [defaultSheetId]: {
       id: defaultSheetId,
-      name: 'Sheet 1',
+      name: 'Default Sheet',
       shapesById: {},
       shapeIds: [],
       connectors: {},
@@ -57,23 +57,24 @@ const initialState: DiagramState = {
       layers: {
         [defaultLayerId]: {
           id: defaultLayerId,
-          name: 'Layer 1',
+          name: 'Default Layer',
           isVisible: true,
           isLocked: false,
         },
       },
-      layerIds: [defaultLayerId],
-      activeLayerId: defaultLayerId,
-      zoom: 1,
-      pan: { x: 0, y: 0 },
-      selectedFont: 'Open Sans',
-      selectedFontSize: 10,
-      selectedTextColor: '#000000',
-      selectedShapeColor: '#3498db',
-      selectedLineStyle: 'continuous' as LineStyle,
-      selectedLineWidth: 2,
-      selectedConnectionType: 'direct' as ConnectionType,
+      clipboard: null, // Added clipboard field
       connectorDragTargetShapeId: null,
+      layerIds: [defaultLayerId], // Added missing field
+      activeLayerId: defaultLayerId, // Added missing field
+      zoom: 1, // Added missing field
+      pan: { x: 0, y: 0 }, // Added missing field
+      selectedFont: 'Arial', // Added missing field
+      selectedFontSize: 12, // Added missing field
+      selectedTextColor: '#000000', // Added missing field
+      selectedShapeColor: '#FFFFFF', // Added missing field
+      selectedLineStyle: 'continuous', // Updated to a valid LineStyle value
+      selectedLineWidth: 1, // Added missing field
+      selectedConnectionType: 'direct', // Updated to a valid ConnectionType value
     },
   },
   activeSheetId: defaultSheetId,
@@ -430,18 +431,19 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
           isLocked: false,
         },
       },
-      layerIds: [newLayerId],
-      activeLayerId: newLayerId,
-      zoom: 1,
-      pan: { x: 0, y: 0 },
-      selectedFont: 'Open Sans',
-      selectedFontSize: 10,
-      selectedTextColor: '#000000',
-      selectedShapeColor: '#3498db',
-      selectedLineStyle: 'continuous',
-      selectedLineWidth: 2,
-      selectedConnectionType: 'direct',
+      clipboard: null, // Added clipboard field
       connectorDragTargetShapeId: null,
+      layerIds: [newLayerId], // Added missing field
+      activeLayerId: newLayerId, // Added missing field
+      zoom: 1, // Added missing field
+      pan: { x: 0, y: 0 }, // Added missing field
+      selectedFont: 'Arial', // Added missing field
+      selectedFontSize: 12, // Added missing field
+      selectedTextColor: '#000000', // Added missing field
+      selectedShapeColor: '#FFFFFF', // Added missing field
+      selectedLineStyle: 'continuous', // Updated to a valid LineStyle value
+      selectedLineWidth: 1, // Added missing field
+      selectedConnectionType: 'direct', // Updated to a valid ConnectionType value
     };
 
     // Replace store with a fresh base state and clear remote diagram id
