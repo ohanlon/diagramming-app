@@ -156,3 +156,48 @@ FROM diagrams d
 CROSS JOIN LATERAL jsonb_array_elements_text(d.state->'sharedWith') AS shared_email(email)
 JOIN users u ON lower(u.username) = lower(shared_email.email)
 ON CONFLICT (diagram_id, user_id) DO NOTHING;
+
+-- Table: public.shape_category
+
+-- DROP TABLE IF EXISTS public.shape_category;
+
+CREATE TABLE IF NOT EXISTS public.shape_category
+(
+    id uuid NOT NULL,
+    name text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT shape_category_pkey PRIMARY KEY (id)
+)
+
+ALTER TABLE IF EXISTS public.shape_category
+    OWNER to postgres;
+
+INSERT INTO public.shape_category(
+	id, name)
+	VALUES ('4c6dfc72-644f-4e1d-8dda-cfb3cfc59560', 'AWS');
+INSERT INTO public.shape_category(
+	id, name)
+	VALUES ('f7f1136a-ef47-408b-b55e-60528baf801e', 'Azure');
+INSERT INTO public.shape_category(
+	id, name)
+	VALUES ('5944d9a3-e358-4286-adac-1c322e1db5b1', 'Interactive');
+
+-- Table: public.shape_subcategory
+
+-- DROP TABLE IF EXISTS public.shape_subcategory;
+
+CREATE TABLE IF NOT EXISTS public.shape_subcategory
+(
+    id uuid NOT NULL,
+    name text COLLATE pg_catalog."default" NOT NULL,
+    category_id uuid NOT NULL,
+    CONSTRAINT shape_subcategory_pkey PRIMARY KEY (id),
+    CONSTRAINT subcategory_category_id FOREIGN KEY (category_id)
+        REFERENCES public.shape_category (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.shape_subcategory
+    OWNER to postgres;
