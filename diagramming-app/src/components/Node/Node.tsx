@@ -185,7 +185,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
   const svgOriginalCache = (globalThis as any).__SVG_ORIGINAL_CACHE__ ||= new Map<string, string>();
 
   // Effect: when we have an original path, fetch the original SVG (cached), then apply
-  // transformations (size, color) and store the transformed SVG via updateShapeSvgContent.
+  // transformations (size, selective colorization) and store the transformed SVG via updateShapeSvgContent.
   useEffect(() => {
     let mounted = true;
     const fetchAndApply = async () => {
@@ -223,34 +223,66 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           }
         }
 
-        // Apply color mapping similar to prior logic but operate on the original SVG element
+        // Determine if we should recolor the SVG. We only recolor if:
+        // - There are no gradients, AND
+        // - The original SVG does NOT already contain explicit non-black, non-"none", non-"currentColor" fills/strokes, AND
+        // - We actually have a color value to apply (and it's not a default black fall-back)
         const gradients = Array.from(svgElement.querySelectorAll('linearGradient, radialGradient'));
-        if (gradients.length === 0) {
-          const targetTags = ['path', 'rect', 'circle', 'ellipse', 'polygon', 'polyline', 'use', 'g', 'line'];
+
+        const collectColors = (el: Element): string[] => {
+          const colors: string[] = [];
+          const style = (el as HTMLElement).getAttribute('style') || '';
+          const styleFill = /fill\s*:\s*([^;]+)/i.exec(style)?.[1]?.trim();
+          const styleStroke = /stroke\s*:\s*([^;]+)/i.exec(style)?.[1]?.trim();
+          const fillAttr = el.getAttribute('fill')?.trim() || '';
+          const strokeAttr = el.getAttribute('stroke')?.trim() || '';
+          if (styleFill) colors.push(styleFill);
+          if (styleStroke) colors.push(styleStroke);
+          if (fillAttr) colors.push(fillAttr);
+          if (strokeAttr) colors.push(strokeAttr);
+          return colors;
+        };
+
+        const targetTags = ['path', 'rect', 'circle', 'ellipse', 'polygon', 'polyline', 'use', 'g', 'line'];
+        const allNodes = targetTags.flatMap(tag => Array.from(svgElement.querySelectorAll(tag)));
+        const rawColors = allNodes.flatMap(n => collectColors(n));
+        const normalizedColors = new Set(
+          rawColors
+            .map(c => c.toLowerCase())
+            .filter(c => c !== '' && c !== 'none' && c !== 'currentcolor' && !c.startsWith('url(#'))
+        );
+        // Consider black variants
+        const isBlackish = (c: string) => c === '#000' || c === '#000000' || c === 'black' || c === 'rgb(0,0,0)' || c === 'rgba(0,0,0,1)';
+        const hasExplicitNonBlackColor = Array.from(normalizedColors).some(c => !isBlackish(c));
+
+        const hasGradients = gradients.length > 0;
+        const colorLower = (color || '').toLowerCase();
+        const colorIsMissingOrBlack = !colorLower || isBlackish(colorLower);
+        const shouldRecolor = !hasGradients && !hasExplicitNonBlackColor && !colorIsMissingOrBlack;
+
+        if (shouldRecolor) {
           targetTags.forEach(tag => {
             const nodes = Array.from(svgElement.querySelectorAll(tag));
             nodes.forEach((node: Element) => {
               try {
                 const el = node as HTMLElement;
                 const style = el.getAttribute('style');
-                if (style && style.includes('fill')) {
+                if (style && style.match(/(^|;)\s*fill\s*:/i)) {
                   const newStyle = style.replace(/fill\s*:\s*[^;]+/i, `fill: ${color}`);
                   el.setAttribute('style', newStyle);
                 } else if (style && !style.includes('fill')) {
                   el.setAttribute('style', style + `; fill: ${color}`);
                 } else {
                   const fillAttr = node.getAttribute('fill');
-                  if (fillAttr === null || fillAttr === '' || fillAttr.toLowerCase() === 'currentcolor') {
-                    node.setAttribute('fill', color);
-                  } else if (fillAttr.toLowerCase() !== 'none') {
+                  if (!fillAttr || fillAttr.toLowerCase() === 'currentcolor' || fillAttr.toLowerCase() === 'black' || fillAttr === '#000' || fillAttr === '#000000') {
                     node.setAttribute('fill', color);
                   }
                 }
 
                 const strokeAttr = node.getAttribute('stroke');
-                if (strokeAttr && strokeAttr.toLowerCase() !== 'none') {
+                if (strokeAttr && (strokeAttr.toLowerCase() === 'black' || strokeAttr === '#000' || strokeAttr === '#000000' || strokeAttr.toLowerCase() === 'currentcolor')) {
                   node.setAttribute('stroke', color);
-                } else if (style && style.includes('stroke')) {
+                } else if (style && style.match(/(^|;)\s*stroke\s*:/i)) {
                   const newStyle2 = style.replace(/stroke\s*:\s*[^;]+/i, `stroke: ${color}`);
                   el.setAttribute('style', newStyle2);
                 }
@@ -369,61 +401,8 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
       const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
       const svgElement = svgDoc.documentElement;
 
-      // Apply shape color to SVG content in a robust way:
-      // - If gradients are present, do not override gradient fills (they should retain their gradient)
-      // - Otherwise, apply the color to common shape elements (path, rect, circle, ellipse, polygon, polyline, use)
-      //   updating fill and stroke attributes or inline styles as appropriate.
-      const gradients = Array.from(svgElement.querySelectorAll('linearGradient, radialGradient'));
-      if (gradients.length === 0) {
-        const targetTags = ['path', 'rect', 'circle', 'ellipse', 'polygon', 'polyline', 'use', 'g', 'line'];
-        targetTags.forEach(tag => {
-          const nodes = Array.from(svgElement.querySelectorAll(tag));
-          nodes.forEach((node: Element) => {
-            try {
-              // Handle style attribute first
-              const style = (node as HTMLElement).getAttribute('style');
-              if (style && style.includes('fill')) {
-                // replace fill in style
-                const newStyle = style.replace(/fill\s*:\s*[^;]+/i, `fill: ${color}`);
-                (node as HTMLElement).setAttribute('style', newStyle);
-              } else if (style && !style.includes('fill')) {
-                // append fill if missing
-                (node as HTMLElement).setAttribute('style', style + `; fill: ${color}`);
-              } else {
-                // No style attribute; use fill attribute logic
-                const fillAttr = node.getAttribute('fill');
-                if (fillAttr === null || fillAttr === '' || fillAttr.toLowerCase() === 'currentcolor' || fillAttr.toLowerCase() === 'none') {
-                  // If explicitly 'none', preserve it; otherwise set fill
-                  if (fillAttr && fillAttr.toLowerCase() === 'none') {
-                    // preserve none
-                  } else {
-                    node.setAttribute('fill', color);
-                  }
-                } else {
-                  // Replace existing fill value (unless it was 'none')
-                  if (fillAttr.toLowerCase() !== 'none') node.setAttribute('fill', color);
-                }
-              }
-
-              // Stroke handling: if stroke is present and not 'none', update it. Do not create new strokes.
-              const strokeAttr = node.getAttribute('stroke');
-              if (strokeAttr && strokeAttr.toLowerCase() !== 'none') {
-                node.setAttribute('stroke', color);
-              } else {
-                // If there is a stroke in the style string, update it there as well
-                if (style && style.includes('stroke')) {
-                  const newStyle2 = style.replace(/stroke\s*:\s*[^;]+/i, `stroke: ${color}`);
-                  (node as HTMLElement).setAttribute('style', newStyle2);
-                }
-              }
-            } catch (err) {
-              // Defensive: some nodes may be read-only or have namespaces; ignore failures
-              console.debug('Failed to apply color to svg node', err);
-            }
-          });
-        });
-      }
-
+      // Do not recolor here; svgContent has been prepared already by the effect above.
+      // Only scale to fit the shape bounds.
       svgElement.setAttribute('width', '100%');
       svgElement.setAttribute('height', '100%');
 
