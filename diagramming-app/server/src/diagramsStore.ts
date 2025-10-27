@@ -76,30 +76,52 @@ export async function patchDiagram(id: string, patch: any) {
     for (const [sheetId, sheetPatchRaw] of Object.entries(patch.state.sheets)) {
       const sheetPatch = sheetPatchRaw as any;
       const existingSheet = existing.sheets?.[sheetId] || {};
-      const mergedSheet = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
-      if (sheetPatch && sheetPatch.shapesById) {
-        // Merge existing shapes with incoming shapes. We keep svgContent
-        // from the incoming shapes (no stripping) and merge on top of server
-        // existing shapes so updated fields replace older ones.
-        const incomingShapes = sheetPatch.shapesById || {};
-        const existingShapes = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapesById) || {};
-        mergedSheet.shapesById = { ...existingShapes, ...incomingShapes };
-      }
-      // Merge shapeIds arrays (union) to avoid losing reference to shapes when a patch omits some ids
-      if (sheetPatch && Array.isArray(sheetPatch.shapeIds)) {
-        const existingIds: string[] = (existing.sheets && existing.sheets[sheetId] && existing.sheets[sheetId].shapeIds) || [];
-        const incomingIds: string[] = sheetPatch.shapeIds || [];
-        const seen = new Set(existingIds);
-        const mergedIds = [...existingIds];
-        for (const id of incomingIds) {
-          if (!seen.has(id)) {
-            mergedIds.push(id);
-            seen.add(id);
+
+      const incomingShapes = (sheetPatch && sheetPatch.shapesById) ? (sheetPatch.shapesById as any) : undefined;
+      const existingShapes = (existing.sheets && (existing.sheets as any)[sheetId] && (existing.sheets as any)[sheetId].shapesById) || {};
+      const hasIncomingIds = sheetPatch && Array.isArray(sheetPatch.shapeIds);
+
+      // Debug logging
+      try {
+        const incomingCount = incomingShapes ? Object.keys(incomingShapes).length : 0;
+        const incomingIdsCount = hasIncomingIds ? (sheetPatch.shapeIds as any).length : 0;
+        const existingCount = Object.keys(existingShapes).length;
+        console.debug(`[patchDiagram] Sheet ${sheetId}: incoming shapes=${incomingCount}, incoming ids=${incomingIdsCount}, existing shapes=${existingCount}`);
+      } catch (e) {}
+
+      if (hasIncomingIds) {
+        // Treat incoming shapeIds as authoritative: delete shapes not listed.
+        const incomingIds: string[] = (sheetPatch.shapeIds as any) || [];
+        const nextShapesById: Record<string, any> = {};
+        for (const sid of incomingIds) {
+          if (incomingShapes && Object.prototype.hasOwnProperty.call(incomingShapes, sid)) {
+            nextShapesById[sid] = (incomingShapes as any)[sid];
+          } else if (existingShapes && Object.prototype.hasOwnProperty.call(existingShapes, sid)) {
+            nextShapesById[sid] = (existingShapes as any)[sid];
           }
         }
-        mergedSheet.shapeIds = mergedIds;
+        // Build merged sheet WITHOUT spreading sheetPatch first (to avoid overwriting our computed fields)
+        const mergedSheet: any = { ...(existingSheet as any) };
+        // Apply incoming fields selectively (everything except shapesById and shapeIds which we computed)
+        for (const key of Object.keys(sheetPatch)) {
+          if (key !== 'shapesById' && key !== 'shapeIds') {
+            mergedSheet[key] = sheetPatch[key];
+          }
+        }
+        mergedSheet.shapesById = nextShapesById;
+        // Use only shape IDs that actually exist in nextShapesById (filters out deleted shapes)
+        mergedSheet.shapeIds = Object.keys(nextShapesById);
+        mergedState.sheets[sheetId] = mergedSheet;
+      } else if (incomingShapes) {
+        // No incoming shapeIds provided; merge updates without deletions.
+        const mergedSheet = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
+        mergedSheet.shapesById = { ...existingShapes, ...(incomingShapes as any) };
+        // keep existing shapeIds as-is
+        mergedState.sheets[sheetId] = mergedSheet;
+      } else {
+        // No shapes or ids provided; just merge other sheet fields
+        mergedState.sheets[sheetId] = { ...(existingSheet as any), ...(sheetPatch as any) } as any;
       }
-      mergedState.sheets[sheetId] = mergedSheet;
     }
   }
 

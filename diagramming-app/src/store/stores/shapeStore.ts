@@ -996,6 +996,7 @@ export const createShapeActions = (
           [state.activeSheetId]: {
             ...currentSheet,
             shapesById: newShapesById,
+            shapeIds: currentSheet.shapeIds.filter(id => !currentSheet.selectedShapeIds.includes(id)),
             connectors: newConnectors,
             selectedShapeIds: [],
             selectedConnectorIds: [],
