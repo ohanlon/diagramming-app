@@ -424,7 +424,7 @@ const ShapeStore: React.FC = () => {
                 mb: 1,
                 '&:before': { display: 'none' },
                 '&:hover': {
-                  backgroundColor: 'primary.light',
+                  // backgroundColor: 'primary.light',
                   color: 'primary.contrastText',
                 },
               }}
@@ -434,6 +434,7 @@ const ShapeStore: React.FC = () => {
                 aria-controls={`${entry.id}-content`}
                 id={`${entry.id}-header`}
                 sx={{
+
                   height: 32,
                   minHeight: 32,
                   '&.Mui-expanded': {
