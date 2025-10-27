@@ -619,12 +619,9 @@ const Canvas: React.FC = () => {
         setSelectedShapes([id]);
     }
 
-    const canvasRect = canvasRef.current?.getBoundingClientRect();
-    if (!canvasRect) return;
-
     setContextMenu({
-      x: e.clientX - canvasRect.left,
-      y: e.clientY - canvasRect.top,
+      x: e.clientX,
+      y: e.clientY,
       shapeId: id
     });
   };
