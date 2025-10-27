@@ -743,6 +743,11 @@ const Canvas: React.FC = () => {
           onSendBackward={() => sendBackward(contextMenu.shapeId)}
           onBringToFront={() => bringToFront(contextMenu.shapeId)}
           onSendToBack={() => sendToBack(contextMenu.shapeId)}
+          onCut={cutShape}
+          onCopy={copyShape}
+          onPaste={pasteShape}
+          onUndo={undo}
+          onRedo={redo}
         />
       )}
       {isYouTubeDialogOpen && (

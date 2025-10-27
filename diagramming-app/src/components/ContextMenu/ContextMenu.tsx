@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Menu, MenuItem, ListItemText, ListItemIcon } from '@mui/material';
-import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom, ChevronRight, Layers } from '@mui/icons-material';
+import { Menu, MenuItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
+import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom, ChevronRight, Layers, ContentCut, ContentCopy, ContentPaste, Undo, Redo } from '@mui/icons-material';
 
 interface ContextMenuProps {
   x: number;
@@ -10,10 +10,15 @@ interface ContextMenuProps {
   onSendBackward: () => void;
   onBringToFront: () => void;
   onSendToBack: () => void;
+  onCut: () => void;
+  onCopy: () => void;
+  onPaste: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = (
-  { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack },
+  { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack, onCut, onCopy, onPaste, onUndo, onRedo },
 ) => {
   const [arrangeMenuAnchor, setArrangeMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -44,6 +49,38 @@ const ContextMenu: React.FC<ContextMenuProps> = (
         anchorReference="anchorPosition"
         anchorPosition={{ top: y, left: x }}
       >
+        <MenuItem onClick={() => handleItemClick(onCut)}>
+          <ListItemIcon>
+            <ContentCut fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Cut</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleItemClick(onCopy)}>
+          <ListItemIcon>
+            <ContentCopy fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Copy</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleItemClick(onPaste)}>
+          <ListItemIcon>
+            <ContentPaste fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Paste</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => handleItemClick(onUndo)}>
+          <ListItemIcon>
+            <Undo fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Undo</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleItemClick(onRedo)}>
+          <ListItemIcon>
+            <Redo fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Redo</ListItemText>
+        </MenuItem>
+        <Divider />
         <MenuItem onClick={handleArrangeClick}>
           <ListItemIcon>
             <Layers fontSize="small" />
