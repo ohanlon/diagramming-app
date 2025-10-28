@@ -77,16 +77,33 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
   tempDiv.style.position = 'absolute';
   tempDiv.style.visibility = 'hidden';
   tempDiv.style.fontFamily = fontFamily;
-  tempDiv.style.fontSize = `${fontSize}px`;
+  tempDiv.style.fontSize = `${fontSize}pt`; // Use pt to match TextResizer
   tempDiv.style.fontWeight = isBold ? 'bold' : 'normal';
   tempDiv.style.fontStyle = isItalic ? 'italic' : 'normal';
-  tempDiv.style.whiteSpace = newShape.autosize ? 'normal' : 'nowrap';
+  tempDiv.style.whiteSpace = 'nowrap'; // Measure single-line width first
+  tempDiv.style.wordWrap = 'break-word';
   tempDiv.textContent = newShape.text || '';
   document.body.appendChild(tempDiv);
 
-  const textWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
+  const singleLineWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
+  
+  // Now measure multi-line height if text position is outside and width is constrained
+  if (newShape.textPosition === 'outside' && !newShape.autosize) {
+    // For outside text, constrain to a reasonable width based on shape
+    const maxWidth = Math.max(newShape.width * 3, 200); // Allow up to 3x shape width
+    tempDiv.style.whiteSpace = 'normal';
+    tempDiv.style.width = `${Math.min(singleLineWidth, maxWidth)}px`;
+  }
+  
+  const textWidth = newShape.autosize ? singleLineWidth : Math.min(singleLineWidth, newShape.width * 3.2);
   const textHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
   document.body.removeChild(tempDiv);
+
+  // Calculate initial text offset for centered text (only for outside positioning)
+  let initialTextOffsetX = 0;
+  if (newShape.textPosition === 'outside' && newShape.horizontalAlign === 'center') {
+    initialTextOffsetX = (newShape.width / 2) - (textWidth / 2);
+  }
 
   return {
     ...state,
@@ -100,10 +117,10 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
             ...newShape,
             layerId: currentSheet.activeLayerId,
             fontSize,
-            textOffsetX: 0,
+            textOffsetX: initialTextOffsetX,
             textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8,
-            textWidth: newShape.autosize ? textWidth : newShape.width,
-            textHeight: newShape.autosize ? textHeight : 20,
+            textWidth: textWidth,
+            textHeight: textHeight,
             isBold,
             isItalic,
             isUnderlined: newShape.isUnderlined || false,
