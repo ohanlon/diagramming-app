@@ -371,25 +371,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       }
 
       const result = await resp.json();
-      console.debug('[saveDiagram] Save response:', result);
-      
-      // Save to cache on successful save
-      if (state.remoteDiagramId) {
-        saveToCache(state.remoteDiagramId, {
-          state: get(),
-          version: result.version || state.serverVersion,
-          timestamp: Date.now(),
-        });
-      }
       
       if (!state.remoteDiagramId && result && result.id) {
         wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null, serverVersion: result.version || null });
-        // Cache the newly created diagram too
-        saveToCache(result.id, {
-          state: get(),
-          version: result.version || null,
-          timestamp: Date.now(),
-        });
       } else {
         wrappedSet({ isDirty: false, lastSaveError: null, serverVersion: result.version || null });
       }
