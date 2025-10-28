@@ -32,6 +32,8 @@ const Canvas: React.FC = () => {
   const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
   const [editingTextShapeId, setEditingTextShapeId] = useState<string | null>(null);
+  const autoScrollInterval = useRef<number | null>(null);
+  const lastMousePosition = useRef<{ clientX: number; clientY: number } | null>(null);
 
   const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false);
   const [youTubeUrl, setYouTubeUrl] = useState('');
@@ -167,6 +169,58 @@ const Canvas: React.FC = () => {
                 );
             }
         }
+
+        // Store last mouse position for auto-scroll
+        lastMousePosition.current = { clientX: e.clientX, clientY: e.clientY };
+
+        // Start auto-scroll if near edges
+        const SCROLL_MARGIN = 50;
+        const isNearEdge = 
+          (e.clientX - svgRect.left < SCROLL_MARGIN) ||
+          (svgRect.right - e.clientX < SCROLL_MARGIN) ||
+          (e.clientY - svgRect.top < SCROLL_MARGIN) ||
+          (svgRect.bottom - e.clientY < SCROLL_MARGIN);
+
+        if (isNearEdge && !autoScrollInterval.current) {
+          const scroll = () => {
+            if (!lastMousePosition.current || !svgRef.current) {
+              return;
+            }
+
+            const rect = svgRef.current.getBoundingClientRect();
+            const SCROLL_SPEED = 10;
+            let scrollDeltaX = 0;
+            let scrollDeltaY = 0;
+
+            if (lastMousePosition.current.clientX - rect.left < SCROLL_MARGIN) {
+              scrollDeltaX = SCROLL_SPEED;
+            } else if (rect.right - lastMousePosition.current.clientX < SCROLL_MARGIN) {
+              scrollDeltaX = -SCROLL_SPEED;
+            }
+
+            if (lastMousePosition.current.clientY - rect.top < SCROLL_MARGIN) {
+              scrollDeltaY = SCROLL_SPEED;
+            } else if (rect.bottom - lastMousePosition.current.clientY < SCROLL_MARGIN) {
+              scrollDeltaY = -SCROLL_SPEED;
+            }
+
+            if (scrollDeltaX !== 0 || scrollDeltaY !== 0) {
+              const currentState = useDiagramStore.getState();
+              const currentSheet = currentState.sheets[currentState.activeSheetId];
+              setPan({ 
+                x: currentSheet.pan.x + scrollDeltaX, 
+                y: currentSheet.pan.y + scrollDeltaY 
+              });
+              autoScrollInterval.current = requestAnimationFrame(scroll);
+            } else {
+              autoScrollInterval.current = null;
+            }
+          };
+          autoScrollInterval.current = requestAnimationFrame(scroll);
+        } else if (!isNearEdge && autoScrollInterval.current) {
+          cancelAnimationFrame(autoScrollInterval.current);
+          autoScrollInterval.current = null;
+        }
     }
   }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, debouncedSetCurrentMousePoint, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, activeSheet.connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
 
@@ -258,6 +312,14 @@ const Canvas: React.FC = () => {
             if(shape) recordShapeMoves([{id: isMouseDownOnShape, x: shape.x, y: shape.y}]);
         }
     }
+    
+    // Stop auto-scroll
+    if (autoScrollInterval.current) {
+      cancelAnimationFrame(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+    lastMousePosition.current = null;
+    
     setIsMouseDownOnShape(null);
     setMouseDownPos(null);
     setInitialDragPositions(null);
