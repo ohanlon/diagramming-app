@@ -30,7 +30,7 @@
     "react-easy-crop": "^4.4.0",
     "react-router-dom": "^6.17.0",
     "utif": "*",
-    "validator": "^13.9.0",
+    "validator": "^13.15.20",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
