@@ -39,6 +39,9 @@ interface DiagramStoreActions extends
   setDiagramName: (name: string) => void; // Update the diagram's display name
   applyStateSnapshot: (snapshot: any) => void; // Apply a full state snapshot (used for opening history entries)
   setThemeMode: (mode: 'light' | 'dark') => void;
+  clearCache: (diagramId: string) => void; // Clear cached version of a diagram
+  loadCachedVersion: () => void; // Load the cached version of current diagram
+  dismissCacheDialog: () => void; // Dismiss the cache dialog
 }
 
 const defaultLayerId = uuidv4();
@@ -97,6 +100,50 @@ const initialState: DiagramState = {
   isEditable: true,
   // Default theme mode
   themeMode: 'light',
+  // Cache-related state
+  cachedDiagramData: null as any | null,
+  showCacheDialog: false,
+  cacheWarningMessage: null as string | null,
+};
+
+// Cache helper functions (outside store to avoid circular refs)
+const saveToCache = (diagramId: string, data: any) => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const cacheKey = `diagram_cache_${diagramId}`;
+      window.localStorage.setItem(cacheKey, JSON.stringify(data));
+      console.debug(`[cache] Saved diagram ${diagramId} to cache`);
+    }
+  } catch (e) {
+    console.warn('[cache] Failed to save to cache:', e);
+  }
+};
+
+const loadFromCache = (diagramId: string): any | null => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const cacheKey = `diagram_cache_${diagramId}`;
+      const cached = window.localStorage.getItem(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
+  } catch (e) {
+    console.warn('[cache] Failed to load from cache:', e);
+  }
+  return null;
+};
+
+const clearCacheHelper = (diagramId: string) => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const cacheKey = `diagram_cache_${diagramId}`;
+      window.localStorage.removeItem(cacheKey);
+      console.debug(`[cache] Cleared cache for diagram ${diagramId}`);
+    }
+  } catch (e) {
+    console.warn('[cache] Failed to clear cache:', e);
+  }
 };
 
 export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set, get) => {
@@ -253,6 +300,15 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
       }
 
     if (resp.status === 401) {
+        // Cache current state before trying refresh
+        if (state.remoteDiagramId) {
+          saveToCache(state.remoteDiagramId, {
+            state: get(),
+            version: state.serverVersion,
+            timestamp: Date.now(),
+          });
+        }
+        
         // Try to refresh the access token via refresh endpoint (send cookies)
         try {
           const refreshResp = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
@@ -316,8 +372,24 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
 
       const result = await resp.json();
       console.debug('[saveDiagram] Save response:', result);
+      
+      // Save to cache on successful save
+      if (state.remoteDiagramId) {
+        saveToCache(state.remoteDiagramId, {
+          state: get(),
+          version: result.version || state.serverVersion,
+          timestamp: Date.now(),
+        });
+      }
+      
       if (!state.remoteDiagramId && result && result.id) {
         wrappedSet({ remoteDiagramId: result.id, isDirty: false, lastSaveError: null, serverVersion: result.version || null });
+        // Cache the newly created diagram too
+        saveToCache(result.id, {
+          state: get(),
+          version: result.version || null,
+          timestamp: Date.now(),
+        });
       } else {
         wrappedSet({ isDirty: false, lastSaveError: null, serverVersion: result.version || null });
       }
@@ -484,6 +556,9 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   const loadDiagram = async (fromRemote = false) => {
     const state = get();
     if (fromRemote && state.remoteDiagramId) {
+      // Check for cached version first
+      const cachedData = loadFromCache(state.remoteDiagramId);
+      
       const serverUrl = state.serverUrl || 'http://localhost:4000';
       const basicAuthHeader = (state.serverAuthUser && state.serverAuthPass) ? `Basic ${btoa(`${state.serverAuthUser}:${state.serverAuthPass}`)}` : undefined;
       try {
@@ -493,6 +568,22 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
           },
           credentials: 'include',
         });
+        
+        // Handle 401 - redirect to login
+        if (resp.status === 401) {
+          console.warn('[loadDiagram] 401 Unauthorized - redirecting to login');
+          // Cache current state before redirecting
+          if (state.remoteDiagramId) {
+            saveToCache(state.remoteDiagramId, {
+              state: get(),
+              version: state.serverVersion,
+              timestamp: Date.now(),
+            });
+          }
+          window.location.href = '/login';
+          return;
+        }
+        
         if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
         const json = await resp.json();
         try {
@@ -528,6 +619,35 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
          } catch (e) {
            editable = true;
          }
+         // Check if there's a cached version and compare versions
+         if (cachedData) {
+           const serverVersion = json.version || 0;
+           const cachedVersion = cachedData.version || 0;
+           
+           if (cachedVersion > serverVersion) {
+             // Cached version is newer - prompt user
+             set((s: any) => ({
+               ...s,
+               cachedDiagramData: cachedData,
+               showCacheDialog: true,
+               cacheWarningMessage: null,
+             }));
+             return;
+           } else if (cachedVersion === serverVersion) {
+             // Same version - warn that server may have been updated
+             set((s: any) => ({
+               ...s,
+               cachedDiagramData: cachedData,
+               showCacheDialog: true,
+               cacheWarningMessage: 'The document on the server has the same version number. It may have been updated by another user.',
+             }));
+             return;
+           } else {
+             // Server version is newer - clear cache and use server version
+             clearCacheHelper(state.remoteDiagramId);
+           }
+         }
+         
          set((s: any) => ({ ...s, ...json.state, serverVersion: json.version || null, isDirty: false, isEditable: editable }));
         // Log resulting local state's counts
         try {
@@ -652,6 +772,42 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     },
     dismissConflict: () => {
       wrappedSet({ conflictOpen: false, conflictServerState: null, conflictServerVersion: null, conflictUpdatedBy: null, conflictLocalState: null });
+    },
+    // Cache-related actions
+    clearCache: (diagramId: string) => {
+      clearCacheHelper(diagramId);
+      set((s: any) => ({
+        ...s,
+        showCacheDialog: false,
+        cachedDiagramData: null,
+        cacheWarningMessage: null,
+      }));
+    },
+    loadCachedVersion: () => {
+      const state = get();
+      if (state.cachedDiagramData && state.cachedDiagramData.state) {
+        set((s: any) => ({
+          ...s,
+          ...state.cachedDiagramData.state,
+          showCacheDialog: false,
+          cachedDiagramData: null,
+          cacheWarningMessage: null,
+          isDirty: true,
+        }));
+        console.debug('[cache] Loaded cached version');
+      }
+    },
+    dismissCacheDialog: () => {
+      const state = get();
+      if (state.remoteDiagramId && state.cachedDiagramData) {
+        clearCacheHelper(state.remoteDiagramId);
+      }
+      set((s: any) => ({
+        ...s,
+        showCacheDialog: false,
+        cachedDiagramData: null,
+        cacheWarningMessage: null,
+      }));
     },
   } as any;
 });

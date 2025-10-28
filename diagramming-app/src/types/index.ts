@@ -128,6 +128,10 @@ export type DiagramState = {
   themeMode?: 'light' | 'dark';
   thumbnailDataUrl?: string | null; // Base64-encoded PNG data URL for a small thumbnail preview
   showAuthDialog?: boolean; // Legacy flag controlling auth modal visibility (kept for compatibility)
+  // Cache-related state for handling offline edits and 401 responses
+  cachedDiagramData?: any | null; // Cached diagram data when user loses connection
+  showCacheDialog?: boolean; // Whether to show the cache restore dialog
+  cacheWarningMessage?: string | null; // Warning message about version conflicts
 };
 
 export type HistoryState = {

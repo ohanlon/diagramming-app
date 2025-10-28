@@ -8,6 +8,7 @@ import SheetTabs from './components/SheetTabs/SheetTabs';
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { AppBar, Box, Snackbar, Alert } from '@mui/material';
 import ConflictDialog from './components/ConflictDialog/ConflictDialog';
+import CacheDialog from './components/CacheDialog/CacheDialog';
 import UnsavedChangesDialog from './components/UnsavedChangesDialog/UnsavedChangesDialog';
 import { unstable_HistoryRouter as HistoryRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
 import { customHistory } from './customHistory';
@@ -187,6 +188,7 @@ function MainAppLayout() {
       <SheetTabs />
       <StatusBar showLayerPanel={showLayerPanel} setShowLayerPanel={setShowLayerPanel} />
       <ConflictDialog />
+      <CacheDialog />
   <UnsavedChangesDialog />
       <Snackbar open={notifyOpen} autoHideDuration={4000} onClose={() => setNotifyOpen(false)}>
         <Alert onClose={() => setNotifyOpen(false)} severity="info" sx={{ width: '100%' }}>{notifyMessage}</Alert>
