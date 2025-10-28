@@ -31,6 +31,7 @@ const Canvas: React.FC = () => {
   const [isMouseDownOnShape, setIsMouseDownOnShape] = useState<string | null>(null);
   const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
+  const [editingTextShapeId, setEditingTextShapeId] = useState<string | null>(null);
 
   const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false);
   const [youTubeUrl, setYouTubeUrl] = useState('');
@@ -665,7 +666,7 @@ const Canvas: React.FC = () => {
             fill="url(#grid-pattern)"
           />
           {(visibleShapes || []).map((shape) => (
-            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
+            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} isEditingText={editingTextShapeId === shape.id} onTextEditComplete={() => setEditingTextShapeId(null)} />
           ))}
           {(visibleConnectors || []).map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
@@ -750,6 +751,7 @@ const Canvas: React.FC = () => {
           onPaste={pasteShape}
           onUndo={undo}
           onRedo={redo}
+          onEditDescription={() => setEditingTextShapeId(contextMenu.shapeId)}
         />
       )}
       {isYouTubeDialogOpen && (

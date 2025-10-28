@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
-import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom, ChevronRight, Layers, ContentCut, ContentCopy, ContentPaste, Undo, Redo } from '@mui/icons-material';
+import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom, ChevronRight, Layers, ContentCut, ContentCopy, ContentPaste, Undo, Redo, Edit } from '@mui/icons-material';
 
 interface ContextMenuProps {
   x: number;
@@ -15,10 +15,11 @@ interface ContextMenuProps {
   onPaste: () => void;
   onUndo: () => void;
   onRedo: () => void;
+  onEditDescription: () => void;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = (
-  { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack, onCut, onCopy, onPaste, onUndo, onRedo },
+  { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack, onCut, onCopy, onPaste, onUndo, onRedo, onEditDescription },
 ) => {
   const [arrangeMenuAnchor, setArrangeMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -79,6 +80,13 @@ const ContextMenu: React.FC<ContextMenuProps> = (
             <Redo fontSize="small" />
           </ListItemIcon>
           <ListItemText>Redo</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => handleItemClick(onEditDescription)}>
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Edit Description</ListItemText>
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleArrangeClick}>

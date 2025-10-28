@@ -34,9 +34,11 @@ interface NodeProps {
   onNodeMouseDown: (e: React.MouseEvent, id: string) => void;
   activeLayerId: string;
   layers: { [id: string]: Layer };
+  isEditingText?: boolean;
+  onTextEditComplete?: () => void;
 }
 
-const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown, activeLayerId, layers }) => {
+const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected, isConnectorDragTarget, onConnectorStart, onContextMenu, onNodeMouseDown, activeLayerId, layers, isEditingText, onTextEditComplete }) => {
   const { id, type, x, y, width, height, text, color, svgContent, fontFamily, fontSize, isTextSelected, isBold, isItalic, isUnderlined, verticalAlign = 'middle', horizontalAlign = 'center', textPosition = 'outside', textColor, interaction, path } = shape; // Added path
   const { sheets, activeSheetId, updateShapeDimensions, updateShapeDimensionsMultiple, recordShapeResize, recordShapeResizeMultiple, toggleShapeSelection, setSelectedShapes, updateShapeIsTextSelected, updateShapeSvgContent } = useDiagramStore(); // Added updateShapeSvgContent
   const activeSheet = sheets[activeSheetId];
@@ -490,6 +492,8 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           textColor={textColor}
           autosize={shape.autosize}
           shapeWidth={width}
+          forceEditMode={isEditingText}
+          onEditComplete={onTextEditComplete}
         />
       )}
 

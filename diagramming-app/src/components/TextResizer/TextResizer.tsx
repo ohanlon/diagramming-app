@@ -24,6 +24,8 @@ interface TextResizerProps {
   textColor?: string;
   autosize?: boolean;
   shapeWidth: number;
+  forceEditMode?: boolean;
+  onEditComplete?: () => void;
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -46,10 +48,13 @@ const TextResizer: React.FC<TextResizerProps> = ({
   textColor,
   autosize,
   shapeWidth,
+  forceEditMode,
+  onEditComplete,
 }) => {
   const { updateShapeText, updateShapeDimensions, updateShapeTextDimensions, updateShapeTextPosition, activeSheetId } = useDiagramStore();
   const textRef = useRef<HTMLDivElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const checkOverflow = useCallback(() => {
     if (textRef.current) {
@@ -77,6 +82,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
     isInteractive,
     autosize,
     checkOverflow,
+    isEditing,
   });
 
   useEffect(() => {
@@ -126,17 +132,67 @@ const TextResizer: React.FC<TextResizerProps> = ({
     checkOverflow();
   }, [text, fontSize, fontFamily, isBold, isItalic, autosize, shapeId, horizontalAlign, shapeWidth, checkOverflow, updateShapeDimensions, updateShapeTextDimensions, updateShapeTextPosition, activeSheetId]);
 
-  const handleDoubleClick = useCallback(() => {
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     if (!isInteractive) return;
-    // No longer using isEditingText state directly here
+    e.stopPropagation();
+    e.preventDefault();
+    setIsEditing(true);
+    // Use setTimeout to ensure the state update completes before focusing
+    setTimeout(() => {
+      if (textRef.current) {
+        textRef.current.focus();
+        // Select all text
+        const range = document.createRange();
+        range.selectNodeContents(textRef.current);
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
+    }, 0);
   }, [isInteractive]);
 
   const handleTextBlur = useCallback(() => {
     if (textRef.current) {
       updateShapeText(shapeId, textRef.current.innerText);
     }
-    // No longer using isEditingText state directly here
-  }, [shapeId, updateShapeText]);
+    setIsEditing(false);
+    if (onEditComplete) {
+      onEditComplete();
+    }
+  }, [shapeId, updateShapeText, onEditComplete]);
+
+  // Enter edit mode when forceEditMode becomes true
+  useEffect(() => {
+    if (forceEditMode && !isEditing) {
+      setIsEditing(true);
+      setTimeout(() => {
+        if (textRef.current) {
+          textRef.current.focus();
+          const range = document.createRange();
+          range.selectNodeContents(textRef.current);
+          const selection = window.getSelection();
+          if (selection) {
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }
+      }, 0);
+    }
+  }, [forceEditMode, isEditing]);
+
+  const handleTextInput = useCallback((e: React.FormEvent) => {
+    if (!isEditing) {
+      e.preventDefault();
+    }
+  }, [isEditing]);
+
+  const handleTextKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!isEditing) {
+      e.preventDefault();
+    }
+  }, [isEditing]);
 
   return (
     <foreignObject
@@ -145,13 +201,15 @@ const TextResizer: React.FC<TextResizerProps> = ({
       width={currentTextWidth}
       height={currentTextHeight}
       className={`text-resizer-foreign-object ${isSelected && isInteractive ? 'selected' : ''} ${isDraggingText ? 'dragging' : ''} ${isResizingText ? 'resizing' : ''}`}
-      onMouseDown={handleDragMouseDown}
+      onMouseDown={isEditing ? undefined : handleDragMouseDown}
       onDoubleClick={handleDoubleClick}
-      style={{ cursor: isInteractive ? (isDraggingText ? 'grabbing' : 'grab') : 'default', pointerEvents: isSelected ? 'auto' : 'none' }}
+      style={{ cursor: isInteractive ? (isEditing ? 'text' : isDraggingText ? 'grabbing' : 'grab') : 'default', pointerEvents: isSelected ? 'auto' : 'none' }}
     >
       <div
         className="text-content"
         onBlur={handleTextBlur}
+        onInput={handleTextInput}
+        onKeyDown={handleTextKeyDown}
         contentEditable={true}
         suppressContentEditableWarning={true}
         ref={textRef}
@@ -171,6 +229,8 @@ const TextResizer: React.FC<TextResizerProps> = ({
           justifyContent: horizontalAlign === 'left' ? 'flex-start' : horizontalAlign === 'center' ? 'center' : 'flex-end',
           color: textColor,
           pointerEvents: isSelected ? 'auto' : 'none',
+          userSelect: isEditing ? 'text' : 'none',
+          cursor: isEditing ? 'text' : 'inherit',
         }}
       >
         {text}
