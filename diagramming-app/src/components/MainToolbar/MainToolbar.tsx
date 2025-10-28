@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Select, FormControl, InputLabel, Slider } from '@mui/material';
 import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
-import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard } from '@mui/icons-material';
+import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,8 @@ const MainToolbar: React.FC = () => {
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [exportMenuAnchorEl, setExportMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, activeSheetId, sheets, isDirty, currentUser, serverUrl: storeServerUrl, diagramName: storeDiagramName, setDiagramName } = useDiagramStore();
+  const [arrangeMenuAnchorEl, setArrangeMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, bringForward, sendBackward, bringToFront, sendToBack, activeSheetId, sheets, isDirty, currentUser, serverUrl: storeServerUrl, diagramName: storeDiagramName, setDiagramName } = useDiagramStore();
   const serverUrl = storeServerUrl || 'http://localhost:4000';
   const { history } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
@@ -86,15 +87,16 @@ const MainToolbar: React.FC = () => {
   const fileRef = useRef<HTMLButtonElement | null>(null);
   const editRef = useRef<HTMLButtonElement | null>(null);
   const selectRef = useRef<HTMLButtonElement | null>(null);
+  const arrangeRef = useRef<HTMLButtonElement | null>(null);
   // Export is now its own top-level menu
   const exportRef = useRef<HTMLButtonElement | null>(null);
   // data-attribute will be used to detect clicks on the Export menu item
   // Hover-delay timer to avoid accidental menu switches
   const hoverTimerRef = useRef<number | null>(null);
   const HOVER_DELAY_MS = 200;
-  const hoverCandidateRef = useRef<'file' | 'edit' | 'select' | 'export' | null>(null);
+  const hoverCandidateRef = useRef<'file' | 'edit' | 'select' | 'arrange' | 'export' | null>(null);
 
-  const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLElement>, menu: 'file' | 'edit' | 'select' | 'export') => {
+  const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLElement>, menu: 'file' | 'edit' | 'select' | 'arrange' | 'export') => {
     // Only allow hover-to-open if the menubar has been activated (menu opened)
     if (!menubarActive) return;
     // Debounce switching menus on hover to avoid accidental switches
@@ -108,22 +110,32 @@ const MainToolbar: React.FC = () => {
         setFileMenuAnchorEl(target);
         setEditMenuAnchorEl(null);
         setSelectMenuAnchorEl(null);
+        setArrangeMenuAnchorEl(null);
         setExportMenuAnchorEl(null);
       } else if (menu === 'edit') {
         setEditMenuAnchorEl(target);
         setFileMenuAnchorEl(null);
         setSelectMenuAnchorEl(null);
+        setArrangeMenuAnchorEl(null);
         setExportMenuAnchorEl(null);
       } else if (menu === 'select') {
         setSelectMenuAnchorEl(target);
         setFileMenuAnchorEl(null);
         setEditMenuAnchorEl(null);
+        setArrangeMenuAnchorEl(null);
+        setExportMenuAnchorEl(null);
+      } else if (menu === 'arrange') {
+        setArrangeMenuAnchorEl(target);
+        setFileMenuAnchorEl(null);
+        setEditMenuAnchorEl(null);
+        setSelectMenuAnchorEl(null);
         setExportMenuAnchorEl(null);
       } else if (menu === 'export') {
         setExportMenuAnchorEl(target);
         setFileMenuAnchorEl(null);
         setEditMenuAnchorEl(null);
         setSelectMenuAnchorEl(null);
+        setArrangeMenuAnchorEl(null);
       }
     }, HOVER_DELAY_MS);
   };
@@ -438,10 +450,11 @@ const MainToolbar: React.FC = () => {
           const r = el.getBoundingClientRect();
           return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
         };
-        let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
+        let candidate: 'file' | 'edit' | 'select' | 'arrange' | 'export' | null = null;
         if (checkRect(fileRef.current)) candidate = 'file';
         else if (checkRect(editRef.current)) candidate = 'edit';
         else if (checkRect(selectRef.current)) candidate = 'select';
+        else if (checkRect(arrangeRef.current)) candidate = 'arrange';
         else if (checkRect(exportRef.current)) candidate = 'export';
 
         if (candidate === hoverCandidateRef.current) return;
@@ -452,7 +465,7 @@ const MainToolbar: React.FC = () => {
         }
         if (!candidate) return;
         hoverTimerRef.current = window.setTimeout(() => {
-          openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export');
+          openMenuByName(candidate as 'file' | 'edit' | 'select' | 'arrange' | 'export');
           hoverTimerRef.current = null;
           hoverCandidateRef.current = null;
         }, HOVER_DELAY_MS);
@@ -504,12 +517,28 @@ const MainToolbar: React.FC = () => {
     clearHoverTimer();
   };
 
+  const handleArrangeMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    clearHoverTimer();
+    setArrangeMenuAnchorEl(event.currentTarget as HTMLElement);
+    setFileMenuAnchorEl(null);
+    setEditMenuAnchorEl(null);
+    setSelectMenuAnchorEl(null);
+    setExportMenuAnchorEl(null);
+    setMenubarActive(true);
+  };
+
+  const handleArrangeMenuClose = () => {
+    setArrangeMenuAnchorEl(null);
+    setMenubarActive(false);
+    clearHoverTimer();
+  };
+
   // Ensure menubarActive reflects whether any menu is open (covers keyboard-open cases)
   useEffect(() => {
     setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl || exportMenuAnchorEl));
   }, [fileMenuAnchorEl, editMenuAnchorEl, selectMenuAnchorEl, exportMenuAnchorEl]);
 
-  const openMenuByName = (name: 'file' | 'edit' | 'select' | 'export') => {
+  const openMenuByName = (name: 'file' | 'edit' | 'select' | 'arrange' | 'export') => {
     // Clear any pending hover timers and open the requested menu while
     // ensuring other menus are closed.
     clearHoverTimer();
@@ -517,22 +546,32 @@ const MainToolbar: React.FC = () => {
       if (fileRef.current) setFileMenuAnchorEl(fileRef.current);
       setEditMenuAnchorEl(null);
       setSelectMenuAnchorEl(null);
+      setArrangeMenuAnchorEl(null);
       setExportMenuAnchorEl(null);
     } else if (name === 'edit') {
       if (editRef.current) setEditMenuAnchorEl(editRef.current);
       setFileMenuAnchorEl(null);
       setSelectMenuAnchorEl(null);
+      setArrangeMenuAnchorEl(null);
       setExportMenuAnchorEl(null);
     } else if (name === 'select') {
       if (selectRef.current) setSelectMenuAnchorEl(selectRef.current);
       setFileMenuAnchorEl(null);
       setEditMenuAnchorEl(null);
+      setArrangeMenuAnchorEl(null);
+      setExportMenuAnchorEl(null);
+    } else if (name === 'arrange') {
+      if (arrangeRef.current) setArrangeMenuAnchorEl(arrangeRef.current);
+      setFileMenuAnchorEl(null);
+      setEditMenuAnchorEl(null);
+      setSelectMenuAnchorEl(null);
       setExportMenuAnchorEl(null);
     } else if (name === 'export') {
       if (exportRef.current) setExportMenuAnchorEl(exportRef.current);
       setFileMenuAnchorEl(null);
       setEditMenuAnchorEl(null);
       setSelectMenuAnchorEl(null);
+      setArrangeMenuAnchorEl(null);
     }
     setMenubarActive(true);
   };
@@ -545,16 +584,16 @@ const MainToolbar: React.FC = () => {
     clearHoverTimer();
   };
 
-  const handleMenuKeyDown = (e: React.KeyboardEvent, current: 'file' | 'edit' | 'select' | 'export') => {
+  const handleMenuKeyDown = (e: React.KeyboardEvent, current: 'file' | 'edit' | 'select' | 'arrange' | 'export') => {
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      const order: ('file' | 'edit' | 'select' | 'export')[] = ['file', 'edit', 'select', 'export'];
+      const order: ('file' | 'edit' | 'select' | 'arrange' | 'export')[] = ['file', 'edit', 'select', 'arrange', 'export'];
       const idx = order.indexOf(current as any);
       const next = order[(idx + 1) % order.length];
       openMenuByName(next);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      const order: ('file' | 'edit' | 'select' | 'export')[] = ['file', 'edit', 'select', 'export'];
+      const order: ('file' | 'edit' | 'select' | 'arrange' | 'export')[] = ['file', 'edit', 'select', 'arrange', 'export'];
       const idx = order.indexOf(current as any);
       const prev = order[(idx + order.length - 1) % order.length];
       openMenuByName(prev);
@@ -566,8 +605,8 @@ const MainToolbar: React.FC = () => {
 
   // Keep menubarActive in sync with any open anchor so keyboard-open also enables hover switching
   useEffect(() => {
-    setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl || exportMenuAnchorEl));
-  }, [fileMenuAnchorEl, editMenuAnchorEl, selectMenuAnchorEl, exportMenuAnchorEl]);
+    setMenubarActive(Boolean(fileMenuAnchorEl || editMenuAnchorEl || selectMenuAnchorEl || arrangeMenuAnchorEl || exportMenuAnchorEl));
+  }, [fileMenuAnchorEl, editMenuAnchorEl, selectMenuAnchorEl, arrangeMenuAnchorEl, exportMenuAnchorEl]);
 
   // When the Export submenu is open, clicking anywhere in the document outside
   // the menubar or any menu popover should close the Export submenu. This
@@ -893,6 +932,34 @@ const MainToolbar: React.FC = () => {
     handleSelectMenuClose();
   };
 
+  const handleBringToFront = () => {
+    if (activeSheet?.selectedShapeIds?.length > 0) {
+      activeSheet.selectedShapeIds.forEach(id => bringToFront(id));
+    }
+    handleArrangeMenuClose();
+  };
+
+  const handleBringForward = () => {
+    if (activeSheet?.selectedShapeIds?.length > 0) {
+      activeSheet.selectedShapeIds.forEach(id => bringForward(id));
+    }
+    handleArrangeMenuClose();
+  };
+
+  const handleSendBackward = () => {
+    if (activeSheet?.selectedShapeIds?.length > 0) {
+      activeSheet.selectedShapeIds.forEach(id => sendBackward(id));
+    }
+    handleArrangeMenuClose();
+  };
+
+  const handleSendToBack = () => {
+    if (activeSheet?.selectedShapeIds?.length > 0) {
+      activeSheet.selectedShapeIds.forEach(id => sendToBack(id));
+    }
+    handleArrangeMenuClose();
+  };
+
   return (
     <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'inherit', minHeight: '2em' }}>
       {/* Diagram name display and edit (moved before File menu) */}
@@ -939,6 +1006,19 @@ const MainToolbar: React.FC = () => {
           sx={{ color: 'inherit' }}
         >
           Select
+        </MenuItem>
+        <MenuItem
+          component="button"
+          ref={arrangeRef}
+          onClick={handleArrangeMenuOpen}
+          onMouseEnter={(e) => handleTopLevelMouseEnter(e, 'arrange')}
+          onMouseLeave={() => clearHoverTimer()}
+          aria-haspopup="true"
+          aria-controls={arrangeMenuAnchorEl ? 'arrange-menu' : undefined}
+          aria-expanded={Boolean(arrangeMenuAnchorEl)}
+          sx={{ color: 'inherit' }}
+        >
+          Arrange
         </MenuItem>
         <MenuItem
           component="button"
@@ -1151,6 +1231,65 @@ const MainToolbar: React.FC = () => {
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Paste</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+V</Typography>
+        </MenuItem>
+      </Menu>
+
+      {/* Arrange menu (top-level) */}
+      <Menu
+        id="arrange-menu"
+        elevation={0}
+        anchorEl={arrangeMenuAnchorEl}
+        open={Boolean(arrangeMenuAnchorEl)}
+        onClose={handleArrangeMenuClose}
+        onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'arrange')}
+        PaperProps={{
+          style: { border: '1px solid #a0a0a0' },
+          onMouseMove: (ev: React.MouseEvent) => {
+            if (!menubarActive) return;
+            try {
+              const x = ev.clientX;
+              const y = ev.clientY;
+              const checkRect = (el: HTMLElement | null) => {
+                if (!el) return false;
+                const r = el.getBoundingClientRect();
+                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+              };
+              let candidate: 'file' | 'edit' | 'select' | 'arrange' | 'export' | null = null;
+              if (checkRect(fileRef.current)) candidate = 'file';
+              else if (checkRect(editRef.current)) candidate = 'edit';
+              else if (checkRect(selectRef.current)) candidate = 'select';
+              else if (checkRect(arrangeRef.current)) candidate = 'arrange';
+              else if (checkRect(exportRef.current)) candidate = 'export';
+              if (!candidate) return;
+              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
+              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'arrange' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+            } catch (e) { }
+          }
+        }}
+      >
+        <MenuItem onClick={handleBringToFront} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
+          <ListItemIcon>
+            <VerticalAlignTop fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Bring to Front</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleBringForward} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
+          <ListItemIcon>
+            <ArrowUpward fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Bring Forward</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleSendBackward} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
+          <ListItemIcon>
+            <ArrowDownward fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Send Backward</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleSendToBack} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
+          <ListItemIcon>
+            <VerticalAlignBottom fontSize="small" />
+          </ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Send to Back</ListItemText>
         </MenuItem>
       </Menu>
 
