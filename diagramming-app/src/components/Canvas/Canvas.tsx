@@ -260,6 +260,7 @@ const Canvas: React.FC = () => {
     setIsMouseDownOnShape(null);
     setMouseDownPos(null);
     setInitialDragPositions(null);
+    document.body.style.userSelect = '';
 
     setIsPanning(false);
     setIsDrawingConnector(false);
@@ -541,6 +542,7 @@ const Canvas: React.FC = () => {
     const layer = activeSheet.layers[shape.layerId];
     if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
       setIsMouseDownOnShape(nodeId);
+      document.body.style.userSelect = 'none';
       const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
       const mouseY = (e.clientY - svgRef.current!.getBoundingClientRect().top - activeSheet.pan.y) / activeSheet.zoom;
       setMouseDownPos({ x: mouseX, y: mouseY });
