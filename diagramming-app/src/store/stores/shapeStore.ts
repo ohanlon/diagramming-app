@@ -118,7 +118,7 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
             layerId: currentSheet.activeLayerId,
             fontSize,
             textOffsetX: initialTextOffsetX,
-            textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 8,
+            textOffsetY: newShape.textPosition === 'inside' ? 0 : 5,
             textWidth: textWidth,
             textHeight: textHeight,
             isBold,

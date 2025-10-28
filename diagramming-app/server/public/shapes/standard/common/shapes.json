@@ -1,0 +1,9 @@
+[
+    {
+        "id": "a8c9f610-7d05-4e68-8f2c-9f867077053e",
+        "title": "Rectangle",
+        "path": "/shapes/standard/common/rectangle.svg",
+        "textPosition": "inside",
+        "autosize": true
+    }
+]

@@ -532,14 +532,38 @@ const Canvas: React.FC = () => {
       originalHeight = viewBox[3] - viewBox[1];
     }
 
+    // Calculate actual bounding box of SVG content
+    // Create a temporary SVG element to render and measure
+    const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    tempSvg.setAttribute('style', 'position: absolute; visibility: hidden; width: 0; height: 0;');
+    tempSvg.innerHTML = svgElement.innerHTML;
+    document.body.appendChild(tempSvg);
+
+    // Get the actual bounding box of all content
+    let actualBBox = { x: minX, y: minY, width: originalWidth, height: originalHeight };
+    try {
+      const bbox = tempSvg.getBBox();
+      if (bbox && bbox.width > 0 && bbox.height > 0) {
+        actualBBox = bbox;
+      }
+    } catch (e) {
+      console.warn('Failed to get SVG bounding box, using viewBox dimensions', e);
+    }
+    document.body.removeChild(tempSvg);
+
     const canvasElement = canvasRef.current;
     if (!canvasElement) return;
     const fontSize = parseFloat(getComputedStyle(canvasElement).fontSize);
     const targetHeight = 5 * fontSize;
 
-    const aspectRatio = originalWidth / originalHeight;
+    // Use actual bounding box dimensions for aspect ratio
+    const aspectRatio = actualBBox.width / actualBBox.height;
     const newHeight = targetHeight;
     const newWidth = newHeight * aspectRatio;
+
+    // Update minX and minY to match actual content bounds
+    minX = actualBBox.x;
+    minY = actualBBox.y;
 
     const shapeData = {
       type: shapeType,
@@ -556,7 +580,7 @@ const Canvas: React.FC = () => {
       path: fetchUrl,
       fontFamily: selectedFont,
       textOffsetX: textPosition === 'inside' ? 0 : 0,
-      textOffsetY: textPosition === 'inside' ? 0 : newHeight + 5,
+      textOffsetY: textPosition === 'inside' ? 0 : 5,
       textWidth: newWidth,
       textHeight: 20,
       textPosition: textPosition,

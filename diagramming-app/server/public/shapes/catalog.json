@@ -18,5 +18,10 @@
     "id": "5944d9a3-e358-4286-adac-1c322e1db5b1",
     "name": "Interactive",
     "path": "/shapes/interactive/index.json"
+  },
+  {
+    "id": "4f5569a7-2dfe-4b6e-9f08-c6a28bd86d34",
+    "name": "Standard",
+    "path": "/shapes/standard/index.json"
   }
 ]
