@@ -786,6 +786,10 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     loadCachedVersion: () => {
       const state = get();
       if (state.cachedDiagramData && state.cachedDiagramData.state) {
+        // Clear the cache from localStorage after restoring
+        if (state.remoteDiagramId) {
+          clearCacheHelper(state.remoteDiagramId);
+        }
         set((s: any) => ({
           ...s,
           ...state.cachedDiagramData.state,
@@ -794,7 +798,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
           cacheWarningMessage: null,
           isDirty: true,
         }));
-        console.debug('[cache] Loaded cached version');
+        console.debug('[cache] Loaded cached version and cleared cache');
       }
     },
     dismissCacheDialog: () => {
