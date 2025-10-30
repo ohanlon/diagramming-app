@@ -215,15 +215,40 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         const svgDoc = parser.parseFromString(renamed, 'image/svg+xml');
         const svgElement = svgDoc.documentElement.cloneNode(true) as SVGSVGElement;
 
-        // Ensure viewBox exists for predictable scaling; if not, we attempt to infer from width/height
+        // Get the original viewBox or infer it from width/height for initial sizing
         const viewBoxAttr = svgElement.getAttribute('viewBox');
-        if (!viewBoxAttr) {
+        let originalViewBox = viewBoxAttr;
+        if (!originalViewBox) {
           const origW = parseFloat(svgElement.getAttribute('width') || '0') || 0;
           const origH = parseFloat(svgElement.getAttribute('height') || '0') || 0;
           if (origW && origH) {
-            svgElement.setAttribute('viewBox', `0 0 ${origW} ${origH}`);
+            originalViewBox = `0 0 ${origW} ${origH}`;
+            svgElement.setAttribute('viewBox', originalViewBox);
           }
         }
+
+        // Parse viewBox to get original dimensions
+        const viewBoxValues = originalViewBox?.split(/\s+/).map(Number) || [0, 0, 100, 100];
+        const [vbX, vbY, vbWidth, vbHeight] = viewBoxValues;
+
+        // Calculate scale factors based on current width/height vs original viewBox dimensions
+        const scaleX = width / vbWidth;
+        const scaleY = height / vbHeight;
+
+        // Remove viewBox to allow independent X/Y scaling
+        svgElement.removeAttribute('viewBox');
+        svgElement.removeAttribute('preserveAspectRatio');
+
+        // Apply scaling transform to the content
+        // Wrap all content in a group with the scale transform
+        const contentGroup = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+        contentGroup.setAttribute('transform', `scale(${scaleX}, ${scaleY}) translate(${-vbX}, ${-vbY})`);
+        
+        // Move all children to the group
+        while (svgElement.firstChild) {
+          contentGroup.appendChild(svgElement.firstChild);
+        }
+        svgElement.appendChild(contentGroup);
 
         // Determine if we should recolor the SVG. We only recolor if:
         // - There are no gradients, AND
