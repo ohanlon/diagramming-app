@@ -118,7 +118,7 @@ const _addShapeToState = (state: DiagramState, shape: Shape): DiagramState => {
             layerId: currentSheet.activeLayerId,
             fontSize,
             textOffsetX: initialTextOffsetX,
-            textOffsetY: newShape.textPosition === 'inside' ? 0 : 5,
+            textOffsetY: newShape.textPosition === 'inside' ? 0 : newShape.height + 5,
             textWidth: textWidth,
             textHeight: textHeight,
             isBold,
@@ -314,13 +314,26 @@ export const createShapeActions = (
       const shape = currentSheet.shapesById[id];
       if (!shape) return state;
 
+      let updatedTextOffsetX = shape.textOffsetX;
       let updatedTextOffsetY = shape.textOffsetY;
-      // Only adjust textOffsetY if textPosition is 'outside'
-      if (shape.textPosition === 'outside') {
+      
+      // Only adjust text offsets if textPosition is 'outside' and position hasn't been manually set
+      if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
+        // Adjust vertical position to maintain distance from bottom
         const originalHeight = shape.height;
         const originalTextOffsetY = shape.textOffsetY;
         const distanceFromBottom = originalHeight - originalTextOffsetY;
         updatedTextOffsetY = newHeight - distanceFromBottom;
+        
+        // Adjust horizontal position based on alignment
+        if (shape.horizontalAlign === 'center') {
+          updatedTextOffsetX = (newWidth / 2) - (shape.textWidth / 2);
+        } else if (shape.horizontalAlign === 'right') {
+          updatedTextOffsetX = newWidth - shape.textWidth;
+        } else {
+          // left alignment
+          updatedTextOffsetX = 0;
+        }
       }
 
       return {
@@ -331,7 +344,7 @@ export const createShapeActions = (
             ...currentSheet,
             shapesById: {
               ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetY: updatedTextOffsetY },
+              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY },
             },
           },
         },
@@ -370,14 +383,27 @@ export const createShapeActions = (
       dimensions.forEach(({ id, x, y, width, height }) => {
         const shape = newShapesById[id];
         if (shape) {
+          let updatedTextOffsetX = shape.textOffsetX;
           let updatedTextOffsetY = shape.textOffsetY;
-          if (shape.textPosition === 'outside') {
+          
+          if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
+            // Adjust vertical position
             const originalHeight = shape.height;
             const originalTextOffsetY = shape.textOffsetY;
             const distanceFromBottom = originalHeight - originalTextOffsetY;
             updatedTextOffsetY = height - distanceFromBottom;
+            
+            // Adjust horizontal position based on alignment
+            if (shape.horizontalAlign === 'center') {
+              updatedTextOffsetX = (width / 2) - (shape.textWidth / 2);
+            } else if (shape.horizontalAlign === 'right') {
+              updatedTextOffsetX = width - shape.textWidth;
+            } else {
+              updatedTextOffsetX = 0;
+            }
           }
-          newShapesById[id] = { ...shape, x, y, width, height, textOffsetY: updatedTextOffsetY };
+          
+          newShapesById[id] = { ...shape, x, y, width, height, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY };
         }
       });
       return {
