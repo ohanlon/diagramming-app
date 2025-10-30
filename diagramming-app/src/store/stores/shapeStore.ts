@@ -256,9 +256,9 @@ export const createShapeActions = (
     }),
 
   recordShapeMove: (id: string, newX: number, newY: number) => {
-    addHistory();
-  // Finalizing a move should mark the diagram dirty. Use wrappedSet so
-  // isDirty becomes true and history is recorded correctly.
+    // History is now recorded at the start of drag in Canvas.tsx, not here
+    // Finalizing a move should mark the diagram dirty. Use wrappedSet so
+    // isDirty becomes true.
     wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
@@ -280,8 +280,8 @@ export const createShapeActions = (
   },
 
   recordShapeMoves: (positions: { id: string; x: number; y: number }[]) => {
-    addHistory();
-  // Finalizing multiple moves should mark the diagram dirty as well.
+    // History is now recorded at the start of drag in Canvas.tsx, not here
+    // Finalizing multiple moves should mark the diagram dirty as well.
     wrappedSet((state: any) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;

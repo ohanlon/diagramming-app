@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
+import { useHistoryStore } from '../../store/useHistoryStore';
 import Node from '../Node/Node';
 import ConnectorComponent from '../Connector/Connector';
 import ContextMenu from '../ContextMenu/ContextMenu';
@@ -32,6 +33,7 @@ const Canvas: React.FC = () => {
   const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
   const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
   const [editingTextShapeId, setEditingTextShapeId] = useState<string | null>(null);
+  const [hasDragStarted, setHasDragStarted] = useState(false); // Track if drag has actually started
   const autoScrollInterval = useRef<number | null>(null);
   const lastMousePosition = useRef<{ clientX: number; clientY: number } | null>(null);
 
@@ -146,6 +148,12 @@ const Canvas: React.FC = () => {
     } else if (isMouseDownOnShape && mouseDownPos && initialDragPositions) {
         const dx = mouseX - mouseDownPos.x;
         const dy = mouseY - mouseDownPos.y;
+
+        // Record history on first actual drag movement (not just mouse down)
+        if (!hasDragStarted && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+          useHistoryStore.getState().recordHistory(sheets, activeSheetId);
+          setHasDragStarted(true);
+        }
 
         const snap = useDiagramStore.getState().isSnapToGridEnabled; // Correct snapping toggle state access
 
@@ -323,6 +331,7 @@ const Canvas: React.FC = () => {
     setIsMouseDownOnShape(null);
     setMouseDownPos(null);
     setInitialDragPositions(null);
+    setHasDragStarted(false);
     document.body.style.userSelect = '';
 
     setIsPanning(false);
