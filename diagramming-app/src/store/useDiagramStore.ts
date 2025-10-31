@@ -159,10 +159,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     }
   } catch (e) {}
 
-  // Helper function for adding history
+  // Helper function for adding history (deprecated - use commands instead)
+  // This is kept as a no-op for actions not yet migrated to command pattern
   const addHistoryFn = () => {
-    const { sheets, activeSheetId } = get();
-    useHistoryStore.getState().recordHistory(sheets, activeSheetId);
+    // No-op: history is now managed by CommandManager through commands
+    // Actions should create and execute commands instead of calling this
   };
 
   const login = async (username: string, password: string) => {
@@ -520,8 +521,8 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
 
     // Do not persist full diagram locally; nothing to clear here.
 
-    // Initialize history for the new diagram
-    useHistoryStore.getState().initializeHistory({ [newSheetId]: newSheet } as any, newSheetId);
+    // Clear command history for the new diagram
+    useHistoryStore.getState().clearHistory();
   };
 
   // Create a new diagram locally and save it immediately to the server so a remote id exists.
@@ -671,11 +672,11 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         remoteDiagramId: s.remoteDiagramId || snapshot.remoteDiagramId || null,
         isDirty: false,
       }));
-      // Initialize history store from the snapshot so undo/redo make sense
+      // Clear command history when loading a snapshot
       try {
-        useHistoryStore.getState().initializeHistory(snapshot.sheets || {}, snapshot.activeSheetId || Object.keys(snapshot.sheets || {})[0]);
+        useHistoryStore.getState().clearHistory();
       } catch (e) {
-        console.warn('Failed to init history from snapshot', e);
+        console.warn('Failed to clear history from snapshot', e);
       }
     } catch (e) {
       console.error('applyStateSnapshot failed', e);
@@ -687,7 +688,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   // Compose all modular store actions. For shape actions we pass both the
   // raw `set` and `wrappedSet` so shapeStore can choose whether to mark
   // a mutation as dirty (wrappedSet) or perform hydration-only patches (set).
-  ...createShapeActions(set as any, wrappedSet as any, get, addHistoryFn),
+  ...createShapeActions(set as any, wrappedSet as any, get),
   ...createConnectorActions(wrappedSet as any, get, addHistoryFn),
   ...createSelectionActions(set as any, get),
   ...createLayerActions(wrappedSet as any, get, addHistoryFn),

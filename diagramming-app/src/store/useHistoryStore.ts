@@ -1,84 +1,59 @@
 import { create } from 'zustand';
-import type { HistoryState, Sheet } from '../types';
+import { CommandManager } from '../commands/CommandManager';
+import type { Command } from '../commands/Command';
 
 interface HistoryStoreState {
-  history: {
-    past: HistoryState[];
-    future: HistoryState[];
-  };
+  commandManager: CommandManager;
 }
 
 interface HistoryStoreActions {
-  recordHistory: (sheets: { [key: string]: Sheet }, activeSheetId: string) => void;
-  undo: (currentSheets: { [key: string]: Sheet }, currentActiveSheetId: string) => HistoryState | undefined;
-  redo: (currentSheets: { [key: string]: Sheet }, currentActiveSheetId: string) => HistoryState | undefined;
-  initializeHistory: (sheets: { [key: string]: Sheet }, activeSheetId: string) => void;
+  executeCommand: (command: Command) => void;
+  undo: () => boolean;
+  redo: () => boolean;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
+  getUndoDescription: () => string | null;
+  getRedoDescription: () => string | null;
+  clearHistory: () => void;
+  getHistorySize: () => { undo: number; redo: number };
 }
 
-const MAX_HISTORY_SIZE = 100;
-
 export const useHistoryStore = create<HistoryStoreState & HistoryStoreActions>()((set, get) => ({
-  history: {
-    past: [],
-    future: [],
+  commandManager: new CommandManager({ maxHistorySize: 500 }),
+
+  executeCommand: (command: Command) => {
+    get().commandManager.executeCommand(command);
   },
 
-  recordHistory: (sheets, activeSheetId) => {
-    set((state) => {
-      const newPast = [...state.history.past, { sheets, activeSheetId }];
-
-      if (newPast.length > MAX_HISTORY_SIZE) {
-        newPast.shift();
-      }
-
-      return {
-        history: { past: newPast, future: [] },
-      };
-    });
+  undo: () => {
+    return get().commandManager.undo();
   },
 
-  undo: (currentSheets, currentActiveSheetId) => {
-    const { past, future } = get().history;
-    if (past.length === 0) return undefined;
-
-    const previousState = past[past.length - 1];
-    const newPast = past.slice(0, past.length - 1);
-
-    const currentStateForFuture = { sheets: currentSheets, activeSheetId: currentActiveSheetId };
-
-    set({
-      history: {
-        past: newPast,
-        future: [currentStateForFuture, ...future],
-      },
-    });
-    return previousState;
+  redo: () => {
+    return get().commandManager.redo();
   },
 
-  redo: (currentSheets, currentActiveSheetId) => {
-    const { past, future } = get().history;
-    if (future.length === 0) return undefined;
-
-    const nextState = future[0];
-    const newFuture = future.slice(1);
-
-    const currentStateForPast = { sheets: currentSheets, activeSheetId: currentActiveSheetId };
-
-    set({
-      history: {
-        past: [...past, currentStateForPast],
-        future: newFuture,
-      },
-    });
-    return nextState;
+  canUndo: () => {
+    return get().commandManager.canUndo();
   },
 
-  initializeHistory: (sheets, activeSheetId) => {
-    set({
-      history: {
-        past: [{ sheets, activeSheetId }],
-        future: [],
-      },
-    });
+  canRedo: () => {
+    return get().commandManager.canRedo();
+  },
+
+  getUndoDescription: () => {
+    return get().commandManager.getUndoDescription();
+  },
+
+  getRedoDescription: () => {
+    return get().commandManager.getRedoDescription();
+  },
+
+  clearHistory: () => {
+    get().commandManager.clear();
+  },
+
+  getHistorySize: () => {
+    return get().commandManager.getHistorySize();
   },
 }));

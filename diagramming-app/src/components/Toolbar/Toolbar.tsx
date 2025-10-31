@@ -41,10 +41,12 @@ const ToolbarComponent: React.FC = () => {
     toggleSnapToGrid, // Add toggleSnapToGrid from store
     isSnapToGridEnabled, // Add isSnapToGridEnabled from store
   } = useDiagramStore();
-  const { history } = useHistoryStore();
+  const { canUndo: canUndoFn, canRedo: canRedoFn } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
-  const canUndo = history.past.length > 0; // Corrected access
-  const canRedo = history.future.length > 0; // Corrected access
+  
+  // Call the functions to get boolean values
+  const canUndo = canUndoFn();
+  const canRedo = canRedoFn();
 
 
   const [colorPickerAnchorEl, setColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);

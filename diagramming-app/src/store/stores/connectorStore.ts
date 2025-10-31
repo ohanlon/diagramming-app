@@ -1,5 +1,7 @@
 // Connector-related store actions and state
 import type { Connector, LineStyle, ArrowStyle, ConnectionType, DiagramState } from '../../types';
+import { AddConnectorCommand } from '../../commands';
+import { useHistoryStore } from '../useHistoryStore';
 
 export interface ConnectorStoreActions {
   // Connector CRUD operations
@@ -29,26 +31,35 @@ export const createConnectorActions = (
 ): ConnectorStoreActions => ({
 
   addConnector: (connector: Connector) => {
-    addHistory();
+    const state = _get();
+    const currentSheet = state.sheets[state.activeSheetId];
+    if (!currentSheet) return;
+
+    const newConnector = {
+      ...connector,
+      startArrow: 'none' as ArrowStyle,
+      endArrow: 'polygon_arrow' as ArrowStyle,
+      connectionType: currentSheet.selectedConnectionType,
+    };
+
+    const command = new AddConnectorCommand(
+      set,
+      state.activeSheetId,
+      newConnector
+    );
+    useHistoryStore.getState().executeCommand(command);
+    
+    // Deselect all connectors when a new one is added
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
-
-      const newConnector = {
-        ...connector,
-        startArrow: 'none' as ArrowStyle,
-        endArrow: 'polygon_arrow' as ArrowStyle,
-        connectionType: currentSheet.selectedConnectionType,
-      };
-
       return {
         ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
             ...currentSheet,
-            connectors: { ...currentSheet.connectors, [connector.id]: newConnector },
-            selectedConnectorIds: [], // Deselect all connectors when a new one is added
+            selectedConnectorIds: [],
           },
         },
       };

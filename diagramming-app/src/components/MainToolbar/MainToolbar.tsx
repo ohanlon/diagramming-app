@@ -20,7 +20,7 @@ const MainToolbar: React.FC = () => {
   const [arrangeMenuAnchorEl, setArrangeMenuAnchorEl] = useState<null | HTMLElement>(null);
   const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, bringForward, sendBackward, bringToFront, sendToBack, activeSheetId, sheets, isDirty, currentUser, serverUrl: storeServerUrl, diagramName: storeDiagramName, setDiagramName } = useDiagramStore();
   const serverUrl = storeServerUrl || 'http://localhost:4000';
-  const { history } = useHistoryStore();
+  const { canUndo, canRedo } = useHistoryStore();
   const activeSheet = sheets[activeSheetId];
   const navigate = useNavigate();
   const diagramName = storeDiagramName || 'New Diagram';
@@ -1201,14 +1201,14 @@ const MainToolbar: React.FC = () => {
           }
         }}
       >
-        <MenuItem onClick={handleUndo} disabled={history.past.length === 0}>
+        <MenuItem onClick={handleUndo} disabled={!canUndo()}>
           <ListItemIcon>
             <UndoOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Undo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Z</Typography>
         </MenuItem>
-        <MenuItem onClick={handleRedo} disabled={history.future.length === 0}>
+        <MenuItem onClick={handleRedo} disabled={!canRedo()}>
           <ListItemIcon>
             <RedoOutlined fontSize="small" />
           </ListItemIcon>

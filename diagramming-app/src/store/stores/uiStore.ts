@@ -72,27 +72,15 @@ export const createUIActions = (
     }),
 
   undo: () => {
-    set((state) => {
-      const historyState = useHistoryStore.getState().undo(state.sheets, state.activeSheetId);
-      if (!historyState) return state;
-      return {
-        ...state,
-        sheets: historyState.sheets,
-        activeSheetId: historyState.activeSheetId,
-      };
-    });
+    // Command pattern: commands manage their own state mutations
+    // No need to update store state here; commands handle it via their mutator
+    useHistoryStore.getState().undo();
   },
 
   redo: () => {
-    set((state) => {
-      const historyState = useHistoryStore.getState().redo(state.sheets, state.activeSheetId);
-      if (!historyState) return state;
-      return {
-        ...state,
-        sheets: historyState.sheets,
-        activeSheetId: historyState.activeSheetId,
-      };
-    });
+    // Command pattern: commands manage their own state mutations
+    // No need to update store state here; commands handle it via their mutator
+    useHistoryStore.getState().redo();
   },
 
   resetStore: () => {

@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { useHistoryStore } from '../../store/useHistoryStore';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import type { Point } from '../../types';
 
@@ -37,9 +36,9 @@ export function useShapeDrag({ activeSheetId, sheets }: UseShapeDragProps) {
     const dx = mouseX - mouseDownPos.x;
     const dy = mouseY - mouseDownPos.y;
 
-    // Record history on first actual drag movement
+    // TODO: Implement command pattern for drag operations
+    // For now, mark drag as started when movement exceeds threshold
     if (!hasDragStarted && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
-      useHistoryStore.getState().recordHistory(sheets, activeSheetId);
       setHasDragStarted(true);
     }
 
@@ -67,16 +66,26 @@ export function useShapeDrag({ activeSheetId, sheets }: UseShapeDragProps) {
   }, [isMouseDownOnShape, mouseDownPos, initialDragPositions, hasDragStarted, sheets, activeSheetId, updateShapePosition, updateShapePositions]);
 
   const handleDragEnd = useCallback((shapesById: any, selectedShapeIds: string[]) => {
-    if (isMouseDownOnShape) {
+    if (isMouseDownOnShape && initialDragPositions) {
       if (selectedShapeIds.length > 1) {
+        const oldPositions = selectedShapeIds.map(id => {
+          const initialPos = initialDragPositions[id];
+          return { id, x: initialPos?.x || 0, y: initialPos?.y || 0 };
+        });
         const finalPositions = selectedShapeIds.map(id => {
           const shape = shapesById[id];
           return { id, x: shape.x, y: shape.y };
         });
-        recordShapeMoves(finalPositions);
+        recordShapeMoves(oldPositions, finalPositions);
       } else {
+        const initialPos = initialDragPositions[isMouseDownOnShape];
         const shape = shapesById[isMouseDownOnShape];
-        if (shape) recordShapeMoves([{ id: isMouseDownOnShape, x: shape.x, y: shape.y }]);
+        if (shape && initialPos) {
+          recordShapeMoves(
+            [{ id: isMouseDownOnShape, x: initialPos.x, y: initialPos.y }],
+            [{ id: isMouseDownOnShape, x: shape.x, y: shape.y }]
+          );
+        }
       }
     }
 
@@ -85,7 +94,7 @@ export function useShapeDrag({ activeSheetId, sheets }: UseShapeDragProps) {
     setInitialDragPositions(null);
     setHasDragStarted(false);
     document.body.style.userSelect = '';
-  }, [isMouseDownOnShape, recordShapeMoves]);
+  }, [isMouseDownOnShape, initialDragPositions, recordShapeMoves]);
 
   return {
     isMouseDownOnShape,
