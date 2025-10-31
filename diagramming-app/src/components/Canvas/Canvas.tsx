@@ -1,6 +1,5 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { useHistoryStore } from '../../store/useHistoryStore';
 import Node from '../Node/Node';
 import ConnectorComponent from '../Connector/Connector';
 import ContextMenu from '../ContextMenu/ContextMenu';
@@ -8,373 +7,235 @@ import type { Point, AnchorType, Shape } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { getAnchorPoint } from '../../utils/getAnchorPoint';
 import { calculateConnectionPath } from '../../utils/connectionAlgorithms';
-import { debounce } from '../../utils/debounce';
 import './Canvas.less';
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
+import {
+  useShapeDrag,
+  useCanvasPan,
+  useCanvasZoom,
+  useBoxSelection,
+  useConnectorDrawing,
+  useAutoScroll,
+  useContextMenu,
+  useCanvasKeyboard,
+  useTextCalculation,
+} from '../../hooks/canvas';
 
 const Canvas: React.FC = () => {
-  const { sheets, activeSheetId, addShapeAndRecordHistory, addConnector, setPan, setZoom, setSelectedShapes, bringForward, sendBackward, bringToFront, sendToBack, updateShapePosition, updateShapePositions, recordShapeMoves, deselectAllTextBlocks, setConnectorDragTargetShapeId, deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, setSelectedConnectors, selectAll } = useDiagramStore();
+  const {
+    sheets,
+    activeSheetId,
+    addShapeAndRecordHistory,
+    addConnector,
+    setPan,
+    setZoom,
+    setSelectedShapes,
+    bringForward,
+    sendBackward,
+    bringToFront,
+    sendToBack,
+    deselectAllTextBlocks,
+    setConnectorDragTargetShapeId,
+    deleteSelected,
+    undo,
+    redo,
+    cutShape,
+    copyShape,
+    pasteShape,
+    setSelectedConnectors,
+    selectAll,
+    isSnapToGridEnabled,
+  } = useDiagramStore();
+
   const activeSheet = sheets[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [isPanning, setIsPanning] = useState(false);
-  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
-  const [isDrawingConnector, setIsDrawingConnector] = useState(false);
-  const [startConnectorPoint, setStartConnectorPoint] = useState<Point | null>(null);
-  const [startConnectorNodeId, setStartConnectorNodeId] = useState<string | null>(null);
-  const [startConnectorAnchorType, setStartConnectorAnchorType] = useState<AnchorType | null>(null);
-  const [currentMousePoint, setCurrentMousePoint] = useState<Point | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; shapeId: string } | null>(null);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [selectionStartPoint, setSelectionStartPoint] = useState<Point | null>(null);
-  const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
-  const [isMouseDownOnShape, setIsMouseDownOnShape] = useState<string | null>(null);
-  const [mouseDownPos, setMouseDownPos] = useState<Point | null>(null);
-  const [initialDragPositions, setInitialDragPositions] = useState<{ [shapeId: string]: Point } | null>(null);
   const [editingTextShapeId, setEditingTextShapeId] = useState<string | null>(null);
-  const [hasDragStarted, setHasDragStarted] = useState(false); // Track if drag has actually started
-  const autoScrollInterval = useRef<number | null>(null);
-  const lastMousePosition = useRef<{ clientX: number; clientY: number } | null>(null);
-
   const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false);
   const [youTubeUrl, setYouTubeUrl] = useState('');
   const [youTubeShapeData, setYouTubeShapeData] = useState<Omit<Shape, 'id'> | null>(null);
   const [urlError, setUrlError] = useState(false);
 
-  const debouncedSetCurrentMousePoint = useMemo(() => {
-    const handler = (point: Point | null) => setCurrentMousePoint(point);
-    return debounce(handler as (...args: unknown[]) => void, 20) as (point: Point | null) => void;
-  }, []);
+  const { getShapeWithCalculatedTextProps } = useTextCalculation();
 
-  const getShapeWithCalculatedTextProps = useCallback((shape: Omit<Shape, 'id'>): Omit<Shape, 'id'> => {
-    // Create a temporary div to measure text dimensions
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.visibility = 'hidden';
-    tempDiv.style.whiteSpace = 'nowrap';
-    tempDiv.style.fontFamily = shape.fontFamily || 'Open Sans';
-    tempDiv.style.fontSize = `${shape.fontSize || 10}pt`;
-    tempDiv.style.fontWeight = shape.isBold ? 'bold' : 'normal';
-    tempDiv.style.fontStyle = shape.isItalic ? 'italic' : 'normal';
-    tempDiv.style.textDecoration = shape.isUnderlined ? 'underline' : 'none';
-    tempDiv.textContent = shape.text;
-    document.body.appendChild(tempDiv);
+  // Custom hooks for canvas interactions
+  const { startAutoScroll, stopAutoScroll, updateMousePosition } = useAutoScroll({ canvasRef });
+  
+  const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
+  
+  const shapeDrag = useShapeDrag({ activeSheetId, sheets });
+  
+  const canvasPan = useCanvasPan({
+    setPan,
+    currentPan: activeSheet?.pan || { x: 0, y: 0 },
+  });
+  
+  const { handleZoom } = useCanvasZoom({
+    setZoom,
+    setPan,
+    currentZoom: activeSheet?.zoom || 1,
+    currentPan: activeSheet?.pan || { x: 0, y: 0 },
+  });
+  
+  const boxSelection = useBoxSelection();
+  
+  const connectorDrawing = useConnectorDrawing();
 
-    const PADDING_HORIZONTAL = 10;
-    const PADDING_VERTICAL = 6;
-
-    const newWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
-    tempDiv.style.whiteSpace = 'normal';
-    tempDiv.style.width = `${newWidth}px`;
-    const newHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
-
-    document.body.removeChild(tempDiv);
-
-    let calculatedTextWidth = shape.textWidth;
-    let calculatedTextHeight = shape.textHeight;
-    let calculatedTextOffsetX = shape.textOffsetX;
-    const calculatedTextOffsetY = shape.textOffsetY;
-
-    if (shape.autosize) {
-      if (shape.textPosition === 'inside') {
-        // If text is inside, shape dimensions should adjust
-        // For now, we'll just update text dimensions, shape dimensions will be handled by updateShapeDimensions
-        calculatedTextWidth = newWidth;
-        calculatedTextHeight = newHeight;
-      } else {
-        // If text is outside, only text dimensions adjust
-        calculatedTextWidth = newWidth;
-        calculatedTextHeight = newHeight;
-      }
-
-      if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
-        if (shape.horizontalAlign === 'center') {
-          calculatedTextOffsetX = (shape.width / 2) - (newWidth / 2);
-        } else if (shape.horizontalAlign === 'left') {
-          calculatedTextOffsetX = 0;
-        } else {
-          calculatedTextOffsetX = shape.width - newWidth;
-        }
-      }
-    }
-
-    return {
-      ...shape,
-      textWidth: calculatedTextWidth,
-      textHeight: calculatedTextHeight,
-      textOffsetX: calculatedTextOffsetX,
-      textOffsetY: calculatedTextOffsetY,
-    };
-  }, []);
+  // Keyboard shortcuts
+  useCanvasKeyboard({
+    deleteSelected,
+    undo,
+    redo,
+    cutShape,
+    copyShape,
+    pasteShape,
+    selectAll,
+    bringForward,
+    sendBackward,
+    bringToFront,
+    sendToBack,
+    deselectAllTextBlocks,
+    selectedShapeIds: activeSheet?.selectedShapeIds || [],
+  });
 
   const snapToGrid = (value: number, gridSize: number) => {
     return Math.round(value / gridSize) * gridSize;
   };
 
-  const GRID_SIZE = 20; // Define the grid size for snapping
+  const GRID_SIZE = 20;
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!activeSheet) return;
-
-    const svgRect = svgRef.current?.getBoundingClientRect();
-    if (!svgRect) return;
-
-    const mouseX = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
-    const mouseY = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
-
-    if (isPanning) {
-      setPan({ x: e.clientX - startPan.x, y: e.clientY - startPan.y });
-    } else if (isDrawingConnector) {
-      debouncedSetCurrentMousePoint({ x: mouseX, y: mouseY });
-
-      const targetElement = document.elementFromPoint(e.clientX, e.clientY);
-
-      const targetNodeG = targetElement?.closest('g[data-node-id]');
-      let hoveredShapeId: string | null = null;
-      if (targetNodeG) {
-        hoveredShapeId = targetNodeG.getAttribute('data-node-id');
-      }
-
-      if (hoveredShapeId !== activeSheet.connectorDragTargetShapeId) {
-        setConnectorDragTargetShapeId(hoveredShapeId);
-      }
-    } else if (isSelecting && selectionStartPoint) {
-      const x = Math.min(selectionStartPoint.x, mouseX);
-      const y = Math.min(selectionStartPoint.y, mouseY);
-      const width = Math.abs(selectionStartPoint.x - mouseX);
-      const height = Math.abs(selectionStartPoint.y - mouseY);
-      setSelectionRect({ x, y, width, height });
-    } else if (isMouseDownOnShape && mouseDownPos && initialDragPositions) {
-        const dx = mouseX - mouseDownPos.x;
-        const dy = mouseY - mouseDownPos.y;
-
-        // Record history on first actual drag movement (not just mouse down)
-        if (!hasDragStarted && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
-          useHistoryStore.getState().recordHistory(sheets, activeSheetId);
-          setHasDragStarted(true);
-        }
-
-        const snap = useDiagramStore.getState().isSnapToGridEnabled; // Correct snapping toggle state access
-
-        if (activeSheet.selectedShapeIds.length > 1) {
-            const newPositions = activeSheet.selectedShapeIds.map(id => {
-                const initialPos = initialDragPositions[id];
-                return {
-                  id,
-                  x: snap ? snapToGrid(initialPos.x + dx, GRID_SIZE) : initialPos.x + dx,
-                  y: snap ? snapToGrid(initialPos.y + dy, GRID_SIZE) : initialPos.y + dy,
-                };
-            });
-            updateShapePositions(newPositions);
-        } else {
-            const initialPos = initialDragPositions[isMouseDownOnShape];
-            if (initialPos) {
-                updateShapePosition(
-                  isMouseDownOnShape,
-                  snap ? snapToGrid(initialPos.x + dx, GRID_SIZE) : initialPos.x + dx,
-                  snap ? snapToGrid(initialPos.y + dy, GRID_SIZE) : initialPos.y + dy
-                );
-            }
-        }
-
-        // Store last mouse position for auto-scroll
-        lastMousePosition.current = { clientX: e.clientX, clientY: e.clientY };
-
-        // Start auto-scroll if near edges
-        const SCROLL_MARGIN = 50;
-        const isNearEdge = 
-          (e.clientX - svgRect.left < SCROLL_MARGIN) ||
-          (svgRect.right - e.clientX < SCROLL_MARGIN) ||
-          (e.clientY - svgRect.top < SCROLL_MARGIN) ||
-          (svgRect.bottom - e.clientY < SCROLL_MARGIN);
-
-        if (isNearEdge && !autoScrollInterval.current) {
-          const scroll = () => {
-            if (!lastMousePosition.current || !svgRef.current) {
-              return;
-            }
-
-            const rect = svgRef.current.getBoundingClientRect();
-            const SCROLL_SPEED = 10;
-            let scrollDeltaX = 0;
-            let scrollDeltaY = 0;
-
-            if (lastMousePosition.current.clientX - rect.left < SCROLL_MARGIN) {
-              scrollDeltaX = SCROLL_SPEED;
-            } else if (rect.right - lastMousePosition.current.clientX < SCROLL_MARGIN) {
-              scrollDeltaX = -SCROLL_SPEED;
-            }
-
-            if (lastMousePosition.current.clientY - rect.top < SCROLL_MARGIN) {
-              scrollDeltaY = SCROLL_SPEED;
-            } else if (rect.bottom - lastMousePosition.current.clientY < SCROLL_MARGIN) {
-              scrollDeltaY = -SCROLL_SPEED;
-            }
-
-            if (scrollDeltaX !== 0 || scrollDeltaY !== 0) {
-              const currentState = useDiagramStore.getState();
-              const currentSheet = currentState.sheets[currentState.activeSheetId];
-              setPan({ 
-                x: currentSheet.pan.x + scrollDeltaX, 
-                y: currentSheet.pan.y + scrollDeltaY 
-              });
-              autoScrollInterval.current = requestAnimationFrame(scroll);
-            } else {
-              autoScrollInterval.current = null;
-            }
-          };
-          autoScrollInterval.current = requestAnimationFrame(scroll);
-        } else if (!isNearEdge && autoScrollInterval.current) {
-          cancelAnimationFrame(autoScrollInterval.current);
-          autoScrollInterval.current = null;
-        }
-    }
-  }, [activeSheet, isPanning, startPan, setPan, isDrawingConnector, debouncedSetCurrentMousePoint, isSelecting, selectionStartPoint, isMouseDownOnShape, mouseDownPos, initialDragPositions, updateShapePositions, updateShapePosition, activeSheet.connectorDragTargetShapeId, setConnectorDragTargetShapeId]);
-
-  const handleMouseUp = useCallback((e: MouseEvent) => {
-    if (!activeSheet) return;
-
-    if (isPanning) {
-      setIsPanning(false);
-      if (canvasRef.current) {
-        canvasRef.current.style.cursor = 'grab';
-      }
-    }
-    else if (isDrawingConnector) {
-      setConnectorDragTargetShapeId(null);
-      setIsDrawingConnector(false);
-      setStartConnectorPoint(null);
-      setStartConnectorNodeId(null);
-      setStartConnectorAnchorType(null);
-      setCurrentMousePoint(null);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!activeSheet) return;
 
       const svgRect = svgRef.current?.getBoundingClientRect();
       if (!svgRect) return;
 
       const mouseX = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
       const mouseY = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
-      const endPoint = { x: mouseX, y: mouseY };
 
-      const targetElement = e.target as SVGElement;
-      const targetNodeG = targetElement.closest('g[data-node-id]');
+      if (canvasPan.isPanning) {
+        canvasPan.handlePanMove(e.clientX, e.clientY);
+      } else if (connectorDrawing.isDrawingConnector) {
+        connectorDrawing.handleConnectorMove({ x: mouseX, y: mouseY });
 
-      if (targetNodeG) {
-        const endNodeId = targetNodeG.getAttribute('data-node-id');
-        if (endNodeId && endNodeId !== startConnectorNodeId) {
-          const startShape = activeSheet.shapesById[startConnectorNodeId!];
-          const targetShape = activeSheet.shapesById[endNodeId];
-          const startLayer = activeSheet.layers[startShape.layerId];
-          const targetLayer = activeSheet.layers[targetShape.layerId];
+        const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+        const targetNodeG = targetElement?.closest('g[data-node-id]');
+        const hoveredShapeId = targetNodeG ? targetNodeG.getAttribute('data-node-id') : null;
 
-          if (
-            startShape &&
-            targetShape &&
-            startShape.layerId === targetShape.layerId &&
-            startShape.layerId === activeSheet.activeLayerId &&
-            startLayer.isVisible &&
-            targetLayer.isVisible
-          ) {
-            const { type: endAnchorType } = getAnchorPoint(targetShape, endPoint);
-            addConnector({
-              id: uuidv4(),
-              startNodeId: startConnectorNodeId!,
-              endNodeId: endNodeId,
-              startAnchorType: startConnectorAnchorType!,
-              endAnchorType: endAnchorType,
-            });
-          }
+        if (hoveredShapeId !== activeSheet.connectorDragTargetShapeId) {
+          setConnectorDragTargetShapeId(hoveredShapeId);
+        }
+      } else if (boxSelection.isSelecting) {
+        boxSelection.handleSelectionMove({ x: mouseX, y: mouseY });
+      } else if (shapeDrag.isMouseDownOnShape && shapeDrag.mouseDownPos) {
+        shapeDrag.handleDragMove(
+          mouseX,
+          mouseY,
+          activeSheet.selectedShapeIds,
+          snapToGrid,
+          GRID_SIZE,
+          isSnapToGridEnabled
+        );
+
+        // Auto-scroll
+        updateMousePosition(e.clientX, e.clientY);
+        const SCROLL_MARGIN = 50;
+        const isNearEdge =
+          e.clientX - svgRect.left < SCROLL_MARGIN ||
+          svgRect.right - e.clientX < SCROLL_MARGIN ||
+          e.clientY - svgRect.top < SCROLL_MARGIN ||
+          svgRect.bottom - e.clientY < SCROLL_MARGIN;
+
+        if (isNearEdge) {
+          startAutoScroll(e.clientX, e.clientY);
+        } else {
+          stopAutoScroll();
         }
       }
-    } else if (isSelecting && selectionRect) {
-        const selectedIds = activeSheet.shapeIds.filter(id => {
-            const shape = activeSheet.shapesById[id];
-            if (!shape || shape.layerId !== activeSheet.activeLayerId) return false;
+    },
+    [
+      activeSheet,
+      canvasPan,
+      connectorDrawing,
+      boxSelection,
+      shapeDrag,
+      isSnapToGridEnabled,
+      setConnectorDragTargetShapeId,
+      updateMousePosition,
+      startAutoScroll,
+      stopAutoScroll,
+    ]
+  );
 
-            const shapeRect = {
-                x: shape.x,
-                y: shape.y,
-                width: shape.width,
-                height: shape.height
-            };
+  const handleMouseUp = useCallback(
+    (e: MouseEvent) => {
+      if (!activeSheet) return;
 
-            return (
-                shapeRect.x < selectionRect.x + selectionRect.width &&
-                shapeRect.x + selectionRect.width > selectionRect.x &&
-                shapeRect.y < selectionRect.y + selectionRect.height &&
-                shapeRect.y + shapeRect.height > selectionRect.y
-            );
-        });
-        setSelectedShapes(selectedIds);
-    }
-
-    if (isMouseDownOnShape) {
-        if (activeSheet.selectedShapeIds.length > 1) {
-            const finalPositions = activeSheet.selectedShapeIds.map(id => {
-                const shape = activeSheet.shapesById[id];
-                return { id, x: shape.x, y: shape.y };
-            });
-            recordShapeMoves(finalPositions);
-        } else {
-            const shape = activeSheet.shapesById[isMouseDownOnShape];
-            if(shape) recordShapeMoves([{id: isMouseDownOnShape, x: shape.x, y: shape.y}]);
+      if (canvasPan.isPanning) {
+        canvasPan.handlePanEnd();
+        if (canvasRef.current) {
+          canvasRef.current.style.cursor = 'grab';
         }
-    }
-    
-    // Stop auto-scroll
-    if (autoScrollInterval.current) {
-      cancelAnimationFrame(autoScrollInterval.current);
-      autoScrollInterval.current = null;
-    }
-    lastMousePosition.current = null;
-    
-    setIsMouseDownOnShape(null);
-    setMouseDownPos(null);
-    setInitialDragPositions(null);
-    setHasDragStarted(false);
-    document.body.style.userSelect = '';
+      } else if (connectorDrawing.isDrawingConnector) {
+        const targetElement = e.target as SVGElement;
+        const targetNodeG = targetElement.closest('g[data-node-id]');
+        const endNodeId = targetNodeG ? targetNodeG.getAttribute('data-node-id') : null;
+        const endAnchorType = endNodeId ? getAnchorPoint(activeSheet.shapesById[endNodeId], { x: 0, y: 0 }).type : null;
 
-    setIsPanning(false);
-    setIsDrawingConnector(false);
-    setIsSelecting(false);
-    setSelectionStartPoint(null);
-    setSelectionRect(null);
-  }, [activeSheet, isPanning, isDrawingConnector, startConnectorNodeId, startConnectorAnchorType, addConnector, isSelecting, selectionRect, setSelectedShapes, isMouseDownOnShape, recordShapeMoves, setConnectorDragTargetShapeId]);
+        connectorDrawing.handleConnectorEnd(endNodeId, endAnchorType, (startNodeId, endNodeId, startAnchor, endAnchor) => {
+          addConnector({
+            id: uuidv4(),
+            startNodeId,
+            endNodeId,
+            startAnchorType: startAnchor,
+            endAnchorType: endAnchor,
+          });
+        });
+        setConnectorDragTargetShapeId(null);
+      } else if (boxSelection.isSelecting) {
+        boxSelection.handleSelectionEnd(activeSheet.shapesById, setSelectedShapes);
+      }
 
-  const handleWheel = useCallback((e: WheelEvent) => {
-    if (!activeSheet) return;
-    e.preventDefault();
+      if (shapeDrag.isMouseDownOnShape) {
+        shapeDrag.handleDragEnd(activeSheet.shapesById, activeSheet.selectedShapeIds);
+      }
 
-    if (e.ctrlKey) {
+      stopAutoScroll();
+    },
+    [
+      activeSheet,
+      canvasPan,
+      connectorDrawing,
+      boxSelection,
+      shapeDrag,
+      addConnector,
+      setConnectorDragTargetShapeId,
+      setSelectedShapes,
+      stopAutoScroll,
+    ]
+  );
+
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      if (!activeSheet) return;
+      e.preventDefault();
+
       const svgRect = svgRef.current?.getBoundingClientRect();
       if (!svgRect) return;
 
-      const mouseX = e.clientX - svgRect.left;
-      const mouseY = e.clientY - svgRect.top;
-
-      const zoomAmount = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-      const newZoom = Math.max(0.1, Math.min(5, activeSheet.zoom * zoomAmount));
-
-      const newPanX = mouseX - ((mouseX - activeSheet.pan.x) * (newZoom / activeSheet.zoom));
-      const newPanY = mouseY - ((mouseY - activeSheet.pan.y) * (newZoom / activeSheet.zoom));
-
-      requestAnimationFrame(() => {
-        setZoom(newZoom);
-        setPan({ x: newPanX, y: newPanY });
-      });
-    } else {
-      requestAnimationFrame(() => {
+      if (e.ctrlKey) {
+        handleZoom(e.deltaY, e.clientX, e.clientY, svgRect);
+      } else {
         setPan({
           x: activeSheet.pan.x - e.deltaX,
           y: activeSheet.pan.y - e.deltaY,
         });
-      });
-    }
-  }, [activeSheet, setZoom, setPan]);
-
-  const handleCloseContextMenu = useCallback(() => {
-    setContextMenu(null);
-  }, []);
+      }
+    },
+    [activeSheet, handleZoom, setPan]
+  );
 
   useEffect(() => {
     const svgElement = svgRef.current;
@@ -392,101 +253,27 @@ const Canvas: React.FC = () => {
     };
   }, [handleWheel, handleMouseMove, handleMouseUp]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-
-      // If the click is inside the context menu, do nothing.
-      // The menu items have their own click handlers.
-      if (target.closest('.MuiMenu-paper')) { // .MuiMenu-paper is a stable class for the menu container
-        return;
-      }
-
-      // If the click is on a shape, the context menu for that shape will be opened
-      // by its own onContextMenu handler, so we don't need to close it here.
-      // We only close it if the click is outside of any shape and outside the menu.
-      const isShapeClick = target.closest('g[data-node-id]');
-      if (contextMenu && !isShapeClick) {
-        handleCloseContextMenu();
-      }
-    };
-
-    if (contextMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [contextMenu, handleCloseContextMenu]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-        return;
-      }
-
-      if (e.key === 'Delete') {
-        deleteSelected();
-      } else if (e.ctrlKey && e.key === 'n') {
-        e.preventDefault();
-        addSheet();
-      } else if (e.ctrlKey && e.key === 'z') {
-        e.preventDefault();
-        undo();
-      } else if (e.ctrlKey && e.key === 'y') {
-        e.preventDefault();
-        redo();
-      } else if (e.ctrlKey && e.key === 'x') {
-        e.preventDefault();
-        if (activeSheet.selectedShapeIds.length > 0) {
-          cutShape(activeSheet.selectedShapeIds);
-        }
-      } else if (e.ctrlKey && e.key === 'c') {
-        e.preventDefault();
-        if (activeSheet.selectedShapeIds.length > 0) {
-          copyShape(activeSheet.selectedShapeIds);
-        }
-      } else if (e.ctrlKey && e.key === 'v') {
-        e.preventDefault();
-        pasteShape();
-      } else if (e.ctrlKey && e.key === 'a') {
-        e.preventDefault();
-        selectAll();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [deleteSelected, addSheet, undo, redo, cutShape, copyShape, pasteShape, activeSheet, selectAll]);
-
   if (!activeSheet) {
     return <div>No active sheet found.</div>;
   }
 
   const { shapesById, shapeIds = [], connectors, selectedShapeIds } = activeSheet;
   const selectedFont = activeSheet.selectedFont;
-  const serverUrl = useDiagramStore(state => state.serverUrl) || 'http://localhost:4000';
+  const serverUrl = useDiagramStore((state) => state.serverUrl) || 'http://localhost:4000';
 
-  const handleDrop = async (e: React.DragEvent) => { // Made async
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     const shapeType = e.dataTransfer.getData('shapeType') || '';
-    // Removed: const svgContent = e.dataTransfer.getData('svgContent');
     const textPosition = e.dataTransfer.getData('textPosition') as 'inside' | 'outside';
     const autosize = e.dataTransfer.getData('autosize') === 'true';
     const interactionData = e.dataTransfer.getData('interaction');
     const interaction = interactionData ? JSON.parse(interactionData) : undefined;
-    const shapePath = e.dataTransfer.getData('shapePath'); // New: Get shapePath
-    if (!shapeType || !shapePath) return; // Ensure shapePath exists
+    const shapePath = e.dataTransfer.getData('shapePath');
+    if (!shapeType || !shapePath) return;
 
     const svgRect = svgRef.current?.getBoundingClientRect();
     if (!svgRect) return;
 
-    // Normalize the path into a full URL so fetch targets the server's shapes static directory
     let fetchUrl = shapePath;
     if (!fetchUrl.startsWith('http://') && !fetchUrl.startsWith('https://')) {
       if (fetchUrl.startsWith('/')) {
@@ -498,23 +285,23 @@ const Canvas: React.FC = () => {
 
     let fetchedSvgContent = '';
     try {
-      const response = await fetch(fetchUrl); // Fetch SVG content using normalized URL
+      const response = await fetch(fetchUrl);
       if (!response.ok) {
         const text = await response.text().catch(() => '<failed to read response text>');
         console.error(`Failed to fetch SVG content from ${fetchUrl}: ${response.status} ${response.statusText} - ${text}`);
-        return; // Abort if SVG content cannot be fetched
+        return;
       }
       fetchedSvgContent = await response.text();
     } catch (error) {
       console.error('Failed to fetch SVG content:', error);
-      return; // Abort if SVG content cannot be fetched
+      return;
     }
 
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(fetchedSvgContent, 'image/svg+xml');
     const svgElement = svgDoc.documentElement;
 
-    let color = '#000000'; // default color
+    let color = '#000000';
     const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
     if (gradients.length > 0) {
       const lastStop = gradients[0].querySelector('stop[offset="100%"]') || gradients[0].querySelector('stop:last-child');
@@ -528,7 +315,7 @@ const Canvas: React.FC = () => {
       }
     }
 
-    const viewBoxMatch = fetchedSvgContent.match(/viewBox="(.*?)"/); // Use fetchedSvgContent
+    const viewBoxMatch = fetchedSvgContent.match(/viewBox="(.*?)"/);
     let minX = 0;
     let minY = 0;
     let originalWidth = 100;
@@ -541,8 +328,6 @@ const Canvas: React.FC = () => {
       originalHeight = viewBox[3] - viewBox[1];
     }
 
-    // Calculate actual bounding box of SVG content
-    // Create a temporary SVG element to render and measure
     const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     tempSvg.setAttribute('style', 'position: absolute; visibility: hidden;');
     tempSvg.setAttribute('width', String(originalWidth));
@@ -550,11 +335,8 @@ const Canvas: React.FC = () => {
     tempSvg.innerHTML = svgElement.innerHTML;
     document.body.appendChild(tempSvg);
 
-    // Get the actual bounding box of all content
     let actualBBox = { x: minX, y: minY, width: originalWidth, height: originalHeight };
     try {
-      // getBBox() needs to be called on a shape element, not the root SVG
-      // If there's a single child element, get its bbox; otherwise get bbox of first child or use viewBox
       if (tempSvg.children.length > 0) {
         const firstChild = tempSvg.children[0] as SVGGraphicsElement;
         if (firstChild && typeof firstChild.getBBox === 'function') {
@@ -574,12 +356,10 @@ const Canvas: React.FC = () => {
     const fontSize = parseFloat(getComputedStyle(canvasElement).fontSize);
     const targetHeight = 5 * fontSize;
 
-    // Use actual bounding box dimensions for aspect ratio
     const aspectRatio = actualBBox.width / actualBBox.height;
     const newHeight = targetHeight;
     const newWidth = newHeight * aspectRatio;
 
-    // Update minX and minY to match actual content bounds
     minX = actualBBox.x;
     minY = actualBBox.y;
 
@@ -592,7 +372,7 @@ const Canvas: React.FC = () => {
       text: shapeType,
       color: color,
       layerId: activeSheet.activeLayerId,
-      svgContent: fetchedSvgContent, // Use fetchedSvgContent
+      svgContent: fetchedSvgContent,
       minX: minX,
       minY: minY,
       path: fetchUrl,
@@ -646,11 +426,8 @@ const Canvas: React.FC = () => {
     const shape = activeSheet.shapesById[nodeId];
     const layer = activeSheet.layers[shape.layerId];
     if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
-      setIsMouseDownOnShape(nodeId);
-      document.body.style.userSelect = 'none';
       const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
       const mouseY = (e.clientY - svgRef.current!.getBoundingClientRect().top - activeSheet.pan.y) / activeSheet.zoom;
-      setMouseDownPos({ x: mouseX, y: mouseY });
 
       const isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
       const isSelected = activeSheet.selectedShapeIds.includes(nodeId);
@@ -668,14 +445,7 @@ const Canvas: React.FC = () => {
         }
       }
 
-      const initialPositions = nextSelectedIds.reduce((acc, id) => {
-        const s = shapesById[id];
-        if (s) acc[id] = { x: s.x, y: s.y };
-        return acc;
-      }, {} as { [shapeId: string]: Point });
-      setInitialDragPositions(initialPositions);
-
-      setIsPanning(false);
+      shapeDrag.handleDragStart({ x: mouseX, y: mouseY }, nodeId, nextSelectedIds, shapesById);
     }
   };
 
@@ -683,25 +453,20 @@ const Canvas: React.FC = () => {
     const target = e.target as SVGElement;
     if (e.button === 0 && target.dataset.id === 'canvas-background') {
       if (e.ctrlKey || e.metaKey) {
-        // Panning with Ctrl/Cmd + Left Click
         e.preventDefault();
         e.stopPropagation();
-        setIsPanning(true);
-        setStartPan({ x: e.clientX - activeSheet.pan.x, y: e.clientY - activeSheet.pan.y });
+        canvasPan.handlePanStart(e.clientX, e.clientY);
         if (canvasRef.current) {
           canvasRef.current.style.cursor = 'grabbing';
         }
       } else {
-        // Selection with Left Click
-        setIsSelecting(true);
         const svgRect = svgRef.current?.getBoundingClientRect();
         if (!svgRect) return;
         const x = (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom;
         const y = (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom;
-        setSelectionStartPoint({ x, y });
-        setSelectionRect({ x, y, width: 0, height: 0 });
+        boxSelection.handleSelectionStart({ x, y });
         setSelectedShapes([]);
-        setSelectedConnectors([]); // Deselect connectors when clicking on canvas background
+        setSelectedConnectors([]);
         deselectAllTextBlocks();
       }
     }
@@ -711,11 +476,7 @@ const Canvas: React.FC = () => {
     const shape = activeSheet.shapesById[nodeId];
     const layer = activeSheet.layers[shape.layerId];
     if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
-      setIsDrawingConnector(true);
-      setStartConnectorNodeId(nodeId);
-      setStartConnectorPoint(point);
-      setStartConnectorAnchorType(anchorType);
-      setCurrentMousePoint(point);
+      connectorDrawing.handleConnectorStart(nodeId, point, anchorType);
     }
   };
 
@@ -723,21 +484,17 @@ const Canvas: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     if (!selectedShapeIds.includes(id)) {
-        setSelectedShapes([id]);
+      setSelectedShapes([id]);
     }
 
-    setContextMenu({
-      x: e.clientX,
-      y: e.clientY,
-      shapeId: id
-    });
+    handleContextMenu(e.clientX, e.clientY, id);
   };
 
   const visibleShapes = shapeIds
-    .map(id => shapesById[id])
-    .filter(shape => shape && activeSheet.layers[shape.layerId]?.isVisible);
+    .map((id) => shapesById[id])
+    .filter((shape) => shape && activeSheet.layers[shape.layerId]?.isVisible);
 
-  const visibleConnectors = Object.values(connectors || {}).filter(connector => {
+  const visibleConnectors = Object.values(connectors || {}).filter((connector) => {
     const startShape = shapesById[connector.startNodeId];
     const endShape = shapesById[connector.endNodeId];
     return startShape && endShape && activeSheet.layers[startShape.layerId]?.isVisible && activeSheet.layers[endShape.layerId]?.isVisible;
@@ -749,7 +506,7 @@ const Canvas: React.FC = () => {
     <div ref={canvasRef} className="canvas-container" style={{ backgroundColor: '#f9f9f9', cursor: 'grab' }}>
       <svg
         ref={svgRef}
-        className={`canvas-svg ${isPanning ? 'panning' : ''} ${isDrawingConnector ? 'drawing-connector' : ''}`}
+        className={`canvas-svg ${canvasPan.isPanning ? 'panning' : ''} ${connectorDrawing.isDrawingConnector ? 'drawing-connector' : ''}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onMouseDown={handleMouseDown}
@@ -761,35 +518,41 @@ const Canvas: React.FC = () => {
           </pattern>
         </defs>
         <g transform={`translate(${activeSheet.pan.x}, ${activeSheet.pan.y}) scale(${activeSheet.zoom})`}>
-        <rect
-            data-id="canvas-background"
-            x={-backgroundSize / 2}
-            y={-backgroundSize / 2}
-            width={backgroundSize}
-            height={backgroundSize}
-            fill="url(#grid-pattern)"
-          />
+          <rect data-id="canvas-background" x={-backgroundSize / 2} y={-backgroundSize / 2} width={backgroundSize} height={backgroundSize} fill="url(#grid-pattern)" />
           {(visibleShapes || []).map((shape) => (
-            <Node key={shape.id} shape={shape} zoom={activeSheet.zoom} isInteractive={shape.layerId === activeSheet.activeLayerId} isSelected={activeSheet.selectedShapeIds.includes(shape.id)} isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id} onConnectorStart={handleConnectorStart} onContextMenu={handleNodeContextMenu} onNodeMouseDown={handleNodeMouseDown} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} isEditingText={editingTextShapeId === shape.id} onTextEditComplete={() => setEditingTextShapeId(null)} />
+            <Node
+              key={shape.id}
+              shape={shape}
+              zoom={activeSheet.zoom}
+              isInteractive={shape.layerId === activeSheet.activeLayerId}
+              isSelected={activeSheet.selectedShapeIds.includes(shape.id)}
+              isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id}
+              onConnectorStart={handleConnectorStart}
+              onContextMenu={handleNodeContextMenu}
+              onNodeMouseDown={handleNodeMouseDown}
+              activeLayerId={activeSheet.activeLayerId}
+              layers={activeSheet.layers}
+              isEditingText={editingTextShapeId === shape.id}
+              onTextEditComplete={() => setEditingTextShapeId(null)}
+            />
           ))}
           {(visibleConnectors || []).map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
           ))}
 
-          {isDrawingConnector && startConnectorPoint && currentMousePoint && (
+          {connectorDrawing.isDrawingConnector && connectorDrawing.startConnectorPoint && connectorDrawing.currentMousePoint && (
             <path
               className="connector-path"
               d={(() => {
-                if (!startConnectorNodeId || !startConnectorPoint || !currentMousePoint) return '';
-                const startShape = activeSheet.shapesById[startConnectorNodeId];
+                if (!connectorDrawing.startConnectorNodeId || !connectorDrawing.startConnectorPoint || !connectorDrawing.currentMousePoint) return '';
+                const startShape = activeSheet.shapesById[connectorDrawing.startConnectorNodeId];
                 if (!startShape) return '';
 
-                // Create a dummy target shape at the current mouse point
                 const dummyTargetShape: Shape = {
                   id: 'dummy',
-                  x: currentMousePoint.x,
-                  y: currentMousePoint.y,
-                  width: 1, // Minimal width/height for a point
+                  x: connectorDrawing.currentMousePoint.x,
+                  y: connectorDrawing.currentMousePoint.y,
+                  width: 1,
                   height: 1,
                   type: 'dummy',
                   text: '',
@@ -820,8 +583,8 @@ const Canvas: React.FC = () => {
                 const { path } = calculateConnectionPath(
                   startShape,
                   dummyTargetShape,
-                  startConnectorAnchorType!,
-                  getAnchorPoint(dummyTargetShape, currentMousePoint!).type,
+                  connectorDrawing.startConnectorAnchorType!,
+                  getAnchorPoint(dummyTargetShape, connectorDrawing.currentMousePoint!).type,
                   activeSheet.selectedConnectionType || 'direct'
                 );
                 return path.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
@@ -829,15 +592,8 @@ const Canvas: React.FC = () => {
             />
           )}
 
-          {isSelecting && selectionRect && (
-            <rect
-                className="selection-rect"
-                x={selectionRect.x}
-                y={selectionRect.y}
-                width={selectionRect.width}
-                height={selectionRect.height}
-                strokeWidth={1 / activeSheet.zoom}
-            />
+          {boxSelection.isSelecting && boxSelection.selectionRect && (
+            <rect className="selection-rect" x={boxSelection.selectionRect.x} y={boxSelection.selectionRect.y} width={boxSelection.selectionRect.width} height={boxSelection.selectionRect.height} strokeWidth={1 / activeSheet.zoom} />
           )}
         </g>
       </svg>
@@ -845,13 +601,13 @@ const Canvas: React.FC = () => {
         <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
-          onClose={handleCloseContextMenu}
+          onClose={closeContextMenu}
           onBringForward={() => bringForward(contextMenu.shapeId)}
           onSendBackward={() => sendBackward(contextMenu.shapeId)}
           onBringToFront={() => bringToFront(contextMenu.shapeId)}
           onSendToBack={() => sendToBack(contextMenu.shapeId)}
-          onCut={cutShape}
-          onCopy={copyShape}
+          onCut={() => cutShape(activeSheet.selectedShapeIds)}
+          onCopy={() => copyShape(activeSheet.selectedShapeIds)}
           onPaste={pasteShape}
           onUndo={undo}
           onRedo={redo}
@@ -859,7 +615,17 @@ const Canvas: React.FC = () => {
         />
       )}
       {isYouTubeDialogOpen && (
-        <Dialog open={isYouTubeDialogOpen} onClose={handleCloseYouTubeDialog} PaperProps={{ component: 'form', onSubmit: (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleSaveYouTubeUrl(); } }}>
+        <Dialog
+          open={isYouTubeDialogOpen}
+          onClose={handleCloseYouTubeDialog}
+          PaperProps={{
+            component: 'form',
+            onSubmit: (e: React.FormEvent<HTMLFormElement>) => {
+              e.preventDefault();
+              handleSaveYouTubeUrl();
+            },
+          }}
+        >
           <DialogTitle>
             Set YouTube URL
             <IconButton
@@ -882,7 +648,7 @@ const Canvas: React.FC = () => {
               value={youTubeUrl}
               onChange={(e) => setYouTubeUrl(e.target.value)}
               error={urlError}
-              helperText={urlError ? "URL must start with https://www.youtube.com/embed/" : ""}
+              helperText={urlError ? 'URL must start with https://www.youtube.com/embed/' : ''}
             />
           </DialogContent>
           <DialogActions>
