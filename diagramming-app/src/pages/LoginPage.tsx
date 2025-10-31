@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Tabs, Tab, Alert, Typography, ThemeProvider, createTheme, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useDiagramStore } from '../store/useDiagramStore';
+import { useLogin, useRegister, useCurrentUser } from '../api/hooks';
 import validator from 'validator';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const login = useDiagramStore(state => state.login);
-  const register = useDiagramStore(state => state.register);
-  const currentUser = useDiagramStore(state => state.currentUser);
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+  const { data: currentUser } = useCurrentUser();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
@@ -16,8 +16,9 @@ const LoginPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const loading = loginMutation.isPending || registerMutation.isPending;
 
   // If already logged in, redirect to diagram editor in an effect (avoid navigation during render)
   React.useEffect(() => {
@@ -41,18 +42,21 @@ const LoginPage: React.FC = () => {
       if (!lastName || !lastName.trim()) return setError('Last name is required');
     }
 
-    setLoading(true);
     try {
       if (mode === 'login') {
-        await login(username, password);
+        await loginMutation.mutateAsync({ username, password });
       } else {
-        await register(username, password, firstName.trim(), lastName.trim());
+        // Create username from first name + last name for registration
+        const fullUsername = `${firstName.trim()} ${lastName.trim()}`;
+        await registerMutation.mutateAsync({ 
+          username: fullUsername,
+          email: username, 
+          password 
+        });
       }
       navigate('/diagram');
     } catch (e: any) {
       setError(e?.message || String(e));
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -2,35 +2,41 @@ import React, { useState } from 'react';
 import { IconButton, Avatar, Menu, MenuItem, ListItemText, Tooltip, Dialog, DialogContent, Typography, Box, FormControlLabel, Switch } from '@mui/material';
 import { Person as PersonIcon } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
-import { getCurrentUserFromCookie } from '../../utils/userCookie';
+import { useCurrentUser, useLogout, useUserSettings, useUpdateUserSettings } from '../../api/hooks';
 import { useNavigate } from 'react-router-dom';
 import AvatarEditorComponent from '../AvatarEditor/AvatarEditor';
 
 const AccountMenu: React.FC = () => {
-  const currentUser = useDiagramStore(state => state.currentUser as any);
-  const currentUserIsAdmin = useDiagramStore(state => !!state.currentUser?.roles?.includes('admin'));
-  const logout = useDiagramStore(state => state.logout);
+  const { data: currentUser } = useCurrentUser();
+  const logoutMutation = useLogout();
+  const { data: userSettings } = useUserSettings();
+  const updateSettings = useUpdateUserSettings();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentUser?.avatarUrl);
   const [avatarSrcForEditing, setAvatarSrcForEditing] = useState<string | null>(null);
-  const themeMode = useDiagramStore(state => state.themeMode || 'light');
-  const setThemeMode = useDiagramStore(state => state.setThemeMode as (mode: 'light'|'dark') => void);
+  
+  const themeMode = userSettings?.themeMode || useDiagramStore(state => state.themeMode) || 'light';
+  const currentUserIsAdmin = currentUser?.role === 'admin';
+  const avatarUrl = currentUser?.avatarUrl;
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  // If the in-memory store is not yet hydrated but a cookie exists, hydrate it
-  React.useEffect(() => {
-    if (!currentUser) {
-      const cookie = getCurrentUserFromCookie();
-      if (cookie) {
-        useDiagramStore.setState({ currentUser: cookie } as any);
-        setAvatarUrl((cookie as any).avatarUrl);
-      }
-    }
-  }, [currentUser]);
+  const handleLogout = async () => {
+    handleClose();
+    await logoutMutation.mutateAsync();
+    navigate('/login');
+  };
+
+  const handleThemeToggle = async (isDark: boolean) => {
+    const newMode = isDark ? 'dark' : 'light';
+    // Update Zustand immediately for UI responsiveness
+    useDiagramStore.setState({ themeMode: newMode });
+    // Persist to server
+    await updateSettings.mutateAsync({ themeMode: newMode });
+    handleClose();
+  };
 
   return (
     <>
@@ -43,31 +49,20 @@ const AccountMenu: React.FC = () => {
       </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose} id="account-menu">
     {currentUser ? [
-      <MenuItem key="signed" disabled>Signed in as {((currentUser.firstName || '') + ' ' + (currentUser.lastName || '')).trim() || currentUser.username}</MenuItem>,
+      <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>,
           <MenuItem key="change-avatar" onClick={() => { handleClose(); setAvatarEditorOpen(true); }}>Change avatar</MenuItem>,
           <MenuItem key="remove-avatar" onClick={async () => {
             handleClose();
-            try {
-              const { apiFetch } = await import('../../utils/apiFetch');
-              const existingResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
-              const existingJson = existingResp.ok ? await existingResp.json() : { settings: {} };
-              const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(existingJson.settings || {}), avatarDataUrl: null } }) });
-              if (resp.ok) {
-                setAvatarUrl(undefined);
-                useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: undefined } as any });
-              }
-            } catch (e) {
-              console.warn('Failed to remove avatar', e);
-            }
+            await updateSettings.mutateAsync({ avatarDataUrl: null } as any);
           }}>
             <ListItemText>Remove avatar</ListItemText>
           </MenuItem>,
-          <MenuItem key="logout" onClick={() => { handleClose(); logout(); }}>
+          <MenuItem key="logout" onClick={handleLogout}>
             <ListItemText>Logout</ListItemText>
           </MenuItem>,
           <MenuItem key="theme-toggle">
             <ListItemText>Light&nbsp;</ListItemText>
-            <Switch checked={themeMode === 'dark'} onChange={(e) => { setThemeMode(e.target.checked ? 'dark' : 'light'); handleClose(); }} />
+            <Switch checked={themeMode === 'dark'} onChange={(e) => handleThemeToggle(e.target.checked)} />
             <ListItemText>&nbsp;Dark</ListItemText>
           </MenuItem>,
           currentUserIsAdmin ? (
@@ -79,7 +74,7 @@ const AccountMenu: React.FC = () => {
           <MenuItem key="theme-toggle-guest">
             <ListItemText>Theme</ListItemText>
             <FormControlLabel
-              control={<Switch checked={themeMode === 'dark'} onChange={(e) => { setThemeMode(e.target.checked ? 'dark' : 'light'); handleClose(); }} />}
+              control={<Switch checked={themeMode === 'dark'} onChange={(e) => handleThemeToggle(e.target.checked)} />}
               label={themeMode === 'dark' ? 'Dark' : 'Light'}
             />
           </MenuItem>,
@@ -106,14 +101,7 @@ const AccountMenu: React.FC = () => {
               <Box sx={{ mt: 2 }}>
                 <AvatarEditorComponent imageSrc={avatarSrcForEditing} onCancel={() => { setAvatarEditorOpen(false); setAvatarSrcForEditing(null); }} onSave={async (dataUrl: string) => {
                   try {
-                    const { apiFetch } = await import('../../utils/apiFetch');
-                    const existingResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
-                    const existingJson = existingResp.ok ? await existingResp.json() : { settings: {} };
-                    const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(existingJson.settings || {}), avatarDataUrl: dataUrl } }) });
-                    if (resp.ok) {
-                      setAvatarUrl(dataUrl);
-                      useDiagramStore.setState({ currentUser: { ...(useDiagramStore.getState().currentUser || {}), avatarUrl: dataUrl } as any });
-                    }
+                    await updateSettings.mutateAsync({ avatarDataUrl: dataUrl } as any);
                   } catch (e) {
                     console.error('Failed to save avatar', e);
                   } finally {
