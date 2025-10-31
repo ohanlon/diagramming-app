@@ -424,6 +424,9 @@ export const createShapeActions = (
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
+      const shape = currentSheet.shapesById[id];
+      if (!shape) return state;
+
       return {
         ...state,
         sheets: {
@@ -433,7 +436,7 @@ export const createShapeActions = (
             shapesById: {
               ...currentSheet.shapesById,
               [id]: {
-                ...currentSheet.shapesById[id],
+                ...shape,
                 x: finalX,
                 y: finalY,
                 width: finalWidth,
@@ -829,7 +832,7 @@ export const createShapeActions = (
       if (currentIdx < 0 || currentIdx === newShapeIds.length - 1) return state;
 
       // Swap with the next element
-      [newShapeIds[currentIdx], newShapeIds[currentIdx + 1]] = [newShapeIds[currentIdx + 1], newShapeIds[currentIdx]];
+      [newShapeIds[currentIdx], newShapeIds[currentIdx + 1]] = [newShapeIds[currentIdx + 1]!, newShapeIds[currentIdx]!];
 
       return {
         ...state,
@@ -855,7 +858,7 @@ export const createShapeActions = (
       if (currentIdx <= 0) return state;
 
       // Swap with the previous element
-      [newShapeIds[currentIdx], newShapeIds[currentIdx - 1]] = [newShapeIds[currentIdx - 1], newShapeIds[currentIdx]];
+      [newShapeIds[currentIdx], newShapeIds[currentIdx - 1]] = [newShapeIds[currentIdx - 1]!, newShapeIds[currentIdx]!];
 
       return {
         ...state,
@@ -927,7 +930,7 @@ export const createShapeActions = (
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      const shapesToGroup = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
+      const shapesToGroup = ids.map((id) => currentSheet.shapesById[id]).filter((shape): shape is Shape => !!shape);
       if (shapesToGroup.length < 2) return state; // Need at least two shapes to group
 
       // Calculate bounding box of selected shapes

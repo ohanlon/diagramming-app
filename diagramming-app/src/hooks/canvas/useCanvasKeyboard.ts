@@ -80,22 +80,22 @@ export function useCanvasKeyboard({
     // Bring Forward (Ctrl/Cmd + ])
     else if (modifier && e.key === ']' && selectedShapeIds.length === 1) {
       e.preventDefault();
-      bringForward(selectedShapeIds[0]);
+      bringForward(selectedShapeIds[0]!);
     }
     // Send Backward (Ctrl/Cmd + [)
     else if (modifier && e.key === '[' && selectedShapeIds.length === 1) {
       e.preventDefault();
-      sendBackward(selectedShapeIds[0]);
+      sendBackward(selectedShapeIds[0]!);
     }
     // Bring to Front (Ctrl/Cmd + Shift + ])
     else if (modifier && e.shiftKey && e.key === '}' && selectedShapeIds.length === 1) {
       e.preventDefault();
-      bringToFront(selectedShapeIds[0]);
+      bringToFront(selectedShapeIds[0]!);
     }
     // Send to Back (Ctrl/Cmd + Shift + [)
     else if (modifier && e.shiftKey && e.key === '{' && selectedShapeIds.length === 1) {
       e.preventDefault();
-      sendToBack(selectedShapeIds[0]);
+      sendToBack(selectedShapeIds[0]!);
     }
     // Escape - deselect all text blocks
     else if (e.key === 'Escape') {

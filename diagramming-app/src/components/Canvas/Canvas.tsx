@@ -182,7 +182,8 @@ const Canvas: React.FC = () => {
         const targetElement = e.target as SVGElement;
         const targetNodeG = targetElement.closest('g[data-node-id]');
         const endNodeId = targetNodeG ? targetNodeG.getAttribute('data-node-id') : null;
-        const endAnchorType = endNodeId ? getAnchorPoint(activeSheet.shapesById[endNodeId], { x: 0, y: 0 }).type : null;
+        const endShape = endNodeId ? activeSheet.shapesById[endNodeId] : undefined;
+        const endAnchorType = endShape ? getAnchorPoint(endShape, { x: 0, y: 0 }).type : null;
 
         connectorDrawing.handleConnectorEnd(endNodeId, endAnchorType, (startNodeId, endNodeId, startAnchor, endAnchor) => {
           addConnector({
@@ -303,7 +304,7 @@ const Canvas: React.FC = () => {
 
     let color = '#000000';
     const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
-    if (gradients.length > 0) {
+    if (gradients.length > 0 && gradients[0]) {
       const lastStop = gradients[0].querySelector('stop[offset="100%"]') || gradients[0].querySelector('stop:last-child');
       if (lastStop) {
         color = lastStop.getAttribute('stop-color') || '#000000';
@@ -315,20 +316,20 @@ const Canvas: React.FC = () => {
       }
     }
 
-    const viewBoxMatch = fetchedSvgContent.match(/viewBox="(.*?)"/);
+    const viewBoxMatch = fetchedSvgContent.match(/viewBox="(.*?)"/);  
     let minX = 0;
     let minY = 0;
     let originalWidth = 100;
     let originalHeight = 100;
     if (viewBoxMatch && viewBoxMatch[1]) {
       const viewBox = viewBoxMatch[1].split(' ').map(Number);
-      minX = viewBox[0];
-      minY = viewBox[1];
-      originalWidth = viewBox[2] - viewBox[0];
-      originalHeight = viewBox[3] - viewBox[1];
-    }
-
-    const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      if (viewBox.length === 4 && viewBox[0] !== undefined && viewBox[1] !== undefined && viewBox[2] !== undefined && viewBox[3] !== undefined) {
+        minX = viewBox[0];
+        minY = viewBox[1];
+        originalWidth = viewBox[2] - viewBox[0];
+        originalHeight = viewBox[3] - viewBox[1];
+      }
+    }    const tempSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     tempSvg.setAttribute('style', 'position: absolute; visibility: hidden;');
     tempSvg.setAttribute('width', String(originalWidth));
     tempSvg.setAttribute('height', String(originalHeight));
@@ -424,6 +425,7 @@ const Canvas: React.FC = () => {
 
   const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
     const shape = activeSheet.shapesById[nodeId];
+    if (!shape) return;
     const layer = activeSheet.layers[shape.layerId];
     if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
       const mouseX = (e.clientX - svgRef.current!.getBoundingClientRect().left - activeSheet.pan.x) / activeSheet.zoom;
@@ -474,6 +476,7 @@ const Canvas: React.FC = () => {
 
   const handleConnectorStart = (nodeId: string, point: Point, anchorType: AnchorType) => {
     const shape = activeSheet.shapesById[nodeId];
+    if (!shape) return;
     const layer = activeSheet.layers[shape.layerId];
     if (shape && layer && layer.isVisible && shape.layerId === activeSheet.activeLayerId) {
       connectorDrawing.handleConnectorStart(nodeId, point, anchorType);
@@ -492,7 +495,7 @@ const Canvas: React.FC = () => {
 
   const visibleShapes = shapeIds
     .map((id) => shapesById[id])
-    .filter((shape) => shape && activeSheet.layers[shape.layerId]?.isVisible);
+    .filter((shape): shape is Shape => !!shape && (activeSheet.layers[shape.layerId]?.isVisible ?? false));
 
   const visibleConnectors = Object.values(connectors || {}).filter((connector) => {
     const startShape = shapesById[connector.startNodeId];

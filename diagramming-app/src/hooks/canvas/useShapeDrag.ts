@@ -46,6 +46,7 @@ export function useShapeDrag({ activeSheetId, sheets }: UseShapeDragProps) {
     if (selectedShapeIds.length > 1) {
       const newPositions = selectedShapeIds.map(id => {
         const initialPos = initialDragPositions[id];
+        if (!initialPos) return { id, x: 0, y: 0 }; // Fallback for safety
         return {
           id,
           x: isSnapEnabled ? snapToGrid(initialPos.x + dx, gridSize) : initialPos.x + dx,

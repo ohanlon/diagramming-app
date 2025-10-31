@@ -59,12 +59,13 @@ const MainToolbar: React.FC = () => {
 
   // Warn user if navigating away with unsaved changes
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent): string | undefined => {
       if (isDirty) {
         e.preventDefault();
         e.returnValue = '';
         return '';
       }
+      return undefined;
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
@@ -179,8 +180,9 @@ const MainToolbar: React.FC = () => {
   const downloadDataUrl = (dataUrl: string, filename: string) => {
     // Convert data URL to blob then download
     const parts = dataUrl.split(',');
+    if (parts.length < 2 || !parts[0] || !parts[1]) return;
     const m = parts[0].match(/:(.*?);/);
-    const mime = m ? m[1] : 'image/png';
+    const mime = m && m[1] ? m[1] : 'image/png';
     const bstr = atob(parts[1]);
     let n = bstr.length;
     const u8arr = new Uint8Array(n);
@@ -590,13 +592,13 @@ const MainToolbar: React.FC = () => {
       const order: ('file' | 'edit' | 'select' | 'arrange' | 'export')[] = ['file', 'edit', 'select', 'arrange', 'export'];
       const idx = order.indexOf(current as any);
       const next = order[(idx + 1) % order.length];
-      openMenuByName(next);
+      if (next) openMenuByName(next);
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       const order: ('file' | 'edit' | 'select' | 'arrange' | 'export')[] = ['file', 'edit', 'select', 'arrange', 'export'];
       const idx = order.indexOf(current as any);
       const prev = order[(idx + order.length - 1) % order.length];
-      openMenuByName(prev);
+      if (prev) openMenuByName(prev);
     } else if (e.key === 'Escape') {
       e.preventDefault();
       closeAllMenus();
@@ -793,6 +795,7 @@ const MainToolbar: React.FC = () => {
 
       for (let i = 0; i < sheetIds.length; i++) {
         const id = sheetIds[i];
+        if (!id) continue;
         setExportProgress({ current: i + 1, total: sheetIds.length });
         // Render using the configured export resolution for embedding
         const result = await renderSheetToImage(id, exportWidthPx, exportHeightPx, 'image/png');
@@ -800,7 +803,8 @@ const MainToolbar: React.FC = () => {
         if (!png) {
           // Add an empty slide with sheet name if rendering failed
           const slide = pptx.addSlide();
-          slide.addText(sheets[id]?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
+          const sheet = sheets[id];
+          slide.addText(sheet?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
           continue;
         }
 
@@ -815,7 +819,8 @@ const MainToolbar: React.FC = () => {
             slide.addImage({ data: png, x: '0%', y: '0%', w: '100%', h: '100%' });
           } catch (e2) {
             console.error('Failed to add image to slide', e2);
-            slide.addText(sheets[id]?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
+            const sheet = sheets[id];
+            slide.addText(sheet?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
           }
         }
       }
