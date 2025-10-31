@@ -7,7 +7,7 @@ import type { Sheet } from '../types';
  */
 export const useActiveSheet = (): Sheet | null => {
   const { sheets, activeSheetId } = useDiagramStore();
-  return sheets[activeSheetId] || null;
+  return sheets?.[activeSheetId] || null;
 };
 
 /**

@@ -10,7 +10,7 @@ interface StatusBarProps {
 
 const StatusBar: React.FC<StatusBarProps> = ({ showLayerPanel, setShowLayerPanel }) => {
   const { sheets, activeSheetId, setZoom, toggleFullscreen } = useDiagramStore();
-  const activeSheet = sheets[activeSheetId];
+  const activeSheet = sheets?.[activeSheetId];
   const [isFullscreen, setIsFullscreen] = useState(document.fullscreenElement != null);
 
   useEffect(() => {

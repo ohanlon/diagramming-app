@@ -10,7 +10,7 @@ interface LayerPanelProps {
 
 const LayerPanel: React.FC<LayerPanelProps> = ({ setShowLayerPanel }) => {
   const { sheets, activeSheetId, setActiveLayer, addLayer, removeLayer, renameLayer, toggleLayerVisibility, reorderLayer } = useDiagramStore();
-  const activeSheet = sheets[activeSheetId];
+  const activeSheet = sheets?.[activeSheetId];
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 280, y: 100 });
   const [startOffset, setStartOffset] = useState({ x: 0, y: 0 });

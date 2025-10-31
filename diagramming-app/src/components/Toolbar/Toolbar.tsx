@@ -42,7 +42,7 @@ const ToolbarComponent: React.FC = () => {
     isSnapToGridEnabled, // Add isSnapToGridEnabled from store
   } = useDiagramStore();
   const { canUndo: canUndoFn, canRedo: canRedoFn } = useHistoryStore();
-  const activeSheet = sheets[activeSheetId];
+  const activeSheet = sheets?.[activeSheetId];
   
   // Call the functions to get boolean values
   const canUndo = canUndoFn();
@@ -53,9 +53,9 @@ const ToolbarComponent: React.FC = () => {
   const [shapeColorPickerAnchorEl, setShapeColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
   const [currentShapeColor, setCurrentShapeColor] = useState('#000000');
   const [currentTextColor, setCurrentTextColor] = useState('#000000');
-  const [currentLineStyle, setCurrentLineStyle] = useState<LineStyle>(activeSheet.selectedLineStyle);
-  const [currentLineWidth, setCurrentLineWidth] = useState<number>(activeSheet.selectedLineWidth);
-  const [currentConnectionType, setCurrentConnectionType] = useState<ConnectionType>(activeSheet.selectedConnectionType);
+  const [currentLineStyle, setCurrentLineStyle] = useState<LineStyle>(activeSheet?.selectedLineStyle || 'solid');
+  const [currentLineWidth, setCurrentLineWidth] = useState<number>(activeSheet?.selectedLineWidth || 2);
+  const [currentConnectionType, setCurrentConnectionType] = useState<ConnectionType>(activeSheet?.selectedConnectionType || 'straight');
   const [currentStartArrow, setCurrentStartArrow] = useState<ArrowStyle>('none');
   const [currentEndArrow, setCurrentEndArrow] = useState<ArrowStyle>('standard_arrow');
 

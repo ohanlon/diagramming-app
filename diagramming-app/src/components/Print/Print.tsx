@@ -12,7 +12,7 @@ interface PrintProps {
 
 const Print: React.FC<PrintProps> = ({ sheetId }) => {
   const { sheets, activeSheetId } = useDiagramStore();
-  const activeSheet = sheetId ? sheets[sheetId] : sheets[activeSheetId];
+  const activeSheet = sheetId ? sheets?.[sheetId] : sheets?.[activeSheetId];
 
   if (!activeSheet) {
     return null;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useDiagramStore } from '../store/useDiagramStore';
 import { getCurrentUserFromCookie } from '../utils/userCookie';
@@ -9,9 +9,9 @@ interface Props {
 
 const ProtectedRoute: React.FC<Props> = ({ children }) => {
   console.log('ProtectedRoute render start');
- const currentUser = useDiagramStore(state => state.currentUser);
-  const cookie = getCurrentUserFromCookie();
-  const [hydrated, setHydrated] = useState<boolean>(() => !!currentUser || !!cookie);
+  const currentUser = useDiagramStore(state => state.currentUser);
+  const cookie = useMemo(() => getCurrentUserFromCookie(), []);
+  const [hydrated, setHydrated] = useState<boolean>(false);
   const [validating, setValidating] = useState<boolean>(false);
 
   // Compute effectiveUser candidate deterministically before any hooks so
@@ -19,12 +19,17 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
   let effectiveUser = currentUser || cookie;
 
   useEffect(() => {
-    if (currentUser) {
+    // Only run once on mount to hydrate from cookie if needed
+    const initialUser = useDiagramStore.getState().currentUser;
+    const initialCookie = getCurrentUserFromCookie();
+    
+    if (initialUser) {
       setHydrated(true);
       return;
     }
-    if (cookie) {
-      useDiagramStore.setState({ currentUser: cookie } as any);
+    if (initialCookie && !initialUser) {
+      useDiagramStore.setState({ currentUser: initialCookie } as any);
+      setHydrated(true);
       return;
     }
     setHydrated(true);
@@ -34,7 +39,8 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
   // still valid before rehydrating the store and avoiding a redirect.
   useEffect(() => {
     let mounted = true;
-    if (!effectiveUser && typeof window !== 'undefined') {
+    const initialEffectiveUser = effectiveUser;
+    if (!initialEffectiveUser && typeof window !== 'undefined') {
       const last = (window as any).__lastKnownUser;
       if (last && !validating) {
         (async () => {
@@ -78,7 +84,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
       }
     }
     return () => { mounted = false; };
-  }, [currentUser, cookie, validating]);
+  }, []); // Run only once on mount
 
   // If we're actively validating, render nothing so we don't redirect
   // prematurely while the silent validation completes.

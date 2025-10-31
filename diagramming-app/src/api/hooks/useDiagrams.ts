@@ -22,7 +22,20 @@ export function useDiagram(diagramId: string | null) {
       if (!diagramId) {
         throw new Error('No diagram ID provided');
       }
-      return api.get<Diagram>(`/diagrams/${diagramId}`);
+      const response = await api.get<any>(`/diagrams/${diagramId}`);
+      
+      // Transform server response format to expected Diagram format
+      // Server returns: { id, state: { sheets, activeSheetId, diagramName, ... }, version }
+      // We need: { id, sheets, activeSheetId, name, version }
+      return {
+        id: response.id,
+        name: response.state?.diagramName || response.name || 'Untitled',
+        version: response.version,
+        sheets: response.state?.sheets || {},
+        activeSheetId: response.state?.activeSheetId || '',
+        createdAt: response.created_at,
+        updatedAt: response.updated_at,
+      };
     },
     enabled: !!diagramId,
     staleTime: 1000 * 60 * 2, // 2 minutes
@@ -43,12 +56,28 @@ export function useSaveDiagram() {
       diagramId: string | null;
       data: SaveDiagramRequest;
     }): Promise<SaveDiagramResponse> => {
+      // Transform data to server format
+      // Server expects: { state: { diagramName, sheets, activeSheetId, ... } }
+      // We provide: { name, sheets, activeSheetId, version }
+      const serverPayload = {
+        state: {
+          diagramName: data.name,
+          sheets: data.sheets,
+          activeSheetId: data.activeSheetId,
+          isSnapToGridEnabled: (data as any).isSnapToGridEnabled,
+        },
+      };
+
       if (diagramId) {
-        // Update existing diagram
-        return api.put<SaveDiagramResponse>(`/diagrams/${diagramId}`, data);
+        // Update existing diagram with version check
+        const headers: Record<string, string> = {};
+        if (data.version !== undefined) {
+          headers['If-Match'] = `"v${data.version}"`;
+        }
+        return api.put<SaveDiagramResponse>(`/diagrams/${diagramId}`, serverPayload, headers);
       } else {
         // Create new diagram
-        return api.post<SaveDiagramResponse>('/diagrams', data);
+        return api.post<SaveDiagramResponse>('/diagrams', serverPayload);
       }
     },
     onSuccess: (response, variables) => {

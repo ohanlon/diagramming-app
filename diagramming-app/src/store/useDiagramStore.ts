@@ -24,6 +24,7 @@ interface DiagramStoreActions extends
   ClipboardStoreActions {
   toggleSnapToGrid: () => void; // Add snapping toggle action
   saveDiagram: (thumbnailDataUrl?: string | null, force?: boolean) => Promise<void>; // Manually save to storage/server, optional thumbnail
+  saveDiagramViaQuery?: (force?: boolean) => Promise<any>; // React Query-based save function
   resolveConflictAcceptServer: () => void;
   resolveConflictForceOverwrite: () => Promise<void>;
   dismissConflict: () => void;

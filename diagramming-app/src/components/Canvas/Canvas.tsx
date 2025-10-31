@@ -48,7 +48,7 @@ const Canvas: React.FC = () => {
     isSnapToGridEnabled,
   } = useDiagramStore();
 
-  const activeSheet = sheets[activeSheetId];
+  const activeSheet = sheets?.[activeSheetId];
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [editingTextShapeId, setEditingTextShapeId] = useState<string | null>(null);

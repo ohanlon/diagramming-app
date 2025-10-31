@@ -158,10 +158,14 @@ export const api = {
       body: data ? JSON.stringify(data) : undefined,
     }),
 
-  put: <T = unknown>(endpoint: string, data?: unknown, options?: RequestInit) =>
+  put: <T = unknown>(endpoint: string, data?: unknown, customHeaders?: Record<string, string>, options?: RequestInit) =>
     apiRequest<T>(endpoint, {
       ...options,
       method: 'PUT',
+      headers: {
+        ...options?.headers,
+        ...customHeaders,
+      },
       body: data ? JSON.stringify(data) : undefined,
     }),
 

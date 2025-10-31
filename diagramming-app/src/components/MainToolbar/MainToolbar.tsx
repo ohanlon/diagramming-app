@@ -20,8 +20,9 @@ const MainToolbar: React.FC = () => {
   const [arrangeMenuAnchorEl, setArrangeMenuAnchorEl] = useState<null | HTMLElement>(null);
   const { resetStore, undo, redo, cutShape, copyShape, pasteShape, selectAll, selectShapes, selectConnectors, bringForward, sendBackward, bringToFront, sendToBack, activeSheetId, sheets, isDirty, currentUser, serverUrl: storeServerUrl, diagramName: storeDiagramName, setDiagramName } = useDiagramStore();
   const serverUrl = storeServerUrl || 'http://localhost:4000';
-  const { canUndo, canRedo } = useHistoryStore();
-  const activeSheet = sheets[activeSheetId];
+  const canUndo = useHistoryStore(state => state.canUndo());
+  const canRedo = useHistoryStore(state => state.canRedo());
+  const activeSheet = sheets?.[activeSheetId];
   const navigate = useNavigate();
   const diagramName = storeDiagramName || 'New Diagram';
   const [editNameOpen, setEditNameOpen] = React.useState(false);
@@ -49,13 +50,13 @@ const MainToolbar: React.FC = () => {
     }
   };
 
-
-  // If activeSheet is undefined, it means the store state is inconsistent
-  if (!activeSheet) {
-    console.error('Active sheet not found, resetting store');
-    resetStore();
-    return <div>Loading...</div>;
-  }
+  // Reset store if activeSheet is undefined (store state is inconsistent)
+  useEffect(() => {
+    if (!activeSheet) {
+      console.error('Active sheet not found, resetting store');
+      resetStore();
+    }
+  }, [activeSheet, resetStore]);
 
   // Warn user if navigating away with unsaved changes
   useEffect(() => {
@@ -845,7 +846,9 @@ const MainToolbar: React.FC = () => {
     }
   };
 
-  const { saveDiagram } = useDiagramStore();
+  const { saveDiagram: saveDiagramOld } = useDiagramStore();
+  const saveDiagramViaQuery = useDiagramStore(state => (state as any).saveDiagramViaQuery);
+  const saveDiagram = saveDiagramViaQuery || saveDiagramOld;
   const isEditable = useDiagramStore(state => state.isEditable !== false);
 
   useEffect(() => {
@@ -904,14 +907,14 @@ const MainToolbar: React.FC = () => {
   };
 
   const handleCut = () => {
-    if (activeSheet?.selectedShapeIds?.length > 0) {
+    if (activeSheet?.selectedShapeIds && activeSheet.selectedShapeIds.length > 0) {
       cutShape(activeSheet.selectedShapeIds);
     }
     handleEditMenuClose();
   };
 
   const handleCopy = () => {
-    if (activeSheet?.selectedShapeIds?.length > 0) {
+    if (activeSheet?.selectedShapeIds && activeSheet.selectedShapeIds.length > 0) {
       copyShape(activeSheet.selectedShapeIds);
     }
     handleEditMenuClose();
@@ -938,28 +941,28 @@ const MainToolbar: React.FC = () => {
   };
 
   const handleBringToFront = () => {
-    if (activeSheet?.selectedShapeIds?.length > 0) {
+    if (activeSheet?.selectedShapeIds && activeSheet.selectedShapeIds.length > 0) {
       activeSheet.selectedShapeIds.forEach(id => bringToFront(id));
     }
     handleArrangeMenuClose();
   };
 
   const handleBringForward = () => {
-    if (activeSheet?.selectedShapeIds?.length > 0) {
+    if (activeSheet?.selectedShapeIds && activeSheet.selectedShapeIds.length > 0) {
       activeSheet.selectedShapeIds.forEach(id => bringForward(id));
     }
     handleArrangeMenuClose();
   };
 
   const handleSendBackward = () => {
-    if (activeSheet?.selectedShapeIds?.length > 0) {
+    if (activeSheet?.selectedShapeIds && activeSheet.selectedShapeIds.length > 0) {
       activeSheet.selectedShapeIds.forEach(id => sendBackward(id));
     }
     handleArrangeMenuClose();
   };
 
   const handleSendToBack = () => {
-    if (activeSheet?.selectedShapeIds?.length > 0) {
+    if (activeSheet?.selectedShapeIds && activeSheet.selectedShapeIds.length > 0) {
       activeSheet.selectedShapeIds.forEach(id => sendToBack(id));
     }
     handleArrangeMenuClose();
@@ -1201,14 +1204,14 @@ const MainToolbar: React.FC = () => {
           }
         }}
       >
-        <MenuItem onClick={handleUndo} disabled={!canUndo()}>
+        <MenuItem onClick={handleUndo} disabled={!canUndo}>
           <ListItemIcon>
             <UndoOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Undo</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+Z</Typography>
         </MenuItem>
-        <MenuItem onClick={handleRedo} disabled={!canRedo()}>
+        <MenuItem onClick={handleRedo} disabled={!canRedo}>
           <ListItemIcon>
             <RedoOutlined fontSize="small" />
           </ListItemIcon>

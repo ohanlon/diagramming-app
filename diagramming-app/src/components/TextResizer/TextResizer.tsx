@@ -91,7 +91,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
       const PADDING_VERTICAL = 6;
 
       const state = useDiagramStore.getState();
-      const shape = state.sheets[activeSheetId].shapesById[shapeId];
+      const shape = state.sheets?.[activeSheetId]?.shapesById?.[shapeId];
       if (!shape) return;
 
       const { x, y, width, height, textWidth, textHeight, isTextPositionManuallySet, textOffsetY: shapeTextOffsetY, textPosition, textOffsetX } = shape;

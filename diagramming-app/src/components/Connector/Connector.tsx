@@ -36,7 +36,7 @@ interface ConnectorProps {
 
 const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected, activeLayerId, layers }) => {
   const { sheets, activeSheetId, setSelectedConnectors, updateConnectorText, setConnectorTextSelected } = useDiagramStore();
-  const activeSheet = sheets[activeSheetId];
+  const activeSheet = sheets?.[activeSheetId];
 
   if (!activeSheet) return null; // Should not happen if Canvas is rendering correctly
 

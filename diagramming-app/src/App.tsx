@@ -24,6 +24,7 @@ import SalesRoute from './components/SalesRoute';
 import OnboardingPage from './pages/Onboarding';
 import DiagramHistory from './pages/DiagramHistory';
 import { useDiagramStore } from './store/useDiagramStore';
+import { useDiagramSync } from './hooks/useDiagramSync';
 
 function MainAppLayout() {
   const [showLayerPanel, setShowLayerPanel] = useState(true);
@@ -35,37 +36,41 @@ function MainAppLayout() {
   const effectiveDiagramId = diagramIdFromParams || diagramIdFromQuery;
   // If there is no diagram id in path or querystring, redirect the user to the dashboard
   if (!effectiveDiagramId) return <Navigate to="/dashboard" replace />;
+  
   const setRemoteDiagramId = useDiagramStore(state => state.setRemoteDiagramId);
-  const loadDiagram = useDiagramStore(state => state.loadDiagram);
+  
+  // Use React Query to sync diagram state
+  const { isLoading, error, isSaving } = useDiagramSync({
+    diagramId: effectiveDiagramId,
+    autoSaveInterval: 30000, // 30 seconds
+    enabled: true,
+  });
 
   useEffect(() => {
-    // If a historyId is present in the querystring, fetch that history entry and apply it as a snapshot
-    const historyId = searchParams.get('historyId');
+    // Set diagram ID in Zustand for backward compatibility
     if (effectiveDiagramId) {
       setRemoteDiagramId(effectiveDiagramId);
-      if (historyId) {
-        (async () => {
-          try {
-            const { apiFetch } = await import('./utils/apiFetch');
-            const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams/${effectiveDiagramId}/history/${historyId}`, { method: 'GET' });
-            if (!resp.ok) throw new Error('Failed to fetch history entry');
-            const json = await resp.json();
-            if (json && json.state) {
-              // Apply the snapshot locally but do not call loadDiagram to avoid overwriting with remote state
-              useDiagramStore.getState().applyStateSnapshot(json.state);
-              useDiagramStore.getState().setRemoteDiagramId(effectiveDiagramId);
-            }
-          } catch (e) {
-            console.error('Failed to apply history snapshot', e);
-            // Fallback: load current diagram from server
-            loadDiagram(true);
-          }
-        })();
-      } else {
-        // Normal behavior: load diagram from server
-        loadDiagram(true);
-      }
     }
+    
+    // If a historyId is present in the querystring, fetch that history entry and apply it as a snapshot
+    const historyId = searchParams.get('historyId');
+    if (historyId && effectiveDiagramId) {
+      (async () => {
+        try {
+          const { apiFetch } = await import('./utils/apiFetch');
+          const resp = await apiFetch(`${useDiagramStore.getState().serverUrl}/diagrams/${effectiveDiagramId}/history/${historyId}`, { method: 'GET' });
+          if (!resp.ok) throw new Error('Failed to fetch history entry');
+          const json = await resp.json();
+          if (json && json.state) {
+            // Apply the snapshot locally
+            useDiagramStore.getState().applyStateSnapshot(json.state);
+          }
+        } catch (e) {
+          console.error('Failed to apply history snapshot', e);
+        }
+      })();
+    }
+    
     // Open a WebSocket to receive real-time updates for this diagram
     let ws: WebSocket | null = null;
     try {
@@ -83,7 +88,7 @@ function MainAppLayout() {
       if (ws) try { ws.close(); } catch (e) { }
       try { delete (window as any)._diagramWs; } catch (e) { }
     };
-  }, [effectiveDiagramId, setRemoteDiagramId, loadDiagram, searchParams]);
+  }, [effectiveDiagramId, setRemoteDiagramId, searchParams]);
 
   // Local UI state for transient update notifications
   const [notifyOpen, setNotifyOpen] = useState(false);
