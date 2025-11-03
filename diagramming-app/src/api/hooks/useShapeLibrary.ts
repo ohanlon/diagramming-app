@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiRequest } from '../client';
-import type { PromoteShapesResponse, ShapeAsset, ShapeCategory, ShapeSubcategory, ShapeTextPosition } from '../types';
+import type { DeleteShapeResponse, PromoteShapesResponse, ShapeAsset, ShapeCategory, ShapeSubcategory, ShapeTextPosition } from '../types';
 
 export const shapeLibraryKeys = {
   all: ['shapeLibrary'] as const,
@@ -144,6 +144,25 @@ export function usePromoteShapeAssets() {
       const response = await api.post<PromoteShapesResponse>('/admin/images/shapes/promote', {
         shapeIds,
       });
+      return response;
+    },
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({ queryKey: shapeLibraryKeys.shapes(variables.subcategoryId) });
+    },
+  });
+}
+
+export function useDeleteShapeAsset() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      subcategoryId: _subcategoryId,
+      shapeId,
+    }: {
+      subcategoryId: string;
+      shapeId: string;
+    }): Promise<DeleteShapeResponse> => {
+      const response = await api.delete<DeleteShapeResponse>(`/admin/images/shapes/${shapeId}`);
       return response;
     },
     onSuccess: (_result, variables) => {

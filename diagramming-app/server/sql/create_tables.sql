@@ -224,6 +224,7 @@ CREATE TABLE IF NOT EXISTS public.shape_asset
   text_position text COLLATE pg_catalog."default" NOT NULL DEFAULT 'None',
   autosize boolean NOT NULL DEFAULT true,
   is_production boolean NOT NULL DEFAULT false,
+  is_deleted boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW(),
   CONSTRAINT shape_asset_pkey PRIMARY KEY (id),
@@ -241,3 +242,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS shape_asset_path_idx
 
 ALTER TABLE IF EXISTS public.shape_asset
   ADD COLUMN IF NOT EXISTS is_production boolean NOT NULL DEFAULT false;
+
+ALTER TABLE IF EXISTS public.shape_asset
+  ADD COLUMN IF NOT EXISTS is_deleted boolean NOT NULL DEFAULT false;

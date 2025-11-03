@@ -21,6 +21,8 @@ import {
   ShapeAssetDuplicateTitleError,
   ShapeAssetNotFoundError,
   markShapeAssetPromoted,
+  deleteShapeAssetPermanently,
+  softDeleteShapeAsset,
   updateShapeAsset,
 } from '../shapeAssetStore';
 import type { FileFilterCallback } from 'multer';
@@ -126,6 +128,7 @@ const mapShapeAsset = (row: {
   text_position: string;
   autosize: boolean;
   is_production: boolean;
+  is_deleted: boolean;
   created_at: string;
   updated_at: string;
 }) => ({
@@ -137,6 +140,7 @@ const mapShapeAsset = (row: {
   textPosition: row.text_position,
   autosize: row.autosize,
   isProduction: row.is_production,
+  isDeleted: row.is_deleted,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -388,6 +392,44 @@ router.post('/shapes/promote', async (req, res) => {
   } catch (err) {
     console.error('Failed to promote shapes', err);
     return res.status(500).json({ error: 'Failed to promote shapes' });
+  }
+});
+
+router.delete('/shapes/:shapeId', async (req, res) => {
+  const { shapeId } = req.params;
+  try {
+    const assets = await getShapeAssetsByIds([shapeId]);
+    const asset = assets[0];
+    if (!asset || asset.is_deleted) {
+      return res.status(404).json({ error: 'Shape not found' });
+    }
+
+    if (asset.is_production) {
+      const updated = await softDeleteShapeAsset(asset.id);
+      return res.json({ status: 'soft_deleted', shape: mapShapeAsset(updated) });
+    }
+
+    const relativePath = normalizeStoredPath(asset.path);
+    if (relativePath) {
+      const absolutePath = path.join(SHAPES_ROOT, relativePath);
+      try {
+        await fs.unlink(absolutePath);
+      } catch (err: any) {
+        if (err && err.code !== 'ENOENT') {
+          console.error('Failed to delete staged shape file', absolutePath, err);
+          return res.status(500).json({ error: 'Failed to delete shape file from disk' });
+        }
+      }
+    }
+
+    await deleteShapeAssetPermanently(asset.id);
+    return res.json({ status: 'deleted' });
+  } catch (err) {
+    if (err instanceof ShapeAssetNotFoundError) {
+      return res.status(404).json({ error: 'Shape not found' });
+    }
+    console.error('Failed to delete shape asset', err);
+    return res.status(500).json({ error: 'Failed to delete shape' });
   }
 });
 

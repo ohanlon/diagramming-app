@@ -84,6 +84,7 @@ export interface ShapeAsset {
   textPosition: ShapeTextPosition;
   autosize: boolean;
   isProduction: boolean;
+  isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -91,4 +92,9 @@ export interface ShapeAsset {
 export interface PromoteShapesResponse {
   promoted: ShapeAsset[];
   errors: Array<{ id: string; message: string; code: string }>;
+}
+
+export interface DeleteShapeResponse {
+  status: 'deleted' | 'soft_deleted';
+  shape?: ShapeAsset;
 }

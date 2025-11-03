@@ -13,6 +13,7 @@ export interface ShapeAssetRow {
   text_position: TextPosition;
   autosize: boolean;
   is_production: boolean;
+  is_deleted: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +47,10 @@ export interface CreateShapeAssetParams {
 export async function listShapeAssets(subcategoryId: string): Promise<ShapeAssetRow[]> {
   if (!UUID_REGEX.test(subcategoryId)) return [];
   const { rows } = await pool.query(
-    'SELECT id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, created_at, updated_at FROM shape_asset WHERE subcategory_id = $1 ORDER BY created_at ASC',
+    `SELECT id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at
+     FROM shape_asset
+     WHERE subcategory_id = $1 AND is_deleted = FALSE
+     ORDER BY created_at ASC`,
     [subcategoryId]
   );
   return rows as ShapeAssetRow[];
@@ -64,7 +68,7 @@ export async function createShapeAsset(params: CreateShapeAssetParams): Promise<
     const { rows } = await pool.query(
       `INSERT INTO shape_asset (id, subcategory_id, title, path, original_filename, text_position, autosize)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, created_at, updated_at`,
+       RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at`,
       [
         id,
         params.subcategoryId,
@@ -107,7 +111,7 @@ export async function updateShapeAsset({ id, title, textPosition, autosize }: Up
     throw new ShapeAssetNotFoundError(id);
   }
   const existingResult = await pool.query(
-    'SELECT id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, created_at, updated_at FROM shape_asset WHERE id = $1',
+    'SELECT id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at FROM shape_asset WHERE id = $1',
     [id]
   );
   const existing = (existingResult.rows as ShapeAssetRow[])[0];
@@ -132,7 +136,7 @@ export async function updateShapeAsset({ id, title, textPosition, autosize }: Up
     return existing;
   }
   fields.push(`updated_at = NOW()`);
-  const query = `UPDATE shape_asset SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, created_at, updated_at`;
+  const query = `UPDATE shape_asset SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at`;
   values.push(id);
   try {
     const { rows } = await pool.query(query, values);
@@ -153,7 +157,7 @@ export async function getShapeAssetsByIds(ids: string[]): Promise<ShapeAssetRow[
     return [];
   }
   const { rows } = await pool.query(
-    'SELECT id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, created_at, updated_at FROM shape_asset WHERE id = ANY($1::uuid[])',
+    'SELECT id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at FROM shape_asset WHERE id = ANY($1::uuid[])',
     [uniqueIds]
   );
   return rows as ShapeAssetRow[];
@@ -169,8 +173,44 @@ export async function markShapeAssetPromoted(id: string, newPath: string): Promi
          is_production = TRUE,
          updated_at = NOW()
      WHERE id = $2
-     RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, created_at, updated_at`,
+     RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at`,
     [newPath, id]
+  );
+  const row = (rows as ShapeAssetRow[])[0];
+  if (!row) {
+    throw new ShapeAssetNotFoundError(id);
+  }
+  return row;
+}
+
+export async function softDeleteShapeAsset(id: string): Promise<ShapeAssetRow> {
+  if (!UUID_REGEX.test(id)) {
+    throw new ShapeAssetNotFoundError(id);
+  }
+  const { rows } = await pool.query(
+    `UPDATE shape_asset
+     SET is_deleted = TRUE,
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at`,
+    [id]
+  );
+  const row = (rows as ShapeAssetRow[])[0];
+  if (!row) {
+    throw new ShapeAssetNotFoundError(id);
+  }
+  return row;
+}
+
+export async function deleteShapeAssetPermanently(id: string): Promise<ShapeAssetRow> {
+  if (!UUID_REGEX.test(id)) {
+    throw new ShapeAssetNotFoundError(id);
+  }
+  const { rows } = await pool.query(
+    `DELETE FROM shape_asset
+     WHERE id = $1
+     RETURNING id, subcategory_id, title, path, original_filename, text_position, autosize, is_production, is_deleted, created_at, updated_at`,
+    [id]
   );
   const row = (rows as ShapeAssetRow[])[0];
   if (!row) {

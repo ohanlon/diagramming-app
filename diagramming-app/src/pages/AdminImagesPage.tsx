@@ -27,6 +27,7 @@ import { ApiClientError } from '../api/client';
 import {
   useCreateShapeCategory,
   useCreateShapeSubcategory,
+  useDeleteShapeAsset,
   usePromoteShapeAssets,
   useShapeAssets,
   useShapeCategories,
@@ -56,6 +57,7 @@ const AdminImagesPage: React.FC = () => {
   const [uploadFeedback, setUploadFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [uploadErrors, setUploadErrors] = useState<Array<{ file: string; message: string }>>([]);
   const [editFeedback, setEditFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [deleteFeedback, setDeleteFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [drafts, setDrafts] = useState<Record<string, DraftState>>({});
   const [promotionFeedback, setPromotionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [promotionErrors, setPromotionErrors] = useState<Array<{ id: string; message: string }>>([]);
@@ -108,12 +110,15 @@ const AdminImagesPage: React.FC = () => {
   const uploadShapes = useUploadShapeAssets();
   const updateShape = useUpdateShapeAsset();
   const promoteShapes = usePromoteShapeAssets();
+  const deleteShape = useDeleteShapeAsset();
   const promotePending = promoteShapes.isPending;
+  const deletePending = deleteShape.isPending;
 
   useEffect(() => {
     setUploadFeedback(null);
     setUploadErrors([]);
     setEditFeedback(null);
+    setDeleteFeedback(null);
     setDrafts({});
     setPromotionFeedback(null);
     setPromotionErrors([]);
@@ -239,8 +244,8 @@ const AdminImagesPage: React.FC = () => {
   const allSelectableCount = promotableShapeIdSet.size;
   const allSelected = allSelectableCount > 0 && selectedCount === allSelectableCount;
   const selectAllIndeterminate = selectedCount > 0 && selectedCount < allSelectableCount;
-  const promoteDisabled = !selectedSubcategoryId || selectedCount === 0 || promotePending;
-  const selectAllDisabled = allSelectableCount === 0 || promotePending;
+  const promoteDisabled = !selectedSubcategoryId || selectedCount === 0 || promotePending || deletePending;
+  const selectAllDisabled = allSelectableCount === 0 || promotePending || deletePending;
   const selectionMessage = useMemo(() => {
     if (allSelectableCount === 0) {
       return 'All shapes for this sub-category are already in production.';
@@ -357,7 +362,7 @@ const AdminImagesPage: React.FC = () => {
   }, [drafts, shapes, updateShape]);
 
   const handleToggleShapeSelected = useCallback((id: string) => {
-    if (promotePending) return;
+    if (promotePending || deletePending) return;
     if (!promotableShapeIdSet.has(id)) return;
     setSelectedShapeIds((prev) => {
       const next = new Set(prev);
@@ -368,7 +373,7 @@ const AdminImagesPage: React.FC = () => {
       }
       return next;
     });
-  }, [promotePending, promotableShapeIdSet]);
+  }, [deletePending, promotePending, promotableShapeIdSet]);
 
   const handleToggleSelectAll = useCallback(() => {
     if (selectAllDisabled) return;
@@ -380,7 +385,7 @@ const AdminImagesPage: React.FC = () => {
   }, [allSelected, promotableShapeIdSet, selectAllDisabled]);
 
   const handlePromoteSelected = useCallback(async () => {
-    if (promotePending) return;
+    if (promotePending || deletePending) return;
     if (!selectedSubcategoryId) {
       setPromotionFeedback({ type: 'error', message: 'Select a sub-category before promoting.' });
       return;
@@ -426,7 +431,48 @@ const AdminImagesPage: React.FC = () => {
         setPromotionFeedback({ type: 'error', message: 'Failed to promote shapes' });
       }
     }
-  }, [promotePending, promoteShapes, promotableShapeIdSet, promotableShapeIds, selectedShapeIds, selectedSubcategoryId]);
+  }, [deletePending, promotePending, promoteShapes, promotableShapeIdSet, promotableShapeIds, selectedShapeIds, selectedSubcategoryId]);
+
+  const handleDeleteShape = useCallback(async (shape: typeof shapes[number]) => {
+    if (deletePending) return;
+    if (!selectedSubcategoryId) {
+      setDeleteFeedback({ type: 'error', message: 'Select a sub-category first.' });
+      return;
+    }
+    const displayName = shape.title?.trim().length ? shape.title : shape.originalFilename;
+    const confirmMessage = shape.isProduction
+      ? `"${displayName}" has already been promoted. This will remove it from the catalogue but keep the production asset. Continue?`
+      : `Delete staged shape "${displayName}"? This will remove the file from disk.`;
+    // eslint-disable-next-line no-alert
+    const confirmed = typeof window !== 'undefined' ? window.confirm(confirmMessage) : true;
+    if (!confirmed) {
+      return;
+    }
+    setDeleteFeedback(null);
+    try {
+      const result = await deleteShape.mutateAsync({ subcategoryId: shape.subcategoryId, shapeId: shape.id });
+      const status = result.status;
+      const message = status === 'soft_deleted'
+        ? `Marked "${displayName}" as removed from production.`
+        : `Deleted "${displayName}".`;
+      setDeleteFeedback({ type: 'success', message });
+      setSelectedShapeIds((prev) => {
+        if (!prev.has(shape.id)) return prev;
+        const next = new Set(prev);
+        next.delete(shape.id);
+        return next;
+      });
+      setDrafts((prev) => {
+        if (!(shape.id in prev)) return prev;
+        const next = { ...prev };
+        delete next[shape.id];
+        return next;
+      });
+    } catch (error) {
+      const message = error instanceof ApiClientError ? error.message : 'Failed to delete shape';
+      setDeleteFeedback({ type: 'error', message });
+    }
+  }, [deletePending, deleteShape, selectedSubcategoryId]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: (theme) => theme.palette.background.default }}>
@@ -631,6 +677,12 @@ const AdminImagesPage: React.FC = () => {
                 </Alert>
               )}
 
+              {deleteFeedback && (
+                <Alert severity={deleteFeedback.type} onClose={() => setDeleteFeedback(null)}>
+                  {deleteFeedback.message}
+                </Alert>
+              )}
+
               {promotionFeedback && (
                 <Alert severity={promotionFeedback.type} onClose={() => setPromotionFeedback(null)}>
                   {promotionFeedback.message}
@@ -734,7 +786,7 @@ const AdminImagesPage: React.FC = () => {
                                 size="small"
                                 checked={isSelected}
                                 onChange={() => handleToggleShapeSelected(shape.id)}
-                                disabled={isProduction || promotePending}
+                                disabled={isProduction || promotePending || deletePending}
                                 inputProps={{ 'aria-label': isProduction ? 'Shape already in production' : 'Select shape for promotion' }}
                               />
                               <Typography variant="body2" color="text.secondary">
@@ -800,6 +852,15 @@ const AdminImagesPage: React.FC = () => {
                                 disabled={!draft.dirty || updateShape.isPending}
                               >
                                 Reset
+                              </Button>
+                              <Button
+                                variant="text"
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteShape(shape)}
+                                disabled={deletePending}
+                              >
+                                Delete
                               </Button>
                             </Stack>
                           </Stack>
