@@ -20,14 +20,6 @@ import { makeImageSVGUnique, generateShapeUniqueId } from '../../utils/svgUtils'
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { debounce } from '../../utils/debounce';
 
-interface ShapeFileEntry {
-  name?: string;
-  title?: string;
-  path?: string;
-  textPosition?: 'inside' | 'outside' | 'None';
-  autosize?: boolean;
-}
-
 interface Shape {
   id: string;
   name: string;
@@ -39,10 +31,28 @@ interface Shape {
   interaction?: Interaction;
 }
 
-interface CatalogEntry {
+interface ShapeLibraryResponse {
+  categories?: ShapeLibraryCategory[];
+}
+
+interface ShapeLibraryCategory {
   id: string;
   name: string;
-  path: string;
+  subcategories?: ShapeLibrarySubcategory[];
+}
+
+interface ShapeLibrarySubcategory {
+  id: string;
+  name: string;
+  shapes?: ShapeLibraryShape[];
+}
+
+interface ShapeLibraryShape {
+  id?: string;
+  title?: string;
+  path?: string;
+  textPosition?: string;
+  autosize?: boolean;
 }
 
 interface IndexEntry {
@@ -62,6 +72,40 @@ const filterOptions = createFilterOptions<SearchableShape>({
   matchFrom: 'any',
   stringify: (option) => `${option.shape.name} ${option.category.name} ${option.category.provider}`
 });
+
+const normalizeTextPositionValue = (value?: string | null): 'inside' | 'outside' | 'None' => {
+  if (!value) return 'outside';
+  if (value === 'None') return 'None';
+  const lower = value.toLowerCase();
+  if (lower === 'inside' || lower === 'outside') {
+    return lower;
+  }
+  return 'outside';
+};
+
+const normalizeShapePath = (rawPath?: string | null): string => {
+  if (!rawPath) return '';
+  let trimmed = rawPath.trim().replace(/\\/g, '/');
+  if (!trimmed) return '';
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  if (trimmed.startsWith('/public/')) {
+    trimmed = trimmed.slice('/public/'.length);
+  } else if (trimmed.startsWith('public/')) {
+    trimmed = trimmed.slice('public/'.length);
+  }
+  if (trimmed.startsWith('/shapes/')) {
+    return trimmed;
+  }
+  if (trimmed.startsWith('shapes/')) {
+    return `/${trimmed}`;
+  }
+  if (trimmed.startsWith('/')) {
+    return `/shapes/${trimmed.replace(/^\/+/, '')}`;
+  }
+  return `/shapes/${trimmed}`;
+};
 
 const ShapeStore: React.FC = () => {
   const [indexEntries, setIndexEntries] = useState<IndexEntry[]>([]);
@@ -139,94 +183,91 @@ const ShapeStore: React.FC = () => {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchAllData = async () => {
       try {
-        const catalogResponse = await fetch(`${serverUrl}/shapes/catalog.json`);
-        const catalog: CatalogEntry[] = await catalogResponse.json();
+        const response = await fetch(`${serverUrl}/shapes/library`);
+        if (!response.ok) {
+          const text = await response.text().catch(() => '<no response text>');
+          throw new Error(`Failed to load shapes library: ${response.status} ${response.statusText} - ${text}`);
+        }
+        const library = (await response.json()) as ShapeLibraryResponse;
+        const categories = Array.isArray(library?.categories) ? library.categories : [];
         const allIndexEntries: IndexEntry[] = [];
 
-        for (const entry of catalog) {
-          // Normalize entry.path to server URL to ensure we fetch from backend
-          const entryIndexPath = entry.path && entry.path.startsWith('/') ? `${serverUrl}${entry.path}` : `${serverUrl}/shapes/${entry.path.replace(/^\//, '')}`;
-          let indexRaw: string;
-          try {
-            const indexResponse = await fetch(entryIndexPath);
-            if (!indexResponse.ok) {
-              const text = await indexResponse.text().catch(() => `<failed to read response text>`);
-              throw new Error(`Failed to fetch provider index ${entryIndexPath}: ${indexResponse.status} ${indexResponse.statusText} - ${text}`);
-            }
-            indexRaw = await indexResponse.text();
-          } catch (err) {
-            console.error('Failed to fetch provider index at', entryIndexPath, err);
-            // skip this provider
-            continue;
-          }
-          let index: IndexEntry[];
-          try {
-            index = JSON.parse(indexRaw) as IndexEntry[];
-          } catch (err) {
-            console.error('Failed to parse provider index JSON from', entryIndexPath, err);
-            continue;
-          }
-
-          for (const subEntry of index) {
-            // Normalize path: if subEntry.path starts with '/', treat as server absolute path
-            const subPath = subEntry.path && subEntry.path.startsWith('/') ? `${serverUrl}${subEntry.path}` : `${serverUrl}/shapes/${subEntry.path.replace(/^\//, '')}`;
-            const shapesResponse = await fetch(subPath);
-            const shapesInFile: ShapeFileEntry[] = await shapesResponse.json();
-
+        for (const category of categories) {
+          const subcategories = Array.isArray(category?.subcategories) ? category.subcategories : [];
+          for (const subcategory of subcategories) {
+            const shapes = Array.isArray(subcategory?.shapes) ? subcategory.shapes : [];
             const shapesWithSvgContent: Shape[] = await Promise.all(
-              shapesInFile.map(async (shape, index) => {
-                const normalizedShape = {
-                  ...shape,
-                  id: shape.name || `shape_${index}`,
-                  name: shape.name || shape.title || '',
-                  textPosition: shape.textPosition || 'outside',
-                  autosize: shape.autosize ?? true,
-                  path: shape.path || ''
-                };
-                if (shape.path) { // Ensure path exists
+              shapes.map(async (shape, index) => {
+                const normalizedPath = normalizeShapePath(shape.path);
+                let svgContent: string | undefined;
+                if (normalizedPath) {
+                  let svgUrl = normalizedPath;
+                  if (!/^https?:\/\//i.test(svgUrl)) {
+                    svgUrl = `${serverUrl}${svgUrl}`;
+                  }
                   try {
-                    const svgPath = shape.path.startsWith('/') ? `${serverUrl}${shape.path}` : `${serverUrl}/shapes/${shape.path.replace(/^\//, '')}`;
-                    const svgResponse = await fetch(svgPath);
+                    const svgResponse = await fetch(svgUrl);
                     if (!svgResponse.ok) {
                       const text = await svgResponse.text().catch(() => '<no response text>');
-                      throw new Error(`Failed to fetch SVG ${svgPath}: ${svgResponse.status} ${svgResponse.statusText} - ${text}`);
+                      throw new Error(`Failed to fetch SVG ${svgUrl}: ${svgResponse.status} ${svgResponse.statusText} - ${text}`);
                     }
-                    const svgContent = await svgResponse.text();
-                    // Make SVG IDs unique to prevent conflicts in the DOM
-                    const uniqueId = generateShapeUniqueId(normalizedShape.name || `shape_${index}`, index);
-                    const uniqueSvgContent = makeImageSVGUnique(svgContent, uniqueId);
-                    return { ...normalizedShape, shape: uniqueSvgContent }; // Assign unique SVG content
+                    const svgRaw = await svgResponse.text();
+                    const uniqueId = generateShapeUniqueId(shape.id || shape.title || subcategory.id, index);
+                    svgContent = makeImageSVGUnique(svgRaw, uniqueId);
                   } catch (svgError) {
-                    console.error(`Failed to load SVG for ${shape.path}:`, svgError);
-                    return normalizedShape; // Return original shape if SVG fetch fails
+                    console.warn(`Failed to load SVG for ${normalizedPath}:`, svgError);
                   }
                 }
-                return normalizedShape; // Return original shape if no path
+
+                const fallbackName = shape.title?.trim() || shape.id?.trim() || `Shape ${index + 1}`;
+                const normalized: Shape = {
+                  id: shape.id || `${subcategory.id}_${index}`,
+                  name: fallbackName,
+                  path: normalizedPath,
+                  textPosition: normalizeTextPositionValue(shape.textPosition),
+                  autosize: shape.autosize ?? true,
+                };
+                if (svgContent) {
+                  normalized.shape = svgContent;
+                }
+                return normalized;
               })
             );
 
-            allIndexEntries.push({ ...subEntry, shapes: shapesWithSvgContent, provider: entry.name });
+            allIndexEntries.push({
+              id: subcategory.id,
+              name: subcategory.name,
+              path: subcategory.id,
+              shapes: shapesWithSvgContent,
+              provider: category.name,
+            });
           }
         }
+
+        if (cancelled) return;
+
         setIndexEntries(allIndexEntries);
 
-        // Load pinned category IDs from localStorage or server
         let initialPinnedIds: string[] = [];
         if (currentUser) {
-          // Load from server
           try {
-            const resp = await (await import('../../utils/apiFetch')).apiFetch(`${serverUrl}/users/me/settings`, { method: 'GET' });
+            const { apiFetch } = await import('../../utils/apiFetch');
+            const resp = await apiFetch(`${serverUrl}/users/me/settings`, { method: 'GET' });
             if (resp.ok) {
               const json = await resp.json();
               initialPinnedIds = json.settings?.pinnedShapeCategoryIds || [];
+            } else {
+              const text = await resp.text().catch(() => '<no response text>');
+              console.warn('Failed to load pinned categories from server:', resp.status, text);
             }
           } catch (e) {
             console.warn('Failed to load pinned categories from server', e);
           }
         } else {
-          // Load from localStorage
           try {
             const storedPinnedIds = localStorage.getItem('pinnedShapeCategoryIds');
             if (storedPinnedIds) {
@@ -236,35 +277,43 @@ const ShapeStore: React.FC = () => {
             console.warn('Failed to load pinned categories from localStorage', e);
           }
         }
+
+        if (cancelled) return;
+
         setPinnedCategoryIds(initialPinnedIds);
 
-        // Load expanded accordions from localStorage
         const storedExpandedIds = localStorage.getItem('expandedShapeCategoryIds');
         let initialExpandedIds: string[] = [];
         if (storedExpandedIds) {
-          initialExpandedIds = JSON.parse(storedExpandedIds);
+          try {
+            initialExpandedIds = JSON.parse(storedExpandedIds);
+          } catch (e) {
+            console.warn('Failed to parse expanded shape category ids from localStorage', e);
+          }
         }
+
+        if (cancelled) return;
+
         setExpandedAccordions(initialExpandedIds);
 
-        // If the user has no pinned categories, show no categories until they search/select one.
-        // Otherwise show pinned categories plus a small number of default unpinned categories.
-        // If the user has pinned categories, show only those by default.
-        // Previously we added a few default unpinned categories as well; that
-        // made the UI display extra categories when a user expected only their
-        // pinned ones to be shown. For now show only pinned categories so the
-        // visible list reflects the user's explicit choice.
         if (!initialPinnedIds || initialPinnedIds.length === 0) {
           setVisibleCategories([]);
         } else {
           const pinnedEntries = allIndexEntries.filter(entry => initialPinnedIds.includes(entry.id));
           setVisibleCategories(pinnedEntries);
         }
-
       } catch (error) {
-        console.error('Failed to load shapes:', error);
+        if (!cancelled) {
+          console.error('Failed to load shapes:', error);
+        }
       }
     };
+
     fetchAllData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Persist expanded accordions to localStorage
@@ -314,8 +363,21 @@ const ShapeStore: React.FC = () => {
       const json = await resp.json();
       const results = (json.results || []).map((r: any) => {
         // Normalize to SearchableShape shape
-        const shape: Shape = { id: r.shapeId || r.name || 'unknown', name: r.name || '', path: r.path || '', textPosition: 'outside' };
-        const category: IndexEntry = { id: r.categoryId || `${r.provider}:${r.category}`, name: r.category || '', path: r.path || '', shapes: [], provider: r.provider || '' };
+        const normalizedPath = normalizeShapePath(r.path);
+        const shape: Shape = {
+          id: r.shapeId || r.name || 'unknown',
+          name: r.name || '',
+          path: normalizedPath,
+          textPosition: normalizeTextPositionValue(r.textPosition),
+          autosize: typeof r.autosize === 'boolean' ? r.autosize : true,
+        };
+        const category: IndexEntry = {
+          id: r.categoryId || `${r.provider}:${r.category}`,
+          name: r.category || '',
+          path: normalizedPath,
+          shapes: [],
+          provider: r.provider || '',
+        };
         return { shape, category } as SearchableShape;
       });
       searchCache.current.set(q, results);

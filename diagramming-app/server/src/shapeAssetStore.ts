@@ -18,6 +18,18 @@ export interface ShapeAssetRow {
   updated_at: string;
 }
 
+export interface ShapeLibraryRow {
+  categoryId: string;
+  categoryName: string;
+  subcategoryId: string;
+  subcategoryName: string;
+  shapeId: string;
+  title: string;
+  path: string;
+  textPosition: TextPosition;
+  autosize: boolean;
+}
+
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export class ShapeAssetDuplicateTitleError extends Error {
@@ -217,4 +229,67 @@ export async function deleteShapeAssetPermanently(id: string): Promise<ShapeAsse
     throw new ShapeAssetNotFoundError(id);
   }
   return row;
+}
+
+function normalizeSearchTerm(term: string): string {
+  const compact = term.trim().replace(/\s+/g, ' ');
+  if (!compact) return '';
+  const likePattern = compact.split(' ').map((segment) => segment.replace(/[%_]/g, '')).join('%');
+  return `%${likePattern}%`;
+}
+
+export async function listProductionShapeLibrary(): Promise<ShapeLibraryRow[]> {
+  const { rows } = await pool.query(
+    `SELECT
+       sc.id AS "categoryId",
+       sc.name AS "categoryName",
+       ss.id AS "subcategoryId",
+       ss.name AS "subcategoryName",
+       sa.id AS "shapeId",
+       sa.title AS "title",
+       sa.path AS "path",
+       sa.text_position AS "textPosition",
+       sa.autosize AS "autosize"
+     FROM shape_asset sa
+     INNER JOIN shape_subcategory ss ON ss.id = sa.subcategory_id
+     INNER JOIN shape_category sc ON sc.id = ss.category_id
+     WHERE sa.is_deleted = FALSE
+       AND sa.is_production = TRUE
+     ORDER BY sc.name ASC, ss.name ASC, sa.title ASC`
+  );
+  return rows as ShapeLibraryRow[];
+}
+
+export async function searchProductionShapeLibrary(searchTerm: string, limit = 50): Promise<ShapeLibraryRow[]> {
+  const normalized = normalizeSearchTerm(searchTerm);
+  if (!normalized) {
+    return [];
+  }
+  const effectiveLimit = Number.isFinite(limit) ? Math.max(1, Math.min(Math.floor(limit), 200)) : 50;
+  const { rows } = await pool.query(
+    `SELECT
+       sc.id AS "categoryId",
+       sc.name AS "categoryName",
+       ss.id AS "subcategoryId",
+       ss.name AS "subcategoryName",
+       sa.id AS "shapeId",
+       sa.title AS "title",
+       sa.path AS "path",
+       sa.text_position AS "textPosition",
+       sa.autosize AS "autosize"
+     FROM shape_asset sa
+     INNER JOIN shape_subcategory ss ON ss.id = sa.subcategory_id
+     INNER JOIN shape_category sc ON sc.id = ss.category_id
+     WHERE sa.is_deleted = FALSE
+       AND sa.is_production = TRUE
+       AND (
+         sa.title ILIKE $1
+         OR ss.name ILIKE $1
+         OR sc.name ILIKE $1
+       )
+     ORDER BY sa.title ASC
+     LIMIT $2`,
+    [normalized, effectiveLimit]
+  );
+  return rows as ShapeLibraryRow[];
 }

@@ -57,6 +57,11 @@ const AccountMenu: React.FC = () => {
           }}>
             <ListItemText>Remove avatar</ListItemText>
           </MenuItem>,
+          currentUserIsAdmin ? (
+            <MenuItem key="admin-images" onClick={() => { handleClose(); navigate('/admin/images'); }}>
+              <ListItemText>Admin Page</ListItemText>
+            </MenuItem>
+          ) : null,
           <MenuItem key="logout" onClick={handleLogout}>
             <ListItemText>Logout</ListItemText>
           </MenuItem>,

@@ -1,13 +1,7 @@
 import express from 'express';
-import path from 'path';
-import fs from 'fs/promises';
+import { listProductionShapeLibrary, searchProductionShapeLibrary } from '../shapeAssetStore';
 
 const router = express.Router();
-
-// Base directory where shapes are stored on disk (server/public/shapes)
-// Resolve two levels up from src/routes -> src -> server so path points to server/public/shapes
-const SHAPES_DIR = path.resolve(__dirname, '../../public/shapes');
-console.debug(`SHAPES_DIR resolved to ${SHAPES_DIR}`);
 
 // Simple in-memory cache for search results
 const searchCache = new Map<string, { results: any[]; expiresAt: number }>();
@@ -37,18 +31,69 @@ function allowRequest(ip: string) {
   return false;
 }
 
-router.get('/catalog.json', async (_req, res) => {
+router.get('/library', async (_req, res) => {
   try {
-    const file = path.join(SHAPES_DIR, 'catalog.json');
-    const raw = await fs.readFile(file, 'utf8');
-    res.type('application/json').send(raw);
+    const rows = await listProductionShapeLibrary();
+    const categoryMap = new Map<string, {
+      id: string;
+      name: string;
+      subcategories: Map<string, {
+        id: string;
+        name: string;
+        shapes: Array<{
+          id: string;
+          title: string;
+          path: string;
+          textPosition: string;
+          autosize: boolean;
+        }>;
+      }>;
+    }>();
+
+    for (const row of rows) {
+      let category = categoryMap.get(row.categoryId);
+      if (!category) {
+        category = {
+          id: row.categoryId,
+          name: row.categoryName,
+          subcategories: new Map(),
+        };
+        categoryMap.set(row.categoryId, category);
+      }
+      let subcategory = category.subcategories.get(row.subcategoryId);
+      if (!subcategory) {
+        subcategory = {
+          id: row.subcategoryId,
+          name: row.subcategoryName,
+          shapes: [],
+        };
+        category.subcategories.set(row.subcategoryId, subcategory);
+      }
+      subcategory.shapes.push({
+        id: row.shapeId,
+        title: row.title,
+        path: row.path,
+        textPosition: row.textPosition,
+        autosize: row.autosize,
+      });
+    }
+
+    const payload = {
+      categories: Array.from(categoryMap.values()).map((category) => ({
+        id: category.id,
+        name: category.name,
+        subcategories: Array.from(category.subcategories.values()),
+      })),
+    };
+
+    return res.json(payload);
   } catch (e) {
-    console.error('Failed to read catalog.json', e);
-    res.status(500).json({ error: 'Failed to read catalog' });
+    console.error('Failed to build shapes library from database', e);
+    return res.status(500).json({ error: 'Failed to load shapes library' });
   }
 });
 
-// Search shapes across catalog/index and shape files. Query param: q
+// Search shapes across the production library. Query param: q
 router.get('/search', async (req, res) => {
   const ip = (req.ip || req.headers['x-forwarded-for'] || 'unknown').toString();
   if (!allowRequest(ip)) {
@@ -56,109 +101,28 @@ router.get('/search', async (req, res) => {
     return res.status(429).json({ error: 'Too many requests' });
   }
 
-  const q = (req.query.q || '').toString().toLowerCase().trim();
-  const cacheKey = `s:${q}`;
+  const q = (req.query.q || '').toString().trim();
+  const cacheKey = `s:${q.toLowerCase()}`;
   const cached = searchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return res.json({ q, results: cached.results, cached: true });
   }
 
   try {
-    const catalogPath = path.join(SHAPES_DIR, 'catalog.json');
-    let catalogRaw: string;
-    try {
-      catalogRaw = await fs.readFile(catalogPath, 'utf8');
-    } catch (readErr) {
-      console.error(`Failed to read catalog.json at ${catalogPath}`, readErr);
-      return res.status(500).json({ error: 'Failed to read catalog' });
-    }
+    const matches = await searchProductionShapeLibrary(q, 75);
+    const results = matches.map((row) => ({
+      provider: row.categoryName,
+      category: row.subcategoryName,
+      categoryId: row.subcategoryId,
+      shapeId: row.shapeId,
+      name: row.title,
+      path: row.path,
+      textPosition: row.textPosition,
+      autosize: row.autosize,
+    }));
 
-    let catalog: Array<{ name: string; path: string }> = [];
-    try {
-      catalog = JSON.parse(catalogRaw) as Array<{ name: string; path: string }>;
-
-    } catch (parseErr) {
-      const snippet = catalogRaw.slice(0, 200).replace(/\n/g, ' ');
-      console.error(`Failed to parse catalog.json (first 200 chars): ${snippet}`, parseErr);
-      return res.status(500).json({ error: 'Invalid catalog.json format' });
-    }
-
-    const results: Array<any> = [];
-
-    // Helper to strip any leading '/shapes/' or leading '/' so we always resolve relative to SHAPES_DIR
-    const normalizeShapesPath = (p: string | undefined) => {
-      if (!p) return '';
-      // Remove leading '/shapes/' or leading '/'
-      if (p.startsWith('/shapes/')) return p.replace(/^\/shapes\//, '');
-      if (p.startsWith('shapes/')) return p.replace(/^shapes\//, '');
-      if (p.startsWith('/')) return p.replace(/^\//, '');
-      return p;
-    };
-
-    for (const providerEntry of catalog) {
-      try {
-        // providerEntry.path is expected to be a directory index file listing sub-entries
-        const providerRelative = normalizeShapesPath(providerEntry.path);
-        if (!providerRelative) {
-          console.warn(`Provider entry has empty path, skipping: ${JSON.stringify(providerEntry)}`);
-          continue;
-        }
-        const providerIndexPath = path.resolve(SHAPES_DIR, providerRelative);
-        if (!providerIndexPath.startsWith(SHAPES_DIR)) {
-          console.warn(`Skipping provider index outside shapes dir: ${providerIndexPath}`);
-          continue;
-        }
-        try {
-          const providerIndexRaw = await fs.readFile(providerIndexPath, 'utf8');
-          const providerIndex = JSON.parse(providerIndexRaw) as Array<any>;
-           for (const subEntry of providerIndex) {
-            // subEntry.path points to a JSON file listing shapes
-            const indexRelative = normalizeShapesPath(subEntry.path);
-            if (!indexRelative) {
-              console.warn(`Skipping subentry with empty path for provider ${providerEntry.name}: ${JSON.stringify(subEntry)}`);
-              continue;
-            }
-            const indexFile = path.resolve(SHAPES_DIR, indexRelative);
-            if (!indexFile.startsWith(SHAPES_DIR)) {
-              console.warn(`Skipping index file outside shapes dir: ${indexFile} (original subEntry.path=${String(subEntry.path)})`);
-              continue;
-            }
-            try {
-              const indexRaw = await fs.readFile(indexFile, 'utf8');
-              const shapesList = JSON.parse(indexRaw) as Array<any>;
-              for (const shape of shapesList) {
-                const name = (shape.name || shape.title || '').toString();
-                if (!q || name.toLowerCase().includes(q) || (subEntry.name || '').toLowerCase().includes(q) || (providerEntry.name || '').toLowerCase().includes(q)) {
-                  results.push({
-                    provider: providerEntry.name,
-                    category: subEntry.name,
-                    categoryId: subEntry.id,
-                    shapeId: shape.name || shape.title || null,
-                    name,
-                    path: subEntry.path,
-                  });
-                }
-              }
-            } catch (e) {
-              console.warn(`Failed to read/parse index file ${indexFile} for provider ${providerEntry.name}:`, e);
-              // ignore missing or invalid index files
-              continue;
-            }
-           }
-        } catch (e) {
-          console.warn(`Failed to read provider index ${providerIndexPath} for provider ${providerEntry.name}:`, e);
-          // ignore this provider and continue
-          continue;
-        }
-      } catch (outerErr) {
-        console.error(`Error processing provider entry ${JSON.stringify(providerEntry)} for query='${q}' from ip='${ip}':`, outerErr);
-        continue;
-      }
-     }
-
-    // Save to cache
     searchCache.set(cacheKey, { results, expiresAt: Date.now() + SEARCH_CACHE_TTL_MS });
-    res.json({ q, results });
+    return res.json({ q, results });
   } catch (e) {
     console.error(`Search failed for q='${q}' ip='${ip}':`, e);
     if (process.env.NODE_ENV === 'development') {
