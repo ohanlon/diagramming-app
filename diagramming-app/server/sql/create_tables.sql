@@ -211,3 +211,29 @@ ALTER TABLE IF EXISTS public.shape_subcategory
 
 CREATE UNIQUE INDEX IF NOT EXISTS shape_subcategory_category_name_idx
   ON public.shape_subcategory (category_id, lower(name));
+
+-- Table: public.shape_asset (staged SVG metadata)
+
+CREATE TABLE IF NOT EXISTS public.shape_asset
+(
+  id uuid NOT NULL,
+  subcategory_id uuid NOT NULL,
+  title text COLLATE pg_catalog."default" NOT NULL,
+  path text COLLATE pg_catalog."default" NOT NULL,
+  original_filename text COLLATE pg_catalog."default" NOT NULL,
+  text_position text COLLATE pg_catalog."default" NOT NULL DEFAULT 'None',
+  autosize boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+  updated_at timestamptz NOT NULL DEFAULT NOW(),
+  CONSTRAINT shape_asset_pkey PRIMARY KEY (id),
+  CONSTRAINT shape_asset_subcategory_fk FOREIGN KEY (subcategory_id)
+    REFERENCES public.shape_subcategory (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS shape_asset_subcategory_title_idx
+  ON public.shape_asset (subcategory_id, lower(title));
+
+CREATE UNIQUE INDEX IF NOT EXISTS shape_asset_path_idx
+  ON public.shape_asset (path);

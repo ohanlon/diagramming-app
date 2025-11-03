@@ -35,6 +35,13 @@ export class ShapeCategoryNotFoundError extends Error {
   }
 }
 
+export class ShapeSubcategoryNotFoundError extends Error {
+  constructor(public readonly subcategoryId: string) {
+    super(`Sub-category ${subcategoryId} was not found`);
+    this.name = 'ShapeSubcategoryNotFoundError';
+  }
+}
+
 export async function listShapeCategories(): Promise<ShapeCategoryRow[]> {
   const { rows } = await pool.query('SELECT id, name FROM shape_category ORDER BY name ASC');
   return rows as ShapeCategoryRow[];
@@ -71,6 +78,12 @@ export async function listShapeSubcategories(categoryId: string): Promise<ShapeS
   }
   const { rows } = await pool.query('SELECT id, name, category_id FROM shape_subcategory WHERE category_id = $1 ORDER BY name ASC', [categoryId]);
   return rows as ShapeSubcategoryRow[];
+}
+
+export async function getShapeSubcategoryById(subcategoryId: string): Promise<ShapeSubcategoryRow | null> {
+  if (!UUID_REGEX.test(subcategoryId)) return null;
+  const { rows } = await pool.query('SELECT id, name, category_id FROM shape_subcategory WHERE id = $1', [subcategoryId]);
+  return (rows as ShapeSubcategoryRow[])[0] ?? null;
 }
 
 export async function createShapeSubcategory(categoryId: string, name: string): Promise<ShapeSubcategoryRow> {

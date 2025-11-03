@@ -72,3 +72,17 @@ export interface ShapeSubcategory {
   name: string;
   categoryId: string;
 }
+
+export type ShapeTextPosition = 'Inside' | 'Outside' | 'None';
+
+export interface ShapeAsset {
+  id: string;
+  subcategoryId: string;
+  title: string;
+  path: string;
+  originalFilename: string;
+  textPosition: ShapeTextPosition;
+  autosize: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

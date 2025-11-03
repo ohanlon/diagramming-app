@@ -38,16 +38,43 @@ export async function apiRequest<T = unknown>(
 ): Promise<T> {
   const serverUrl = getServerUrl();
   const url = endpoint.startsWith('http') ? endpoint : `${serverUrl}${endpoint}`;
-  
+  const headersInit = options.headers;
+  const defaultHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  let headers: HeadersInit;
+  if (headersInit instanceof Headers) {
+    headers = new Headers(headersInit);
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+  } else if (Array.isArray(headersInit)) {
+    const headerPairs = [...headersInit];
+    if (!headerPairs.some(([key]) => key.toLowerCase() === 'content-type')) {
+      headerPairs.push(['Content-Type', 'application/json']);
+    }
+    headers = headerPairs;
+  } else {
+    headers = { ...defaultHeaders, ...(headersInit as Record<string, string> | undefined) };
+  }
+
   // Ensure credentials are included by default
   const requestOptions: RequestInit = {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
     ...options,
+    headers,
   };
+
+  const body = options.body;
+  if (body instanceof FormData) {
+    if (requestOptions.headers instanceof Headers) {
+      requestOptions.headers.delete('Content-Type');
+    } else if (Array.isArray(requestOptions.headers)) {
+      requestOptions.headers = requestOptions.headers.filter(([key]) => key.toLowerCase() !== 'content-type');
+    } else if (requestOptions.headers && typeof requestOptions.headers === 'object') {
+      delete (requestOptions.headers as Record<string, string>)['Content-Type'];
+    }
+  }
 
   try {
     let response = await fetch(url, requestOptions);

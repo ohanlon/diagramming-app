@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../client';
-import type { ShapeCategory, ShapeSubcategory } from '../types';
+import { api, apiRequest } from '../client';
+import type { ShapeAsset, ShapeCategory, ShapeSubcategory, ShapeTextPosition } from '../types';
 
 export const shapeLibraryKeys = {
   all: ['shapeLibrary'] as const,
   categories: () => ['shapeLibrary', 'categories'] as const,
   subcategories: (categoryId: string) => ['shapeLibrary', 'subcategories', categoryId] as const,
+  shapes: (subcategoryId: string) => ['shapeLibrary', 'shapes', subcategoryId] as const,
 };
 
 export function useShapeCategories() {
@@ -64,6 +65,68 @@ export function useCreateShapeSubcategory() {
       queryClient.invalidateQueries({
         queryKey: shapeLibraryKeys.subcategories(createdSubcategory.categoryId),
       });
+    },
+  });
+}
+
+export function useShapeAssets(subcategoryId: string | null) {
+  return useQuery({
+    queryKey: shapeLibraryKeys.shapes(subcategoryId ?? 'none'),
+    enabled: Boolean(subcategoryId),
+    queryFn: async (): Promise<ShapeAsset[]> => {
+      if (!subcategoryId) return [];
+      const response = await api.get<{ shapes: ShapeAsset[] }>(`/admin/images/subcategories/${subcategoryId}/shapes`);
+      return response?.shapes ?? [];
+    },
+  });
+}
+
+export function useUploadShapeAssets() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ subcategoryId, files }: { subcategoryId: string; files: File[] }): Promise<{ created: ShapeAsset[]; errors: Array<{ file: string; message: string }> }> => {
+      const form = new FormData();
+      files.forEach((file) => {
+        form.append('files', file);
+      });
+      const response = await apiRequest<{ created: ShapeAsset[]; errors: Array<{ file: string; message: string }> }>(
+        `/admin/images/subcategories/${subcategoryId}/shapes/upload`,
+        {
+          method: 'POST',
+          body: form,
+        }
+      );
+      return response;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: shapeLibraryKeys.shapes(variables.subcategoryId) });
+    },
+  });
+}
+
+export function useUpdateShapeAsset() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      textPosition,
+      autosize,
+    }: {
+      id: string;
+      title?: string;
+      textPosition?: ShapeTextPosition;
+      autosize?: boolean;
+    }): Promise<ShapeAsset> => {
+      const response = await api.patch<{ shape: ShapeAsset }>(`/admin/images/shapes/${id}`, {
+        title,
+        textPosition,
+        autosize,
+      });
+      return response.shape;
+    },
+    onSuccess: (shape) => {
+      queryClient.invalidateQueries({ queryKey: shapeLibraryKeys.shapes(shape.subcategoryId) });
     },
   });
 }
