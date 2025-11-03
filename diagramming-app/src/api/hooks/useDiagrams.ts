@@ -33,6 +33,8 @@ export function useDiagram(diagramId: string | null) {
         version: response.version,
         sheets: response.state?.sheets || {},
         activeSheetId: response.state?.activeSheetId || '',
+        isSnapToGridEnabled: typeof response.state?.isSnapToGridEnabled === 'boolean' ? response.state.isSnapToGridEnabled : undefined,
+        thumbnailDataUrl: response.state?.thumbnailDataUrl ?? null,
         createdAt: response.created_at,
         updatedAt: response.updated_at,
       };
@@ -59,13 +61,22 @@ export function useSaveDiagram() {
       // Transform data to server format
       // Server expects: { state: { diagramName, sheets, activeSheetId, ... } }
       // We provide: { name, sheets, activeSheetId, version }
+      const statePayload: Record<string, unknown> = {
+        diagramName: data.name || 'Untitled Diagram',
+        sheets: data.sheets,
+        activeSheetId: data.activeSheetId,
+      };
+
+      if (typeof data.isSnapToGridEnabled === 'boolean') {
+        statePayload.isSnapToGridEnabled = data.isSnapToGridEnabled;
+      }
+
+      if (data.thumbnailDataUrl !== undefined) {
+        statePayload.thumbnailDataUrl = data.thumbnailDataUrl;
+      }
+
       const serverPayload = {
-        state: {
-          diagramName: data.name || 'Untitled Diagram',
-          sheets: data.sheets,
-          activeSheetId: data.activeSheetId,
-          isSnapToGridEnabled: (data as any).isSnapToGridEnabled,
-        },
+        state: statePayload,
       };
 
       console.log('[useSaveDiagram] Saving diagram:', { diagramId, payload: serverPayload });

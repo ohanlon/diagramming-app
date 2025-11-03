@@ -48,6 +48,8 @@ export interface Diagram {
   activeSheetId: string;
   createdAt?: string;
   updatedAt?: string;
+  thumbnailDataUrl?: string | null;
+  isSnapToGridEnabled?: boolean;
 }
 
 export interface SaveDiagramRequest {
@@ -55,6 +57,8 @@ export interface SaveDiagramRequest {
   sheets: Record<string, any>;
   activeSheetId: string;
   version?: number;
+  thumbnailDataUrl?: string | null;
+  isSnapToGridEnabled?: boolean;
 }
 
 export interface SaveDiagramResponse {
