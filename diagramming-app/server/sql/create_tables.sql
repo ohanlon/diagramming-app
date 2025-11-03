@@ -165,8 +165,11 @@ CREATE TABLE IF NOT EXISTS public.shape_category
 (
     id uuid NOT NULL,
     name text COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT shape_category_pkey PRIMARY KEY (id)
+    CONSTRAINT shape_category_pkey PRIMARY KEY (id),
+    CONSTRAINT shape_category_name UNIQUE (name)
 )
+
+TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.shape_category
     OWNER to postgres;
@@ -201,3 +204,10 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.shape_subcategory
     OWNER to postgres;
+
+-- Ensure sub-category names are only unique per category rather than globally
+ALTER TABLE IF EXISTS public.shape_subcategory
+  DROP CONSTRAINT IF EXISTS shape_subcategory_name;
+
+CREATE UNIQUE INDEX IF NOT EXISTS shape_subcategory_category_name_idx
+  ON public.shape_subcategory (category_id, lower(name));

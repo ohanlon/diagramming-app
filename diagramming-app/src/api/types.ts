@@ -61,3 +61,14 @@ export interface SaveDiagramResponse {
   id: string;
   version: number;
 }
+
+export interface ShapeCategory {
+  id: string;
+  name: string;
+}
+
+export interface ShapeSubcategory {
+  id: string;
+  name: string;
+  categoryId: string;
+}

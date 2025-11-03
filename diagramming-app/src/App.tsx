@@ -23,6 +23,7 @@ import AdminRoute from './components/AdminRoute';
 import SalesRoute from './components/SalesRoute';
 import OnboardingPage from './pages/Onboarding';
 import DiagramHistory from './pages/DiagramHistory';
+import AdminImagesPage from './pages/AdminImagesPage';
 import { useDiagramStore } from './store/useDiagramStore';
 import { useDiagramSync } from './hooks/useDiagramSync';
 
@@ -500,6 +501,7 @@ function App() {
         <Route path="/diagram/:id/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
+        <Route path="/admin/images" element={<ProtectedRoute><AdminRoute><AdminImagesPage /></AdminRoute></ProtectedRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><SalesRoute><OnboardingPage /></SalesRoute></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />

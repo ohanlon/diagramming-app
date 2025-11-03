@@ -104,6 +104,8 @@ app.use('/shapes', shapesRouter);
 // Public auth endpoints for register/login
 app.use('/auth', authRouter);
 
+// Admin image taxonomy routes (categories/subcategories) must mount ahead of the generic /admin router
+app.use('/admin/images', combinedAuth, require('./routes/shapeTaxonomy').default);
 // Admin routes for runtime configuration (requires combinedAuth and admin credentials)
 app.use('/admin', combinedAuth, require('./routes/admin').default);
 
