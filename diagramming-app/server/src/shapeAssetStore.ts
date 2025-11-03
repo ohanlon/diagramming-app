@@ -70,7 +70,7 @@ export async function listShapeAssets(subcategoryId: string): Promise<ShapeAsset
 
 export async function createShapeAsset(params: CreateShapeAssetParams): Promise<ShapeAssetRow> {
   const id = params.id ?? uuidv4();
-  const textPosition: TextPosition = params.textPosition ?? 'None';
+  const textPosition: TextPosition = params.textPosition ?? 'Outside';
   const autosize = params.autosize ?? true;
   const title = (params.title ?? '').trim();
   if (!title) {
