@@ -837,31 +837,37 @@ const AdminImagesPage: React.FC = () => {
                               </Typography>
                             </Box>
                             <Stack direction="row" spacing={1} sx={{ ml: { md: 'auto' } }}>
-                              <Button
-                                variant="contained"
-                                size="small"
-                                onClick={() => handleSaveDraft(shape.id)}
-                                disabled={!draft.dirty || updateShape.isPending}
-                              >
-                                Save
-                              </Button>
-                              <Button
-                                variant="text"
-                                size="small"
-                                onClick={() => handleResetDraft(shape.id)}
-                                disabled={!draft.dirty || updateShape.isPending}
-                              >
-                                Reset
-                              </Button>
-                              <Button
-                                variant="text"
-                                size="small"
-                                color="error"
-                                onClick={() => handleDeleteShape(shape)}
-                                disabled={deletePending}
-                              >
-                                Delete
-                              </Button>
+                              {draft.dirty && (
+                                <>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    onClick={() => handleSaveDraft(shape.id)}
+                                    disabled={updateShape.isPending}
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    variant="text"
+                                    size="small"
+                                    onClick={() => handleResetDraft(shape.id)}
+                                    disabled={updateShape.isPending}
+                                  >
+                                    Reset
+                                  </Button>
+                                </>
+                              )}
+                              {!draft.dirty && (
+                                <Button
+                                  variant="text"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleDeleteShape(shape)}
+                                  disabled={deletePending}
+                                >
+                                  Delete
+                                </Button>
+                              )}
                             </Stack>
                           </Stack>
                         </Stack>
