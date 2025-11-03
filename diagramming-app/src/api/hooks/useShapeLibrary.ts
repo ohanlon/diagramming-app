@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiRequest } from '../client';
-import type { ShapeAsset, ShapeCategory, ShapeSubcategory, ShapeTextPosition } from '../types';
+import type { PromoteShapesResponse, ShapeAsset, ShapeCategory, ShapeSubcategory, ShapeTextPosition } from '../types';
 
 export const shapeLibraryKeys = {
   all: ['shapeLibrary'] as const,
@@ -127,6 +127,27 @@ export function useUpdateShapeAsset() {
     },
     onSuccess: (shape) => {
       queryClient.invalidateQueries({ queryKey: shapeLibraryKeys.shapes(shape.subcategoryId) });
+    },
+  });
+}
+
+export function usePromoteShapeAssets() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      subcategoryId: _subcategoryId,
+      shapeIds,
+    }: {
+      subcategoryId: string;
+      shapeIds: string[];
+    }): Promise<PromoteShapesResponse> => {
+      const response = await api.post<PromoteShapesResponse>('/admin/images/shapes/promote', {
+        shapeIds,
+      });
+      return response;
+    },
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({ queryKey: shapeLibraryKeys.shapes(variables.subcategoryId) });
     },
   });
 }

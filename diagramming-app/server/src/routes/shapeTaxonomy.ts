@@ -16,8 +16,11 @@ import {
 } from '../shapeTaxonomyStore';
 import {
   createShapeAsset,
+  getShapeAssetsByIds,
   listShapeAssets,
   ShapeAssetDuplicateTitleError,
+  ShapeAssetNotFoundError,
+  markShapeAssetPromoted,
   updateShapeAsset,
 } from '../shapeAssetStore';
 import type { FileFilterCallback } from 'multer';
@@ -56,6 +59,26 @@ function deriveTitleFromFilename(filename: string): string {
   const normalized = base.replace(/[-_]+/g, ' ');
   const trimmed = normalized.replace(/\s+/g, ' ').trim();
   return trimmed || 'Untitled shape';
+}
+
+function normalizeStoredPath(storedPath: string): string {
+  if (!storedPath) return '';
+  let normalized = storedPath.trim().replace(/\\/g, '/');
+  if (!normalized) return '';
+  if (/^https?:\/\//i.test(normalized)) {
+    return '';
+  }
+  normalized = normalized.replace(/^\/+/, '');
+  if (normalized.startsWith('public/')) {
+    normalized = normalized.slice('public/'.length);
+  }
+  if (normalized.startsWith('shapes/')) {
+    normalized = normalized.slice('shapes/'.length);
+  }
+  if (normalized.includes('..')) {
+    return '';
+  }
+  return normalized;
 }
 
 type RequestWithUser = express.Request & { user?: { id?: string; roles?: string[] } };
@@ -102,6 +125,7 @@ const mapShapeAsset = (row: {
   original_filename: string;
   text_position: string;
   autosize: boolean;
+  is_production: boolean;
   created_at: string;
   updated_at: string;
 }) => ({
@@ -112,6 +136,7 @@ const mapShapeAsset = (row: {
   originalFilename: row.original_filename,
   textPosition: row.text_position,
   autosize: row.autosize,
+  isProduction: row.is_production,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });
@@ -250,6 +275,119 @@ router.post('/subcategories/:subcategoryId/shapes/upload', upload.array('files',
     }
     console.error('Failed to upload shape assets', err);
     return res.status(500).json({ error: 'Failed to upload shapes' });
+  }
+});
+
+router.post('/shapes/promote', async (req, res) => {
+  const body = req.body ?? {};
+  const shapeIdsInput = Array.isArray(body.shapeIds) ? body.shapeIds : [];
+  if (shapeIdsInput.length === 0) {
+    return res.status(400).json({ error: 'Provide at least one shape id to promote' });
+  }
+  const shapeIds = shapeIdsInput
+    .filter((value: unknown): value is string => typeof value === 'string')
+    .map((value: string) => value.trim())
+    .filter((value: string) => value.length > 0);
+  if (shapeIds.length === 0) {
+    return res.status(400).json({ error: 'Provide at least one shape id to promote' });
+  }
+
+  try {
+    const assets = await getShapeAssetsByIds(shapeIds);
+    const assetMap = new Map(assets.map((asset) => [asset.id, asset]));
+    const promoted: ShapeAssetDto[] = [];
+    const errors: Array<{ id: string; message: string; code: string }> = [];
+    const subcategoryCache = new Map<string, Awaited<ReturnType<typeof getShapeSubcategoryById>>>();
+
+    for (const id of shapeIds) {
+      const asset = assetMap.get(id);
+      if (!asset) {
+        errors.push({ id, message: 'Shape not found', code: 'not_found' });
+        continue;
+      }
+      if (asset.is_production) {
+        errors.push({ id, message: 'Shape is already in production', code: 'already_production' });
+        continue;
+      }
+
+      const relativeSource = normalizeStoredPath(asset.path);
+      if (!relativeSource) {
+        errors.push({ id, message: 'Invalid staged file path', code: 'invalid_path' });
+        continue;
+      }
+
+      const sourceAbsolute = path.join(SHAPES_ROOT, relativeSource);
+      try {
+        await fs.access(sourceAbsolute);
+      } catch (e) {
+        errors.push({ id, message: 'Staged file does not exist', code: 'missing_source' });
+        continue;
+      }
+
+      let subcategory = subcategoryCache.get(asset.subcategory_id);
+      if (subcategory === undefined) {
+        subcategory = await getShapeSubcategoryById(asset.subcategory_id);
+        subcategoryCache.set(asset.subcategory_id, subcategory);
+      }
+      if (!subcategory) {
+        errors.push({ id, message: 'Sub-category not found', code: 'subcategory_missing' });
+        continue;
+      }
+
+      const categoryId = subcategory.category_id;
+      const extension = path.extname(relativeSource) || path.extname(asset.original_filename) || '.svg';
+      const destinationRelative = path.join(categoryId, asset.subcategory_id, `${asset.id}${extension}`);
+      const destinationAbsolute = path.join(SHAPES_ROOT, destinationRelative);
+
+      try {
+        await fs.access(destinationAbsolute);
+        errors.push({ id, message: 'Production file already exists', code: 'destination_exists' });
+        continue;
+      } catch (_) {
+        // Destination is free, continue
+      }
+
+      try {
+        await fs.mkdir(path.dirname(destinationAbsolute), { recursive: true });
+      } catch (mkdirError) {
+        const message = mkdirError instanceof Error ? mkdirError.message : 'Failed to prepare target folder';
+        errors.push({ id, message, code: 'mkdir_failed' });
+        continue;
+      }
+
+      let renamed = false;
+      try {
+        await fs.rename(sourceAbsolute, destinationAbsolute);
+        renamed = true;
+        const nextPath = `/shapes/${destinationRelative.replace(/\\/g, '/')}`;
+        const updated = await markShapeAssetPromoted(asset.id, nextPath);
+        promoted.push(mapShapeAsset(updated));
+      } catch (err) {
+        if (renamed) {
+          try {
+            await fs.rename(destinationAbsolute, sourceAbsolute);
+          } catch (rollbackError) {
+            console.warn('Failed to roll back promotion move for shape', asset.id, rollbackError);
+          }
+        }
+        if (err instanceof ShapeAssetNotFoundError) {
+          errors.push({ id, message: 'Shape no longer exists', code: 'not_found' });
+        } else {
+          const message = err instanceof Error ? err.message : 'Failed to promote shape';
+          errors.push({ id, message, code: 'promotion_failed' });
+        }
+      }
+    }
+
+    if (promoted.length === 0 && errors.length > 0) {
+      return res.status(409).json({ error: 'No shapes were promoted', promoted, errors });
+    }
+
+    const status = errors.length > 0 ? 207 : 200;
+    return res.status(status).json({ promoted, errors });
+  } catch (err) {
+    console.error('Failed to promote shapes', err);
+    return res.status(500).json({ error: 'Failed to promote shapes' });
   }
 });
 

@@ -83,6 +83,12 @@ export interface ShapeAsset {
   originalFilename: string;
   textPosition: ShapeTextPosition;
   autosize: boolean;
+  isProduction: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PromoteShapesResponse {
+  promoted: ShapeAsset[];
+  errors: Array<{ id: string; message: string; code: string }>;
 }

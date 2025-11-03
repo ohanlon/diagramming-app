@@ -4,6 +4,8 @@ import {
   AppBar,
   Box,
   Button,
+  Checkbox,
+  Chip,
   CircularProgress,
   Divider,
   FormControl,
@@ -25,6 +27,7 @@ import { ApiClientError } from '../api/client';
 import {
   useCreateShapeCategory,
   useCreateShapeSubcategory,
+  usePromoteShapeAssets,
   useShapeAssets,
   useShapeCategories,
   useShapeSubcategories,
@@ -54,6 +57,9 @@ const AdminImagesPage: React.FC = () => {
   const [uploadErrors, setUploadErrors] = useState<Array<{ file: string; message: string }>>([]);
   const [editFeedback, setEditFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [drafts, setDrafts] = useState<Record<string, DraftState>>({});
+  const [promotionFeedback, setPromotionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [promotionErrors, setPromotionErrors] = useState<Array<{ id: string; message: string }>>([]);
+  const [selectedShapeIds, setSelectedShapeIds] = useState<Set<string>>(() => new Set());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
@@ -91,16 +97,27 @@ const AdminImagesPage: React.FC = () => {
     error: shapesError,
   } = useShapeAssets(selectedSubcategoryId);
 
+  const promotableShapeIds = useMemo(() => (
+    shapes.filter((shape) => !shape.isProduction).map((shape) => shape.id)
+  ), [shapes]);
+
+  const promotableShapeIdSet = useMemo(() => new Set(promotableShapeIds), [promotableShapeIds]);
+
   const createCategory = useCreateShapeCategory();
   const createSubcategory = useCreateShapeSubcategory();
   const uploadShapes = useUploadShapeAssets();
   const updateShape = useUpdateShapeAsset();
+  const promoteShapes = usePromoteShapeAssets();
+  const promotePending = promoteShapes.isPending;
 
   useEffect(() => {
     setUploadFeedback(null);
     setUploadErrors([]);
     setEditFeedback(null);
     setDrafts({});
+    setPromotionFeedback(null);
+    setPromotionErrors([]);
+    setSelectedShapeIds(() => new Set());
   }, [selectedSubcategoryId]);
 
   useEffect(() => {
@@ -127,6 +144,33 @@ const AdminImagesPage: React.FC = () => {
       return next;
     });
   }, [shapes, selectedSubcategoryId]);
+
+  useEffect(() => {
+    setSelectedShapeIds((prev) => {
+      if (prev.size === 0 && promotableShapeIdSet.size === 0) {
+        return prev;
+      }
+      const next = new Set<string>();
+      prev.forEach((id) => {
+        if (promotableShapeIdSet.has(id)) {
+          next.add(id);
+        }
+      });
+      // If nothing changed, preserve reference to avoid re-renders.
+      if (next.size === prev.size) {
+        let identical = true;
+        prev.forEach((id) => {
+          if (!next.has(id)) {
+            identical = false;
+          }
+        });
+        if (identical) {
+          return prev;
+        }
+      }
+      return next;
+    });
+  }, [promotableShapeIdSet]);
 
   const handleCategorySelect = (event: SelectChangeEvent<string>) => {
     const nextId = event.target.value || null;
@@ -183,6 +227,29 @@ const AdminImagesPage: React.FC = () => {
   };
 
   const canUpload = useMemo(() => Boolean(selectedCategoryId && selectedSubcategoryId), [selectedCategoryId, selectedSubcategoryId]);
+  const selectedCount = useMemo(() => {
+    let count = 0;
+    promotableShapeIdSet.forEach((id) => {
+      if (selectedShapeIds.has(id)) {
+        count += 1;
+      }
+    });
+    return count;
+  }, [promotableShapeIdSet, selectedShapeIds]);
+  const allSelectableCount = promotableShapeIdSet.size;
+  const allSelected = allSelectableCount > 0 && selectedCount === allSelectableCount;
+  const selectAllIndeterminate = selectedCount > 0 && selectedCount < allSelectableCount;
+  const promoteDisabled = !selectedSubcategoryId || selectedCount === 0 || promotePending;
+  const selectAllDisabled = allSelectableCount === 0 || promotePending;
+  const selectionMessage = useMemo(() => {
+    if (allSelectableCount === 0) {
+      return 'All shapes for this sub-category are already in production.';
+    }
+    if (selectedCount === 0) {
+      return 'Select shapes below to promote them into the production library.';
+    }
+    return `${selectedCount} shape${selectedCount === 1 ? '' : 's'} selected for promotion.`;
+  }, [allSelectableCount, selectedCount]);
 
   const handleUploadButtonClick = () => {
     if (!selectedSubcategoryId) {
@@ -288,6 +355,78 @@ const AdminImagesPage: React.FC = () => {
       setEditFeedback({ type: 'error', message });
     }
   }, [drafts, shapes, updateShape]);
+
+  const handleToggleShapeSelected = useCallback((id: string) => {
+    if (promotePending) return;
+    if (!promotableShapeIdSet.has(id)) return;
+    setSelectedShapeIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, [promotePending, promotableShapeIdSet]);
+
+  const handleToggleSelectAll = useCallback(() => {
+    if (selectAllDisabled) return;
+    if (allSelected) {
+      setSelectedShapeIds(() => new Set());
+    } else {
+      setSelectedShapeIds(() => new Set(promotableShapeIdSet));
+    }
+  }, [allSelected, promotableShapeIdSet, selectAllDisabled]);
+
+  const handlePromoteSelected = useCallback(async () => {
+    if (promotePending) return;
+    if (!selectedSubcategoryId) {
+      setPromotionFeedback({ type: 'error', message: 'Select a sub-category before promoting.' });
+      return;
+    }
+    const ids = promotableShapeIds.filter((shapeId) => selectedShapeIds.has(shapeId));
+    if (ids.length === 0) {
+      setPromotionFeedback({ type: 'error', message: 'Select at least one shape to promote.' });
+      return;
+    }
+    setPromotionFeedback(null);
+    setPromotionErrors([]);
+    try {
+      const result = await promoteShapes.mutateAsync({ subcategoryId: selectedSubcategoryId, shapeIds: ids });
+      const promotedCount = result.promoted?.length ?? 0;
+      const errorCount = result.errors?.length ?? 0;
+      if (promotedCount > 0 && errorCount === 0) {
+        setPromotionFeedback({ type: 'success', message: `Promoted ${promotedCount} shape${promotedCount === 1 ? '' : 's'} to production.` });
+      } else if (promotedCount > 0 && errorCount > 0) {
+        setPromotionFeedback({ type: 'success', message: `Promoted ${promotedCount} shape${promotedCount === 1 ? '' : 's'} to production. ${errorCount} could not be promoted.` });
+      } else if (errorCount > 0) {
+        setPromotionFeedback({ type: 'error', message: 'No shapes were promoted.' });
+      }
+      setPromotionErrors(result.errors?.map(({ id, message }) => ({ id, message })) ?? []);
+      const failedIds = result.errors?.map(({ id }) => id) ?? [];
+      const nextSelection = failedIds
+        .filter((id): id is string => typeof id === 'string' && promotableShapeIdSet.has(id));
+      setSelectedShapeIds(new Set(nextSelection));
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        const message = error.message || 'Failed to promote shapes';
+        setPromotionFeedback({ type: 'error', message });
+        const responseErrors = Array.isArray((error.data as any)?.errors)
+          ? (error.data as { errors: Array<{ id: string; message: string }> }).errors
+          : [];
+        if (responseErrors.length > 0) {
+          setPromotionErrors(responseErrors.map(({ id, message }) => ({ id, message })));
+          const failedIds = responseErrors
+            .map(({ id }) => id)
+            .filter((id): id is string => typeof id === 'string' && promotableShapeIdSet.has(id));
+          setSelectedShapeIds(new Set(failedIds));
+        }
+      } else {
+        setPromotionFeedback({ type: 'error', message: 'Failed to promote shapes' });
+      }
+    }
+  }, [promotePending, promoteShapes, promotableShapeIdSet, promotableShapeIds, selectedShapeIds, selectedSubcategoryId]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: (theme) => theme.palette.background.default }}>
@@ -492,12 +631,74 @@ const AdminImagesPage: React.FC = () => {
                 </Alert>
               )}
 
+              {promotionFeedback && (
+                <Alert severity={promotionFeedback.type} onClose={() => setPromotionFeedback(null)}>
+                  {promotionFeedback.message}
+                </Alert>
+              )}
+
+              {promotionErrors.length > 0 && (
+                <Alert severity="warning" onClose={() => setPromotionErrors([])}>
+                  {promotionErrors.length === 1 ? 'One shape could not be promoted:' : `${promotionErrors.length} shapes could not be promoted:`}
+                  <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
+                    {promotionErrors.map((err) => {
+                      const matchingShape = shapes.find((shape) => shape.id === err.id);
+                      const label = matchingShape
+                        ? (matchingShape.title?.trim().length ? matchingShape.title : matchingShape.originalFilename)
+                        : err.id;
+                      return (
+                        <li key={`${err.id}-${err.message}`}>
+                          {label}: {err.message}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </Alert>
+              )}
+
               <Divider />
 
               {(shapesLoading || shapesFetching) && (
                 <Stack direction="row" spacing={1} alignItems="center">
                   <CircularProgress size={20} />
                   <Typography variant="body2" color="text.secondary">Loading shapes…</Typography>
+                </Stack>
+              )}
+
+              {!shapesLoading && !shapesFetching && shapes.length > 0 && (
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={2}
+                  alignItems={{ xs: 'stretch', sm: 'center' }}
+                  justifyContent="space-between"
+                >
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'flex-start', sm: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {selectionMessage}
+                    </Typography>
+                    <FormControlLabel
+                      control={(
+                        <Checkbox
+                          size="small"
+                          indeterminate={selectAllIndeterminate}
+                          checked={allSelected}
+                          onChange={handleToggleSelectAll}
+                          disabled={selectAllDisabled}
+                          inputProps={{ 'aria-label': 'Select all staging shapes' }}
+                        />
+                      )}
+                      label={allSelected ? 'Deselect all staging shapes' : 'Select all staging shapes'}
+                      sx={{ ml: { xs: 0, sm: 1 } }}
+                    />
+                  </Stack>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handlePromoteSelected}
+                    disabled={promoteDisabled}
+                  >
+                    {promotePending ? 'Promoting…' : 'Promote selected'}
+                  </Button>
                 </Stack>
               )}
 
@@ -517,9 +718,35 @@ const AdminImagesPage: React.FC = () => {
                       autosize: shape.autosize,
                       dirty: false,
                     };
+                    const isProduction = shape.isProduction;
+                    const isSelected = selectedShapeIds.has(shape.id);
                     return (
                       <Paper key={shape.id} variant="outlined" sx={{ p: 2 }}>
                         <Stack spacing={2}>
+                          <Stack
+                            direction={{ xs: 'column', md: 'row' }}
+                            spacing={1}
+                            alignItems={{ xs: 'flex-start', md: 'center' }}
+                            justifyContent="space-between"
+                          >
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <Checkbox
+                                size="small"
+                                checked={isSelected}
+                                onChange={() => handleToggleShapeSelected(shape.id)}
+                                disabled={isProduction || promotePending}
+                                inputProps={{ 'aria-label': isProduction ? 'Shape already in production' : 'Select shape for promotion' }}
+                              />
+                              <Typography variant="body2" color="text.secondary">
+                                {isProduction ? 'Already in production' : 'Select to include in the promotion batch'}
+                              </Typography>
+                            </Stack>
+                            <Chip
+                              label={isProduction ? 'Production' : 'Staging'}
+                              color={isProduction ? 'success' : 'warning'}
+                              size="small"
+                            />
+                          </Stack>
                           <TextField
                             label="Title"
                             size="small"
