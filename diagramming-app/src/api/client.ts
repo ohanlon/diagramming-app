@@ -69,8 +69,18 @@ export async function apiRequest<T = unknown>(
     // Handle non-2xx responses
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+      // Log detailed error information for debugging
+      console.error('[API Error]', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+        requestBody: requestOptions.body,
+      });
+      
       throw new ApiClientError(
-        errorData.message || `Request failed with status ${response.status}`,
+        errorData.error || errorData.message || `Request failed with status ${response.status}`,
         response.status,
         errorData
       );

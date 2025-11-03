@@ -212,7 +212,7 @@ export const getInitialTools = ({
                         onChange={handleFontChange}
                         displayEmpty
                         inputProps={{ 'aria-label': 'Without label' }}
-                        sx={{ '.MuiSelect-select': { padding: '8px 12px' }, color: 'inherit' }}
+                        sx={{ '.MuiSelect-select': { padding: '.5rem 0.75rem' }, color: 'inherit' }}
                     >
                         {googleFonts.map((font) => (
                             <MenuItem key={font.value} value={font.value} sx={{ fontFamily: font.value, color: 'text.primary' }}>

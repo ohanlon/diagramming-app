@@ -2,9 +2,11 @@ import { useRef, useCallback } from 'react';
 
 interface UseAutoScrollProps {
   canvasRef: React.RefObject<HTMLDivElement | null>;
+  setPan?: (pan: { x: number; y: number }) => void;
+  getPan?: () => { x: number; y: number };
 }
 
-export function useAutoScroll({ canvasRef }: UseAutoScrollProps) {
+export function useAutoScroll({ canvasRef, setPan, getPan }: UseAutoScrollProps) {
   const autoScrollInterval = useRef<number | null>(null);
   const lastMousePosition = useRef<{ clientX: number; clientY: number } | null>(null);
 
@@ -35,8 +37,17 @@ export function useAutoScroll({ canvasRef }: UseAutoScrollProps) {
       else if (rect.bottom - y < SCROLL_MARGIN) scrollY = SCROLL_SPEED;
 
       if (scrollX !== 0 || scrollY !== 0) {
-        canvas.scrollLeft += scrollX;
-        canvas.scrollTop += scrollY;
+        // Use SVG pan if available, otherwise fall back to scroll
+        if (setPan && getPan) {
+          const currentPan = getPan();
+          setPan({
+            x: currentPan.x + scrollX,
+            y: currentPan.y + scrollY,
+          });
+        } else {
+          canvas.scrollLeft += scrollX;
+          canvas.scrollTop += scrollY;
+        }
         autoScrollInterval.current = requestAnimationFrame(scroll);
       } else {
         stopAutoScroll();
@@ -44,7 +55,7 @@ export function useAutoScroll({ canvasRef }: UseAutoScrollProps) {
     };
 
     autoScrollInterval.current = requestAnimationFrame(scroll);
-  }, [canvasRef]);
+  }, [canvasRef, setPan, getPan]);
 
   const stopAutoScroll = useCallback(() => {
     if (autoScrollInterval.current) {

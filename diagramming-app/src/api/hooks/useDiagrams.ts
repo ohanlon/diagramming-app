@@ -61,12 +61,16 @@ export function useSaveDiagram() {
       // We provide: { name, sheets, activeSheetId, version }
       const serverPayload = {
         state: {
-          diagramName: data.name,
+          diagramName: data.name || 'Untitled Diagram',
           sheets: data.sheets,
           activeSheetId: data.activeSheetId,
           isSnapToGridEnabled: (data as any).isSnapToGridEnabled,
         },
       };
+
+      console.log('[useSaveDiagram] Saving diagram:', { diagramId, payload: serverPayload });
+
+      let serverResponse: any;
 
       if (diagramId) {
         // Update existing diagram with version check
@@ -74,11 +78,19 @@ export function useSaveDiagram() {
         if (data.version !== undefined) {
           headers['If-Match'] = `"v${data.version}"`;
         }
-        return api.put<SaveDiagramResponse>(`/diagrams/${diagramId}`, serverPayload, headers);
+        serverResponse = await api.put<any>(`/diagrams/${diagramId}`, serverPayload, headers);
       } else {
         // Create new diagram
-        return api.post<SaveDiagramResponse>('/diagrams', serverPayload);
+        serverResponse = await api.post<any>('/diagrams', serverPayload);
       }
+
+      // Transform server response to expected format
+      // Server returns: { id, version, state, ... }
+      // We need: { id, version }
+      return {
+        id: serverResponse.id,
+        version: serverResponse.version,
+      };
     },
     onSuccess: (response, variables) => {
       // Invalidate and refetch the diagram

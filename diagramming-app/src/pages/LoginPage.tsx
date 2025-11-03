@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Tabs, Tab, Alert, Typography, ThemeProvider, createTheme, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useLogin, useRegister, useCurrentUser } from '../api/hooks';
+import { useLogin, useRegister } from '../api/hooks';
+import { useDiagramStore } from '../store/useDiagramStore';
 import validator from 'validator';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const loginMutation = useLogin();
   const registerMutation = useRegister();
-  const { data: currentUser } = useCurrentUser();
+  const currentUser = useDiagramStore(state => state.currentUser);
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
@@ -20,13 +21,12 @@ const LoginPage: React.FC = () => {
 
   const loading = loginMutation.isPending || registerMutation.isPending;
 
-  // If already logged in, redirect to diagram editor in an effect (avoid navigation during render)
-  React.useEffect(() => {
+  // If already logged in, redirect to diagram editor
+  useEffect(() => {
     if (currentUser) {
       navigate('/diagram');
     }
   }, [currentUser, navigate]);
-  if (currentUser) return null;
 
   const isValidEmail = (s: string) => validator.isEmail(s);
 
@@ -44,15 +44,19 @@ const LoginPage: React.FC = () => {
 
     try {
       if (mode === 'login') {
-        await loginMutation.mutateAsync({ username, password });
+        const user = await loginMutation.mutateAsync({ username, password });
+        // Update Zustand store with logged in user
+        useDiagramStore.setState({ currentUser: user });
       } else {
         // Create username from first name + last name for registration
         const fullUsername = `${firstName.trim()} ${lastName.trim()}`;
-        await registerMutation.mutateAsync({ 
+        const user = await registerMutation.mutateAsync({ 
           username: fullUsername,
           email: username, 
           password 
         });
+        // Update Zustand store with registered user
+        useDiagramStore.setState({ currentUser: user });
       }
       navigate('/diagram');
     } catch (e: any) {

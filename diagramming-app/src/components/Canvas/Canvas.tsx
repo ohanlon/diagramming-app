@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import Node from '../Node/Node';
 import ConnectorComponent from '../Connector/Connector';
@@ -7,6 +7,7 @@ import type { Point, AnchorType, Shape } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { getAnchorPoint } from '../../utils/getAnchorPoint';
 import { calculateConnectionPath } from '../../utils/connectionAlgorithms';
+import { calculateViewportBounds, getVisibleShapes, isConnectorVisible, getVirtualizationStats } from '../../utils/canvasVirtualization';
 import './Canvas.less';
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, IconButton } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
@@ -52,6 +53,7 @@ const Canvas: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [editingTextShapeId, setEditingTextShapeId] = useState<string | null>(null);
+  const [containerDimensions, setContainerDimensions] = useState({ width: 1920, height: 1080 });
   const [isYouTubeDialogOpen, setIsYouTubeDialogOpen] = useState(false);
   const [youTubeUrl, setYouTubeUrl] = useState('');
   const [youTubeShapeData, setYouTubeShapeData] = useState<Omit<Shape, 'id'> | null>(null);
@@ -60,7 +62,11 @@ const Canvas: React.FC = () => {
   const { getShapeWithCalculatedTextProps } = useTextCalculation();
 
   // Custom hooks for canvas interactions
-  const { startAutoScroll, stopAutoScroll, updateMousePosition } = useAutoScroll({ canvasRef });
+  const { startAutoScroll, stopAutoScroll, updateMousePosition } = useAutoScroll({ 
+    canvasRef,
+    setPan,
+    getPan: () => activeSheet?.pan || { x: 0, y: 0 },
+  });
   
   const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
   
@@ -98,6 +104,21 @@ const Canvas: React.FC = () => {
     deselectAllTextBlocks,
     selectedShapeIds: activeSheet?.selectedShapeIds || [],
   });
+
+  // Track container dimensions for viewport calculations
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        setContainerDimensions({ width, height });
+      }
+    });
+
+    resizeObserver.observe(canvasRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const snapToGrid = (value: number, gridSize: number) => {
     return Math.round(value / gridSize) * gridSize;
@@ -493,15 +514,62 @@ const Canvas: React.FC = () => {
     handleContextMenu(e.clientX, e.clientY, id);
   };
 
-  const visibleShapes = shapeIds
-    .map((id) => shapesById[id])
-    .filter((shape): shape is Shape => !!shape && (activeSheet.layers[shape.layerId]?.isVisible ?? false));
+  // Calculate viewport bounds for virtualization
+  const viewportBounds = useMemo(() => {
+    if (!activeSheet) return null;
+    return calculateViewportBounds(
+      containerDimensions.width,
+      containerDimensions.height,
+      activeSheet.pan,
+      activeSheet.zoom,
+      300 // Padding to include shapes slightly outside viewport
+    );
+  }, [containerDimensions, activeSheet?.pan, activeSheet?.zoom]);
 
-  const visibleConnectors = Object.values(connectors || {}).filter((connector) => {
-    const startShape = shapesById[connector.startNodeId];
-    const endShape = shapesById[connector.endNodeId];
-    return startShape && endShape && activeSheet.layers[startShape.layerId]?.isVisible && activeSheet.layers[endShape.layerId]?.isVisible;
-  });
+  // Filter shapes by layer visibility and viewport (virtualization)
+  const visibleShapes = useMemo(() => {
+    if (!activeSheet || !viewportBounds) return [];
+    
+    const layerVisibleShapes = shapeIds
+      .map((id) => shapesById[id])
+      .filter((shape): shape is Shape => !!shape && (activeSheet.layers[shape.layerId]?.isVisible ?? false));
+
+    // Apply viewport virtualization
+    return getVisibleShapes(layerVisibleShapes, viewportBounds);
+  }, [shapeIds, shapesById, activeSheet?.layers, viewportBounds]);
+
+  // Filter connectors by visibility
+  const visibleConnectors = useMemo(() => {
+    if (!activeSheet || !viewportBounds) return [];
+    
+    return Object.values(connectors || {}).filter((connector) => {
+      const startShape = shapesById[connector.startNodeId];
+      const endShape = shapesById[connector.endNodeId];
+      
+      // Check layer visibility
+      if (!startShape || !endShape) return false;
+      if (!activeSheet.layers[startShape.layerId]?.isVisible) return false;
+      if (!activeSheet.layers[endShape.layerId]?.isVisible) return false;
+      
+      // Check viewport visibility (virtualization)
+      return isConnectorVisible(startShape, endShape, viewportBounds);
+    });
+  }, [connectors, shapesById, activeSheet?.layers, viewportBounds]);
+
+  // Log virtualization stats in development (optional)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && viewportBounds) {
+      const allLayerVisibleShapes = shapeIds
+        .map((id) => shapesById[id])
+        .filter((shape): shape is Shape => !!shape && (activeSheet?.layers[shape.layerId]?.isVisible ?? false));
+      
+      const stats = getVirtualizationStats(allLayerVisibleShapes.length, visibleShapes.length);
+      
+      if (stats.totalShapes > 20) { // Only log when there are enough shapes to matter
+        console.log('[Canvas Virtualization]', stats);
+      }
+    }
+  }, [visibleShapes, shapeIds, shapesById, activeSheet?.layers, viewportBounds]);
 
   const backgroundSize = 100000;
 
