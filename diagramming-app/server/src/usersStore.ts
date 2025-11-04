@@ -53,3 +53,19 @@ export async function getUsersByUsernames(usernames: string[]) {
   const { rows } = await pool.query(query, values as any[]);
   return rows;
 }
+
+// New: search users by username or name (for autocomplete in company onboarding)
+export async function searchUsers(searchTerm: string) {
+  const pattern = `%${searchTerm.trim().toLowerCase()}%`;
+  const query = `
+    SELECT id, username, first_name, last_name
+    FROM users
+    WHERE lower(username) LIKE $1
+       OR lower(first_name) LIKE $1
+       OR lower(last_name) LIKE $1
+    ORDER BY username ASC
+    LIMIT 50
+  `;
+  const { rows } = await pool.query(query, [pattern]);
+  return rows;
+}

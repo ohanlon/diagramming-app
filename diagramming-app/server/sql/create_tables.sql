@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS organisations (
   id UUID PRIMARY KEY,
   name TEXT NOT NULL,
   primary_contact_email TEXT NOT NULL,
+  primary_contact_name TEXT NOT NULL DEFAULT '',
+  billing_address TEXT NOT NULL DEFAULT '',
   localadmin_email TEXT NOT NULL,
   created_by UUID NULL REFERENCES users(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -45,6 +47,22 @@ CREATE TABLE IF NOT EXISTS organisations (
 
 -- Enforce case-insensitive uniqueness on organisation names (Apple == apple)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_organisations_name_ci ON organisations (lower(name));
+
+-- Add new columns for existing organisations table
+ALTER TABLE organisations ADD COLUMN IF NOT EXISTS primary_contact_name TEXT NOT NULL DEFAULT '';
+ALTER TABLE organisations ADD COLUMN IF NOT EXISTS billing_address TEXT NOT NULL DEFAULT '';
+
+-- Junction table for company administrators (many-to-many relationship)
+CREATE TABLE IF NOT EXISTS company_admins (
+  company_id UUID NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  assigned_by UUID NULL REFERENCES users(id),
+  assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (company_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_company_admins_company_id ON company_admins (company_id);
+CREATE INDEX IF NOT EXISTS idx_company_admins_user_id ON company_admins (user_id);
 
 -- Create diagrams table
 CREATE TABLE IF NOT EXISTS diagrams (

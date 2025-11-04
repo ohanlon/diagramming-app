@@ -69,4 +69,50 @@ router.get('/:id/shared-by', async (req: Request, res: Response) => {
   }
 });
 
+// GET /users/search - search for users by username or email (admin/sales only)
+router.get('/search', async (req: Request, res: Response) => {
+  const user = getRequestUser(req);
+  if (!user) return res.status(401).json({ error: 'Authentication required' });
+  
+  // Require admin or sales role
+  const roles: string[] = Array.isArray(user.roles) ? user.roles : [];
+  if (!user.id) return res.status(403).json({ error: 'Forbidden' });
+  
+  if (!roles.length) {
+    try {
+      const { getUserRoles } = require('../usersStore');
+      const loadedRoles = await getUserRoles(user.id);
+      (user as any).roles = loadedRoles;
+      roles.push(...loadedRoles);
+    } catch (e) {
+      console.warn('Failed to load user roles', e);
+    }
+  }
+  
+  if (!(roles.includes('admin') || roles.includes('sales'))) {
+    return res.status(403).json({ error: 'Admin or Sales role required' });
+  }
+
+  const query = (req.query.q || '').toString().trim();
+  if (!query || query.length < 2) {
+    return res.status(400).json({ error: 'Query must be at least 2 characters' });
+  }
+
+  try {
+    const { searchUsers } = require('../usersStore');
+    const users = await searchUsers(query);
+    // Return minimal user info for autocomplete
+    const results = users.map((u: any) => ({
+      id: u.id,
+      username: u.username,
+      firstName: u.first_name || '',
+      lastName: u.last_name || '',
+    }));
+    res.json({ users: results });
+  } catch (e) {
+    console.error('User search failed', e);
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+});
+
 export default router;
