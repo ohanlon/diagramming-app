@@ -481,6 +481,9 @@ const AdminImagesPage: React.FC = () => {
           <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
             Images Library
           </Typography>
+          <Button color="inherit" onClick={() => navigate('/admin/organisations')} sx={{ mr: 1 }}>
+            Organisations
+          </Button>
           <Button color="inherit" onClick={() => navigate('/admin/settings')} sx={{ mr: 1 }}>
             Settings
           </Button>

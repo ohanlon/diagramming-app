@@ -88,6 +88,7 @@ const AdminSettings: React.FC = () => {
         <AppBar position="static" color="primary" sx={{ padding: '0 1rem' }}>
           <Toolbar variant='dense' disableGutters>
             <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }} onClick={() => navigate('/diagram')}>Settings</Typography>
+            <Button color="inherit" onClick={() => navigate('/admin/organisations')} sx={{ mr: 1 }}>Organisations</Button>
             <Button color="inherit" onClick={() => navigate('/admin/images')} sx={{ mr: 1 }}>Images</Button>
             <AccountMenu />
           </Toolbar>

@@ -94,4 +94,39 @@ router.get('/admins', async (req: Request, res: Response) => {
   }
 });
 
+// Get organisations and API keys for company administrators
+router.get('/organisations', async (req: Request, res: Response) => {
+  try {
+    const reqUser = (req as any).user;
+    if (!reqUser?.id) return res.status(401).json({ error: 'Authentication required' });
+
+    // Check if user has company-admin role
+    const { getUserRoles } = require('../usersStore');
+    const roles = await getUserRoles(reqUser.id);
+    const isCompanyAdmin = roles.includes('company-admin');
+    const isAdmin = roles.includes('admin');
+    const isSales = roles.includes('sales');
+
+    // Company admins can only see their organisations, admins/sales can see all
+    if (!isCompanyAdmin && !isAdmin && !isSales) {
+      return res.status(403).json({ error: 'Company admin, admin, or sales role required' });
+    }
+
+    if (isCompanyAdmin && !isAdmin && !isSales) {
+      // Return only organisations this user is a company admin for
+      const { getCompaniesByUserId } = require('../organisationsStore');
+      const companies = await getCompaniesByUserId(reqUser.id);
+      return res.json({ organisations: companies || [] });
+    }
+
+    // Admin or sales - return all organisations
+    const { listOrganisations } = require('../organisationsStore');
+    const organisations = await listOrganisations();
+    res.json({ organisations: organisations || [] });
+  } catch (e) {
+    console.error('Failed to list organisations', e);
+    res.status(500).json({ error: 'Failed to list organisations' });
+  }
+});
+
 export default router;

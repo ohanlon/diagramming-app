@@ -12,8 +12,9 @@ export interface CreateOrganisationParams {
 
 export async function createOrganisation(params: CreateOrganisationParams) {
   const id = uuidv4();
+  const apiKey = uuidv4().replace(/-/g, ''); // Generate UUID and strip dashes
   const now = new Date().toISOString();
-  const query = `INSERT INTO organisations(id, name, primary_contact_email, primary_contact_name, billing_address, localadmin_email, created_by, created_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`;
+  const query = `INSERT INTO organisations(id, name, primary_contact_email, primary_contact_name, billing_address, localadmin_email, api_key, created_by, created_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`;
   const values = [
     id,
     params.name,
@@ -21,6 +22,7 @@ export async function createOrganisation(params: CreateOrganisationParams) {
     params.primaryContactName,
     params.billingAddress,
     params.localAdminEmail,
+    apiKey,
     params.createdBy ?? null,
     now,
   ];
@@ -70,7 +72,7 @@ export async function listCompanyAdmins(companyId: string) {
 
 export async function getCompaniesByUserId(userId: string) {
   const query = `
-    SELECT o.id, o.name, o.primary_contact_email, o.primary_contact_name, o.billing_address, o.created_at
+    SELECT o.id, o.name, o.primary_contact_email, o.primary_contact_name, o.billing_address, o.api_key, o.created_at
     FROM company_admins ca
     JOIN organisations o ON ca.company_id = o.id
     WHERE ca.user_id = $1
@@ -78,4 +80,9 @@ export async function getCompaniesByUserId(userId: string) {
   `;
   const { rows } = await pool.query(query, [userId]);
   return rows;
+}
+
+export async function getOrganisationByApiKey(apiKey: string) {
+  const { rows } = await pool.query('SELECT * FROM organisations WHERE api_key = $1', [apiKey]);
+  return rows[0] || null;
 }

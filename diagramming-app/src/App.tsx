@@ -19,6 +19,7 @@ import useBackgroundTokenRefresh from './hooks/useBackgroundTokenRefresh';
 import { getCurrentUserFromCookie } from './utils/userCookie';
 import Dashboard from './pages/Dashboard';
 import AdminSettings from './pages/AdminSettings';
+import AdminOrganisations from './pages/AdminOrganisations';
 import AdminRoute from './components/AdminRoute';
 import SalesRoute from './components/SalesRoute';
 import OnboardingPage from './pages/Onboarding';
@@ -502,6 +503,7 @@ function App() {
         <Route path="/diagram/*" element={<ProtectedRoute><MainAppLayout /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="/admin/images" element={<ProtectedRoute><AdminRoute><AdminImagesPage /></AdminRoute></ProtectedRoute>} />
+        <Route path="/admin/organisations" element={<ProtectedRoute><AdminRoute><AdminOrganisations /></AdminRoute></ProtectedRoute>} />
         <Route path="/onboarding" element={<ProtectedRoute><SalesRoute><OnboardingPage /></SalesRoute></ProtectedRoute>} />
         <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />

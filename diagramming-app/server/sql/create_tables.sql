@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS organisations (
   primary_contact_name TEXT NOT NULL DEFAULT '',
   billing_address TEXT NOT NULL DEFAULT '',
   localadmin_email TEXT NOT NULL,
+  api_key TEXT NOT NULL UNIQUE,
   created_by UUID NULL REFERENCES users(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -51,6 +52,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_organisations_name_ci ON organisations (lo
 -- Add new columns for existing organisations table
 ALTER TABLE organisations ADD COLUMN IF NOT EXISTS primary_contact_name TEXT NOT NULL DEFAULT '';
 ALTER TABLE organisations ADD COLUMN IF NOT EXISTS billing_address TEXT NOT NULL DEFAULT '';
+ALTER TABLE organisations ADD COLUMN IF NOT EXISTS api_key TEXT NOT NULL DEFAULT '' UNIQUE;
 
 -- Junction table for company administrators (many-to-many relationship)
 CREATE TABLE IF NOT EXISTS company_admins (
