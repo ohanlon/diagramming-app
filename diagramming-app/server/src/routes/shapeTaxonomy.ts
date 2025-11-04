@@ -250,8 +250,6 @@ router.post('/subcategories/:subcategoryId/shapes/upload', upload.array('files',
           title,
           originalFilename: file.originalname,
           path: dbPath,
-          textPosition: 'None',
-          autosize: true,
         });
         created.push(mapShapeAsset(asset));
       } catch (err: any) {

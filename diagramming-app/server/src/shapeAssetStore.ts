@@ -51,8 +51,6 @@ export interface CreateShapeAssetParams {
   title: string;
   path: string;
   originalFilename: string;
-  textPosition?: TextPosition;
-  autosize?: boolean;
   id?: string;
 }
 
@@ -71,7 +69,7 @@ export async function listShapeAssets(subcategoryId: string): Promise<ShapeAsset
 export async function createShapeAsset(params: CreateShapeAssetParams): Promise<ShapeAssetRow> {
   const id = params.id ?? uuidv4();
   const textPosition = 'Outside';
-  const autosize = params.autosize ?? true;
+  const autosize = true;
   const title = (params.title ?? '').trim();
   if (!title) {
     throw new Error('Title is required');
