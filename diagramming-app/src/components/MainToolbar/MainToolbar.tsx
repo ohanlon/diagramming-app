@@ -975,6 +975,7 @@ const MainToolbar: React.FC = () => {
   const [wholeWord, setWholeWord] = useState(false);
   const [matchCount, setMatchCount] = useState(0);
   const [isReplaceMode, setIsReplaceMode] = useState(false);
+  const [searchAllSheets, setSearchAllSheets] = useState(false);
 
   // Keyboard shortcuts for Find/Replace
   useEffect(() => {
@@ -998,7 +999,15 @@ const MainToolbar: React.FC = () => {
 
   // Update match count whenever search parameters change
   useEffect(() => {
-    if (!findText.trim() || !activeSheet) {
+    if (!findText.trim()) {
+      setMatchCount(0);
+      return;
+    }
+
+    const state = useDiagramStore.getState();
+    const sheets = searchAllSheets ? Object.values(state.sheets) : (activeSheet ? [activeSheet] : []);
+    
+    if (sheets.length === 0) {
       setMatchCount(0);
       return;
     }
@@ -1021,26 +1030,34 @@ const MainToolbar: React.FC = () => {
       }
     };
 
-    // Search in shapes
-    Object.values(activeSheet.shapesById).forEach(shape => {
-      if (matchesSearch(shape.text)) {
-        count++;
-      }
-    });
+    // Search in all relevant sheets
+    sheets.forEach(sheet => {
+      // Search in shapes
+      Object.values(sheet.shapesById).forEach(shape => {
+        if (matchesSearch(shape.text)) {
+          count++;
+        }
+      });
 
-    // Search in connectors
-    Object.values(activeSheet.connectors).forEach(connector => {
-      if (matchesSearch(connector.text)) {
-        count++;
-      }
+      // Search in connectors
+      Object.values(sheet.connectors).forEach(connector => {
+        if (matchesSearch(connector.text)) {
+          count++;
+        }
+      });
     });
 
     setMatchCount(count);
-  }, [findText, caseInsensitive, wholeWord, activeSheet]);
+  }, [findText, caseInsensitive, wholeWord, activeSheet, searchAllSheets]);
 
   // Find handler: select all matching shapes and connectors
   const handleFind = () => {
-    if (!activeSheet || !findText.trim()) return;
+    if (!findText.trim()) return;
+
+    const state = useDiagramStore.getState();
+    const sheets = searchAllSheets ? Object.values(state.sheets) : (activeSheet ? [activeSheet] : []);
+    
+    if (sheets.length === 0) return;
 
     const searchTerm = caseInsensitive ? findText.toLowerCase() : findText;
     const matchingShapeIds: string[] = [];
@@ -1059,21 +1076,24 @@ const MainToolbar: React.FC = () => {
       }
     };
 
-    // Find matching shapes
-    Object.values(activeSheet.shapesById).forEach(shape => {
-      if (matchesSearch(shape.text)) {
-        matchingShapeIds.push(shape.id);
-      }
+    // Find matching shapes and connectors in all relevant sheets
+    sheets.forEach(sheet => {
+      // Find matching shapes
+      Object.values(sheet.shapesById).forEach(shape => {
+        if (matchesSearch(shape.text)) {
+          matchingShapeIds.push(shape.id);
+        }
+      });
+
+      // Find matching connectors
+      Object.values(sheet.connectors).forEach(connector => {
+        if (matchesSearch(connector.text)) {
+          matchingConnectorIds.push(connector.id);
+        }
+      });
     });
 
-    // Find matching connectors
-    Object.values(activeSheet.connectors).forEach(connector => {
-      if (matchesSearch(connector.text)) {
-        matchingConnectorIds.push(connector.id);
-      }
-    });
-
-    // Select all matching items
+    // Select all matching items (only those on current sheet will be visible)
     useDiagramStore.getState().setSelectedShapes(matchingShapeIds);
     useDiagramStore.getState().setSelectedConnectors(matchingConnectorIds);
 
@@ -1083,8 +1103,10 @@ const MainToolbar: React.FC = () => {
 
   // Replace handler: replace text in all matching shapes and connectors
   const handleReplace = () => {
-    if (!activeSheet || !findText.trim()) return;
+    if (!findText.trim()) return;
 
+    const state = useDiagramStore.getState();
+    
     const searchTerm = caseInsensitive ? findText.toLowerCase() : findText;
     const matchingShapeIds: string[] = [];
     const matchingConnectorIds: string[] = [];
@@ -1109,23 +1131,68 @@ const MainToolbar: React.FC = () => {
       return { matched: false, newText: text };
     };
 
-    // Replace in shapes
-    Object.values(activeSheet.shapesById).forEach(shape => {
-      const result = replaceInText(shape.text);
-      if (result.matched) {
-        matchingShapeIds.push(shape.id);
-        useDiagramStore.getState().updateShapeText(shape.id, result.newText);
-      }
-    });
+    if (searchAllSheets) {
+      // For all sheets, we need to update the state directly across all sheets
+      const updatedSheets = { ...state.sheets };
+      
+      Object.entries(updatedSheets).forEach(([sheetId, sheet]) => {
+        let sheetModified = false;
+        const updatedShapesById = { ...sheet.shapesById };
+        const updatedConnectors = { ...sheet.connectors };
 
-    // Replace in connectors
-    Object.values(activeSheet.connectors).forEach(connector => {
-      const result = replaceInText(connector.text);
-      if (result.matched) {
-        matchingConnectorIds.push(connector.id);
-        useDiagramStore.getState().updateConnectorText(connector.id, result.newText);
-      }
-    });
+        // Replace in shapes
+        Object.values(sheet.shapesById).forEach(shape => {
+          const result = replaceInText(shape.text);
+          if (result.matched) {
+            matchingShapeIds.push(shape.id);
+            updatedShapesById[shape.id] = { ...shape, text: result.newText, isTextPositionManuallySet: false };
+            sheetModified = true;
+          }
+        });
+
+        // Replace in connectors
+        Object.values(sheet.connectors).forEach(connector => {
+          const result = replaceInText(connector.text);
+          if (result.matched) {
+            matchingConnectorIds.push(connector.id);
+            updatedConnectors[connector.id] = { ...connector, text: result.newText };
+            sheetModified = true;
+          }
+        });
+
+        if (sheetModified) {
+          updatedSheets[sheetId] = {
+            ...sheet,
+            shapesById: updatedShapesById,
+            connectors: updatedConnectors,
+          };
+        }
+      });
+
+      // Update all sheets at once
+      useDiagramStore.setState({ sheets: updatedSheets });
+    } else {
+      // For current sheet only, use the existing methods
+      if (!activeSheet) return;
+      
+      // Replace in shapes
+      Object.values(activeSheet.shapesById).forEach(shape => {
+        const result = replaceInText(shape.text);
+        if (result.matched) {
+          matchingShapeIds.push(shape.id);
+          useDiagramStore.getState().updateShapeText(shape.id, result.newText);
+        }
+      });
+
+      // Replace in connectors
+      Object.values(activeSheet.connectors).forEach(connector => {
+        const result = replaceInText(connector.text);
+        if (result.matched) {
+          matchingConnectorIds.push(connector.id);
+          useDiagramStore.getState().updateConnectorText(connector.id, result.newText);
+        }
+      });
+    }
 
     // Select all items that had replacements
     useDiagramStore.getState().setSelectedShapes(matchingShapeIds);
@@ -1728,7 +1795,7 @@ const MainToolbar: React.FC = () => {
           }} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={findDialogOpen || replaceDialogOpen} onClose={() => { setFindDialogOpen(false); setReplaceDialogOpen(false); }}>
+      <Dialog fullWidth maxWidth="sm" open={findDialogOpen || replaceDialogOpen} onClose={() => { setFindDialogOpen(false); setReplaceDialogOpen(false); }}>
         <DialogTitle>{isReplaceMode ? 'Replace' : 'Find'}</DialogTitle>
         <DialogContent>
           <TextField
@@ -1738,7 +1805,7 @@ const MainToolbar: React.FC = () => {
             required
             autoFocus
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 1 }}
           />
           {isReplaceMode && (
             <TextField
@@ -1746,10 +1813,10 @@ const MainToolbar: React.FC = () => {
               value={replaceText}
               onChange={e => setReplaceText(e.target.value)}
               fullWidth
-              sx={{ mb: 2 }}
+              sx={{ mb: 1 }}
             />
           )}
-          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1, mb: 1, alignContent: 'center' }}>
             <FormControlLabel
               control={<Switch checked={caseInsensitive} onChange={e => setCaseInsensitive(e.target.checked)} />}
               label="Match case"
@@ -1757,6 +1824,10 @@ const MainToolbar: React.FC = () => {
             <FormControlLabel
               control={<Switch checked={wholeWord} onChange={e => setWholeWord(e.target.checked)} />}
               label="Whole word"
+            />
+            <FormControlLabel
+              control={<Switch checked={searchAllSheets} onChange={e => setSearchAllSheets(e.target.checked)} />}
+              label="All sheets"
             />
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
