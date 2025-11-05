@@ -6,8 +6,11 @@ export interface User {
   id: string;
   username: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string;
-  role?: string;
+  role?: string; // Deprecated: use roles array instead
+  roles?: string[];
 }
 
 export interface LoginRequest {

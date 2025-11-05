@@ -15,9 +15,9 @@ const AccountMenu: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const [avatarSrcForEditing, setAvatarSrcForEditing] = useState<string | null>(null);
-  
+
   const themeMode = userSettings?.themeMode || useDiagramStore(state => state.themeMode) || 'light';
-  const currentUserIsAdmin = currentUser?.role === 'admin';
+  const currentUserIsAdmin = currentUser?.roles?.includes('admin') || currentUser?.role === 'admin';
   const avatarUrl = currentUser?.avatarUrl;
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
@@ -48,8 +48,8 @@ const AccountMenu: React.FC = () => {
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose} id="account-menu">
-    {currentUser ? [
-      <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>,
+        {currentUser ? [
+          <MenuItem key="signed" disabled>Signed in as {currentUser.username}</MenuItem>,
           <MenuItem key="change-avatar" onClick={() => { handleClose(); setAvatarEditorOpen(true); }}>Change avatar</MenuItem>,
           <MenuItem key="remove-avatar" onClick={async () => {
             handleClose();
@@ -62,9 +62,6 @@ const AccountMenu: React.FC = () => {
               <ListItemText>Admin Page</ListItemText>
             </MenuItem>
           ) : null,
-          <MenuItem key="logout" onClick={handleLogout}>
-            <ListItemText>Logout</ListItemText>
-          </MenuItem>,
           <MenuItem key="theme-toggle">
             <ListItemText>Light&nbsp;</ListItemText>
             <Switch checked={themeMode === 'dark'} onChange={(e) => handleThemeToggle(e.target.checked)} />
@@ -74,7 +71,10 @@ const AccountMenu: React.FC = () => {
             <MenuItem key="admin" onClick={() => { handleClose(); navigate('/admin'); }}>
               <ListItemText>Admin Settings</ListItemText>
             </MenuItem>
-          ) : null
+          ) : null,
+          <MenuItem key="logout" onClick={handleLogout}>
+            <ListItemText>Logout</ListItemText>
+          </MenuItem>
         ] : [
           <MenuItem key="theme-toggle-guest">
             <ListItemText>Theme</ListItemText>
@@ -83,6 +83,7 @@ const AccountMenu: React.FC = () => {
               label={themeMode === 'dark' ? 'Dark' : 'Light'}
             />
           </MenuItem>,
+
           <MenuItem key="login" onClick={() => { handleClose(); window.location.href = '/login'; }}>Login</MenuItem>,
           <MenuItem key="register" onClick={() => { handleClose(); window.location.href = '/login'; }}>Register</MenuItem>
         ]}
