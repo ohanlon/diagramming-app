@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Select, FormControl, InputLabel, Slider } from '@mui/material';
-import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField } from '@mui/material';
+import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField, FormControlLabel, Switch } from '@mui/material';
 import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom } from '@mui/icons-material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
@@ -12,7 +12,6 @@ import AccountMenu from '../AppBar/AccountMenu';
 import { NewMenuItem } from '../AppBar/NewMenu';
 
 const MainToolbar: React.FC = () => {
-  // ...existing code...
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [editMenuAnchorEl, setEditMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [selectMenuAnchorEl, setSelectMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -968,6 +967,175 @@ const MainToolbar: React.FC = () => {
     handleArrangeMenuClose();
   };
 
+  const [findDialogOpen, setFindDialogOpen] = useState(false);
+  const [replaceDialogOpen, setReplaceDialogOpen] = useState(false);
+  const [findText, setFindText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
+  const [caseInsensitive, setCaseInsensitive] = useState(true);
+  const [wholeWord, setWholeWord] = useState(false);
+  const [matchCount, setMatchCount] = useState(0);
+  const [isReplaceMode, setIsReplaceMode] = useState(false);
+
+  // Keyboard shortcuts for Find/Replace
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+        if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          setIsReplaceMode(false);
+          setFindDialogOpen(true);
+        }
+        if (e.key === 'r' || e.key === 'R') {
+          e.preventDefault();
+          setIsReplaceMode(true);
+          setReplaceDialogOpen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Update match count whenever search parameters change
+  useEffect(() => {
+    if (!findText.trim() || !activeSheet) {
+      setMatchCount(0);
+      return;
+    }
+
+    let count = 0;
+    const searchTerm = caseInsensitive ? findText.toLowerCase() : findText;
+
+    // Helper to check if text matches
+    const matchesSearch = (text: string | undefined) => {
+      if (!text) return false;
+      const compareText = caseInsensitive ? text.toLowerCase() : text;
+
+      if (wholeWord) {
+        // Match whole words only using word boundaries
+        const regex = new RegExp(`\\b${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, caseInsensitive ? 'gi' : 'g');
+        return regex.test(compareText);
+      } else {
+        // Partial match
+        return compareText.includes(searchTerm);
+      }
+    };
+
+    // Search in shapes
+    Object.values(activeSheet.shapesById).forEach(shape => {
+      if (matchesSearch(shape.text)) {
+        count++;
+      }
+    });
+
+    // Search in connectors
+    Object.values(activeSheet.connectors).forEach(connector => {
+      if (matchesSearch(connector.text)) {
+        count++;
+      }
+    });
+
+    setMatchCount(count);
+  }, [findText, caseInsensitive, wholeWord, activeSheet]);
+
+  // Find handler: select all matching shapes and connectors
+  const handleFind = () => {
+    if (!activeSheet || !findText.trim()) return;
+
+    const searchTerm = caseInsensitive ? findText.toLowerCase() : findText;
+    const matchingShapeIds: string[] = [];
+    const matchingConnectorIds: string[] = [];
+
+    // Helper to check if text matches
+    const matchesSearch = (text: string | undefined) => {
+      if (!text) return false;
+      const compareText = caseInsensitive ? text.toLowerCase() : text;
+
+      if (wholeWord) {
+        const regex = new RegExp(`\\b${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, caseInsensitive ? 'gi' : 'g');
+        return regex.test(compareText);
+      } else {
+        return compareText.includes(searchTerm);
+      }
+    };
+
+    // Find matching shapes
+    Object.values(activeSheet.shapesById).forEach(shape => {
+      if (matchesSearch(shape.text)) {
+        matchingShapeIds.push(shape.id);
+      }
+    });
+
+    // Find matching connectors
+    Object.values(activeSheet.connectors).forEach(connector => {
+      if (matchesSearch(connector.text)) {
+        matchingConnectorIds.push(connector.id);
+      }
+    });
+
+    // Select all matching items
+    useDiagramStore.getState().setSelectedShapes(matchingShapeIds);
+    useDiagramStore.getState().setSelectedConnectors(matchingConnectorIds);
+
+    setFindDialogOpen(false);
+    setReplaceDialogOpen(false);
+  };
+
+  // Replace handler: replace text in all matching shapes and connectors
+  const handleReplace = () => {
+    if (!activeSheet || !findText.trim()) return;
+
+    const searchTerm = caseInsensitive ? findText.toLowerCase() : findText;
+    const matchingShapeIds: string[] = [];
+    const matchingConnectorIds: string[] = [];
+
+    // Helper to check if text matches and perform replacement
+    const replaceInText = (text: string | undefined): { matched: boolean; newText: string } => {
+      if (!text) return { matched: false, newText: text || '' };
+      const compareText = caseInsensitive ? text.toLowerCase() : text;
+
+      if (wholeWord) {
+        const regex = new RegExp(`\\b${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, caseInsensitive ? 'gi' : 'g');
+        if (regex.test(compareText)) {
+          return { matched: true, newText: text.replace(regex, replaceText) };
+        }
+      } else {
+        if (compareText.includes(searchTerm)) {
+          // Use global replace for partial matches
+          const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), caseInsensitive ? 'gi' : 'g');
+          return { matched: true, newText: text.replace(regex, replaceText) };
+        }
+      }
+      return { matched: false, newText: text };
+    };
+
+    // Replace in shapes
+    Object.values(activeSheet.shapesById).forEach(shape => {
+      const result = replaceInText(shape.text);
+      if (result.matched) {
+        matchingShapeIds.push(shape.id);
+        useDiagramStore.getState().updateShapeText(shape.id, result.newText);
+      }
+    });
+
+    // Replace in connectors
+    Object.values(activeSheet.connectors).forEach(connector => {
+      const result = replaceInText(connector.text);
+      if (result.matched) {
+        matchingConnectorIds.push(connector.id);
+        useDiagramStore.getState().updateConnectorText(connector.id, result.newText);
+      }
+    });
+
+    // Select all items that had replacements
+    useDiagramStore.getState().setSelectedShapes(matchingShapeIds);
+    useDiagramStore.getState().setSelectedConnectors(matchingConnectorIds);
+
+    setFindDialogOpen(false);
+    setReplaceDialogOpen(false);
+  };
+
+  // ...existing code...
   return (
     <Toolbar disableGutters variant="dense" sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, padding: '0 0', marginLeft: 0, boxShadow: 'none', color: 'inherit', minHeight: '2em' }}>
       {/* Diagram name display and edit (moved before File menu) */}
@@ -1239,6 +1407,17 @@ const MainToolbar: React.FC = () => {
           </ListItemIcon>
           <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Paste</ListItemText>
           <Typography variant="body2" color="text.secondary">Ctrl+V</Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => { setIsReplaceMode(false); setFindDialogOpen(true); handleEditMenuClose(); }}>
+          <ListItemIcon></ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Find...</ListItemText>
+          <Typography variant="body2" color="text.secondary">Ctrl+F</Typography>
+        </MenuItem>
+        <MenuItem onClick={() => { setIsReplaceMode(true); setReplaceDialogOpen(true); handleEditMenuClose(); }}>
+          <ListItemIcon></ListItemIcon>
+          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Replace...</ListItemText>
+          <Typography variant="body2" color="text.secondary">Ctrl+R</Typography>
         </MenuItem>
       </Menu>
 
@@ -1547,6 +1726,52 @@ const MainToolbar: React.FC = () => {
 
             setExportSettingsOpen(false);
           }} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={findDialogOpen || replaceDialogOpen} onClose={() => { setFindDialogOpen(false); setReplaceDialogOpen(false); }}>
+        <DialogTitle>{isReplaceMode ? 'Replace' : 'Find'}</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Find"
+            value={findText}
+            onChange={e => setFindText(e.target.value)}
+            required
+            autoFocus
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          {isReplaceMode && (
+            <TextField
+              label="Replace with"
+              value={replaceText}
+              onChange={e => setReplaceText(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          )}
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <FormControlLabel
+              control={<Switch checked={caseInsensitive} onChange={e => setCaseInsensitive(e.target.checked)} />}
+              label="Match case"
+            />
+            <FormControlLabel
+              control={<Switch checked={wholeWord} onChange={e => setWholeWord(e.target.checked)} />}
+              label="Whole word"
+            />
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {findText ? `${matchCount} match${matchCount === 1 ? '' : 'es'} found` : 'Enter text to search'}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setFindDialogOpen(false); setReplaceDialogOpen(false); }}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={isReplaceMode ? handleReplace : handleFind}
+            disabled={!findText.trim()}
+          >
+            {isReplaceMode ? 'Replace' : 'Find'}
+          </Button>
         </DialogActions>
       </Dialog>
       {/* Ensure pending flag is cleared if user navigates away or closes menus */}
