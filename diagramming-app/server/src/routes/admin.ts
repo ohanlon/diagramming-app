@@ -129,4 +129,40 @@ router.get('/organisations', async (req: Request, res: Response) => {
   }
 });
 
+// Regenerate API key for an organisation (admin only)
+router.post('/organisations/:id/regenerate-api-key', async (req: Request, res: Response) => {
+  try {
+    const reqUser = (req as any).user;
+    if (!reqUser?.id) return res.status(401).json({ error: 'Authentication required' });
+
+    // Ensure requester is admin
+    const { getUserRoles } = require('../usersStore');
+    const roles = await getUserRoles(reqUser.id);
+    const isAdmin = roles.includes('admin');
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Admin role required' });
+    }
+
+    const organisationId = req.params.id;
+    if (!organisationId) {
+      return res.status(400).json({ error: 'Organisation ID required' });
+    }
+
+    // Check if organisation exists
+    const { getOrganisationById, regenerateApiKey } = require('../organisationsStore');
+    const organisation = await getOrganisationById(organisationId);
+    if (!organisation) {
+      return res.status(404).json({ error: 'Organisation not found' });
+    }
+
+    // Regenerate the API key
+    const updated = await regenerateApiKey(organisationId);
+    res.json({ ok: true, organisation: updated });
+  } catch (e) {
+    console.error('Failed to regenerate API key', e);
+    res.status(500).json({ error: 'Failed to regenerate API key' });
+  }
+});
+
 export default router;

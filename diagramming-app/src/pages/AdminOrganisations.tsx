@@ -7,11 +7,19 @@ import {
   Paper,
   IconButton,
   Tooltip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Alert,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import AdminRoute from '../components/AdminRoute';
 import { useDiagramStore } from '../store/useDiagramStore';
 import { apiFetch } from '../utils/apiFetch';
@@ -34,25 +42,32 @@ const AdminOrganisations: React.FC = () => {
   const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [loading, setLoading] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  const [regenerateDialog, setRegenerateDialog] = useState<{ open: boolean; orgId: string | null; orgName: string | null }>({
+    open: false,
+    orgId: null,
+    orgName: null,
+  });
+  const [regenerating, setRegenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchOrganisations = async () => {
+    setLoading(true);
+    try {
+      const resp = await apiFetch(`${serverUrl}/admin/organisations`, { method: 'GET' });
+      if (!resp.ok) {
+        console.error('Failed to fetch organisations:', resp.status);
+        return;
+      }
+      const json = await resp.json();
+      setOrganisations(json.organisations || []);
+    } catch (e) {
+      console.error('Error fetching organisations:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrganisations = async () => {
-      setLoading(true);
-      try {
-        const resp = await apiFetch(`${serverUrl}/admin/organisations`, { method: 'GET' });
-        if (!resp.ok) {
-          console.error('Failed to fetch organisations:', resp.status);
-          return;
-        }
-        const json = await resp.json();
-        setOrganisations(json.organisations || []);
-      } catch (e) {
-        console.error('Error fetching organisations:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     void fetchOrganisations();
   }, [serverUrl]);
 
@@ -63,6 +78,41 @@ const AdminOrganisations: React.FC = () => {
     }).catch((err) => {
       console.error('Failed to copy API key:', err);
     });
+  };
+
+  const handleRegenerateClick = (orgId: string, orgName: string) => {
+    setRegenerateDialog({ open: true, orgId, orgName });
+  };
+
+  const handleRegenerateConfirm = async () => {
+    if (!regenerateDialog.orgId) return;
+
+    setRegenerating(true);
+    setError(null);
+    try {
+      const resp = await apiFetch(
+        `${serverUrl}/admin/organisations/${regenerateDialog.orgId}/regenerate-api-key`,
+        { method: 'POST' }
+      );
+
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => `Status ${resp.status}`);
+        throw new Error(text || 'Failed to regenerate API key');
+      }
+
+      // Refresh the organisations list
+      await fetchOrganisations();
+      setRegenerateDialog({ open: false, orgId: null, orgName: null });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to regenerate API key';
+      setError(message);
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  const handleRegenerateCancel = () => {
+    setRegenerateDialog({ open: false, orgId: null, orgName: null });
   };
 
   const columns: GridColDef[] = [
@@ -100,9 +150,9 @@ const AdminOrganisations: React.FC = () => {
       field: 'api_key',
       headerName: 'API Key',
       flex: 1,
-      minWidth: 200,
+      minWidth: 250,
       renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
           <Typography
             variant="body2"
             sx={{
@@ -111,6 +161,7 @@ const AdminOrganisations: React.FC = () => {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              flexGrow: 1,
             }}
           >
             {params.value}
@@ -119,9 +170,17 @@ const AdminOrganisations: React.FC = () => {
             <IconButton
               size="small"
               onClick={() => handleCopyApiKey(params.value as string)}
-              sx={{ ml: 'auto' }}
             >
               <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Regenerate API Key">
+            <IconButton
+              size="small"
+              color="warning"
+              onClick={() => handleRegenerateClick(params.row.id, params.row.name)}
+            >
+              <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </Box>
@@ -156,6 +215,12 @@ const AdminOrganisations: React.FC = () => {
             <Typography variant="h4">Organisations</Typography>
           </Box>
 
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          )}
+
           <Paper sx={{ height: 600, width: '100%' }}>
             <DataGrid
               rows={organisations}
@@ -187,6 +252,36 @@ const AdminOrganisations: React.FC = () => {
             />
           </Paper>
         </Box>
+
+        <Dialog
+          open={regenerateDialog.open}
+          onClose={handleRegenerateCancel}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Regenerate API Key</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to regenerate the API key for <strong>{regenerateDialog.orgName}</strong>?
+            </DialogContentText>
+            <DialogContentText sx={{ mt: 2, color: 'warning.main' }}>
+              Warning: This will invalidate the current API key. Any applications using the old key will need to be updated.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleRegenerateCancel} disabled={regenerating}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRegenerateConfirm}
+              color="warning"
+              variant="contained"
+              disabled={regenerating}
+            >
+              {regenerating ? 'Regenerating...' : 'Regenerate'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </AdminRoute>
   );

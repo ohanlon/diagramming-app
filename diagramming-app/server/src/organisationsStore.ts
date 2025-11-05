@@ -86,3 +86,10 @@ export async function getOrganisationByApiKey(apiKey: string) {
   const { rows } = await pool.query('SELECT * FROM organisations WHERE api_key = $1', [apiKey]);
   return rows[0] || null;
 }
+
+export async function regenerateApiKey(organisationId: string) {
+  const newApiKey = uuidv4().replace(/-/g, ''); // Generate new UUID and strip dashes
+  const query = `UPDATE organisations SET api_key = $1 WHERE id = $2 RETURNING *`;
+  const { rows } = await pool.query(query, [newApiKey, organisationId]);
+  return rows[0] || null;
+}
