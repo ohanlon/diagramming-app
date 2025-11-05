@@ -16,7 +16,9 @@ const AccountMenu: React.FC = () => {
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const [avatarSrcForEditing, setAvatarSrcForEditing] = useState<string | null>(null);
 
-  const themeMode = userSettings?.themeMode || useDiagramStore(state => state.themeMode) || 'light';
+  // Always call hooks in a consistent order; avoid short-circuiting a hook call
+  const themeModeFromStore = useDiagramStore(state => state.themeMode);
+  const themeMode = (userSettings?.themeMode ?? themeModeFromStore) || 'light';
   const currentUserIsAdmin = currentUser?.roles?.includes('admin') || currentUser?.role === 'admin';
   const avatarUrl = currentUser?.avatarUrl;
 
