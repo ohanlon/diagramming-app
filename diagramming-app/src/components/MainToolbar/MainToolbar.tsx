@@ -100,6 +100,14 @@ const MainToolbar: React.FC = () => {
   const HOVER_DELAY_MS = 200;
   const hoverCandidateRef = useRef<'file' | 'edit' | 'select' | 'arrange' | 'export' | null>(null);
 
+  const setActiveMenu = (menu: 'file' | 'edit' | 'select' | 'arrange' | 'export', target: HTMLElement) => {
+    setFileMenuAnchorEl(menu === 'file' ? target : null);
+    setEditMenuAnchorEl(menu === 'edit' ? target : null);
+    setSelectMenuAnchorEl(menu === 'select' ? target : null);
+    setArrangeMenuAnchorEl(menu === 'arrange' ? target : null);
+    setExportMenuAnchorEl(menu === 'export' ? target : null);
+  };
+
   const handleTopLevelMouseEnter = (event: React.MouseEvent<HTMLElement>, menu: 'file' | 'edit' | 'select' | 'arrange' | 'export') => {
     // Only allow hover-to-open if the menubar has been activated (menu opened)
     if (!menubarActive) return;
@@ -110,37 +118,7 @@ const MainToolbar: React.FC = () => {
     }
     hoverTimerRef.current = window.setTimeout(() => {
       const target = event.currentTarget as HTMLElement;
-      if (menu === 'file') {
-        setFileMenuAnchorEl(target);
-        setEditMenuAnchorEl(null);
-        setSelectMenuAnchorEl(null);
-        setArrangeMenuAnchorEl(null);
-        setExportMenuAnchorEl(null);
-      } else if (menu === 'edit') {
-        setEditMenuAnchorEl(target);
-        setFileMenuAnchorEl(null);
-        setSelectMenuAnchorEl(null);
-        setArrangeMenuAnchorEl(null);
-        setExportMenuAnchorEl(null);
-      } else if (menu === 'select') {
-        setSelectMenuAnchorEl(target);
-        setFileMenuAnchorEl(null);
-        setEditMenuAnchorEl(null);
-        setArrangeMenuAnchorEl(null);
-        setExportMenuAnchorEl(null);
-      } else if (menu === 'arrange') {
-        setArrangeMenuAnchorEl(target);
-        setFileMenuAnchorEl(null);
-        setEditMenuAnchorEl(null);
-        setSelectMenuAnchorEl(null);
-        setExportMenuAnchorEl(null);
-      } else if (menu === 'export') {
-        setExportMenuAnchorEl(target);
-        setFileMenuAnchorEl(null);
-        setEditMenuAnchorEl(null);
-        setSelectMenuAnchorEl(null);
-        setArrangeMenuAnchorEl(null);
-      }
+      setActiveMenu(menu, target);
     }, HOVER_DELAY_MS);
   };
 
