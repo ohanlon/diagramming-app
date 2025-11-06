@@ -12,6 +12,76 @@ import {
 } from '../../commands';
 import { useHistoryStore } from '../useHistoryStore';
 
+// Helper function to calculate text dimensions and position for outside text
+const calculateOutsideTextLayout = (
+  shape: Shape,
+  shapeWidth: number,
+  shapeHeight: number
+): { textWidth: number; textHeight: number; textOffsetX: number; textOffsetY: number } => {
+  // If no text, return default values
+  if (!shape.text) {
+    return {
+      textWidth: shapeWidth,
+      textHeight: 20,
+      textOffsetX: 0,
+      textOffsetY: shapeHeight + 5,
+    };
+  }
+
+  const TOP_OFFSET = 5;
+  const MARGIN_ALLOWANCE = 10;
+  const PADDING_HORIZONTAL = 10;
+  const PADDING_VERTICAL = 6;
+  
+  const maxAllowedWidth = shapeWidth + MARGIN_ALLOWANCE;
+  
+  // Create temporary element for measurement
+  const tempDiv = document.createElement('div');
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.visibility = 'hidden';
+  tempDiv.style.whiteSpace = 'nowrap';
+  tempDiv.style.fontFamily = shape.fontFamily || 'Open Sans';
+  tempDiv.style.fontSize = `${shape.fontSize || 10}pt`;
+  tempDiv.style.fontWeight = shape.isBold ? 'bold' : 'normal';
+  tempDiv.style.fontStyle = shape.isItalic ? 'italic' : 'normal';
+  tempDiv.textContent = shape.text;
+  document.body.appendChild(tempDiv);
+  
+  const singleLineWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
+  
+  let textWidth: number;
+  let textHeight: number;
+  
+  if (shape.autosize) {
+    if (singleLineWidth > maxAllowedWidth) {
+      tempDiv.style.whiteSpace = 'normal';
+      tempDiv.style.width = `${maxAllowedWidth}px`;
+      tempDiv.style.wordWrap = 'break-word';
+      textWidth = maxAllowedWidth;
+      textHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
+    } else {
+      textWidth = singleLineWidth;
+      tempDiv.style.whiteSpace = 'normal';
+      tempDiv.style.width = `${singleLineWidth}px`;
+      textHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
+    }
+  } else {
+    textWidth = Math.min(singleLineWidth, maxAllowedWidth);
+    tempDiv.style.whiteSpace = 'normal';
+    tempDiv.style.width = `${textWidth}px`;
+    textHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
+  }
+  
+  document.body.removeChild(tempDiv);
+  
+  return {
+    textWidth,
+    textHeight,
+    textOffsetX: (shapeWidth / 2) - (textWidth / 2), // Center aligned
+    textOffsetY: shapeHeight + TOP_OFFSET, // 5 points below shape
+  };
+};
+
 export interface ShapeStoreActions {
   // Shape CRUD operations
   addShapeAndRecordHistory: (shape: Shape) => void;
@@ -304,24 +374,17 @@ export const createShapeActions = (
 
       let updatedTextOffsetX = shape.textOffsetX;
       let updatedTextOffsetY = shape.textOffsetY;
+      let updatedTextWidth = shape.textWidth;
+      let updatedTextHeight = shape.textHeight;
       
-      // Only adjust text offsets if textPosition is 'outside' and position hasn't been manually set
-      if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
-        // Adjust vertical position to maintain distance from bottom
-        const originalHeight = shape.height;
-        const originalTextOffsetY = shape.textOffsetY;
-        const distanceFromBottom = originalHeight - originalTextOffsetY;
-        updatedTextOffsetY = newHeight - distanceFromBottom;
-        
-        // Adjust horizontal position based on alignment
-        if (shape.horizontalAlign === 'center') {
-          updatedTextOffsetX = (newWidth / 2) - (shape.textWidth / 2);
-        } else if (shape.horizontalAlign === 'right') {
-          updatedTextOffsetX = newWidth - shape.textWidth;
-        } else {
-          // left alignment
-          updatedTextOffsetX = 0;
-        }
+      // Always adjust text layout for outside text (unless explicitly marked as manually set)
+      // Treat undefined as false to handle existing shapes
+      if (shape.textPosition === 'outside' && shape.isTextPositionManuallySet !== true) {
+        const layout = calculateOutsideTextLayout(shape, newWidth, newHeight);
+        updatedTextOffsetX = layout.textOffsetX;
+        updatedTextOffsetY = layout.textOffsetY;
+        updatedTextWidth = layout.textWidth;
+        updatedTextHeight = layout.textHeight;
       }
 
       return {
@@ -332,7 +395,17 @@ export const createShapeActions = (
             ...currentSheet,
             shapesById: {
               ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY },
+              [id]: { 
+                ...shape, 
+                x: newX, 
+                y: newY, 
+                width: newWidth, 
+                height: newHeight, 
+                textOffsetX: updatedTextOffsetX, 
+                textOffsetY: updatedTextOffsetY,
+                textWidth: updatedTextWidth,
+                textHeight: updatedTextHeight,
+              },
             },
           },
         },
@@ -373,25 +446,29 @@ export const createShapeActions = (
         if (shape) {
           let updatedTextOffsetX = shape.textOffsetX;
           let updatedTextOffsetY = shape.textOffsetY;
+          let updatedTextWidth = shape.textWidth;
+          let updatedTextHeight = shape.textHeight;
           
-          if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
-            // Adjust vertical position
-            const originalHeight = shape.height;
-            const originalTextOffsetY = shape.textOffsetY;
-            const distanceFromBottom = originalHeight - originalTextOffsetY;
-            updatedTextOffsetY = height - distanceFromBottom;
-            
-            // Adjust horizontal position based on alignment
-            if (shape.horizontalAlign === 'center') {
-              updatedTextOffsetX = (width / 2) - (shape.textWidth / 2);
-            } else if (shape.horizontalAlign === 'right') {
-              updatedTextOffsetX = width - shape.textWidth;
-            } else {
-              updatedTextOffsetX = 0;
-            }
+          // Always adjust text layout for outside text (unless explicitly marked as manually set)
+          if (shape.textPosition === 'outside' && shape.isTextPositionManuallySet !== true) {
+            const layout = calculateOutsideTextLayout(shape, width, height);
+            updatedTextOffsetX = layout.textOffsetX;
+            updatedTextOffsetY = layout.textOffsetY;
+            updatedTextWidth = layout.textWidth;
+            updatedTextHeight = layout.textHeight;
           }
           
-          newShapesById[id] = { ...shape, x, y, width, height, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY };
+          newShapesById[id] = { 
+            ...shape, 
+            x, 
+            y, 
+            width, 
+            height, 
+            textOffsetX: updatedTextOffsetX, 
+            textOffsetY: updatedTextOffsetY,
+            textWidth: updatedTextWidth,
+            textHeight: updatedTextHeight,
+          };
         }
       });
       return {

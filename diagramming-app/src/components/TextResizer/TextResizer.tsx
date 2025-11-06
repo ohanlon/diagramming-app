@@ -26,6 +26,7 @@ interface TextResizerProps {
   shapeWidth: number;
   forceEditMode?: boolean;
   onEditComplete?: () => void;
+  textPosition?: 'inside' | 'outside' | 'None';
 }
 
 const TextResizer: React.FC<TextResizerProps> = ({
@@ -50,6 +51,7 @@ const TextResizer: React.FC<TextResizerProps> = ({
   shapeWidth,
   forceEditMode,
   onEditComplete,
+  textPosition,
 }) => {
   const { updateShapeText, updateShapeDimensions, updateShapeTextDimensions, updateShapeTextPosition, activeSheetId } = useDiagramStore();
   const textRef = useRef<HTMLDivElement>(null);
@@ -217,9 +219,10 @@ const TextResizer: React.FC<TextResizerProps> = ({
           fontFamily: fontFamily,
           fontSize: fontSize ? `${fontSize}pt` : undefined,
           textAlign: horizontalAlign === 'left' ? 'left' : horizontalAlign === 'center' ? 'center' : 'right',
-          wordWrap: 'break-word',
-          whiteSpace: 'normal',
+          wordWrap: textPosition === 'outside' && !autosize ? 'normal' : 'break-word',
+          whiteSpace: textPosition === 'outside' && !autosize ? 'nowrap' : 'normal',
           overflow: 'hidden',
+          textOverflow: textPosition === 'outside' && !autosize ? 'ellipsis' : 'clip',
           height: '100%',
           display: 'flex',
           fontWeight: isBold ? 'bold' : 'normal',

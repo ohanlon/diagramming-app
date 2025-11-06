@@ -1729,7 +1729,7 @@ const MainToolbar: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
+          <Button variant="outlined" onClick={() => {
             // Revert to previously-snapped settings when the dialog was opened
             const prev = prevExportSettingsRef.current;
             if (prev) {
@@ -1743,7 +1743,7 @@ const MainToolbar: React.FC = () => {
             }
             setExportSettingsOpen(false);
           }}>Cancel</Button>
-          <Button onClick={async () => {
+          <Button color='primary' onClick={async () => {
             // Compute chosen resolution (unless custom) and persist settings
             let newWidth = exportWidthPx;
             let newHeight = exportHeightPx;

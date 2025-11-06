@@ -519,6 +519,7 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
           shapeWidth={width}
           forceEditMode={isEditingText}
           onEditComplete={onTextEditComplete}
+          textPosition={textPosition}
         />
       )}
 
