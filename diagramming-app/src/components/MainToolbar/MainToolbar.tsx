@@ -2,14 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Print from '../Print/Print';
 import { Select, FormControl, InputLabel, Slider } from '@mui/material';
-import { Toolbar, Button, MenuList, MenuItem, Menu, ListItemText, Typography, ListItemIcon, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField, FormControlLabel, Switch } from '@mui/material';
-import { ContentCopy, ContentCut, ContentPaste, PrintOutlined, RedoOutlined, SaveOutlined, UndoOutlined, Dashboard, ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom } from '@mui/icons-material';
+import { Toolbar, Button, MenuList, MenuItem, Typography, Divider, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box, TextField, FormControlLabel, Switch } from '@mui/material';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning';
 import AccountMenu from '../AppBar/AccountMenu';
-import { NewMenuItem } from '../AppBar/NewMenu';
+import FileMenu from './FileMenu';
+import EditMenu from './EditMenu';
+import SelectMenu from './SelectMenu';
+import ArrangeMenu from './ArrangeMenu';
+import ExportMenu from './ExportMenu';
 
 const MainToolbar: React.FC = () => {
   const [fileMenuAnchorEl, setFileMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -641,6 +644,29 @@ const MainToolbar: React.FC = () => {
     document.addEventListener('mousedown', handleDocumentMouseDown);
     return () => document.removeEventListener('mousedown', handleDocumentMouseDown);
   }, [exportMenuAnchorEl, handleExportMenuClose]);
+
+  // Helper to generate onMouseMove handler for menu switching
+  const createMenuMouseMoveHandler = () => (ev: React.MouseEvent) => {
+    if (!menubarActive) return;
+    try {
+      const x = ev.clientX;
+      const y = ev.clientY;
+      const checkRect = (el: HTMLElement | null) => {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+      };
+      let candidate: 'file' | 'edit' | 'select' | 'arrange' | 'export' | null = null;
+      if (checkRect(fileRef.current)) candidate = 'file';
+      else if (checkRect(editRef.current)) candidate = 'edit';
+      else if (checkRect(selectRef.current)) candidate = 'select';
+      else if (checkRect(arrangeRef.current)) candidate = 'arrange';
+      else if (checkRect(exportRef.current)) candidate = 'export';
+      if (!candidate) return;
+      if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'arrange' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
+    } catch (e) { }
+  };
 
   const handlePrint = () => {
     const printContainer = document.createElement('div');
@@ -1279,317 +1305,84 @@ const MainToolbar: React.FC = () => {
       </MenuList>
 
       {/* File menu */}
-      <Menu
-        id="file-menu"
-        elevation={0}
+      <FileMenu
         anchorEl={fileMenuAnchorEl}
         open={Boolean(fileMenuAnchorEl)}
         onClose={handleFileMenuClose}
         onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'file')}
-        PaperProps={{
-          style: { border: '1px solid #a0a0a0' },
-          onMouseDown: (_ev: React.MouseEvent) => {
-            try {
-              // Always close any open Export submenu on mousedown inside the File menu
-              handleExportMenuClose();
-            } catch (e) {
-              // ignore
-            }
-          },
-          onMouseMove: (ev: React.MouseEvent) => {
-            // If user moves pointer over the opened popover, interpret their
-            // horizontal position relative to the menubar and switch menus
-            if (!menubarActive) return;
-            try {
-              const x = ev.clientX;
-              const y = ev.clientY;
-              const checkRect = (el: HTMLElement | null) => {
-                if (!el) return false;
-                const r = el.getBoundingClientRect();
-                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-              };
-              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
-              if (checkRect(fileRef.current)) candidate = 'file';
-              else if (checkRect(editRef.current)) candidate = 'edit';
-              else if (checkRect(selectRef.current)) candidate = 'select';
-              else if (checkRect(exportRef.current)) candidate = 'export';
-              if (!candidate) return;
-              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) { }
-          }
-        }}
-      >
-        <NewMenuItem onNew={() => { handleExportMenuClose(); handleNewDiagram(); }} />
-        <Divider />
-        {/* Export moved back to its own top-level menu */}
-        <MenuItem onClick={() => { handleExportMenuClose(); if (isEditable) saveDiagram(); handleFileMenuClose(); }} disabled={!isEditable}>
-          <ListItemIcon>
-            <SaveOutlined fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Save</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+S</Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={() => { handleExportMenuClose(); handlePrint(); }}>
-          <ListItemIcon>
-            <PrintOutlined fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Print</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+P</Typography>
-        </MenuItem>
-        {/* (Export moved back to top-level) */}
-        <Divider />
-        <MenuItem onClick={() => { handleExportMenuClose(); handleFileMenuClose(); guardedNavigate('/dashboard'); }}>
-          <ListItemIcon>
-            <Dashboard fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Dashboard</ListItemText>
-        </MenuItem>
-      </Menu>
+        onMouseMove={createMenuMouseMoveHandler()}
+        onNewDiagram={handleNewDiagram}
+        onSave={saveDiagram}
+        onPrint={handlePrint}
+        onDashboard={() => guardedNavigate('/dashboard')}
+        onExportMenuClose={handleExportMenuClose}
+        isEditable={isEditable}
+      />
 
       {/* Export menu */}
-      <Menu
-        id="export-menu"
-        elevation={0}
+      <ExportMenu
         anchorEl={exportMenuAnchorEl}
         open={Boolean(exportMenuAnchorEl)}
         onClose={handleExportMenuClose}
         onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'export')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        PaperProps={{
-          style: { border: '1px solid #a0a0a0' },
-          onMouseMove: (ev: React.MouseEvent) => {
-            if (!menubarActive) return;
-            try {
-              const x = ev.clientX;
-              const y = ev.clientY;
-              const checkRect = (el: HTMLElement | null) => {
-                if (!el) return false;
-                const r = el.getBoundingClientRect();
-                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-              };
-              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
-              if (checkRect(fileRef.current)) candidate = 'file';
-              else if (checkRect(editRef.current)) candidate = 'edit';
-              else if (checkRect(selectRef.current)) candidate = 'select';
-              else if (checkRect(exportRef.current)) candidate = 'export';
-              if (!candidate) return;
-              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) { }
-          }
-        }}
-      >
-        <MenuItem onClick={() => { handleExportToPowerPoint(); handleFileMenuClose(); handleExportMenuClose(); }} disabled={!sheets || Object.keys(sheets).length === 0}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>PowerPoint</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={() => { handleExportCurrentAsPng(); }} disabled={!activeSheet}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>PNG (current sheet)</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => { handleExportCurrentAsJpg(); }} disabled={!activeSheet}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>JPG (current sheet)</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => { handleExportCurrentAsTiff(); }} disabled={!activeSheet}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>TIFF (current sheet)</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => { handleExportCurrentAsGif(); }} disabled={!activeSheet}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>GIF (current sheet)</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => { handleExportCurrentAsPdf(); }} disabled={!activeSheet}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>PDF (current sheet)</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={() => { openExportSettings(); handleFileMenuClose(); handleExportMenuClose(); }}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Export Settings...</ListItemText>
-        </MenuItem>
-      </Menu>
+        onMouseMove={createMenuMouseMoveHandler()}
+        onExportToPowerPoint={() => { handleExportToPowerPoint(); handleFileMenuClose(); handleExportMenuClose(); }}
+        onExportCurrentAsPng={handleExportCurrentAsPng}
+        onExportCurrentAsJpg={handleExportCurrentAsJpg}
+        onExportCurrentAsTiff={handleExportCurrentAsTiff}
+        onExportCurrentAsGif={handleExportCurrentAsGif}
+        onExportCurrentAsPdf={handleExportCurrentAsPdf}
+        onOpenExportSettings={() => { openExportSettings(); handleFileMenuClose(); handleExportMenuClose(); }}
+        hasSheets={Boolean(sheets && Object.keys(sheets).length > 0)}
+        hasActiveSheet={Boolean(activeSheet)}
+      />
 
       {/* Edit menu */}
-      <Menu
-        id="edit-menu"
-        elevation={0}
+      <EditMenu
         anchorEl={editMenuAnchorEl}
         open={Boolean(editMenuAnchorEl)}
         onClose={handleEditMenuClose}
         onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'edit')}
-        PaperProps={{
-          style: { border: '1px solid #a0a0a0' },
-          onMouseMove: (ev: React.MouseEvent) => {
-            if (!menubarActive) return;
-            try {
-              const x = ev.clientX;
-              const y = ev.clientY;
-              const checkRect = (el: HTMLElement | null) => {
-                if (!el) return false;
-                const r = el.getBoundingClientRect();
-                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-              };
-              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
-              if (checkRect(fileRef.current)) candidate = 'file';
-              else if (checkRect(editRef.current)) candidate = 'edit';
-              else if (checkRect(selectRef.current)) candidate = 'select';
-              else if (checkRect(exportRef.current)) candidate = 'export';
-              if (!candidate) return;
-              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) { }
-          }
-        }}
-      >
-        <MenuItem onClick={handleUndo} disabled={!canUndo}>
-          <ListItemIcon>
-            <UndoOutlined fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Undo</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+Z</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleRedo} disabled={!canRedo}>
-          <ListItemIcon>
-            <RedoOutlined fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Redo</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+Y</Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleCut} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
-          <ListItemIcon>
-            <ContentCut fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Cut</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+X</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleCopy} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
-          <ListItemIcon>
-            <ContentCopy fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Copy</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+C</Typography>
-        </MenuItem>
-        <MenuItem onClick={handlePaste} disabled={!activeSheet || !activeSheet.clipboard || activeSheet.clipboard.length === 0}>
-          <ListItemIcon>
-            <ContentPaste fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Paste</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+V</Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={() => { setIsReplaceMode(false); setFindDialogOpen(true); handleEditMenuClose(); }}>
-          <ListItemIcon></ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Find...</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+F</Typography>
-        </MenuItem>
-        <MenuItem onClick={() => { setIsReplaceMode(true); setReplaceDialogOpen(true); handleEditMenuClose(); }}>
-          <ListItemIcon></ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Replace...</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+R</Typography>
-        </MenuItem>
-      </Menu>
+        onMouseMove={createMenuMouseMoveHandler()}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onCut={handleCut}
+        onCopy={handleCopy}
+        onPaste={handlePaste}
+        onFind={() => { setIsReplaceMode(false); setFindDialogOpen(true); handleEditMenuClose(); }}
+        onReplace={() => { setIsReplaceMode(true); setReplaceDialogOpen(true); handleEditMenuClose(); }}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        canCut={Boolean(activeSheet && activeSheet.selectedShapeIds.length > 0)}
+        canCopy={Boolean(activeSheet && activeSheet.selectedShapeIds.length > 0)}
+        canPaste={Boolean(activeSheet && activeSheet.clipboard && activeSheet.clipboard.length > 0)}
+      />
 
       {/* Arrange menu (top-level) */}
-      <Menu
-        id="arrange-menu"
-        elevation={0}
+      <ArrangeMenu
         anchorEl={arrangeMenuAnchorEl}
         open={Boolean(arrangeMenuAnchorEl)}
         onClose={handleArrangeMenuClose}
         onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'arrange')}
-        PaperProps={{
-          style: { border: '1px solid #a0a0a0' },
-          onMouseMove: (ev: React.MouseEvent) => {
-            if (!menubarActive) return;
-            try {
-              const x = ev.clientX;
-              const y = ev.clientY;
-              const checkRect = (el: HTMLElement | null) => {
-                if (!el) return false;
-                const r = el.getBoundingClientRect();
-                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-              };
-              let candidate: 'file' | 'edit' | 'select' | 'arrange' | 'export' | null = null;
-              if (checkRect(fileRef.current)) candidate = 'file';
-              else if (checkRect(editRef.current)) candidate = 'edit';
-              else if (checkRect(selectRef.current)) candidate = 'select';
-              else if (checkRect(arrangeRef.current)) candidate = 'arrange';
-              else if (checkRect(exportRef.current)) candidate = 'export';
-              if (!candidate) return;
-              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'arrange' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) { }
-          }
-        }}
-      >
-        <MenuItem onClick={handleBringToFront} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
-          <ListItemIcon>
-            <VerticalAlignTop fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Bring to Front</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleBringForward} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
-          <ListItemIcon>
-            <ArrowUpward fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Bring Forward</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleSendBackward} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
-          <ListItemIcon>
-            <ArrowDownward fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Send Backward</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleSendToBack} disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}>
-          <ListItemIcon>
-            <VerticalAlignBottom fontSize="small" />
-          </ListItemIcon>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Send to Back</ListItemText>
-        </MenuItem>
-      </Menu>
+        onMouseMove={createMenuMouseMoveHandler()}
+        onBringToFront={handleBringToFront}
+        onBringForward={handleBringForward}
+        onSendBackward={handleSendBackward}
+        onSendToBack={handleSendToBack}
+        disabled={!activeSheet || activeSheet.selectedShapeIds.length === 0}
+      />
 
       {/* Select menu */}
-      <Menu
-        id="select-menu"
-        elevation={0}
+      <SelectMenu
         anchorEl={selectMenuAnchorEl}
         open={Boolean(selectMenuAnchorEl)}
         onClose={handleSelectMenuClose}
         onKeyDown={(e) => handleMenuKeyDown(e as React.KeyboardEvent, 'select')}
-        PaperProps={{
-          style: { border: '1px solid #a0a0a0' },
-          onMouseMove: (ev: React.MouseEvent) => {
-            if (!menubarActive) return;
-            try {
-              const x = ev.clientX;
-              const y = ev.clientY;
-              const checkRect = (el: HTMLElement | null) => {
-                if (!el) return false;
-                const r = el.getBoundingClientRect();
-                return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-              };
-              let candidate: 'file' | 'edit' | 'select' | 'export' | null = null;
-              if (checkRect(fileRef.current)) candidate = 'file';
-              else if (checkRect(editRef.current)) candidate = 'edit';
-              else if (checkRect(selectRef.current)) candidate = 'select';
-              else if (checkRect(exportRef.current)) candidate = 'export';
-              if (!candidate) return;
-              if (hoverTimerRef.current) window.clearTimeout(hoverTimerRef.current);
-              hoverTimerRef.current = window.setTimeout(() => { openMenuByName(candidate as 'file' | 'edit' | 'select' | 'export'); hoverTimerRef.current = null; }, HOVER_DELAY_MS);
-            } catch (e) { }
-          }
-        }}
-      >
-        <MenuItem onClick={handleSelectAll}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>All</ListItemText>
-          <Typography variant="body2" color="text.secondary">Ctrl+A</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleSelectShapes}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Shapes</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleSelectLines}>
-          <ListItemText sx={{ minWidth: '100px', paddingRight: '16px' }}>Lines</ListItemText>
-        </MenuItem>
-      </Menu>
+        onMouseMove={createMenuMouseMoveHandler()}
+        onSelectAll={handleSelectAll}
+        onSelectShapes={handleSelectShapes}
+        onSelectLines={handleSelectLines}
+      />
       <Dialog open={confirmNewOpen} onClose={() => { setConfirmNewOpen(false); setPendingNewCreation(false); }}>
         <DialogTitle>Discard unsaved changes?</DialogTitle>
         <DialogContent>
