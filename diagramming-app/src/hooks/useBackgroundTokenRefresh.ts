@@ -6,12 +6,13 @@ type Options = { intervalMs?: number };
 
 /**
  * Starts a background refresh task that periodically POSTs to /auth/refresh to
- * rotate refresh tokens and keep the user's session alive while the app is open.
+ * obtain fresh access tokens and keep the user's session alive while the app is open.
  *
  * Behavior:
- * - Calls /auth/refresh initially on mount and then every intervalMs (default 24h).
+ * - Calls /auth/refresh initially on mount and then every intervalMs (default 10 minutes).
  * - After a successful refresh it calls /auth/me to refresh the client-side profile
  *   and persists that profile into the visible user cookie and in-memory store.
+ * - The refresh token remains valid and is reused until it expires or is explicitly revoked.
  * - If refresh returns 401 (unauthenticated), logs the user out via the store logout action.
  *   If refresh returns 403 (forbidden) the hook will NOT log the user out — 403s
  *   typically indicate permission issues and should be handled at the request

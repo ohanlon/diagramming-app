@@ -2,7 +2,7 @@ import * as express from 'express';
 import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import { createUser, getUserByUsername } from '../usersStore';
+import { createUser, getUserByUsername, getUserById } from '../usersStore';
 import { createRefreshToken, getRefreshTokenRowById, revokeRefreshTokenById } from '../refreshTokensStore';
 import { getAppSetting } from '../appSettingsStore';
 import { getUserSettings } from '../userSettingsStore';
@@ -151,11 +151,21 @@ router.post('/refresh', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
 
-    // rotate: revoke old token and issue new tokens
-    await revokeRefreshTokenById(id);
+    // Issue a new access token but keep the same refresh token valid
+    // (refresh token only expires after its expiration date or on explicit logout)
     const userId = row.user_id;
-    // Create new tokens and set cookies
-    await issueTokensAndSetCookies(res, userId, (req as any).user?.username || '');
+    
+    // Fetch username from database for JWT payload
+    let username = '';
+    try {
+      const user = await getUserById(userId);
+      username = user?.username || '';
+    } catch (e) {
+      console.warn('Failed to fetch username for refresh token', e);
+    }
+    
+    const accessToken = (jwt as any).sign({ id: userId, username }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES });
+    setAuthCookie(res, accessToken);
     res.json({ ok: true });
   } catch (e) {
     console.error('Refresh failed', e);
