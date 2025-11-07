@@ -239,7 +239,7 @@ function App() {
           try {
             const { apiFetch } = await import('./utils/apiFetch');
             const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
-            const meResp = await apiFetch(`${serverUrl}/auth/me`, { method: 'GET' });
+            const meResp = await apiFetch(`${serverUrl}/auth/me`, { method: 'GET' }, { retryOn401: false });
             if (meResp.ok) {
               const json = await meResp.json().catch(() => null);
               if (json && json.user && mounted) {
