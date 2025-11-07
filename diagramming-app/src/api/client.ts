@@ -142,17 +142,8 @@ async function refreshToken(): Promise<boolean> {
       method: 'POST',
       credentials: 'include',
     });
-
-    if (response.ok) {
-      return true;
-    }
-
-    // If refresh returns 401, session is truly expired
-    if (response.status === 401) {
-      return false;
-    }
-
-    // For 403 or other errors, don't retry
+    if (response.ok) return true;
+    if (response.status === 401) return false;
     return false;
   } catch (error) {
     console.warn('Token refresh failed:', error);

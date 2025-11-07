@@ -3,11 +3,8 @@ import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { createUser, getUserByUsername, getUserById } from '../usersStore';
-import { createRefreshToken, getRefreshTokenRowById, revokeRefreshTokenById } from '../refreshTokensStore';
-import { getAppSetting } from '../appSettingsStore';
 import { getUserSettings } from '../userSettingsStore';
 import * as dotenv from 'dotenv';
-import { pool } from '../db';
 
 dotenv.config();
 
@@ -15,53 +12,51 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret';
 const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES || '15m';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || ACCESS_TOKEN_EXPIRES;
 const REFRESH_EXPIRES_DAYS = Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
+const REFRESH_JWT_SECRET = process.env.REFRESH_JWT_SECRET || (process.env.JWT_SECRET ? process.env.JWT_SECRET + '_refresh' : 'dev_refresh_secret');
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || '10');
 const COOKIE_MAX_AGE_MS = Number(process.env.COOKIE_MAX_AGE_MS || String(30 * 24 * 60 * 60 * 1000));
 
 const router = express.Router();
+const DEFAULT_SAMESITE = (process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === 'production' ? 'strict' : 'lax')) as 'lax' | 'strict' | 'none';
 
 function setAuthCookie(res: Response, token: string, maxAgeMs?: number) {
   const secure = process.env.NODE_ENV === 'production';
+  const sameSite = DEFAULT_SAMESITE;
   res.cookie('authToken', token, {
     httpOnly: true,
     secure,
     // Use 'lax' so cross-site GET navigations and top-level GET requests (like credentialed fetch GETs)
     // from the frontend at a different port can include the cookie in development.
-    sameSite: 'lax',
+    sameSite,
     maxAge: maxAgeMs || 1000 * 60 * 15, // default 15 minutes
     path: '/',
   });
 }
 
-async function setRefreshCookie(res: Response, refreshToken: string, maxAgeMs?: number) {
+function setRefreshCookie(res: Response, refreshToken: string) {
   const secure = process.env.NODE_ENV === 'production';
-  let finalMax = maxAgeMs;
-  if (!finalMax) {
-    // consult runtime app setting if present
-    try {
-      const configured = await getAppSetting('refresh_expires_days');
-      const days = configured && typeof configured === 'number' ? configured as number : Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
-      finalMax = 1000 * 60 * 60 * 24 * days;
-    } catch (e) {
-      finalMax = 1000 * 60 * 60 * 24 * Number(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '365');
-    }
-  }
+  const maxAgeMs = REFRESH_EXPIRES_DAYS * 24 * 60 * 60 * 1000;
+  const sameSite = DEFAULT_SAMESITE;
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure,
-    sameSite: 'lax',
-    maxAge: finalMax,
+    sameSite,
+    maxAge: maxAgeMs,
     path: '/',
   });
 }
 
-async function issueTokensAndSetCookies(res: Response, userId: string, username: string) {
-  // Create access token
+function createRefreshJwt(userId: string) {
+  // Allow runtime override of refresh expiry via app setting if available
+  const days = REFRESH_EXPIRES_DAYS;
+  const expiresIn = `${days}d`;
+  return (jwt as any).sign({ sub: userId, typ: 'refresh' }, REFRESH_JWT_SECRET, { expiresIn });
+}
+
+function issueAccessToken(res: Response, userId: string, username: string) {
   const accessToken = (jwt as any).sign({ id: userId, username }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES });
-  // Create refresh token stored in DB and return token string (createRefreshToken will consult app settings if needed)
-  const refreshToken = await createRefreshToken(userId);
   setAuthCookie(res, accessToken);
-  await setRefreshCookie(res, refreshToken);
+  return accessToken;
 }
 
 router.post('/register', async (req: Request, res: Response) => {
@@ -93,7 +88,10 @@ router.post('/register', async (req: Request, res: Response) => {
     const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS);
     const passwordHash = bcrypt.hashSync(password, salt);
     const created = await createUser(username, passwordHash, salt, String(firstName).trim(), String(lastName).trim());
-  await issueTokensAndSetCookies(res, created.id, created.username);
+  const refreshToken = createRefreshJwt(created.id);
+  // Set cookies for access and refresh tokens
+  issueAccessToken(res, created.id, created.username);
+  setRefreshCookie(res, refreshToken);
   const settings = await getUserSettings(created.id);
   try {
     const { getUserRoles } = require('../usersStore');
@@ -116,7 +114,9 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
     const ok = bcrypt.compareSync(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-  await issueTokensAndSetCookies(res, user.id, user.username);
+  const refreshToken = createRefreshJwt(user.id);
+  issueAccessToken(res, user.id, user.username);
+  setRefreshCookie(res, refreshToken);
   const settings = await getUserSettings(user.id);
   try {
     const { getUserRoles } = require('../usersStore');
@@ -132,58 +132,40 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 router.post('/refresh', async (req: Request, res: Response) => {
-  const cookieToken = (req as any).cookies?.refreshToken;
-  if (!cookieToken) return res.status(401).json({ error: 'Missing refresh token' });
+  // Expect refresh token in httpOnly cookie
+  const token = (req as any).cookies?.refreshToken;
+  if (!token) {
+    return res.status(401).json({ error: 'Missing refresh token' });
+  }
   try {
-    // cookieToken is in form id.secret
-    const parts = cookieToken.split('.');
-    if (parts.length < 2) return res.status(401).json({ error: 'Invalid refresh token format' });
-    const id = parts[0];
-    const secret = parts.slice(1).join('.');
-    const row = await getRefreshTokenRowById(id);
-    if (!row) return res.status(401).json({ error: 'Refresh token not found' });
-    if (row.revoked) return res.status(401).json({ error: 'Refresh token revoked' });
-    if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) return res.status(401).json({ error: 'Refresh token expired' });
-    // verify secret: compare provided secret with stored bcrypt hash
-    const ok = bcrypt.compareSync(secret, row.token_hash);
-    if (!ok) {
-      await revokeRefreshTokenById(id); // suspect token theft
+    const payload: any = (jwt as any).verify(token, REFRESH_JWT_SECRET);
+    if (!payload || payload.typ !== 'refresh' || !payload.sub) {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
-
-    // Issue a new access token but keep the same refresh token valid
-    // (refresh token only expires after its expiration date or on explicit logout)
-    const userId = row.user_id;
-    
-    // Fetch username from database for JWT payload
+    const userId = payload.sub as string;
+    // Fetch username
     let username = '';
     try {
       const user = await getUserById(userId);
       username = user?.username || '';
     } catch (e) {
-      console.warn('Failed to fetch username for refresh token', e);
+      // non-fatal
     }
-    
-    const accessToken = (jwt as any).sign({ id: userId, username }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES });
-    setAuthCookie(res, accessToken);
-    res.json({ ok: true });
+    // Re-issue access token; optionally re-issue refresh to extend sliding session
+    issueAccessToken(res, userId, username);
+    // Optional: renew refresh cookie to implement sliding expiration
+    try {
+      const renewed = createRefreshJwt(userId);
+      setRefreshCookie(res, renewed);
+    } catch (_) {}
+    return res.json({ ok: true });
   } catch (e) {
-    console.error('Refresh failed', e);
-    res.status(500).json({ error: 'Failed to refresh token' });
+    return res.status(401).json({ error: 'Invalid or expired refresh token' });
   }
 });
 
-router.post('/logout', async (req: Request, res: Response) => {
-  const cookieToken = (req as any).cookies?.refreshToken;
-  if (cookieToken) {
-    try {
-      const parts = cookieToken.split('.');
-      const id = parts[0];
-      await revokeRefreshTokenById(id);
-    } catch (e) {
-      console.warn('Failed to revoke refresh token on logout', e);
-    }
-  }
+router.post('/logout', async (_req: Request, res: Response) => {
+  // Clear both access and refresh cookies
   res.clearCookie('authToken', { path: '/' });
   res.clearCookie('refreshToken', { path: '/' });
   res.json({ ok: true });

@@ -19,6 +19,7 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit, opt
 
   // Attempt refresh once silently. If refresh succeeds, retry the original request.
   try {
+    // Cookie-based refresh: no Authorization header needed
     const refreshResp = await fetch(`${serverUrl}/auth/refresh`, { method: 'POST', credentials: 'include' });
     if (refreshResp.ok) {
       // Retry original request once after successful refresh

@@ -179,6 +179,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         wrappedSet({ currentUser: { ...json.user, avatarUrl: avatar }, lastSaveError: null, showAuthDialog: false });
         const augmentedUser = { ...json.user, avatarUrl: avatar };
         try { setCurrentUserCookie(augmentedUser); } catch (e) {}
+        // Refresh token now stored in httpOnly cookie; nothing to persist client-side.
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });
@@ -423,6 +424,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
   // Persist user in a cookie (do not store it inside localStorage with diagram sheets)
   const augmentedUser = { ...json.user, avatarUrl: avatar };
   try { setCurrentUserCookie(augmentedUser); } catch (e) {}
+        // Refresh token now stored in httpOnly cookie; nothing to persist client-side.
       }
     } catch (e: any) {
       wrappedSet({ lastSaveError: e?.message || String(e) });

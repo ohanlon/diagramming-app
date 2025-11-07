@@ -10,12 +10,34 @@ import { testConnection } from './db';
 import shapesRouter from './routes/shapes';
 import path from 'path';
 import fs from 'fs';
+import helmet from 'helmet';
 
 dotenv.config();
 
 const app = express();
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+// Security headers via Helmet, including a baseline CSP. Since this server does not
+// serve the frontend HTML in development, the CSP mainly serves as a scaffold.
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'none'"],
+      frameAncestors: ["'none'"],
+      // The document for CSP enforcement is served by the frontend dev server;
+      // these directives are conservative defaults.
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'", FRONTEND_ORIGIN],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'same-origin' },
+}));
 app.use(cors({ origin: FRONTEND_ORIGIN, credentials: true }));
 app.use(cookieParser());
 app.use(bodyParser.json({ limit: '5mb' }));
