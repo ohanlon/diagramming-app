@@ -99,15 +99,17 @@ const ResizableShapeStore: React.FC<ResizableShapeStoreProps> = ({
   }, [isResizing, minWidth, maxWidth]);
 
   useEffect(() => {
-    if (isResizing) {
-      document.addEventListener('mousemove', resize);
-      document.addEventListener('mouseup', stopResizing);
-
-      return () => {
-        document.removeEventListener('mousemove', resize);
-        document.removeEventListener('mouseup', stopResizing);
-      };
+    if (!isResizing) {
+      return undefined;
     }
+
+    document.addEventListener('mousemove', resize);
+    document.addEventListener('mouseup', stopResizing);
+
+    return () => {
+      document.removeEventListener('mousemove', resize);
+      document.removeEventListener('mouseup', stopResizing);
+    };
   }, [isResizing, resize, stopResizing]);
 
   return (

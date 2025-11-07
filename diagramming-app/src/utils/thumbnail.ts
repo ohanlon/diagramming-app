@@ -14,10 +14,15 @@ export async function rasterizeSvgElement(svgElement: SVGSVGElement, width = 128
   let vbWidth = 0;
   let vbHeight = 0;
   if (viewBoxAttr) {
-    const parts = viewBoxAttr.split(/\s+|,/).map(Number).filter(n => !Number.isNaN(n));
+    const parts = viewBoxAttr
+      .split(/\s+|,/)
+      .map(token => Number(token))
+      .filter((n): n is number => !Number.isNaN(n));
+
     if (parts.length === 4) {
-      vbWidth = parts[2];
-      vbHeight = parts[3];
+      const [, , parsedWidth, parsedHeight] = parts;
+      vbWidth = typeof parsedWidth === 'number' ? parsedWidth : vbWidth;
+      vbHeight = typeof parsedHeight === 'number' ? parsedHeight : vbHeight;
     }
   }
 

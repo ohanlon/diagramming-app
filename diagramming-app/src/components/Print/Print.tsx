@@ -3,6 +3,7 @@ import React from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import Node from '../Node/Node';
 import Connector from '../Connector/Connector';
+import type { Shape } from '../../types';
 import './Print.less';
 
 interface PrintProps {
@@ -23,13 +24,28 @@ const Print: React.FC<PrintProps> = ({ sheetId }) => {
   // Get all shapes and connectors from visible layers
   const visibleShapes = shapeIds
     .map(id => shapesById[id])
-    .filter(shape => shape && layers[shape.layerId]?.isVisible);
+    .filter((shape): shape is Shape => {
+      if (!shape) {
+        return false;
+      }
+
+      const layer = layers[shape.layerId];
+      return Boolean(layer?.isVisible);
+    });
 
   const visibleConnectors = Object.values(connectors)
     .filter(connector => {
       const startShape = shapesById[connector.startNodeId];
       const endShape = shapesById[connector.endNodeId];
-      return startShape && endShape && layers[startShape.layerId]?.isVisible && layers[endShape.layerId]?.isVisible;
+
+      if (!startShape || !endShape) {
+        return false;
+      }
+
+      const startLayer = layers[startShape.layerId];
+      const endLayer = layers[endShape.layerId];
+
+      return Boolean(startLayer?.isVisible && endLayer?.isVisible);
     });
 
   // Calculate the bounding box of all visible elements
@@ -46,7 +62,10 @@ const Print: React.FC<PrintProps> = ({ sheetId }) => {
   });
 
   const padding = 50;
-  const viewBox = `${minX - padding} ${minY - padding} ${maxX - minX + padding * 2} ${maxY - minY + padding * 2}`;
+  const hasVisibleShapes = visibleShapes.length > 0;
+  const viewBox = hasVisibleShapes
+    ? `${minX - padding} ${minY - padding} ${maxX - minX + padding * 2} ${maxY - minY + padding * 2}`
+    : `${-padding} ${-padding} ${padding * 2} ${padding * 2}`;
 
   return (
     <div className="print-container">

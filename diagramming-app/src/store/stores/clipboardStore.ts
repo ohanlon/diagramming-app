@@ -22,7 +22,9 @@ export const createClipboardActions = (
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      const shapesToCut = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
+      const shapesToCut = ids
+        .map((id) => currentSheet.shapesById[id])
+        .filter((shape): shape is Shape => Boolean(shape));
       if (shapesToCut.length === 0) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
@@ -58,7 +60,9 @@ export const createClipboardActions = (
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      const shapesToCopy = ids.map((id) => currentSheet.shapesById[id]).filter(Boolean);
+      const shapesToCopy = ids
+        .map((id) => currentSheet.shapesById[id])
+        .filter((shape): shape is Shape => Boolean(shape));
       if (shapesToCopy.length === 0) return state;
 
       return {
@@ -83,11 +87,17 @@ export const createClipboardActions = (
       const { clipboard, selectedShapeIds, shapesById, pan, zoom } = currentSheet;
       if (!clipboard || clipboard.length === 0) return state;
 
+      const referenceShape = clipboard[0];
+      if (!referenceShape) {
+        return state;
+      }
+
       let pasteX = 0;
       let pasteY = 0;
 
       if (selectedShapeIds.length > 0) {
-        const selectedShape = shapesById[selectedShapeIds[0]];
+        const firstSelectedId = selectedShapeIds[0];
+        const selectedShape = firstSelectedId ? shapesById[firstSelectedId] : undefined;
         if (selectedShape) {
           pasteX = selectedShape.x + 10;
           pasteY = selectedShape.y + 10;
@@ -103,8 +113,8 @@ export const createClipboardActions = (
 
         // Adjust for the first shape's own offset from its group's top-left
         // This assumes clipboard[0] is the reference point for the group
-        pasteX -= clipboard[0].x;
-        pasteY -= clipboard[0].y;
+        pasteX -= referenceShape.x;
+        pasteY -= referenceShape.y;
       }
 
       const newShapes: Shape[] = [];
@@ -116,8 +126,8 @@ export const createClipboardActions = (
         const newShape = {
           ...shape,
           id: newShapeId,
-          x: pasteX + (shape.x - clipboard[0].x),
-          y: pasteY + (shape.y - clipboard[0].y),
+          x: pasteX + (shape.x - referenceShape.x),
+          y: pasteY + (shape.y - referenceShape.y),
           layerId: currentSheet.activeLayerId,
         };
         newShapes.push(newShape);

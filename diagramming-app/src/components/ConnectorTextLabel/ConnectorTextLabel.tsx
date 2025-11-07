@@ -18,27 +18,45 @@ interface ConnectorTextLabelProps {
 
 // Function to get point on path at given position (0-1)
 const getPointOnPath = (points: Point[], position: number): Point => {
-  if (points.length < 2) return points[0] || { x: 0, y: 0 };
-  
+  if (points.length === 0) {
+    return { x: 0, y: 0 };
+  }
+
+  if (points.length === 1) {
+    return points[0] ?? { x: 0, y: 0 };
+  }
+
   // Calculate total path length
   let totalLength = 0;
   const segments: { start: Point; end: Point; length: number }[] = [];
-  
+
   for (let i = 0; i < points.length - 1; i++) {
     const start = points[i];
     const end = points[i + 1];
+
+    if (!start || !end) {
+      continue;
+    }
+
     const length = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
     segments.push({ start, end, length });
     totalLength += length;
   }
-  
+
+  if (segments.length === 0) {
+    return points[0] ?? { x: 0, y: 0 };
+  }
+
+  // Clamp position to [0,1]
+  const clampedPosition = Math.max(0, Math.min(1, position));
+
   // Find position along path
-  const targetLength = totalLength * position;
+  const targetLength = totalLength * clampedPosition;
   let currentLength = 0;
-  
+
   for (const segment of segments) {
     if (currentLength + segment.length >= targetLength) {
-      const segmentPosition = (targetLength - currentLength) / segment.length;
+      const segmentPosition = segment.length === 0 ? 0 : (targetLength - currentLength) / segment.length;
       return {
         x: segment.start.x + (segment.end.x - segment.start.x) * segmentPosition,
         y: segment.start.y + (segment.end.y - segment.start.y) * segmentPosition,
@@ -46,8 +64,13 @@ const getPointOnPath = (points: Point[], position: number): Point => {
     }
     currentLength += segment.length;
   }
-  
-  return points[points.length - 1];
+
+  const lastSegment = segments[segments.length - 1];
+  if (lastSegment) {
+    return lastSegment.end;
+  }
+
+  return points[0] ?? { x: 0, y: 0 };
 };
 
 const ConnectorTextLabel: React.FC<ConnectorTextLabelProps> = ({
@@ -123,14 +146,17 @@ const ConnectorTextLabel: React.FC<ConnectorTextLabelProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
+    if (!isDragging) {
+      return undefined;
     }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

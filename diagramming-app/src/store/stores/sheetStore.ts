@@ -82,7 +82,8 @@ export const createSheetActions = (
         Object.entries(state.sheets).filter(([sheetId]) => sheetId !== id)
       );
 
-      const newActiveSheetId = id === state.activeSheetId ? sheetIds.filter((sheetId) => sheetId !== id)[0] : state.activeSheetId;
+      const remainingSheetIds = sheetIds.filter((sheetId) => sheetId !== id);
+      const newActiveSheetId = id === state.activeSheetId ? remainingSheetIds[0] ?? state.activeSheetId : state.activeSheetId;
 
       return {
         ...state,

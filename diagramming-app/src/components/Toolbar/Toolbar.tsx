@@ -4,7 +4,7 @@ import { useDiagramStore } from '../../store/useDiagramStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { debounce } from '../../utils/debounce';
-import type { LineStyle, ArrowStyle, ConnectionType } from '../../types';
+import type { LineStyle, ArrowStyle, ConnectionType, Shape } from '../../types';
 import ColorPicker from '../ColorPicker/ColorPicker';
 import ShapeColorPicker from '../ShapeColorPicker/ShapeColorPicker';
 import { colors as shapeColors } from '../ShapeColorPicker/colors';
@@ -53,14 +53,16 @@ const ToolbarComponent: React.FC = () => {
   const [shapeColorPickerAnchorEl, setShapeColorPickerAnchorEl] = React.useState<null | HTMLElement>(null);
   const [currentShapeColor, setCurrentShapeColor] = useState('#000000');
   const [currentTextColor, setCurrentTextColor] = useState('#000000');
-  const [currentLineStyle, setCurrentLineStyle] = useState<LineStyle>(activeSheet?.selectedLineStyle || 'solid');
+  const [currentLineStyle, setCurrentLineStyle] = useState<LineStyle>(activeSheet?.selectedLineStyle ?? 'continuous');
   const [currentLineWidth, setCurrentLineWidth] = useState<number>(activeSheet?.selectedLineWidth || 2);
-  const [currentConnectionType, setCurrentConnectionType] = useState<ConnectionType>(activeSheet?.selectedConnectionType || 'straight');
+  const [currentConnectionType, setCurrentConnectionType] = useState<ConnectionType>(activeSheet?.selectedConnectionType ?? 'direct');
   const [currentStartArrow, setCurrentStartArrow] = useState<ArrowStyle>('none');
   const [currentEndArrow, setCurrentEndArrow] = useState<ArrowStyle>('standard_arrow');
 
   useEffect(() => {
-    if (!activeSheet || activeSheet.selectedConnectorIds === undefined) return;
+    if (!activeSheet) {
+      return;
+    }
 
     let newLineStyle = activeSheet.selectedLineStyle;
     let newLineWidth = activeSheet.selectedLineWidth;
@@ -68,8 +70,9 @@ const ToolbarComponent: React.FC = () => {
     let newStartArrow: ArrowStyle = 'none';
     let newEndArrow: ArrowStyle = 'standard_arrow';
 
-    if (activeSheet.selectedConnectorIds.length > 0) {
-      const firstSelectedConnector = activeSheet.connectors[activeSheet.selectedConnectorIds[0]];
+    const [firstSelectedConnectorId] = activeSheet.selectedConnectorIds;
+    if (firstSelectedConnectorId) {
+      const firstSelectedConnector = activeSheet.connectors[firstSelectedConnectorId];
       if (firstSelectedConnector) {
         newLineStyle = firstSelectedConnector.lineStyle || 'continuous';
         newLineWidth = firstSelectedConnector.lineWidth || 1;
@@ -93,7 +96,7 @@ const ToolbarComponent: React.FC = () => {
     if (currentEndArrow !== newEndArrow) {
       setCurrentEndArrow(newEndArrow);
     }
-  }, [activeSheet, activeSheet.selectedConnectorIds, activeSheet.connectors, activeSheet.selectedLineStyle, activeSheet.selectedLineWidth, activeSheet.selectedConnectionType, currentLineStyle, currentLineWidth, currentConnectionType, currentStartArrow, currentEndArrow]);
+  }, [activeSheet, currentLineStyle, currentLineWidth, currentConnectionType, currentStartArrow, currentEndArrow]);
 
 
 
@@ -124,8 +127,16 @@ const ToolbarComponent: React.FC = () => {
 
   const handleShapeColorSelect = (color: string) => {
     setSelectedShapeColor(color);
-    const selectedShapes = activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean);
-    selectedShapes.forEach(shape => {
+    if (!activeSheet) {
+      handleShapeColorPickerClose();
+      return;
+    }
+
+    const shapesToUpdate = activeSheet.selectedShapeIds
+      .map(id => activeSheet.shapesById[id])
+      .filter((shape): shape is Shape => Boolean(shape));
+
+    shapesToUpdate.forEach(shape => {
       if (shape.svgContent) {
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(shape.svgContent, 'image/svg+xml');
@@ -156,47 +167,65 @@ const ToolbarComponent: React.FC = () => {
     handleShapeColorPickerClose();
   };
 
-  const selectedShapes = useMemo(() => activeSheet.selectedShapeIds.map(id => activeSheet.shapesById[id]).filter(Boolean), [activeSheet.selectedShapeIds, activeSheet.shapesById]);
+  const selectedShapes = useMemo(() => {
+    if (!activeSheet) {
+      return [] as Shape[];
+    }
+
+    return activeSheet.selectedShapeIds
+      .map(id => activeSheet.shapesById[id])
+      .filter((shape): shape is Shape => Boolean(shape));
+  }, [activeSheet]);
   const hasSelectedShapes = selectedShapes.length > 0;
-  const hasSelectedConnectors = activeSheet.selectedConnectorIds.length > 0;
+  const hasSelectedConnectors = Boolean(activeSheet?.selectedConnectorIds.length);
 
   useEffect(() => {
-    if (hasSelectedShapes) {
-      const firstShape = selectedShapes[0];
-      if (firstShape.svgContent) {
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(firstShape.svgContent, 'image/svg+xml');
-        const svgElement = svgDoc.documentElement;
+    if (!hasSelectedShapes) {
+      if (currentShapeColor !== '#000000' || currentTextColor !== '#000000') {
+        setCurrentShapeColor('#000000');
+        setCurrentTextColor('#000000');
+      }
+      return;
+    }
 
-        let color = '#000000';
-        const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
-        if (gradients.length > 0) {
-          const lastStop = gradients[0].querySelector('stop[offset="100%"]') || gradients[0].querySelector('stop:last-child');
-          if (lastStop) {
-            color = lastStop.getAttribute('stop-color') || '#000000';
-          }
-        } else {
-          const path = svgElement.querySelector('path');
-          if (path) {
-            color = path.getAttribute('fill') || '#000000';
-          }
+    const [firstShape] = selectedShapes;
+    if (!firstShape) {
+      return;
+    }
+
+    if (firstShape.svgContent) {
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(firstShape.svgContent, 'image/svg+xml');
+      const svgElement = svgDoc.documentElement;
+
+      let color = '#000000';
+      const gradients = Array.from(svgElement.querySelectorAll('linearGradient'));
+      if (gradients.length > 0) {
+        const firstGradient = gradients[0];
+        const lastStop = firstGradient?.querySelector('stop[offset="100%"]') || firstGradient?.querySelector('stop:last-child');
+        if (lastStop) {
+          color = lastStop.getAttribute('stop-color') || '#000000';
         }
-        const newColor = findClosestColor(color, shapeColors.map(c => c.value));
-        if (currentShapeColor !== newColor) {
-          setCurrentShapeColor(newColor);
+      } else {
+        const path = svgElement.querySelector('path');
+        if (path) {
+          color = path.getAttribute('fill') || '#000000';
         }
       }
-      else if (currentShapeColor !== findClosestColor(firstShape.color, shapeColors.map(c => c.value))) {
-        setCurrentShapeColor(findClosestColor(firstShape.color, shapeColors.map(c => c.value)));
-      }
 
-      if (firstShape.textColor && currentTextColor !== firstShape.textColor) {
-        setCurrentTextColor(firstShape.textColor);
+      const newColor = findClosestColor(color, shapeColors.map(c => c.value));
+      if (currentShapeColor !== newColor) {
+        setCurrentShapeColor(newColor);
       }
+    } else {
+      const closestColor = findClosestColor(firstShape.color, shapeColors.map(c => c.value));
+      if (currentShapeColor !== closestColor) {
+        setCurrentShapeColor(closestColor);
+      }
+    }
 
-    } else if (currentShapeColor !== '#000000' || currentTextColor !== '#000000') {
-      setCurrentShapeColor('#000000');
-      setCurrentTextColor('#000000');
+    if (firstShape.textColor && currentTextColor !== firstShape.textColor) {
+      setCurrentTextColor(firstShape.textColor);
     }
   }, [selectedShapes, hasSelectedShapes, currentShapeColor, currentTextColor]);
 
@@ -254,6 +283,10 @@ const ToolbarComponent: React.FC = () => {
   }, [setShapeColorPickerAnchorEl]);
 
   const initialTools = useMemo(() => {
+    if (!activeSheet) {
+      return [] as ToolDefinition[];
+    }
+
     return getInitialTools({
       activeSheet,
       canUndo,
@@ -390,6 +423,14 @@ const ToolbarComponent: React.FC = () => {
   }, [initialTools, debouncedSetTools]);
 
 
+
+  if (!activeSheet) {
+    return null;
+  }
+
+  if (!activeSheet) {
+    return null;
+  }
 
   return (
     <Toolbar disableGutters variant="dense" sx={{ paddingLeft: 0, marginLeft: 0 }} ref={toolbarRef}>

@@ -506,6 +506,7 @@ const Dashboard: React.FC = () => {
                 </Box>
               );
             }
+            return null;
           })()}
         </Box>
 

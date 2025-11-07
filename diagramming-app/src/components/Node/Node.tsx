@@ -151,11 +151,25 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
     setResizeHandleType(null);
 
     if (Object.keys(initialResizeStates.current).length > 1) {
-      const finalDimensions = activeSheet.selectedShapeIds.map(shapeId => {
-        const shape = activeSheet.shapesById[shapeId];
-        return { id: shapeId, x: shape.x, y: shape.y, width: shape.width, height: shape.height };
-      });
-      recordShapeResizeMultiple(finalDimensions);
+      const finalDimensions = activeSheet.selectedShapeIds
+        .map(shapeId => {
+          const selectedShape = activeSheet.shapesById[shapeId];
+          if (!selectedShape) {
+            return null;
+          }
+          return {
+            id: shapeId,
+            x: selectedShape.x,
+            y: selectedShape.y,
+            width: selectedShape.width,
+            height: selectedShape.height,
+          };
+        })
+        .filter((dimension): dimension is { id: string; x: number; y: number; width: number; height: number } => dimension !== null);
+
+      if (finalDimensions.length > 0) {
+        recordShapeResizeMultiple(finalDimensions);
+      }
     } else {
       recordShapeResize(id, x, y, width, height);
     }
@@ -228,8 +242,13 @@ const Node: React.FC<NodeProps> = memo(({ shape, zoom, isInteractive, isSelected
         }
 
         // Parse viewBox to get original dimensions
-        const viewBoxValues = originalViewBox?.split(/\s+/).map(Number) || [0, 0, 100, 100];
-        const [vbX, vbY, vbWidth, vbHeight] = viewBoxValues;
+        const viewBoxValues = originalViewBox?.split(/\s+/).map(Number) || [0, 0, width || 1, height || 1];
+        const [vbXRaw, vbYRaw, vbWidthRaw, vbHeightRaw] = viewBoxValues;
+
+        const vbWidth = typeof vbWidthRaw === 'number' && !Number.isNaN(vbWidthRaw) && vbWidthRaw !== 0 ? vbWidthRaw : width || 1;
+        const vbHeight = typeof vbHeightRaw === 'number' && !Number.isNaN(vbHeightRaw) && vbHeightRaw !== 0 ? vbHeightRaw : height || 1;
+        const vbX = typeof vbXRaw === 'number' && !Number.isNaN(vbXRaw) ? vbXRaw : 0;
+        const vbY = typeof vbYRaw === 'number' && !Number.isNaN(vbYRaw) ? vbYRaw : 0;
 
         // Calculate scale factors based on current width/height vs original viewBox dimensions
         const scaleX = width / vbWidth;

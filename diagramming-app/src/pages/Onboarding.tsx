@@ -63,7 +63,7 @@ export default function OnboardingPage() {
     } finally {
       setUserSearchLoading(false);
     }
-  }, []);
+  }, [serverUrl]);
 
   const debouncedUserSearch = useCallback(
     debounce((query: string) => {
@@ -81,7 +81,7 @@ export default function OnboardingPage() {
     if (userSearchTerm.trim().length >= 2) {
       void performUserSearch(userSearchTerm);
     }
-  }, [serverUrl]); // Re-run search if server URL changes
+  }, [serverUrl, performUserSearch, userSearchTerm]);
 
   const handleSubmit = async () => {
     setFeedback(null);

@@ -69,12 +69,12 @@ export const createLayerActions = (
 
       const newActiveLayerId =
         currentSheet.activeLayerId === id
-          ? newLayerIds[0]
+          ? newLayerIds[0] ?? currentSheet.activeLayerId
           : currentSheet.activeLayerId;
 
       const newShapesById = Object.fromEntries(
         Object.entries(currentSheet.shapesById).filter(
-          ([, shape]) => shape.layerId !== id
+          ([, shape]) => shape?.layerId !== id
         )
       );
       const newShapeIds = currentSheet.shapeIds.filter(
@@ -161,7 +161,16 @@ export const createLayerActions = (
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet || !currentSheet.layers[id]) return state;
-      return { ...state, activeSheetId: id };
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            activeLayerId: id,
+          },
+        },
+      };
     });
   },
 
@@ -173,7 +182,12 @@ export const createLayerActions = (
 
       const newLayerIds = [...currentSheet.layerIds];
       const [movedLayerId] = newLayerIds.splice(fromIndex, 1);
-      newLayerIds.splice(toIndex, 0, movedLayerId);
+      if (!movedLayerId) {
+        return state;
+      }
+
+      const safeToIndex = Math.max(0, Math.min(newLayerIds.length, toIndex));
+      newLayerIds.splice(safeToIndex, 0, movedLayerId);
 
       return {
         ...state,

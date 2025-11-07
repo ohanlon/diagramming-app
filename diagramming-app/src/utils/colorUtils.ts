@@ -5,9 +5,13 @@ export const hexToRgb = (hex: string): [number, number, number] => {
 };
 
 export const findClosestColor = (targetColor: string, colorPalette: string[]): string => {
+  if (colorPalette.length === 0) {
+    return targetColor;
+  }
+
   const targetRgb = hexToRgb(targetColor);
 
-  let closestColor = colorPalette[0];
+  let closestColor = colorPalette[0] ?? targetColor;
   let minDistance = Infinity;
 
   for (const color of colorPalette) {

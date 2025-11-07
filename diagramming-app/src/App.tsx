@@ -42,7 +42,7 @@ function MainAppLayout() {
   const setRemoteDiagramId = useDiagramStore(state => state.setRemoteDiagramId);
   
   // Use React Query to sync diagram state
-  const { isLoading, error, isSaving } = useDiagramSync({
+  useDiagramSync({
     diagramId: effectiveDiagramId,
     autoSaveInterval: 30000, // 30 seconds
     enabled: true,
@@ -118,14 +118,14 @@ function MainAppLayout() {
               merged.sheets = { ...(local.sheets || {}) };
               for (const [sheetId, incSheetRaw] of Object.entries(incoming.sheets || {})) {
                 const incSheet = incSheetRaw as any;
-                const localSheet = (local.sheets && local.sheets[sheetId]) || {};
+                const localSheet = local.sheets?.[sheetId];
                 const mergedSheet: any = { ...localSheet, ...incSheet };
                 // Merge shapes by id and preserve svgContent where local has it
-                const mergedShapes: Record<string, any> = { ...(localSheet.shapesById || {}) };
+                const mergedShapes: Record<string, any> = { ...(localSheet?.shapesById || {}) };
                 const incShapes: Record<string, any> = incSheet.shapesById || {};
                 for (const [shapeId, incShapeRaw] of Object.entries(incShapes)) {
                   const incShape = incShapeRaw as any;
-                  const localShape = (localSheet.shapesById && localSheet.shapesById[shapeId]) || null;
+                  const localShape = localSheet?.shapesById?.[shapeId] || null;
                   // If incoming shape lacks svgContent but local has it, preserve it
                   if ((incShape.svgContent === undefined || incShape.svgContent === null) && localShape && localShape.svgContent) {
                     mergedShapes[shapeId] = { ...incShape, svgContent: localShape.svgContent };
@@ -135,7 +135,7 @@ function MainAppLayout() {
                 }
                 mergedSheet.shapesById = mergedShapes;
                 // Merge shapeIds (union) to avoid losing references
-                const existingIds: string[] = (localSheet.shapeIds || []);
+                const existingIds: string[] = localSheet?.shapeIds ? [...localSheet.shapeIds] : [];
                 const incomingIds: string[] = (incSheet.shapeIds || []);
                 const seen = new Set(existingIds);
                 const mergedIds = [...existingIds];
@@ -264,6 +264,12 @@ function App() {
   // OR when localStorage 'dev_watch_currentUser' is set to '1'. This allows
   // enabling the watcher in environments that resemble production.
   useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    let pollTimer: number | null = null;
+    let unsub: (() => void) | undefined;
+    let unsubLast: (() => void) | undefined;
+    let beforeUnload: (() => void) | undefined;
+
     // Maintain a tiny in-memory 'lastKnownUser' so route guards can avoid
     // transient false-negatives while the store or cookie hydrates.
     try {
@@ -271,17 +277,25 @@ function App() {
         (window as any).__lastKnownUser = useDiagramStore.getState().currentUser || getCurrentUserFromCookie() || null;
       }
     } catch (e) {}
-    const unsubLast = useDiagramStore.subscribe((s) => {
-      const u = s.currentUser;
-      try { if (typeof window !== 'undefined') (window as any).__lastKnownUser = u || null; } catch (e) {}
-      return u;
-    });
-    const isDevMode = process.env.NODE_ENV !== 'production';
-    const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
-    const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
-    const enabled = isDevMode || urlFlag || lsFlag;
-    if (!enabled) return;
+
     try {
+      unsubLast = useDiagramStore.subscribe((s) => {
+        const u = s.currentUser;
+        try { if (typeof window !== 'undefined') (window as any).__lastKnownUser = u || null; } catch (e) {}
+        return u;
+      });
+      const isDevMode = process.env.NODE_ENV !== 'production';
+      const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
+      const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
+      const enabled = isDevMode || urlFlag || lsFlag;
+
+      if (!enabled) {
+        cleanup = () => {
+          try { unsubLast?.(); } catch (e) {}
+        };
+        return cleanup;
+      }
+
       let prev: any = useDiagramStore.getState().currentUser;
       const pushDevEvent = (evt: any) => {
         try {
@@ -323,15 +337,15 @@ function App() {
               const res = origSetState(fnOrPartial, replace);
               const after = storeRef.getState().currentUser;
               if (before && !after) {
-                    try {
-                      const evt = { type: 'setState_cleared', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown', before };
-                      // eslint-disable-next-line no-console
-                      // console.warn('[dev-watch] setState cleared currentUser', evt);
-                      // eslint-disable-next-line no-console
-                      console.warn(new Error('setState cleared currentUser stack').stack);
-                      pushDevEvent(evt);
-                    } catch (e) {}
-                  }
+                try {
+                  const evt = { type: 'setState_cleared', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown', before };
+                  // eslint-disable-next-line no-console
+                  // console.warn('[dev-watch] setState cleared currentUser', evt);
+                  // eslint-disable-next-line no-console
+                  console.warn(new Error('setState cleared currentUser stack').stack);
+                  pushDevEvent(evt);
+                } catch (e) {}
+              }
               return res;
             } catch (e) {
               return origSetState(fnOrPartial, replace);
@@ -342,7 +356,7 @@ function App() {
         console.warn('Dev-watch failed to wrap setState', e);
       }
 
-      const unsub = useDiagramStore.subscribe((s) => {
+      unsub = useDiagramStore.subscribe((s) => {
         try {
           const newUser: any = s.currentUser;
           if (newUser === prev) return;
@@ -384,7 +398,7 @@ function App() {
         }
       }
       const cookiePollInterval = 1000; // 1s
-      const pollTimer = typeof window !== 'undefined' ? window.setInterval(() => {
+      pollTimer = typeof window !== 'undefined' ? window.setInterval(() => {
         try {
           const currentCookie = typeof document !== 'undefined' ? (document.cookie || null) : null;
           if (currentCookie !== prevCookie) {
@@ -455,7 +469,7 @@ function App() {
       try { wrapNavigation(); } catch (e) { console.warn('dev-watch: wrapNavigation failed', e); }
 
       // Track hard navigations/unloads and persist context so it survives reloads
-      const beforeUnload = () => {
+      beforeUnload = () => {
         try {
           const evt = { type: 'beforeunload', time: new Date().toISOString(), url: typeof window !== 'undefined' ? window.location.href : 'unknown', currentUser: useDiagramStore.getState().currentUser || null };
           pushDevEvent(evt);
@@ -463,19 +477,36 @@ function App() {
       };
       if (typeof window !== 'undefined') window.addEventListener('beforeunload', beforeUnload);
 
-      return () => {
-        try { unsub(); } catch (e) {}
-        try { if (pollTimer) clearInterval(pollTimer); } catch (e) {}
-        try { if (typeof window !== 'undefined') window.removeEventListener('beforeunload', beforeUnload); } catch (e) {}
+      cleanup = () => {
+        try { unsub?.(); } catch (e) {}
+        if (pollTimer !== null) {
+          try { clearInterval(pollTimer); } catch (e) {}
+        }
+        if (typeof window !== 'undefined' && beforeUnload) {
+          try { window.removeEventListener('beforeunload', beforeUnload); } catch (e) {}
+        }
         try { unsubLast?.(); } catch (e) {}
       };
     } catch (e) {
       console.warn('Dev currentUser watcher failed to subscribe', e);
+      cleanup = () => {
+        if (pollTimer !== null) {
+          try { clearInterval(pollTimer); } catch (inner) {}
+        }
+        if (typeof window !== 'undefined' && beforeUnload) {
+          try { window.removeEventListener('beforeunload', beforeUnload); } catch (inner) {}
+        }
+        try { unsub?.(); } catch (inner) {}
+        try { unsubLast?.(); } catch (inner) {}
+      };
     }
+
+    return cleanup;
   }, []);
 
   // Ensure the document data-theme attribute reflects the current themeMode
   useLayoutEffect(() => {
+    let cleanup: (() => void) | undefined;
     try {
       const unsub = useDiagramStore.subscribe((s) => {
         try {
@@ -484,9 +515,14 @@ function App() {
         } catch (e) {}
       });
       // Set initial value synchronously
-      try { const initial = useDiagramStore.getState().themeMode || 'light'; if (typeof document !== 'undefined') document.documentElement.setAttribute('data-theme', initial === 'dark' ? 'dark' : 'light'); } catch (e) {}
-      return () => { try { unsub(); } catch (e) {} };
+      try {
+        const initial = useDiagramStore.getState().themeMode || 'light';
+        if (typeof document !== 'undefined') document.documentElement.setAttribute('data-theme', initial === 'dark' ? 'dark' : 'light');
+      } catch (e) {}
+      cleanup = () => { try { unsub(); } catch (e) {} };
     } catch (e) {}
+
+    return cleanup;
   }, []);
 
   // Avoid rendering routes until sessionChecked is true so ProtectedRoute

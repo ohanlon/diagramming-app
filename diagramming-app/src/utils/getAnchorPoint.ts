@@ -11,7 +11,8 @@ export function getAnchorPoint(shape: Shape, targetPoint: Point): { point: Point
     { point: { x: x, y: y + height / 2 }, type: 'left' },
   ];
 
-  let closestAnchor = anchorPoints[0];
+  const firstAnchor = anchorPoints[0];
+  let closestAnchor = firstAnchor ?? anchorPoints[anchorPoints.length - 1] ?? { point: { x, y }, type: 'top' as AnchorType };
   let minDistance = Infinity;
 
   for (const anchor of anchorPoints) {

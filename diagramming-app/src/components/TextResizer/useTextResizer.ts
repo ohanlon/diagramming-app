@@ -11,7 +11,6 @@ interface UseTextResizerProps {
   isInteractive: boolean;
   autosize?: boolean;
   checkOverflow: () => void;
-  isEditing: boolean;
 }
 
 export const useTextResizer = ({
@@ -24,7 +23,6 @@ export const useTextResizer = ({
   isInteractive,
   autosize,
   checkOverflow,
-  isEditing,
 }: UseTextResizerProps) => {
   const { updateShapeTextPosition, updateShapeTextDimensions } = useDiagramStore();
 

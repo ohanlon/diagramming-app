@@ -18,7 +18,7 @@ interface HistoryStoreActions {
   getHistorySize: () => { undo: number; redo: number };
 }
 
-export const useHistoryStore = create<HistoryStoreState & HistoryStoreActions>()((set, get) => ({
+export const useHistoryStore = create<HistoryStoreState & HistoryStoreActions>()((_, get) => ({
   commandManager: new CommandManager({ maxHistorySize: 500 }),
 
   executeCommand: (command: Command) => {

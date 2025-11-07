@@ -82,7 +82,6 @@ const TextResizer: React.FC<TextResizerProps> = ({
     isInteractive,
     autosize,
     checkOverflow,
-    isEditing,
   });
 
   useEffect(() => {

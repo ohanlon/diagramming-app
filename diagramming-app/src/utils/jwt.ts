@@ -28,7 +28,11 @@ export function decodeJwt(token: string): JwtPayload | null {
   const parts = token.split('.');
   if (parts.length < 2) return null;
   try {
-    const payloadJson = base64UrlDecode(parts[1]);
+    const payloadSegment = parts[1];
+    if (!payloadSegment) {
+      return null;
+    }
+    const payloadJson = base64UrlDecode(payloadSegment);
     if (!payloadJson) return null;
     return JSON.parse(payloadJson);
   } catch (_e) {

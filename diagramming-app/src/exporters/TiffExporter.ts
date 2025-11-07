@@ -1,16 +1,6 @@
 import type { ExportContext, Exporter, RenderSheetToImage } from './Exporter';
 import { PngExporter } from './PngExporter';
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
+import { downloadBlob } from '../utils/downloadUtils';
 
 export class TiffExporter implements Exporter {
   constructor(private render: RenderSheetToImage) {}

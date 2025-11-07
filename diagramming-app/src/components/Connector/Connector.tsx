@@ -73,6 +73,13 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     return null;
   }
 
+  const startPathPoint = path[0];
+  const endPathPoint = path[path.length - 1];
+
+  if (!startPathPoint || !endPathPoint) {
+    return null;
+  }
+
   const { lineWidth = 2 } = connector;
   const arrowLength = 5 * lineWidth;
   const shortening = arrowLength * Math.cos(Math.PI / 6);
@@ -87,11 +94,20 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   if (connector.endArrow && connector.endArrow !== 'none') {
     const lastPoint = dPath[dPath.length - 1];
     const secondLastPoint = dPath[dPath.length - 2];
+
+    if (!lastPoint || !secondLastPoint) {
+      return null;
+    }
+
     const dx = lastPoint.x - secondLastPoint.x;
     const dy = lastPoint.y - secondLastPoint.y;
     const angle = Math.atan2(dy, dx);
 
     const originalEndPoint = path[path.length - 1];
+    if (!originalEndPoint) {
+      return null;
+    }
+
     if (connector.endArrow === 'circle') {
       // Shorten by the circle radius so the circle sits at the tip without overlapping the path
       lastPoint.x -= circleRadius * Math.cos(angle);
@@ -115,11 +131,19 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   if (connector.startArrow && connector.startArrow !== 'none') {
     const firstPoint = dPath[0];
     const secondPoint = dPath[1];
+
+    if (!firstPoint || !secondPoint) {
+      return null;
+    }
+
     const dx = secondPoint.x - firstPoint.x;
     const dy = secondPoint.y - firstPoint.y;
     const angle = Math.atan2(dy, dx);
 
     const originalStartPoint = path[0];
+    if (!originalStartPoint) {
+      return null;
+    }
     if (connector.startArrow === 'circle') {
       firstPoint.x += circleRadius * Math.cos(angle);
       firstPoint.y += circleRadius * Math.sin(angle);
@@ -142,13 +166,19 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
   // Generate path string based on connection type
   let d: string;
   if (connector.connectionType === 'bezier' && path.length > 2) {
-    // For bezier curves, create a smooth curve by connecting points with smooth curves
-    d = `M ${path[0].x} ${path[0].y}`;
-    
-    // For bezier, the path already contains the curve points, so we can use them directly
-    // Connect points with smooth line segments to create the bezier effect
+    const firstBezierPoint = path[0];
+    if (!firstBezierPoint) {
+      return null;
+    }
+
+    d = `M ${firstBezierPoint.x} ${firstBezierPoint.y}`;
+
     for (let i = 1; i < path.length; i++) {
-      d += ` L ${path[i].x} ${path[i].y}`;
+      const point = path[i];
+      if (!point) {
+        continue;
+      }
+      d += ` L ${point.x} ${point.y}`;
     }
   } else {
     // For direct and orthogonal connections, use line segments
@@ -199,19 +229,19 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
       {connector.startArrow === 'circle' && startCircleCenter && (
         <circle cx={startCircleCenter.x} cy={startCircleCenter.y} r={circleRadius} fill="black" />
       )}
-      {isSelected && path.length > 0 && (
+      {isSelected && (
         <>
           <circle
-            cx={path[0].x}
-            cy={path[0].y}
+            cx={startPathPoint.x}
+            cy={startPathPoint.y}
             r={8}
             fill="none"
             stroke="blue"
             strokeWidth="2"
           />
           <circle
-            cx={path[path.length - 1].x}
-            cy={path[path.length - 1].y}
+            cx={endPathPoint.x}
+            cy={endPathPoint.y}
             r={8}
             fill="none"
             stroke="blue"
