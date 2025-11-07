@@ -86,8 +86,8 @@ const AccountMenu: React.FC = () => {
             />
           </MenuItem>,
 
-          <MenuItem key="login" onClick={() => { handleClose(); window.location.href = '/login'; }}>Login</MenuItem>,
-          <MenuItem key="register" onClick={() => { handleClose(); window.location.href = '/login'; }}>Register</MenuItem>
+          <MenuItem key="login" onClick={() => { handleClose(); navigate('/login'); }}>Login</MenuItem>,
+          <MenuItem key="register" onClick={() => { handleClose(); navigate('/login'); }}>Register</MenuItem>
         ]}
       </Menu>
 

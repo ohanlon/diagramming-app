@@ -44,7 +44,8 @@ const ThemedApp: React.FC = () => {
   );
 };
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById('root')!;
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemedApp />
@@ -52,3 +53,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </React.StrictMode>,
 );
+
+// Expose a minimal imperative navigate bridge for non-React code paths
+try {
+  (window as any).reactRouterNavigate = (path: string) => {
+    try {
+      const evt = new CustomEvent('app:navigate', { detail: { path } });
+      window.dispatchEvent(evt);
+    } catch (e) {}
+  };
+} catch (e) {}

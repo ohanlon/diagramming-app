@@ -38,7 +38,12 @@ export async function apiFetch(input: RequestInfo | URL, init?: RequestInit, opt
         // ignore
       }
       try {
-        window.location.href = '/login';
+        const nav = (window as any).reactRouterNavigate as ((p: string) => void) | undefined;
+        if (nav) {
+          nav('/login');
+        } else {
+          window.location.assign('/login');
+        }
       } catch (e) {
         // ignore
       }

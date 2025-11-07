@@ -336,11 +336,13 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
         // Redirect user to login page (page-based auth) when refresh fails
         wrappedSet({ lastSaveError: 'Authentication required' });
         try {
-          // Use a hard redirect to ensure the login page is shown (routing is client-side)
-          window.location.href = '/login';
-        } catch (e) {
-          console.warn('Redirect to login failed', e);
-        }
+          const nav = (window as any).reactRouterNavigate as ((p: string) => void) | undefined;
+          if (nav) {
+            nav('/login');
+          } else {
+            window.location.assign('/login');
+          }
+        } catch (e) { console.warn('Redirect to login failed', e); }
         return;
       }
 
@@ -568,7 +570,14 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
               timestamp: Date.now(),
             });
           }
-          window.location.href = '/login';
+          try {
+            const nav = (window as any).reactRouterNavigate as ((p: string) => void) | undefined;
+            if (nav) {
+              nav('/login');
+            } else {
+              window.location.assign('/login');
+            }
+          } catch (e2) { console.warn('Login redirect failed', e2); }
           return;
         }
         

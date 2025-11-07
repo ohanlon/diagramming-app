@@ -157,19 +157,19 @@ async function refreshToken(): Promise<boolean> {
 function handleAuthFailure(): void {
   try {
     useDiagramStore.setState({ lastSaveError: 'Authentication required' } as any);
-  } catch (e) {
-    // ignore
-  }
-  
+  } catch (e) {}
   try {
-    // Only redirect if not already on login/register page
     const currentPath = window.location.pathname;
     if (currentPath !== '/login' && currentPath !== '/register') {
-      window.location.href = '/login';
+      // Use react-router redirect without forcing full reload if available
+      const nav = (window as any).reactRouterNavigate as ((path: string) => void) | undefined;
+      if (nav) {
+        nav('/login');
+      } else {
+        window.location.assign('/login');
+      }
     }
-  } catch (e) {
-    // ignore
-  }
+  } catch (e) {}
 }
 
 /**

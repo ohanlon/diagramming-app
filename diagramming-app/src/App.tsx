@@ -269,6 +269,7 @@ function App() {
     let unsub: (() => void) | undefined;
     let unsubLast: (() => void) | undefined;
     let beforeUnload: (() => void) | undefined;
+    let restoreNavigation: (() => void) | undefined;
 
     // Maintain a tiny in-memory 'lastKnownUser' so route guards can avoid
     // transient false-negatives while the store or cookie hydrates.
@@ -284,10 +285,9 @@ function App() {
         try { if (typeof window !== 'undefined') (window as any).__lastKnownUser = u || null; } catch (e) {}
         return u;
       });
-      const isDevMode = process.env.NODE_ENV !== 'production';
       const urlFlag = typeof window !== 'undefined' && new URL(window.location.href).searchParams.get('dev_watch') === '1';
       const lsFlag = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('dev_watch_currentUser') === '1';
-      const enabled = isDevMode || urlFlag || lsFlag;
+      const enabled = urlFlag || lsFlag;
 
       if (!enabled) {
         cleanup = () => {
@@ -414,57 +414,64 @@ function App() {
       }, cookiePollInterval) : null;
 
       // Intercept navigation APIs to capture who is triggering navigations
+      let restoreNavigation: (() => void) | undefined;
       const wrapNavigation = () => {
+        const original = {
+          pushState: history.pushState,
+          replaceState: history.replaceState,
+          assign: (window.location as any).assign,
+          replace: (window.location as any).replace,
+        };
         try {
-          const pushStateOrig = history.pushState.bind(history);
+          const pushStateOrig = original.pushState.bind(history);
           history.pushState = function (state: any, title: string, url?: string | null) {
             try {
               const evt = { type: 'history.pushState', time: new Date().toISOString(), url: String(url || window.location.href), stack: (new Error('pushState called')).stack };
               pushDevEvent(evt);
-              // eslint-disable-next-line no-console
-              // console.warn('[dev-watch] history.pushState', evt);
             } catch (e) {}
-            return pushStateOrig(state, title, url);
-          };
+            return pushStateOrig(state, title, url as any);
+          } as typeof history.pushState;
         } catch (e) {}
         try {
-          const replaceStateOrig = history.replaceState.bind(history);
+          const replaceStateOrig = original.replaceState.bind(history);
           history.replaceState = function (state: any, title: string, url?: string | null) {
             try {
               const evt = { type: 'history.replaceState', time: new Date().toISOString(), url: String(url || window.location.href), stack: (new Error('replaceState called')).stack };
               pushDevEvent(evt);
-              // eslint-disable-next-line no-console
-              // console.warn('[dev-watch] history.replaceState', evt);
             } catch (e) {}
-            return replaceStateOrig(state, title, url);
-          };
+            return replaceStateOrig(state, title, url as any);
+          } as typeof history.replaceState;
         } catch (e) {}
         try {
-          const assignOrig = (window.location as any).assign?.bind(window.location);
+          const assignOrig = original.assign?.bind(window.location);
           if (assignOrig) {
             (window.location as any).assign = function (url: string) {
               try {
                 const evt = { type: 'location.assign', time: new Date().toISOString(), url: String(url), stack: (new Error('location.assign called')).stack };
                 pushDevEvent(evt);
-                // console.warn('[dev-watch] location.assign', evt);
               } catch (e) {}
               return assignOrig(url);
             };
           }
         } catch (e) {}
         try {
-          const replaceOrig = (window.location as any).replace?.bind(window.location);
+          const replaceOrig = original.replace?.bind(window.location);
           if (replaceOrig) {
             (window.location as any).replace = function (url: string) {
               try {
                 const evt = { type: 'location.replace', time: new Date().toISOString(), url: String(url), stack: (new Error('location.replace called')).stack };
                 pushDevEvent(evt);
-                // console.warn('[dev-watch] location.replace', evt);
               } catch (e) {}
               return replaceOrig(url);
             };
           }
         } catch (e) {}
+        restoreNavigation = () => {
+          try { history.pushState = original.pushState; } catch (e) {}
+          try { history.replaceState = original.replaceState; } catch (e) {}
+          try { (window.location as any).assign = original.assign; } catch (e) {}
+          try { (window.location as any).replace = original.replace; } catch (e) {}
+        };
       };
       try { wrapNavigation(); } catch (e) { console.warn('dev-watch: wrapNavigation failed', e); }
 
@@ -486,6 +493,7 @@ function App() {
           try { window.removeEventListener('beforeunload', beforeUnload); } catch (e) {}
         }
         try { unsubLast?.(); } catch (e) {}
+        try { restoreNavigation?.(); } catch (e) {}
       };
     } catch (e) {
       console.warn('Dev currentUser watcher failed to subscribe', e);
@@ -498,6 +506,7 @@ function App() {
         }
         try { unsub?.(); } catch (inner) {}
         try { unsubLast?.(); } catch (inner) {}
+        try { restoreNavigation?.(); } catch (inner) {}
       };
     }
 
@@ -523,6 +532,21 @@ function App() {
     } catch (e) {}
 
     return cleanup;
+  }, []);
+
+  // Bridge: allow external callers to trigger SPA navigation
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        const detail = (e as CustomEvent).detail as { path?: string } | undefined;
+        const path = detail?.path;
+        if (path) {
+          try { customHistory.push(path); } catch (err) {}
+        }
+      } catch (err) {}
+    };
+    if (typeof window !== 'undefined') window.addEventListener('app:navigate', handler as any);
+    return () => { try { if (typeof window !== 'undefined') window.removeEventListener('app:navigate', handler as any); } catch (e) {} };
   }, []);
 
   // Avoid rendering routes until sessionChecked is true so ProtectedRoute
