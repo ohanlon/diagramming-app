@@ -101,3 +101,5 @@ export default tseslint.config([
   },
 ])
 ```
+Application font:
+The j8r icon uses Aclonica as the font - white on a #E91E63 background.

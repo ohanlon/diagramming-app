@@ -8,6 +8,8 @@ import { useHistoryStore } from '../../store/useHistoryStore';
 import { useNavigate } from 'react-router-dom';
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning';
 import AccountMenu from '../AppBar/AccountMenu';
+// Exporters via barrel
+import { PngExporter, JpgExporter, PdfExporter, GifExporter, TiffExporter, PptExporter } from '../../exporters';
 import FileMenu from './FileMenu';
 import EditMenu from './EditMenu';
 import SelectMenu from './SelectMenu';
@@ -146,43 +148,23 @@ const MainToolbar: React.FC = () => {
     clearHoverTimer();
   };
 
-  // Helpers to download blobs/data-urls
-  const downloadBlob = (blob: Blob, filename: string) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const downloadDataUrl = (dataUrl: string, filename: string) => {
-    // Convert data URL to blob then download
-    const parts = dataUrl.split(',');
-    if (parts.length < 2 || !parts[0] || !parts[1]) return;
-    const m = parts[0].match(/:(.*?);/);
-    const mime = m && m[1] ? m[1] : 'image/png';
-    const bstr = atob(parts[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
-    const blob = new Blob([u8arr], { type: mime });
-    downloadBlob(blob, filename);
-  };
+  // (Removed) download helpers are now encapsulated within exporters
 
   // Export handlers for the currently selected sheet
   const handleExportCurrentAsPng = async () => {
     if (!activeSheet) return;
-    const widthPx = exportWidthPx;
-    const heightPx = exportHeightPx;
-    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
-    if (res.dataUrl) {
-      const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.png`;
-      downloadDataUrl(res.dataUrl, name);
-    } else {
-      alert('Failed to render sheet for PNG export');
+    try {
+      const exporter = new PngExporter(renderSheetToImage);
+      await exporter.export({
+        diagramName,
+        sheetId: activeSheet.id,
+        sheetName: activeSheet.name || 'sheet',
+        widthPx: exportWidthPx,
+        heightPx: exportHeightPx,
+      });
+    } catch (e) {
+      alert('Failed to export PNG. See console for details.');
+      console.error(e);
     }
     handleFileMenuClose();
     handleExportMenuClose();
@@ -190,14 +172,18 @@ const MainToolbar: React.FC = () => {
 
   const handleExportCurrentAsJpg = async () => {
     if (!activeSheet) return;
-    const widthPx = exportWidthPx;
-    const heightPx = exportHeightPx;
-    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/jpeg', jpegQuality);
-    if (res.dataUrl) {
-      const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.jpg`;
-      downloadDataUrl(res.dataUrl, name);
-    } else {
-      alert('Failed to render sheet for JPG export');
+    try {
+      const exporter = new JpgExporter(renderSheetToImage, jpegQuality);
+      await exporter.export({
+        diagramName,
+        sheetId: activeSheet.id,
+        sheetName: activeSheet.name || 'sheet',
+        widthPx: exportWidthPx,
+        heightPx: exportHeightPx,
+      });
+    } catch (e) {
+      alert('Failed to export JPG. See console for details.');
+      console.error(e);
     }
     handleFileMenuClose();
     handleExportMenuClose();
@@ -205,217 +191,56 @@ const MainToolbar: React.FC = () => {
 
   const handleExportCurrentAsPdf = async () => {
     if (!activeSheet) return;
-    const widthPx = exportWidthPx;
-    const heightPx = exportHeightPx;
-    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
-    if (!res.dataUrl) {
-      alert('Failed to render sheet for PDF export');
-      handleFileMenuClose();
-      handleExportMenuClose();
-      return;
-    }
     try {
-      const jspdfModule: any = await import('jspdf');
-      const jsPDFClass: any = jspdfModule && (jspdfModule.jsPDF || jspdfModule.default || jspdfModule);
-      const fileName = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.pdf`;
-      if (pdfPageSize === 'image') {
-        const doc = new jsPDFClass({ orientation: widthPx > heightPx ? 'landscape' : 'portrait', unit: 'px', format: [widthPx, heightPx] });
-        doc.addImage(res.dataUrl, 'PNG', 0, 0, widthPx, heightPx);
-        doc.save(fileName);
-      } else if (pdfPageSize === 'a4_portrait' || pdfPageSize === 'a4_landscape' || pdfPageSize === 'letter_portrait' || pdfPageSize === 'letter_landscape') {
-        const format = pdfPageSize.startsWith('a4') ? 'a4' : 'letter';
-        const orientation = pdfPageSize.endsWith('landscape') ? 'landscape' : 'portrait';
-        const doc = new jsPDFClass({ orientation, unit: 'in', format });
-        const imgInW = widthPx / 96;
-        const imgInH = heightPx / 96;
-        // derive page dimensions in inches
-        const pageW = doc.internal.pageSize.getWidth();
-        const pageH = doc.internal.pageSize.getHeight();
-        const scale = Math.min(pageW / imgInW, pageH / imgInH);
-        const w = imgInW * scale;
-        const h = imgInH * scale;
-        const x = (pageW - w) / 2;
-        const y = (pageH - h) / 2;
-        doc.addImage(res.dataUrl, 'PNG', x, y, w, h);
-        doc.save(fileName);
-      } else if (pdfPageSize === 'custom') {
-        const doc = new jsPDFClass({ orientation: pdfCustomWidthIn > pdfCustomHeightIn ? 'landscape' : 'portrait', unit: 'in', format: [pdfCustomWidthIn, pdfCustomHeightIn] });
-        const imgInW = widthPx / 96;
-        const imgInH = heightPx / 96;
-        const scale = Math.min(pdfCustomWidthIn / imgInW, pdfCustomHeightIn / imgInH);
-        const w = imgInW * scale;
-        const h = imgInH * scale;
-        const x = (pdfCustomWidthIn - w) / 2;
-        const y = (pdfCustomHeightIn - h) / 2;
-        doc.addImage(res.dataUrl, 'PNG', x, y, w, h);
-        doc.save(fileName);
-      }
+      const exporter = new PdfExporter(renderSheetToImage, {
+        pageSize: pdfPageSize,
+        customWidthIn: pdfCustomWidthIn,
+        customHeightIn: pdfCustomHeightIn,
+      });
+      await exporter.export({
+        diagramName,
+        sheetId: activeSheet.id,
+        sheetName: activeSheet.name || 'sheet',
+        widthPx: exportWidthPx,
+        heightPx: exportHeightPx,
+      });
     } catch (e) {
-      console.error('PDF export failed', e);
       alert('PDF export failed. Please ensure jspdf is installed.');
+      console.error(e);
     }
     handleFileMenuClose(); handleExportMenuClose();
   };
 
   const handleExportCurrentAsGif = async () => {
     if (!activeSheet) return;
-    const widthPx = exportWidthPx;
-    const heightPx = exportHeightPx;
-    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
-    if (!res.canvas) {
-      alert('Failed to render sheet for GIF export');
-      handleFileMenuClose();
-      handleExportMenuClose();
-      return;
-    }
     try {
-      // Try to load gif.js (optimized version) first
-      // Prefer the optimized build if available, fall back to the main package
-      let gifModule: any = null;
-      try {
-        gifModule = await import('gif.js.optimized');
-      } catch (_) {
-        gifModule = await import('gif.js');
-      }
-      const GIFClass: any = gifModule && (gifModule.default || gifModule.GIF || gifModule);
-
-      // Resolve a worker script URL in several ways:
-      // 1) Use bundler asset import with ?url (preferred for Vite)
-      // 2) Fall back to importing the raw worker script and creating a Blob URL
-      // 3) Finally let gif.js attempt to load its default worker (may fail)
-      let workerUrl: string | null = null;
-      let createdBlobUrl: string | null = null;
-      try {
-        const modUrl: any = await import('gif.js.optimized/dist/gif.worker.js?url');
-        workerUrl = modUrl && (modUrl.default || modUrl);
-      } catch (_) {
-        try {
-          const modUrl: any = await import('gif.js/dist/gif.worker.js?url');
-          workerUrl = modUrl && (modUrl.default || modUrl);
-        } catch (__) {
-          // try raw -> blob fallback
-          try {
-            const modRaw: any = await import('gif.js.optimized/dist/gif.worker.js?raw');
-            const workerText = modRaw && (modRaw.default || modRaw);
-            createdBlobUrl = URL.createObjectURL(new Blob([workerText], { type: 'application/javascript' }));
-            workerUrl = createdBlobUrl;
-          } catch (___) {
-            try {
-              const modRaw2: any = await import('gif.js/dist/gif.worker.js?raw');
-              const workerText2 = modRaw2 && (modRaw2.default || modRaw2);
-              createdBlobUrl = URL.createObjectURL(new Blob([workerText2], { type: 'application/javascript' }));
-              workerUrl = createdBlobUrl;
-            } catch (err) {
-              console.warn('Unable to resolve gif.worker.js via ?url or ?raw; gif export may fail', err);
-            }
-          }
-        }
-      }
-
-      const gifOptions: any = { workers: 2, quality: 10, width: widthPx, height: heightPx };
-      if (workerUrl) {
-        // Validate that the resolved worker URL returns JavaScript and not an HTML SPA fallback
-        try {
-          const resp = await fetch(workerUrl, { method: 'GET' });
-          const ct = resp.headers.get('content-type') || '';
-          if (!/javascript|ecmascript/.test(ct) && !/application\/javascript/.test(ct) && !/text\/javascript/.test(ct)) {
-            console.warn('Resolved worker script does not appear to be JavaScript (content-type:', ct, '). Will ignore and attempt fallbacks.');
-            workerUrl = null;
-          }
-        } catch (e) {
-          console.warn('Failed to validate worker url, will attempt fallbacks', e);
-          workerUrl = null;
-        }
-      }
-
-      // If workerUrl still not found, try a public path (/gif.worker.js) which
-      // is the simplest option for apps that serve static assets from public/.
-      if (!workerUrl) {
-        try {
-          const test = await fetch('/gif.worker.js', { method: 'HEAD' });
-          const ct2 = test.headers.get('content-type') || '';
-          if (test.ok && (/javascript|application\/javascript|text\/javascript/.test(ct2))) {
-            workerUrl = '/gif.worker.js';
-          }
-        } catch (e) {
-          // ignore
-        }
-      }
-
-      if (workerUrl) gifOptions.workerScript = workerUrl;
-      const gif = new GIFClass(gifOptions);
-      // Ensure GIF background is white: composite the rendered canvas onto
-      // a new canvas with a white fill so transparent areas become white.
-      const whiteCanvas = document.createElement('canvas');
-      whiteCanvas.width = (res.canvas as HTMLCanvasElement).width;
-      whiteCanvas.height = (res.canvas as HTMLCanvasElement).height;
-      const wctx = whiteCanvas.getContext('2d');
-      if (wctx) {
-        wctx.fillStyle = '#ffffff';
-        wctx.fillRect(0, 0, whiteCanvas.width, whiteCanvas.height);
-        wctx.drawImage(res.canvas as HTMLCanvasElement, 0, 0);
-      }
-      gif.addFrame(whiteCanvas, { copy: true, delay: 0 });
-      gif.on('finished', (blob: Blob) => {
-        const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.gif`;
-        downloadBlob(blob, name);
-        // Clean up any created blob URL for the worker script
-        if (createdBlobUrl) {
-          URL.revokeObjectURL(createdBlobUrl);
-        }
+      const exporter = new GifExporter(renderSheetToImage);
+      await exporter.export({
+        diagramName,
+        sheetId: activeSheet.id,
+        sheetName: activeSheet.name || 'sheet',
+        widthPx: exportWidthPx,
+        heightPx: exportHeightPx,
       });
-      gif.render();
     } catch (e) {
-      console.warn('GIF export failed or gif.js not installed', e);
-      // Fallback to PNG download
-      const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.png`;
-      if (res.dataUrl) downloadDataUrl(res.dataUrl, name);
-      alert('GIF export requires gif.js. PNG has been saved instead.');
+      console.error('GIF export failed', e);
     }
     handleFileMenuClose(); handleExportMenuClose();
   };
 
   const handleExportCurrentAsTiff = async () => {
     if (!activeSheet) return;
-    const widthPx = exportWidthPx;
-    const heightPx = exportHeightPx;
-    const res = await renderSheetToImage(activeSheet.id, widthPx, heightPx, 'image/png');
-    if (!res.canvas) {
-      alert('Failed to render sheet for TIFF export');
-      handleFileMenuClose();
-      handleExportMenuClose();
-      return;
-    }
     try {
-      const utifModule = await import('utif');
-      const UTIF: any = utifModule && (utifModule.default || utifModule);
-      const ctx = res.canvas.getContext('2d');
-      if (!ctx) throw new Error('Failed to get canvas context');
-      const imgData = ctx.getImageData(0, 0, widthPx, heightPx);
-      // Attempt several possible encoding entry points for common UTIF builds
-      let tiffBuffer: ArrayBuffer | null = null;
-      if (UTIF && typeof UTIF.encodeImage === 'function') {
-        // encodeImage may return ArrayBuffer (best-effort guess)
-        tiffBuffer = UTIF.encodeImage(imgData.data, widthPx, heightPx);
-      } else if (UTIF && typeof UTIF.encode === 'function') {
-        // Some builds accept an array of IFD-like objects
-        try {
-          const ifd = { data: imgData.data, width: widthPx, height: heightPx };
-          tiffBuffer = UTIF.encode([ifd]);
-        } catch (e) {
-          // ignore and try other approaches
-        }
-      }
-      if (!tiffBuffer) throw new Error('UTIF encoding API not found');
-      const blob = new Blob([tiffBuffer], { type: 'image/tiff' });
-      const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.tiff`;
-      downloadBlob(blob, name);
+      const exporter = new TiffExporter(renderSheetToImage);
+      await exporter.export({
+        diagramName,
+        sheetId: activeSheet.id,
+        sheetName: activeSheet.name || 'sheet',
+        widthPx: exportWidthPx,
+        heightPx: exportHeightPx,
+      });
     } catch (e) {
-      console.warn('TIFF export failed or utif not installed', e);
-      // Fallback to PNG download
-      const name = `${diagramName || 'diagram'} - ${activeSheet.name || 'sheet'}.png`;
-      if (res.dataUrl) downloadDataUrl(res.dataUrl, name);
-      alert('TIFF export requires a TIFF encoder (utif). PNG has been saved instead.');
+      console.error('TIFF export failed', e);
     }
     handleFileMenuClose(); handleExportMenuClose();
   };
@@ -786,59 +611,24 @@ const MainToolbar: React.FC = () => {
 
   const handleExportToPowerPoint = async () => {
     setIsExportingPpt(true);
-    const sheetIds = Object.keys(sheets || {});
-    setExportProgress({ current: 0, total: sheetIds.length });
+    const allIds = Object.keys(sheets || {});
+    setExportProgress({ current: 0, total: allIds.length });
     try {
-      const pptxMod: any = await import('pptxgenjs');
-      const PPTXClass = (pptxMod && (pptxMod.default || pptxMod)) as any;
-      const pptx = new PPTXClass();
-
-      // Standard slide width in inches. Compute height to preserve chosen export aspect ratio.
-      const slideWidthInches = 10;
-      const slideHeightInches = exportWidthPx && exportHeightPx ? slideWidthInches * (exportHeightPx / exportWidthPx) : (10 * (9 / 16));
-
-      for (let i = 0; i < sheetIds.length; i++) {
-        const id = sheetIds[i];
-        if (!id) continue;
-        setExportProgress({ current: i + 1, total: sheetIds.length });
-        // Render using the configured export resolution for embedding
-        const result = await renderSheetToImage(id, exportWidthPx, exportHeightPx, 'image/png');
-        const png = result.dataUrl;
-        if (!png) {
-          // Add an empty slide with sheet name if rendering failed
-          const slide = pptx.addSlide();
-          const sheet = sheets[id];
-          slide.addText(sheet?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
-          continue;
-        }
-
-        const slide = pptx.addSlide();
-        // Add image covering the entire slide
-        try {
-          slide.addImage({ data: png, x: 0, y: 0, w: slideWidthInches, h: slideHeightInches });
-        } catch (e) {
-          console.warn('Failed to add image to slide using numeric dimensions, trying percent fallback', e);
-          try {
-            // Some pptxgenjs versions accept percentage strings
-            slide.addImage({ data: png, x: '0%', y: '0%', w: '100%', h: '100%' });
-          } catch (e2) {
-            console.error('Failed to add image to slide', e2);
-            const sheet = sheets[id];
-            slide.addText(sheet?.name || `Sheet ${i + 1}`, { x: 1, y: 1, fontSize: 24 });
-          }
-        }
-      }
-
-      // Attempt to write file; API varies between versions but writeFile with fileName is widely supported
-      const fileName = `${diagramName || 'diagram'}.pptx`;
-      if (typeof pptx.writeFile === 'function') {
-        await pptx.writeFile({ fileName });
-      } else if (typeof pptx.save === 'function') {
-        // older alias
-        await pptx.save(fileName);
-      } else {
-        throw new Error('pptx export API not found');
-      }
+      const exporter = new PptExporter(
+        renderSheetToImage,
+        () => Object.keys(sheets || {}),
+        (id: string) => (sheets && sheets[id] ? sheets[id].name : undefined),
+        exportWidthPx,
+        exportHeightPx,
+        (current, total) => setExportProgress({ current, total })
+      );
+      await exporter.export({
+        diagramName,
+        sheetId: activeSheet ? activeSheet.id : '',
+        sheetName: activeSheet ? activeSheet.name || 'sheet' : 'sheet',
+        widthPx: exportWidthPx,
+        heightPx: exportHeightPx,
+      });
     } catch (err) {
       console.error('Export to PowerPoint failed', err);
       alert('Export to PowerPoint failed. See console for details.');
