@@ -235,9 +235,11 @@ function App() {
         if (!cookie && !currentUser) {
           // Perform a silent /auth/me check to let the server validate any
           // HttpOnly auth cookies and return user info if session is valid.
+          // Use apiFetch to enable automatic refresh-on-401 retry logic.
           try {
+            const { apiFetch } = await import('./utils/apiFetch');
             const serverUrl = useDiagramStore.getState().serverUrl || 'http://localhost:4000';
-            const meResp = await fetch(`${serverUrl}/auth/me`, { method: 'GET', credentials: 'include' });
+            const meResp = await apiFetch(`${serverUrl}/auth/me`, { method: 'GET' });
             if (meResp.ok) {
               const json = await meResp.json().catch(() => null);
               if (json && json.user && mounted) {
