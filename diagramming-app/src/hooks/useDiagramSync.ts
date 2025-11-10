@@ -22,18 +22,12 @@ export function useDiagramSync({
   const queryClient = useQueryClient();
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasLoadedServerDiagram = useRef(false);
-  
   // React Query hooks
   const { data: serverDiagram, isLoading, error } = useDiagram(diagramId);
   const saveMutation = useSaveDiagram();
   
-  // Zustand store selectors
-  const sheets = useDiagramStore(state => state.sheets);
-  const activeSheetId = useDiagramStore(state => state.activeSheetId);
-  const diagramName = useDiagramStore(state => state.diagramName);
+  // Zustand store selectors - only subscribe to isDirty for auto-save triggering
   const isDirty = useDiagramStore(state => state.isDirty);
-  const isSnapToGridEnabled = useDiagramStore(state => state.isSnapToGridEnabled);
-  const serverVersion = useDiagramStore(state => state.serverVersion);
 
   // Reset the loaded flag when diagramId changes
   useEffect(() => {
@@ -68,19 +62,27 @@ export function useDiagramSync({
   const saveToServer = useCallback(async (force = false) => {
     if (!enabled) return;
 
+    // Get current state values
+    const state = useDiagramStore.getState();
+    const currentSheets = state.sheets;
+    const currentDiagramName = state.diagramName;
+    const currentActiveSheetId = state.activeSheetId;
+    const currentIsSnapToGridEnabled = state.isSnapToGridEnabled;
+    const currentServerVersion = state.serverVersion;
+
     // Prepare diagram data from Zustand state
     const sheetsToSave: any = {};
-    for (const [sheetId, sheet] of Object.entries(sheets || {})) {
+    for (const [sheetId, sheet] of Object.entries(currentSheets || {})) {
       const { clipboard, ...sheetWithoutClipboard } = sheet as any;
       sheetsToSave[sheetId] = sheetWithoutClipboard;
     }
 
     const diagramData = {
-      name: diagramName || 'New Diagram',
+      name: currentDiagramName || 'New Diagram',
       sheets: sheetsToSave,
-      activeSheetId,
-      isSnapToGridEnabled,
-      version: force ? undefined : serverVersion,
+      activeSheetId: currentActiveSheetId,
+      isSnapToGridEnabled: currentIsSnapToGridEnabled,
+      version: force ? undefined : currentServerVersion,
     };
 
     try {
@@ -135,7 +137,7 @@ export function useDiagramSync({
 
       throw error;
     }
-  }, [diagramId, sheets, activeSheetId, diagramName, isSnapToGridEnabled, serverVersion, enabled, saveMutation, queryClient]);
+  }, [diagramId, enabled, saveMutation, queryClient]);
 
   /**
    * Manual save function
