@@ -10,11 +10,15 @@ export function useBlocker(
 
   useEffect(() => {
     if (!when) return;
-    // Debug: log navigator and block availability
-    // eslint-disable-next-line no-console
-    console.log('[useBlocker] attaching blocker, when=', when, 'navigator-block=', typeof navigator.block);
-    // navigator.block is available on the unstable NavigationContext
-    const unblock = navigator.block ? navigator.block((tx: any) => {
+    
+    // navigator.block is only available with unstable_HistoryRouter, not BrowserRouter
+    if (!navigator.block) {
+      // BrowserRouter doesn't support programmatic blocking
+      // The browser's beforeunload event is handled separately in useUnsavedChangesWarning
+      return;
+    }
+
+    const unblock = navigator.block((tx: any) => {
       const autoUnblockingTx = {
         ...tx,
         retry() {
@@ -23,11 +27,8 @@ export function useBlocker(
         },
       };
       blocker(autoUnblockingTx);
-    }) : null as any;
-    if (!unblock) {
-      // eslint-disable-next-line no-console
-      console.warn('[useBlocker] navigator.block is not available; navigation will not be blocked');
-    }
+    });
+
     return unblock;
   }, [navigator, blocker, when]);
 }

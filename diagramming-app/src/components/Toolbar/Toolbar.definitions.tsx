@@ -169,9 +169,11 @@ export const getInitialTools = ({
             id: 'cut',
             element: (
                 <Tooltip title="Cut">
-                    <IconButton onClick={() => handleClick(() => cutShape(selectedShapeIds))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
-                        <ContentCut />
-                    </IconButton>
+                    <span>
+                        <IconButton onClick={() => handleClick(() => cutShape(selectedShapeIds))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+                            <ContentCut />
+                        </IconButton>
+                    </span>
                 </Tooltip>
             ),
             width: 48,
@@ -180,9 +182,11 @@ export const getInitialTools = ({
             id: 'copy',
             element: (
                 <Tooltip title="Copy">
-                    <IconButton onClick={() => handleClick(() => copyShape(selectedShapeIds))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
-                        <ContentCopy />
-                    </IconButton>
+                    <span>
+                        <IconButton onClick={() => handleClick(() => copyShape(selectedShapeIds))} color="inherit" disabled={!hasSelectedShapes} sx={{ borderRadius: 0 }}>
+                            <ContentCopy />
+                        </IconButton>
+                    </span>
                 </Tooltip>
             ),
             width: 48,
@@ -430,6 +434,7 @@ export const getInitialTools = ({
                     return (
                         <div>
                             <Tooltip title="Align">
+                                <span>
                                     <IconButton
                                     onClick={(e) => setAnchorEl(e.currentTarget)}
                                     color="inherit"
@@ -438,6 +443,7 @@ export const getInitialTools = ({
                                 >
                                     <AlignHorizontalCenter />
                                 </IconButton>
+                                </span>
                             </Tooltip>
                             <Menu
                                 anchorEl={anchorEl}
@@ -496,9 +502,11 @@ export const getInitialTools = ({
             id: 'group',
             element: (
                 <Tooltip title="Group">
-                    <IconButton onClick={() => handleClick(() => groupShapes(selectedShapeIds))} color="inherit" disabled={selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}>
-                        <GroupAdd />
-                    </IconButton>
+                    <span>
+                        <IconButton onClick={() => handleClick(() => groupShapes(selectedShapeIds))} color="inherit" disabled={selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}>
+                            <GroupAdd />
+                        </IconButton>
+                    </span>
                 </Tooltip>
             ),
             width: 48,

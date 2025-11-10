@@ -22,6 +22,7 @@ export function useDiagramSync({
   const queryClient = useQueryClient();
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasLoadedServerDiagram = useRef(false);
+  const saveToServerRef = useRef<((force?: boolean) => Promise<any>) | null>(null);
   // React Query hooks
   const { data: serverDiagram, isLoading, error } = useDiagram(diagramId);
   const saveMutation = useSaveDiagram();
@@ -139,6 +140,11 @@ export function useDiagramSync({
     }
   }, [diagramId, enabled, saveMutation, queryClient]);
 
+  // Store saveToServer in ref so auto-save effect doesn't need it as a dependency
+  useEffect(() => {
+    saveToServerRef.current = saveToServer;
+  }, [saveToServer]);
+
   /**
    * Manual save function
    */
@@ -177,7 +183,8 @@ export function useDiagramSync({
     // Set up auto-save timer
     autoSaveTimerRef.current = setTimeout(() => {
       console.log('[useDiagramSync] Auto-saving...');
-      saveToServer().catch(err => {
+      // Use ref to avoid depending on saveToServer directly
+      saveToServerRef.current?.().catch(err => {
         console.error('[useDiagramSync] Auto-save failed:', err);
       });
     }, autoSaveInterval);
@@ -188,7 +195,7 @@ export function useDiagramSync({
         autoSaveTimerRef.current = null;
       }
     };
-  }, [isDirty, diagramId, enabled, autoSaveInterval, saveToServer]);
+  }, [isDirty, diagramId, enabled, autoSaveInterval]);
 
   return {
     isLoading,
