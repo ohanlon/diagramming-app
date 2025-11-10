@@ -38,6 +38,7 @@ const ToolbarComponent: React.FC = () => {
     setVerticalAlign,
     setHorizontalAlign,
     groupShapes,
+    ungroupShapes,
     toggleSnapToGrid, // Add toggleSnapToGrid from store
     isSnapToGridEnabled, // Add isSnapToGridEnabled from store
   } = useDiagramStore();
@@ -325,6 +326,7 @@ const ToolbarComponent: React.FC = () => {
       copyShape,
       pasteShape,
       groupShapes,
+      ungroupShapes,
       setVerticalAlign,
       setHorizontalAlign,
       toggleBold,
@@ -370,6 +372,7 @@ const ToolbarComponent: React.FC = () => {
     copyShape,
     pasteShape,
     groupShapes,
+    ungroupShapes,
     setVerticalAlign,
     setHorizontalAlign,
     toggleBold,

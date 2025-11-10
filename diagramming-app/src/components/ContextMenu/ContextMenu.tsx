@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
-import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom, ChevronRight, Layers, ContentCut, ContentCopy, ContentPaste, Undo, Redo, Edit } from '@mui/icons-material';
+import { ArrowUpward, ArrowDownward, VerticalAlignTop, VerticalAlignBottom, ChevronRight, Layers, ContentCut, ContentCopy, ContentPaste, Undo, Redo, Edit, GroupRemove } from '@mui/icons-material';
 
 interface ContextMenuProps {
   x: number;
@@ -16,6 +16,7 @@ interface ContextMenuProps {
   onUndo: () => void;
   onRedo: () => void;
   onEditDescription?: () => void;
+  onUngroup?: () => void;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -32,6 +33,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   onUndo,
   onRedo,
   onEditDescription,
+  onUngroup,
 }) => {
   const [arrangeMenuAnchor, setArrangeMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -108,7 +110,15 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             <ListItemText>Edit Description</ListItemText>
           </MenuItem>
         )}
-        {onEditDescription && <Divider />}
+        {onUngroup && (
+          <MenuItem onClick={() => handleItemClick(onUngroup)}>
+            <ListItemIcon>
+              <GroupRemove fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Ungroup</ListItemText>
+          </MenuItem>
+        )}
+        {(onEditDescription || onUngroup) && <Divider />}
         {onBringForward && onSendBackward && onBringToFront && onSendToBack && (
           <MenuItem onClick={handleArrangeClick}>
             <ListItemIcon>

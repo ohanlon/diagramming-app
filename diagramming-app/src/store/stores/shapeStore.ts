@@ -8,7 +8,8 @@ import {
   ResizeShapeCommand,
   UpdateShapePropertiesCommand,
   ReorderShapesCommand,
-  GroupShapesCommand
+  GroupShapesCommand,
+  UngroupShapesCommand
 } from '../../commands';
 import { DeleteConnectorsCommand } from '../../commands/ConnectorCommands';
 import { useHistoryStore } from '../useHistoryStore';
@@ -56,6 +57,7 @@ export interface ShapeStoreActions {
   
   // Shape grouping and interactions
   groupShapes: (ids: string[]) => void;
+  ungroupShapes: (groupId: string) => void;
   updateShapeInteractionUrl: (shapeId: string, url: string) => void;
 }
 
@@ -880,6 +882,23 @@ export const createShapeActions = (
       state.activeSheetId,
       ids,
       newGroupShape,
+      () => _get().sheets[state.activeSheetId]?.shapesById || {}
+    );
+    useHistoryStore.getState().executeCommand(command);
+  },
+
+  ungroupShapes: (groupId: string) => {
+    const state = _get();
+    const currentSheet = state.sheets[state.activeSheetId];
+    if (!currentSheet) return;
+
+    const groupShape = currentSheet.shapesById[groupId];
+    if (!groupShape || groupShape.type !== 'Group') return;
+
+    const command = new UngroupShapesCommand(
+      wrappedSet,
+      state.activeSheetId,
+      groupId,
       () => _get().sheets[state.activeSheetId]?.shapesById || {}
     );
     useHistoryStore.getState().executeCommand(command);

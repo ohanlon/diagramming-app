@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useDiagramStore } from '../../store/useDiagramStore';
 import Node from '../Node/Node';
+import Group from '../Group/Group';
 import ConnectorComponent from '../Connector/Connector';
 import ContextMenu from '../ContextMenu/ContextMenu';
 import type { Point, AnchorType, Shape } from '../../types';
@@ -47,6 +48,8 @@ const Canvas: React.FC = () => {
     setSelectedConnectors,
     selectAll,
     isSnapToGridEnabled,
+    groupShapes,
+    ungroupShapes,
   } = useDiagramStore();
 
   const activeSheet = sheets?.[activeSheetId];
@@ -103,6 +106,9 @@ const Canvas: React.FC = () => {
     sendToBack,
     deselectAllTextBlocks,
     selectedShapeIds: activeSheet?.selectedShapeIds || [],
+    groupShapes,
+    ungroupShapes,
+    shapesById: activeSheet?.shapesById || {},
   });
 
   // Track container dimensions for viewport calculations
@@ -600,23 +606,56 @@ const Canvas: React.FC = () => {
         </defs>
         <g transform={`translate(${activeSheet.pan.x}, ${activeSheet.pan.y}) scale(${activeSheet.zoom})`}>
           <rect data-id="canvas-background" x={-backgroundSize / 2} y={-backgroundSize / 2} width={backgroundSize} height={backgroundSize} fill="url(#grid-pattern)" />
-          {(visibleShapes || []).map((shape) => (
-            <Node
-              key={shape.id}
-              shape={shape}
-              zoom={activeSheet.zoom}
-              isInteractive={shape.layerId === activeSheet.activeLayerId}
-              isSelected={activeSheet.selectedShapeIds.includes(shape.id)}
-              isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id}
-              onConnectorStart={handleConnectorStart}
-              onContextMenu={handleNodeContextMenu}
-              onNodeMouseDown={handleNodeMouseDown}
-              activeLayerId={activeSheet.activeLayerId}
-              layers={activeSheet.layers}
-              isEditingText={editingTextShapeId === shape.id}
-              onTextEditComplete={() => setEditingTextShapeId(null)}
-            />
-          ))}
+          {(visibleShapes || []).map((shape) => {
+            // Render groups separately with their children
+            if (shape.type === 'Group') {
+              // Find all children of this group
+              const children = Object.values(activeSheet.shapesById).filter(
+                (s: Shape) => s.parentId === shape.id
+              );
+              
+              return (
+                <Group
+                  key={shape.id}
+                  groupShape={shape}
+                  children={children}
+                  zoom={activeSheet.zoom}
+                  isInteractive={shape.layerId === activeSheet.activeLayerId}
+                  isSelected={activeSheet.selectedShapeIds.includes(shape.id)}
+                  isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id}
+                  onConnectorStart={handleConnectorStart}
+                  onContextMenu={handleNodeContextMenu}
+                  onNodeMouseDown={handleNodeMouseDown}
+                  activeLayerId={activeSheet.activeLayerId}
+                  layers={activeSheet.layers}
+                />
+              );
+            }
+            
+            // Skip shapes that are children of groups (they're rendered inside Group component)
+            if (shape.parentId) {
+              return null;
+            }
+            
+            // Render regular shapes
+            return (
+              <Node
+                key={shape.id}
+                shape={shape}
+                zoom={activeSheet.zoom}
+                isInteractive={shape.layerId === activeSheet.activeLayerId}
+                isSelected={activeSheet.selectedShapeIds.includes(shape.id)}
+                isConnectorDragTarget={activeSheet.connectorDragTargetShapeId === shape.id}
+                onConnectorStart={handleConnectorStart}
+                onContextMenu={handleNodeContextMenu}
+                onNodeMouseDown={handleNodeMouseDown}
+                activeLayerId={activeSheet.activeLayerId}
+                layers={activeSheet.layers}
+                isEditingText={editingTextShapeId === shape.id}
+                onTextEditComplete={() => setEditingTextShapeId(null)}
+              />
+            );
+          })}
           {(visibleConnectors || []).map((connector) => (
             <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} onConnectorContextMenu={handleConnectorContextMenu} />
           ))}
@@ -693,6 +732,11 @@ const Canvas: React.FC = () => {
           onUndo={undo}
           onRedo={redo}
           onEditDescription={contextMenu.shapeId ? () => setEditingTextShapeId(contextMenu.shapeId!) : undefined}
+          onUngroup={
+            contextMenu.shapeId && activeSheet.shapesById[contextMenu.shapeId]?.type === 'Group'
+              ? () => ungroupShapes(contextMenu.shapeId!)
+              : undefined
+          }
         />
       )}
       {isYouTubeDialogOpen && (

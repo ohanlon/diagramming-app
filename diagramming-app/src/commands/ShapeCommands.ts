@@ -636,3 +636,124 @@ export class GroupShapesCommand extends BaseCommand {
     };
   }
 }
+
+export class UngroupShapesCommand extends BaseCommand {
+  private groupShape: Shape;
+  private childShapes: Record<string, Shape>;
+  private childIds: string[];
+
+  constructor(
+    private setState: StateMutator,
+    private activeSheetId: string,
+    private groupId: string,
+    getCurrentShapes: () => Record<string, Shape>
+  ) {
+    super();
+    const currentShapes = getCurrentShapes();
+    const group = currentShapes[groupId];
+    if (!group || group.type !== 'Group') {
+      throw new Error('Invalid group shape');
+    }
+    
+    this.groupShape = { ...group };
+    this.childShapes = {};
+    this.childIds = [];
+    
+    // Find all children of this group
+    Object.entries(currentShapes).forEach(([id, shape]) => {
+      if (shape.parentId === groupId) {
+        this.childShapes[id] = { ...shape };
+        this.childIds.push(id);
+      }
+    });
+  }
+
+  execute(): void {
+    this.setState((state) => {
+      const currentSheet = state.sheets[this.activeSheetId];
+      if (!currentSheet) return state;
+
+      const newShapesById = { ...currentSheet.shapesById };
+      
+      // Remove group shape
+      delete newShapesById[this.groupId];
+      
+      // Restore children to absolute positions and remove parentId
+      this.childIds.forEach(id => {
+        const child = newShapesById[id];
+        if (child) {
+          newShapesById[id] = {
+            ...child,
+            x: child.x + this.groupShape.x,
+            y: child.y + this.groupShape.y,
+            parentId: undefined,
+          };
+        }
+      });
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [this.activeSheetId]: {
+            ...currentSheet,
+            shapesById: newShapesById,
+            shapeIds: currentSheet.shapeIds.filter((id: string) => id !== this.groupId),
+            selectedShapeIds: this.childIds,
+          },
+        },
+      };
+    });
+  }
+
+  undo(): void {
+    this.setState((state) => {
+      const currentSheet = state.sheets[this.activeSheetId];
+      if (!currentSheet) return state;
+
+      const newShapesById = { ...currentSheet.shapesById };
+      
+      // Add group shape back
+      newShapesById[this.groupId] = this.groupShape;
+      
+      // Restore children to relative positions with parentId
+      this.childIds.forEach(id => {
+        if (this.childShapes[id]) {
+          newShapesById[id] = this.childShapes[id];
+        }
+      });
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [this.activeSheetId]: {
+            ...currentSheet,
+            shapesById: newShapesById,
+            shapeIds: [...currentSheet.shapeIds, this.groupId],
+            selectedShapeIds: [this.groupId],
+          },
+        },
+      };
+    });
+  }
+
+  getDescription(): string {
+    return `Ungroup ${this.childIds.length} shapes`;
+  }
+
+  toJSON(): CommandJSON {
+    return {
+      type: 'UngroupShapes',
+      data: {
+        groupId: this.groupId,
+        groupShape: this.groupShape,
+        childShapes: this.childShapes,
+        childIds: this.childIds,
+        activeSheetId: this.activeSheetId,
+      },
+      timestamp: this.timestamp,
+    };
+  }
+}
+

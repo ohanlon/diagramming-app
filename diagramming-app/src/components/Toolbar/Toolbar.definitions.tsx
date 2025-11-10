@@ -24,6 +24,7 @@ import {
   FormatItalic,
   FormatUnderlined,
   GroupAdd,
+  GroupRemove,
   VerticalAlignBottom,
   VerticalAlignCenter,
   VerticalAlignTop,
@@ -107,6 +108,7 @@ export interface GetInitialToolsProps {
     copyShape: (ids: string[]) => void;
     pasteShape: () => void;
     groupShapes: (ids: string[]) => void;
+    ungroupShapes: (groupId: string) => void;
     setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
     setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
     toggleBold: () => void;
@@ -150,6 +152,7 @@ export const getInitialTools = ({
     copyShape,
     pasteShape,
     groupShapes,
+    ungroupShapes,
     setVerticalAlign,
     setHorizontalAlign,
     toggleBold,
@@ -505,6 +508,32 @@ export const getInitialTools = ({
                     <span>
                         <IconButton onClick={() => handleClick(() => groupShapes(selectedShapeIds))} color="inherit" disabled={selectedShapeIds.length < 2} sx={{ borderRadius: 0 }}>
                             <GroupAdd />
+                        </IconButton>
+                    </span>
+                </Tooltip>
+            ),
+            width: 48,
+        },
+        {
+            id: 'ungroup',
+            element: (
+                <Tooltip title="Ungroup">
+                    <span>
+                        <IconButton 
+                            onClick={() => {
+                                // Find if any selected shape is a group
+                                const selectedGroup = selectedShapeIds.find(
+                                    id => activeSheet.shapesById[id]?.type === 'Group'
+                                );
+                                if (selectedGroup) {
+                                    handleClick(() => ungroupShapes(selectedGroup));
+                                }
+                            }} 
+                            color="inherit" 
+                            disabled={!selectedShapeIds.some(id => activeSheet.shapesById[id]?.type === 'Group')} 
+                            sx={{ borderRadius: 0 }}
+                        >
+                            <GroupRemove />
                         </IconButton>
                     </span>
                 </Tooltip>

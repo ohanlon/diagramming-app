@@ -14,6 +14,9 @@ interface UseCanvasKeyboardProps {
   sendToBack: (id: string) => void;
   deselectAllTextBlocks: () => void;
   selectedShapeIds: string[];
+  groupShapes?: (ids: string[]) => void;
+  ungroupShapes?: (groupId: string) => void;
+  shapesById?: Record<string, any>;
 }
 
 export function useCanvasKeyboard({
@@ -30,6 +33,9 @@ export function useCanvasKeyboard({
   sendToBack,
   deselectAllTextBlocks,
   selectedShapeIds,
+  groupShapes,
+  ungroupShapes,
+  shapesById,
 }: UseCanvasKeyboardProps) {
   
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -102,7 +108,23 @@ export function useCanvasKeyboard({
       e.preventDefault();
       deselectAllTextBlocks();
     }
-  }, [deleteSelected, undo, redo, cutShape, copyShape, pasteShape, selectAll, bringForward, sendBackward, bringToFront, sendToBack, deselectAllTextBlocks, selectedShapeIds]);
+    // Group (Ctrl/Cmd + G)
+    else if (modifier && e.key === 'g' && !e.shiftKey && groupShapes && selectedShapeIds.length >= 2) {
+      e.preventDefault();
+      groupShapes(selectedShapeIds);
+    }
+    // Ungroup (Ctrl/Cmd + Shift + G)
+    else if (modifier && e.shiftKey && e.key === 'G' && ungroupShapes && shapesById) {
+      e.preventDefault();
+      // Find if any selected shape is a group
+      const selectedGroup = selectedShapeIds.find(
+        id => shapesById[id]?.type === 'Group'
+      );
+      if (selectedGroup) {
+        ungroupShapes(selectedGroup);
+      }
+    }
+  }, [deleteSelected, undo, redo, cutShape, copyShape, pasteShape, selectAll, bringForward, sendBackward, bringToFront, sendToBack, deselectAllTextBlocks, selectedShapeIds, groupShapes, ungroupShapes, shapesById]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
