@@ -49,15 +49,14 @@ const Group: React.FC<GroupProps> = ({
   return (
     <g
       data-group-id={groupShape.id}
-      transform={`translate(${groupShape.x}, ${groupShape.y})`}
       onMouseDown={handleGroupMouseDown}
       onContextMenu={handleGroupContextMenu}
     >
       {/* Visual indicator for the group bounds when selected */}
       {isSelected && (
         <rect
-          x={0}
-          y={0}
+          x={groupShape.x}
+          y={groupShape.y}
           width={groupShape.width}
           height={groupShape.height}
           fill="none"
@@ -93,8 +92,8 @@ const Group: React.FC<GroupProps> = ({
         <>
           {/* Top anchor */}
           <circle
-            cx={groupShape.width / 2}
-            cy={0}
+            cx={groupShape.x + groupShape.width / 2}
+            cy={groupShape.y}
             r={6 / zoom}
             fill="#1976d2"
             stroke="white"
@@ -108,8 +107,8 @@ const Group: React.FC<GroupProps> = ({
           />
           {/* Right anchor */}
           <circle
-            cx={groupShape.width}
-            cy={groupShape.height / 2}
+            cx={groupShape.x + groupShape.width}
+            cy={groupShape.y + groupShape.height / 2}
             r={6 / zoom}
             fill="#1976d2"
             stroke="white"
@@ -123,8 +122,8 @@ const Group: React.FC<GroupProps> = ({
           />
           {/* Bottom anchor */}
           <circle
-            cx={groupShape.width / 2}
-            cy={groupShape.height}
+            cx={groupShape.x + groupShape.width / 2}
+            cy={groupShape.y + groupShape.height}
             r={6 / zoom}
             fill="#1976d2"
             stroke="white"
@@ -138,8 +137,8 @@ const Group: React.FC<GroupProps> = ({
           />
           {/* Left anchor */}
           <circle
-            cx={0}
-            cy={groupShape.height / 2}
+            cx={groupShape.x}
+            cy={groupShape.y + groupShape.height / 2}
             r={6 / zoom}
             fill="#1976d2"
             stroke="white"
@@ -157,8 +156,8 @@ const Group: React.FC<GroupProps> = ({
       {/* Drag target highlight */}
       {isConnectorDragTarget && (
         <rect
-          x={-4 / zoom}
-          y={-4 / zoom}
+          x={groupShape.x - 4 / zoom}
+          y={groupShape.y - 4 / zoom}
           width={groupShape.width + 8 / zoom}
           height={groupShape.height + 8 / zoom}
           fill="none"

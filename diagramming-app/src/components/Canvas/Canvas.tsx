@@ -478,6 +478,9 @@ const Canvas: React.FC = () => {
         }
       }
 
+      // Update selection state immediately for visual feedback
+      setSelectedShapes(nextSelectedIds);
+
       shapeDrag.handleDragStart({ x: mouseX, y: mouseY }, nodeId, nextSelectedIds, shapesById);
     }
   };

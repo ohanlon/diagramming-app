@@ -828,63 +828,112 @@ export const createShapeActions = (
     const shapesToGroup = ids.map((id) => currentSheet.shapesById[id]).filter((shape): shape is Shape => !!shape);
     if (shapesToGroup.length < 2) return; // Need at least two shapes to group
 
-    // Calculate bounding box of selected shapes
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
+    // Check if any selected shape is already a group
+    const existingGroup = shapesToGroup.find((shape) => shape.type === 'Group');
 
-    shapesToGroup.forEach((shape) => {
-      minX = Math.min(minX, shape.x);
-      minY = Math.min(minY, shape.y);
-      maxX = Math.max(maxX, shape.x + shape.width);
-      maxY = Math.max(maxY, shape.y + shape.height);
-    });
+    if (existingGroup) {
+      // Merge into existing group
+      const nonGroupShapes = shapesToGroup.filter((shape) => shape.type !== 'Group' && shape.id !== existingGroup.id);
+      
+      if (nonGroupShapes.length === 0) return; // Nothing to add to the group
 
-    const groupWidth = maxX - minX;
-    const groupHeight = maxY - minY;
+      // Calculate new bounding box including existing group and new shapes
+      let minX = existingGroup.x;
+      let minY = existingGroup.y;
+      let maxX = existingGroup.x + existingGroup.width;
+      let maxY = existingGroup.y + existingGroup.height;
 
-    const groupId = uuidv4();
-    const newGroupShape: Shape = {
-      id: groupId,
-      type: 'Group',
-      x: minX,
-      y: minY,
-      width: groupWidth,
-      height: groupHeight,
-      text: '', // Groups don't have text
-      color: 'transparent', // Groups are transparent
-      layerId: currentSheet.activeLayerId,
-      textOffsetX: 0,
-      textOffsetY: 0,
-      textWidth: 0,
-      textHeight: 0,
-      svgContent: undefined,
-      minX: undefined,
-      minY: undefined,
-      fontFamily: undefined,
-      fontSize: undefined,
-      isTextSelected: undefined,
-      isBold: undefined,
-      isItalic: undefined,
-      isUnderlined: undefined,
-      verticalAlign: undefined,
-      horizontalAlign: undefined,
-      textPosition: undefined,
-      textColor: undefined,
-      parentId: undefined,
-      autosize: undefined,
-      isTextPositionManuallySet: undefined,
-    };
+      nonGroupShapes.forEach((shape) => {
+        minX = Math.min(minX, shape.x);
+        minY = Math.min(minY, shape.y);
+        maxX = Math.max(maxX, shape.x + shape.width);
+        maxY = Math.max(maxY, shape.y + shape.height);
+      });
 
-    const command = new GroupShapesCommand(
-      wrappedSet,
-      state.activeSheetId,
-      ids,
-      newGroupShape,
-      () => _get().sheets[state.activeSheetId]?.shapesById || {}
-    );
-    useHistoryStore.getState().executeCommand(command);
+      const groupWidth = maxX - minX;
+      const groupHeight = maxY - minY;
+
+      // Update existing group dimensions
+      const updatedGroupShape: Shape = {
+        ...existingGroup,
+        x: minX,
+        y: minY,
+        width: groupWidth,
+        height: groupHeight,
+      };
+
+      // All shapes to be included in the group (new shapes only, not existing group)
+      const allShapesToGroup = nonGroupShapes.map((s) => s.id);
+
+      const command = new GroupShapesCommand(
+        wrappedSet,
+        state.activeSheetId,
+        allShapesToGroup,
+        updatedGroupShape,
+        () => _get().sheets[state.activeSheetId]?.shapesById || {},
+        true // isExistingGroup = true when merging
+      );
+      useHistoryStore.getState().executeCommand(command);
+    } else {
+      // Create new group
+      // Calculate bounding box of selected shapes
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+
+      shapesToGroup.forEach((shape) => {
+        minX = Math.min(minX, shape.x);
+        minY = Math.min(minY, shape.y);
+        maxX = Math.max(maxX, shape.x + shape.width);
+        maxY = Math.max(maxY, shape.y + shape.height);
+      });
+
+      const groupWidth = maxX - minX;
+      const groupHeight = maxY - minY;
+
+      const groupId = uuidv4();
+      const newGroupShape: Shape = {
+        id: groupId,
+        type: 'Group',
+        x: minX,
+        y: minY,
+        width: groupWidth,
+        height: groupHeight,
+        text: '', // Groups don't have text
+        color: 'transparent', // Groups are transparent
+        layerId: currentSheet.activeLayerId,
+        textOffsetX: 0,
+        textOffsetY: 0,
+        textWidth: 0,
+        textHeight: 0,
+        svgContent: undefined,
+        minX: undefined,
+        minY: undefined,
+        fontFamily: undefined,
+        fontSize: undefined,
+        isTextSelected: undefined,
+        isBold: undefined,
+        isItalic: undefined,
+        isUnderlined: undefined,
+        verticalAlign: undefined,
+        horizontalAlign: undefined,
+        textPosition: undefined,
+        textColor: undefined,
+        parentId: undefined,
+        autosize: undefined,
+        isTextPositionManuallySet: undefined,
+      };
+
+      const command = new GroupShapesCommand(
+        wrappedSet,
+        state.activeSheetId,
+        ids,
+        newGroupShape,
+        () => _get().sheets[state.activeSheetId]?.shapesById || {}
+      );
+      useHistoryStore.getState().executeCommand(command);
+    }
   },
 
   ungroupShapes: (groupId: string) => {

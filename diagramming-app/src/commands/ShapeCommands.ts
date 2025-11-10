@@ -194,10 +194,30 @@ export class MoveShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
+      
+      // Move the explicitly specified shapes
       this.newShapePositions.forEach(({ id, x, y }) => {
         const shape = newShapesById[id];
         if (shape) {
+          const oldX = shape.x;
+          const oldY = shape.y;
           newShapesById[id] = { ...shape, x, y };
+          
+          // If this is a group, move all its children by the same delta
+          if (shape.type === 'Group') {
+            const dx = x - oldX;
+            const dy = y - oldY;
+            
+            Object.values(newShapesById).forEach((childShape: any) => {
+              if (childShape.parentId === id) {
+                newShapesById[childShape.id] = {
+                  ...childShape,
+                  x: childShape.x + dx,
+                  y: childShape.y + dy,
+                };
+              }
+            });
+          }
         }
       });
 
@@ -220,10 +240,29 @@ export class MoveShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
+      
       this.oldPositions.forEach((pos, id) => {
         const shape = newShapesById[id];
         if (shape) {
+          const oldX = shape.x;
+          const oldY = shape.y;
           newShapesById[id] = { ...shape, x: pos.x, y: pos.y };
+          
+          // If this is a group, move all its children by the same delta
+          if (shape.type === 'Group') {
+            const dx = pos.x - oldX;
+            const dy = pos.y - oldY;
+            
+            Object.values(newShapesById).forEach((childShape: any) => {
+              if (childShape.parentId === id) {
+                newShapesById[childShape.id] = {
+                  ...childShape,
+                  x: childShape.x + dx,
+                  y: childShape.y + dy,
+                };
+              }
+            });
+          }
         }
       });
 
@@ -528,13 +567,15 @@ export class ReorderShapesCommand extends BaseCommand {
 export class GroupShapesCommand extends BaseCommand {
   private groupId: string;
   private oldShapes: Record<string, Shape>;
+  private oldGroupShape?: Shape;
 
   constructor(
     private setState: StateMutator,
     private activeSheetId: string,
     private shapeIds: string[],
     private groupShape: Shape,
-    getCurrentShapes: () => Record<string, Shape>
+    getCurrentShapes: () => Record<string, Shape>,
+    private isExistingGroup: boolean = false
   ) {
     super();
     this.groupId = groupShape.id;
@@ -545,6 +586,13 @@ export class GroupShapesCommand extends BaseCommand {
         this.oldShapes[id] = { ...currentShapes[id] };
       }
     });
+    // If merging into existing group, save the old group state
+    if (isExistingGroup) {
+      const existingGroup = currentShapes[this.groupId];
+      if (existingGroup) {
+        this.oldGroupShape = { ...existingGroup };
+      }
+    }
   }
 
   execute(): void {
@@ -554,23 +602,25 @@ export class GroupShapesCommand extends BaseCommand {
 
       const newShapesById = { ...currentSheet.shapesById };
       
-      // Update grouped shapes
+      // Update grouped shapes - keep absolute positions
       this.shapeIds.forEach(id => {
         const shape = newShapesById[id];
         if (shape) {
-          const minX = this.groupShape.x;
-          const minY = this.groupShape.y;
           newShapesById[id] = {
             ...shape,
             parentId: this.groupId,
-            x: shape.x - minX,
-            y: shape.y - minY,
+            // Keep x and y unchanged - children maintain absolute positions
           };
         }
       });
       
-      // Add group shape
+      // Add or update group shape
       newShapesById[this.groupId] = this.groupShape;
+
+      // Only add to shapeIds if it's a new group (not already in the array)
+      const newShapeIds = this.isExistingGroup 
+        ? currentSheet.shapeIds 
+        : [...currentSheet.shapeIds, this.groupId];
 
       return {
         ...state,
@@ -579,7 +629,7 @@ export class GroupShapesCommand extends BaseCommand {
           [this.activeSheetId]: {
             ...currentSheet,
             shapesById: newShapesById,
-            shapeIds: [...currentSheet.shapeIds, this.groupId],
+            shapeIds: newShapeIds,
             selectedShapeIds: [this.groupId],
           },
         },
@@ -601,8 +651,17 @@ export class GroupShapesCommand extends BaseCommand {
         }
       });
       
-      // Remove group shape
-      delete newShapesById[this.groupId];
+      if (this.isExistingGroup && this.oldGroupShape) {
+        // Restore the old group state
+        newShapesById[this.groupId] = this.oldGroupShape;
+      } else {
+        // Remove group shape entirely
+        delete newShapesById[this.groupId];
+      }
+
+      const newShapeIds = this.isExistingGroup
+        ? currentSheet.shapeIds
+        : currentSheet.shapeIds.filter((id: string) => id !== this.groupId);
 
       return {
         ...state,
@@ -611,7 +670,7 @@ export class GroupShapesCommand extends BaseCommand {
           [this.activeSheetId]: {
             ...currentSheet,
             shapesById: newShapesById,
-            shapeIds: currentSheet.shapeIds.filter((id: string) => id !== this.groupId),
+            shapeIds: newShapeIds,
             selectedShapeIds: this.shapeIds,
           },
         },
@@ -678,14 +737,12 @@ export class UngroupShapesCommand extends BaseCommand {
       // Remove group shape
       delete newShapesById[this.groupId];
       
-      // Restore children to absolute positions and remove parentId
+      // Remove parentId from children (positions are already absolute)
       this.childIds.forEach(id => {
         const child = newShapesById[id];
         if (child) {
           newShapesById[id] = {
             ...child,
-            x: child.x + this.groupShape.x,
-            y: child.y + this.groupShape.y,
             parentId: undefined,
           };
         }
