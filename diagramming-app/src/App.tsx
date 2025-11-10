@@ -10,8 +10,7 @@ import { AppBar, Box, Snackbar, Alert } from '@mui/material';
 import ConflictDialog from './components/ConflictDialog/ConflictDialog';
 import CacheDialog from './components/CacheDialog/CacheDialog';
 import UnsavedChangesDialog from './components/UnsavedChangesDialog/UnsavedChangesDialog';
-import { unstable_HistoryRouter as HistoryRouter, Routes, Route, useParams, useSearchParams, Navigate } from 'react-router-dom';
-import { customHistory } from './customHistory';
+import { BrowserRouter, Routes, Route, useParams, useSearchParams, Navigate, useNavigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
@@ -535,13 +534,15 @@ function App() {
   }, []);
 
   // Bridge: allow external callers to trigger SPA navigation
+  // Now using a global reference to a navigate function that will be set up
+  // by a component inside BrowserRouter
   useEffect(() => {
     const handler = (e: Event) => {
       try {
         const detail = (e as CustomEvent).detail as { path?: string } | undefined;
         const path = detail?.path;
-        if (path) {
-          try { customHistory.push(path); } catch (err) {}
+        if (path && (window as any).__reactRouterNavigate) {
+          try { (window as any).__reactRouterNavigate(path); } catch (err) {}
         }
       } catch (err) {}
     };
@@ -555,7 +556,8 @@ function App() {
   if (!sessionChecked) return null;
 
   return (
-    <HistoryRouter history={customHistory}>
+    <BrowserRouter>
+      <NavigateBridge />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -570,8 +572,20 @@ function App() {
         <Route path="/admin/settings" element={<ProtectedRoute><AdminRoute><AdminSettings /></AdminRoute></ProtectedRoute>} />
         <Route path="*" element={<HomePage />} />
       </Routes>
-  </HistoryRouter>
+  </BrowserRouter>
   );
+}
+
+// Helper component to expose navigate function globally for non-React code
+function NavigateBridge() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    (window as any).__reactRouterNavigate = navigate;
+    return () => {
+      delete (window as any).__reactRouterNavigate;
+    };
+  }, [navigate]);
+  return null;
 }
 
 export default App;
