@@ -70,6 +70,7 @@ export type Connector = {
   startArrow?: ArrowStyle;
   endArrow?: ArrowStyle;
   connectionType?: ConnectionType;
+  cornerRadius?: number; // Radius for rounded corners on orthogonal connections (default: 0)
   text?: string;
   textPosition?: number; // 0-1 value representing position along the path (0.5 = center)
   textOffset?: { x: number; y: number }; // Offset from the calculated position on path

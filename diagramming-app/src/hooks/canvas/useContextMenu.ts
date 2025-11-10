@@ -3,14 +3,15 @@ import { useState, useCallback, useEffect } from 'react';
 interface ContextMenuState {
   x: number;
   y: number;
-  shapeId: string;
+  shapeId?: string;
+  connectorId?: string;
 }
 
 export function useContextMenu() {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
-  const handleContextMenu = useCallback((clientX: number, clientY: number, shapeId: string) => {
-    setContextMenu({ x: clientX, y: clientY, shapeId });
+  const handleContextMenu = useCallback((clientX: number, clientY: number, shapeId?: string, connectorId?: string) => {
+    setContextMenu({ x: clientX, y: clientY, shapeId, connectorId });
   }, []);
 
   const closeContextMenu = useCallback(() => {

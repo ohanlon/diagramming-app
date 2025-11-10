@@ -32,9 +32,10 @@ interface ConnectorProps {
   isSelected: boolean;
   activeLayerId: string;
   layers: { [id: string]: Layer };
+  onConnectorContextMenu?: (e: React.MouseEvent, connectorId: string) => void;
 }
 
-const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected, activeLayerId, layers }) => {
+const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelected, activeLayerId, layers, onConnectorContextMenu }) => {
   const { sheets, activeSheetId, setSelectedConnectors, updateConnectorText, setConnectorTextSelected } = useDiagramStore();
   const activeSheet = sheets?.[activeSheetId];
 
@@ -59,6 +60,17 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
     }
     setConnectorTextSelected(connector.id, true);
   }, [connector.id, connector.text, updateConnectorText, setConnectorTextSelected]);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isSelected) {
+      setSelectedConnectors([connector.id]);
+    }
+    if (onConnectorContextMenu) {
+      onConnectorContextMenu(e, connector.id);
+    }
+  }, [connector.id, isSelected, setSelectedConnectors, onConnectorContextMenu]);
 
   // Calculate connection path based on connection type
   const { path } = calculateConnectionPath(
@@ -180,8 +192,57 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
       }
       d += ` L ${point.x} ${point.y}`;
     }
+  } else if (connector.connectionType === 'orthogonal' && connector.cornerRadius && connector.cornerRadius > 0 && dPath.length > 2) {
+    // Orthogonal connection with rounded corners
+    const radius = connector.cornerRadius;
+    const firstPoint = dPath[0];
+    if (!firstPoint) return null;
+    
+    d = `M ${firstPoint.x} ${firstPoint.y}`;
+    
+    for (let i = 1; i < dPath.length - 1; i++) {
+      const prev = dPath[i - 1];
+      const curr = dPath[i];
+      const next = dPath[i + 1];
+      
+      if (!prev || !curr || !next) continue;
+      
+      // Calculate vectors
+      const dx1 = curr.x - prev.x;
+      const dy1 = curr.y - prev.y;
+      const dx2 = next.x - curr.x;
+      const dy2 = next.y - curr.y;
+      
+      // Calculate segment lengths
+      const len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+      const len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+      
+      // Use the smaller of radius or half the segment length
+      const actualRadius = Math.min(radius, len1 / 2, len2 / 2);
+      
+      if (actualRadius > 0.1) {
+        // Calculate the points where the arc starts and ends
+        const startX = curr.x - (dx1 / len1) * actualRadius;
+        const startY = curr.y - (dy1 / len1) * actualRadius;
+        const endX = curr.x + (dx2 / len2) * actualRadius;
+        const endY = curr.y + (dy2 / len2) * actualRadius;
+        
+        // Draw line to arc start, then arc to arc end
+        d += ` L ${startX} ${startY}`;
+        d += ` Q ${curr.x} ${curr.y} ${endX} ${endY}`;
+      } else {
+        // If radius too small, just draw straight line
+        d += ` L ${curr.x} ${curr.y}`;
+      }
+    }
+    
+    // Draw line to final point
+    const lastPoint = dPath[dPath.length - 1];
+    if (lastPoint) {
+      d += ` L ${lastPoint.x} ${lastPoint.y}`;
+    }
   } else {
-    // For direct and orthogonal connections, use line segments
+    // For direct and orthogonal connections without rounded corners, use line segments
     d = dPath.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
   }
 
@@ -195,6 +256,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         role="presentation"
         onClick={() => setSelectedConnectors([connector.id])}
         onDoubleClick={handleDoubleClick}
+        onContextMenu={handleContextMenu}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
       />
@@ -208,6 +270,7 @@ const ConnectorComponent: React.FC<ConnectorProps> = memo(({ connector, isSelect
         strokeDasharray={getStrokeDasharray(connector.lineStyle || 'continuous')}
         onClick={() => setSelectedConnectors([connector.id])}
         onDoubleClick={handleDoubleClick}
+        onContextMenu={handleContextMenu}
         onMouseEnter={(e) => (e.currentTarget.style.cursor = 'pointer')}
         onMouseLeave={(e) => (e.currentTarget.style.cursor = 'default')}
       />

@@ -6,21 +6,33 @@ interface ContextMenuProps {
   x: number;
   y: number;
   onClose: () => void;
-  onBringForward: () => void;
-  onSendBackward: () => void;
-  onBringToFront: () => void;
-  onSendToBack: () => void;
-  onCut: () => void;
-  onCopy: () => void;
-  onPaste: () => void;
+  onBringForward?: () => void;
+  onSendBackward?: () => void;
+  onBringToFront?: () => void;
+  onSendToBack?: () => void;
+  onCut?: () => void;
+  onCopy?: () => void;
+  onPaste?: () => void;
   onUndo: () => void;
   onRedo: () => void;
-  onEditDescription: () => void;
+  onEditDescription?: () => void;
 }
 
-const ContextMenu: React.FC<ContextMenuProps> = (
-  { x, y, onClose, onBringForward, onSendBackward, onBringToFront, onSendToBack, onCut, onCopy, onPaste, onUndo, onRedo, onEditDescription },
-) => {
+const ContextMenu: React.FC<ContextMenuProps> = ({
+  x,
+  y,
+  onClose,
+  onBringForward,
+  onSendBackward,
+  onBringToFront,
+  onSendToBack,
+  onCut,
+  onCopy,
+  onPaste,
+  onUndo,
+  onRedo,
+  onEditDescription,
+}) => {
   const [arrangeMenuAnchor, setArrangeMenuAnchor] = useState<null | HTMLElement>(null);
 
   const handleItemClick = (action: () => void) => {
@@ -50,24 +62,30 @@ const ContextMenu: React.FC<ContextMenuProps> = (
         anchorReference="anchorPosition"
         anchorPosition={{ top: y, left: x }}
       >
-        <MenuItem onClick={() => handleItemClick(onCut)}>
-          <ListItemIcon>
-            <ContentCut fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Cut</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => handleItemClick(onCopy)}>
-          <ListItemIcon>
-            <ContentCopy fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Copy</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => handleItemClick(onPaste)}>
-          <ListItemIcon>
-            <ContentPaste fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Paste</ListItemText>
-        </MenuItem>
+        {onCut && (
+          <MenuItem onClick={() => handleItemClick(onCut)}>
+            <ListItemIcon>
+              <ContentCut fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Cut</ListItemText>
+          </MenuItem>
+        )}
+        {onCopy && (
+          <MenuItem onClick={() => handleItemClick(onCopy)}>
+            <ListItemIcon>
+              <ContentCopy fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Copy</ListItemText>
+          </MenuItem>
+        )}
+        {onPaste && (
+          <MenuItem onClick={() => handleItemClick(onPaste)}>
+            <ListItemIcon>
+              <ContentPaste fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Paste</ListItemText>
+          </MenuItem>
+        )}
         <Divider />
         <MenuItem onClick={() => handleItemClick(onUndo)}>
           <ListItemIcon>
@@ -82,20 +100,24 @@ const ContextMenu: React.FC<ContextMenuProps> = (
           <ListItemText>Redo</ListItemText>
         </MenuItem>
         <Divider />
-        <MenuItem onClick={() => handleItemClick(onEditDescription)}>
-          <ListItemIcon>
-            <Edit fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Edit Description</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleArrangeClick}>
-          <ListItemIcon>
-            <Layers fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Arrange</ListItemText>
-          <ChevronRight fontSize="small" />
-        </MenuItem>
+        {onEditDescription && (
+          <MenuItem onClick={() => handleItemClick(onEditDescription)}>
+            <ListItemIcon>
+              <Edit fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit Description</ListItemText>
+          </MenuItem>
+        )}
+        {onEditDescription && <Divider />}
+        {onBringForward && onSendBackward && onBringToFront && onSendToBack && (
+          <MenuItem onClick={handleArrangeClick}>
+            <ListItemIcon>
+              <Layers fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Arrange</ListItemText>
+            <ChevronRight fontSize="small" />
+          </MenuItem>
+        )}
       </Menu>
 
       <Menu

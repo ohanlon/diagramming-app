@@ -13,6 +13,7 @@ export interface ConnectorStoreActions {
   setSelectedStartArrow: (arrowStyle: ArrowStyle) => void;
   setSelectedEndArrow: (arrowStyle: ArrowStyle) => void;
   setSelectedConnectionType: (connectionType: ConnectionType) => void;
+  setSelectedCornerRadius: (radius: number) => void;
   
   // Connector text
   updateConnectorText: (connectorId: string, text: string) => void;
@@ -40,6 +41,7 @@ export const createConnectorActions = (
       startArrow: 'none' as ArrowStyle,
       endArrow: 'polygon_arrow' as ArrowStyle,
       connectionType: currentSheet.selectedConnectionType,
+      cornerRadius: currentSheet.selectedConnectionType === 'orthogonal' ? 6 : 0,
     };
 
     const command = new AddConnectorCommand(
@@ -312,6 +314,37 @@ export const createConnectorActions = (
           [state.activeSheetId]: {
             ...currentSheet,
             connectorDragTargetShapeId: shapeId,
+          },
+        },
+      };
+    });
+  },
+
+  setSelectedCornerRadius: (radius: number) => {
+    addHistory();
+    set((state) => {
+      const currentSheet = state.sheets[state.activeSheetId];
+      if (!currentSheet) return state;
+
+      const newConnectors = { ...currentSheet.connectors };
+      const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
+        ? currentSheet.selectedConnectorIds
+        : Object.keys(newConnectors);
+
+      targetConnectorIds.forEach((connectorId) => {
+        const connector = newConnectors[connectorId];
+        if (connector && connector.connectionType === 'orthogonal') {
+          newConnectors[connectorId] = { ...connector, cornerRadius: radius };
+        }
+      });
+
+      return {
+        ...state,
+        sheets: {
+          ...state.sheets,
+          [state.activeSheetId]: {
+            ...currentSheet,
+            connectors: newConnectors,
           },
         },
       };

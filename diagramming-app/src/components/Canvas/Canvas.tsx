@@ -515,8 +515,14 @@ const Canvas: React.FC = () => {
       setSelectedShapes([id]);
     }
 
-    handleContextMenu(e.clientX, e.clientY, id);
+    handleContextMenu(e.clientX, e.clientY, id, undefined);
   };
+
+  const handleConnectorContextMenu = useCallback((e: React.MouseEvent, connectorId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleContextMenu(e.clientX, e.clientY, undefined, connectorId);
+  }, [handleContextMenu]);
 
   // Calculate viewport bounds for virtualization
   const viewportBounds = useMemo(() => {
@@ -612,7 +618,7 @@ const Canvas: React.FC = () => {
             />
           ))}
           {(visibleConnectors || []).map((connector) => (
-            <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} />
+            <ConnectorComponent key={connector.id} connector={connector} isSelected={(activeSheet.selectedConnectorIds || []).includes(connector.id)} activeLayerId={activeSheet.activeLayerId} layers={activeSheet.layers} onConnectorContextMenu={handleConnectorContextMenu} />
           ))}
 
           {connectorDrawing.isDrawingConnector && connectorDrawing.startConnectorPoint && connectorDrawing.currentMousePoint && (
@@ -677,16 +683,16 @@ const Canvas: React.FC = () => {
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={closeContextMenu}
-          onBringForward={() => bringForward(contextMenu.shapeId)}
-          onSendBackward={() => sendBackward(contextMenu.shapeId)}
-          onBringToFront={() => bringToFront(contextMenu.shapeId)}
-          onSendToBack={() => sendToBack(contextMenu.shapeId)}
-          onCut={() => cutShape(activeSheet.selectedShapeIds)}
-          onCopy={() => copyShape(activeSheet.selectedShapeIds)}
-          onPaste={pasteShape}
+          onBringForward={contextMenu.shapeId ? () => bringForward(contextMenu.shapeId!) : undefined}
+          onSendBackward={contextMenu.shapeId ? () => sendBackward(contextMenu.shapeId!) : undefined}
+          onBringToFront={contextMenu.shapeId ? () => bringToFront(contextMenu.shapeId!) : undefined}
+          onSendToBack={contextMenu.shapeId ? () => sendToBack(contextMenu.shapeId!) : undefined}
+          onCut={contextMenu.shapeId ? () => cutShape(activeSheet.selectedShapeIds) : undefined}
+          onCopy={contextMenu.shapeId ? () => copyShape(activeSheet.selectedShapeIds) : undefined}
+          onPaste={contextMenu.shapeId ? pasteShape : undefined}
           onUndo={undo}
           onRedo={redo}
-          onEditDescription={() => setEditingTextShapeId(contextMenu.shapeId)}
+          onEditDescription={contextMenu.shapeId ? () => setEditingTextShapeId(contextMenu.shapeId!) : undefined}
         />
       )}
       {isYouTubeDialogOpen && (
