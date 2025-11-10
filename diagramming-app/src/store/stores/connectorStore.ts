@@ -133,34 +133,46 @@ export const createConnectorActions = (
   },
 
   setSelectedConnectionType: (connectionType: ConnectionType) => {
-    addHistory();
     set((state) => {
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      const newConnectors = { ...currentSheet.connectors };
-      const targetConnectorIds = currentSheet.selectedConnectorIds.length > 0
-        ? currentSheet.selectedConnectorIds
-        : Object.keys(newConnectors);
+      // Only update selected connectors if there are any selected
+      if (currentSheet.selectedConnectorIds.length > 0) {
+        addHistory();
+        const newConnectors = { ...currentSheet.connectors };
+        
+        currentSheet.selectedConnectorIds.forEach((connectorId) => {
+          const connector = newConnectors[connectorId];
+          if (connector) {
+            newConnectors[connectorId] = { ...connector, connectionType: connectionType };
+          }
+        });
 
-      targetConnectorIds.forEach((connectorId) => {
-        const connector = newConnectors[connectorId];
-        if (connector) {
-          newConnectors[connectorId] = { ...connector, connectionType: connectionType };
-        }
-      });
-
-      return {
-        ...state,
-        sheets: {
-          ...state.sheets,
-          [state.activeSheetId]: {
-            ...currentSheet,
-            selectedConnectionType: connectionType,
-            connectors: newConnectors,
+        return {
+          ...state,
+          sheets: {
+            ...state.sheets,
+            [state.activeSheetId]: {
+              ...currentSheet,
+              selectedConnectionType: connectionType,
+              connectors: newConnectors,
+            },
           },
-        },
-      };
+        };
+      } else {
+        // No connectors selected, just update the default for future connectors
+        return {
+          ...state,
+          sheets: {
+            ...state.sheets,
+            [state.activeSheetId]: {
+              ...currentSheet,
+              selectedConnectionType: connectionType,
+            },
+          },
+        };
+      }
     });
   },
 
