@@ -51,8 +51,6 @@ export function useDiagramSync({
     if (hasLoadedServerDiagram.current) return;
     hasLoadedServerDiagram.current = true;
 
-    console.log('[useDiagramSync] Loading server diagram into store:', serverDiagram);
-
     // Apply server state to Zustand
     useDiagramStore.setState({
       sheets: serverDiagram.sheets,

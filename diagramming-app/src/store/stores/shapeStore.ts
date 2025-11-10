@@ -10,6 +10,7 @@ import {
   ReorderShapesCommand,
   GroupShapesCommand
 } from '../../commands';
+import { DeleteConnectorsCommand } from '../../commands/ConnectorCommands';
 import { useHistoryStore } from '../useHistoryStore';
 
 export interface ShapeStoreActions {
@@ -887,16 +888,35 @@ export const createShapeActions = (
   deleteSelected: () => {
     const state = _get();
     const currentSheet = state.sheets[state.activeSheetId];
-    if (!currentSheet || currentSheet.selectedShapeIds.length === 0) return;
+    if (!currentSheet) return;
 
-    const command = new DeleteShapesCommand(
-      wrappedSet,
-      state.activeSheetId,
-      currentSheet.selectedShapeIds,
-      () => _get().sheets[state.activeSheetId]?.shapesById || {},
-      () => _get().sheets[state.activeSheetId]?.connectors || {}
-    );
-    useHistoryStore.getState().executeCommand(command);
+    const hasShapes = currentSheet.selectedShapeIds.length > 0;
+    const hasConnectors = currentSheet.selectedConnectorIds.length > 0;
+
+    if (!hasShapes && !hasConnectors) return;
+
+    // Delete selected shapes
+    if (hasShapes) {
+      const command = new DeleteShapesCommand(
+        wrappedSet,
+        state.activeSheetId,
+        currentSheet.selectedShapeIds,
+        () => _get().sheets[state.activeSheetId]?.shapesById || {},
+        () => _get().sheets[state.activeSheetId]?.connectors || {}
+      );
+      useHistoryStore.getState().executeCommand(command);
+    }
+
+    // Delete selected connectors
+    if (hasConnectors) {
+      const command = new DeleteConnectorsCommand(
+        wrappedSet,
+        state.activeSheetId,
+        currentSheet.selectedConnectorIds,
+        () => _get().sheets[state.activeSheetId]?.connectors || {}
+      );
+      useHistoryStore.getState().executeCommand(command);
+    }
   },
 
   updateShapeInteractionUrl: (shapeId: string, url: string) => {

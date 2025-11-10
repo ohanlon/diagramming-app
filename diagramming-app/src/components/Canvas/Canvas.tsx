@@ -200,11 +200,15 @@ const Canvas: React.FC = () => {
           canvasRef.current.style.cursor = 'grab';
         }
       } else if (connectorDrawing.isDrawingConnector) {
+        const svgRect = svgRef.current?.getBoundingClientRect();
+        const mouseX = svgRect ? (e.clientX - svgRect.left - activeSheet.pan.x) / activeSheet.zoom : 0;
+        const mouseY = svgRect ? (e.clientY - svgRect.top - activeSheet.pan.y) / activeSheet.zoom : 0;
+        
         const targetElement = e.target as SVGElement;
         const targetNodeG = targetElement.closest('g[data-node-id]');
         const endNodeId = targetNodeG ? targetNodeG.getAttribute('data-node-id') : null;
         const endShape = endNodeId ? activeSheet.shapesById[endNodeId] : undefined;
-        const endAnchorType = endShape ? getAnchorPoint(endShape, { x: 0, y: 0 }).type : null;
+        const endAnchorType = endShape ? getAnchorPoint(endShape, { x: mouseX, y: mouseY }).type : null;
 
         connectorDrawing.handleConnectorEnd(endNodeId, endAnchorType, (startNodeId, endNodeId, startAnchor, endAnchor) => {
           addConnector({
