@@ -83,6 +83,7 @@ export type Connector = {
 export type Sheet = {
   id: string;
   name: string;
+  index: number; // Order of the sheet in the tab list
   shapesById: Record<string, Shape>;
   shapeIds: string[];
   connectors: Record<string, Connector>;

@@ -46,9 +46,19 @@ export function useDiagramSync({
     if (hasLoadedServerDiagram.current) return;
     hasLoadedServerDiagram.current = true;
 
+    // Ensure all sheets have an index property for ordering
+    const sheetsWithIndices: Record<string, any> = {};
+    let nextIndex = 0;
+    for (const [sheetId, sheet] of Object.entries(serverDiagram.sheets)) {
+      sheetsWithIndices[sheetId] = {
+        ...sheet,
+        index: sheet.index ?? nextIndex++,
+      };
+    }
+
     // Apply server state to Zustand
     useDiagramStore.setState({
-      sheets: serverDiagram.sheets,
+      sheets: sheetsWithIndices,
       activeSheetId: serverDiagram.activeSheetId,
       diagramName: serverDiagram.name,
       remoteDiagramId: serverDiagram.id,

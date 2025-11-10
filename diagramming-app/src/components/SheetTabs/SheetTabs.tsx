@@ -6,11 +6,18 @@ import { Add, Close } from '@mui/icons-material';
 import './SheetTabs.less';
 
 const SheetTabs: React.FC = () => {
-  const { sheets, activeSheetId, addSheet, removeSheet, setActiveSheet, renameSheet } = useDiagramStore();
-  const sheetIds = Object.keys(sheets);
+  const { sheets, activeSheetId, addSheet, removeSheet, setActiveSheet, renameSheet, reorderSheets } = useDiagramStore();
+  // Sort sheets by index to maintain proper ordering
+  const sheetIds = Object.keys(sheets).sort((a, b) => {
+    const indexA = sheets[a]?.index ?? 0;
+    const indexB = sheets[b]?.index ?? 0;
+    return indexA - indexB;
+  });
 
   const [editingSheetId, setEditingSheetId] = useState<string | null>(null);
   const [editedSheetName, setEditedSheetName] = useState<string>('');
+  const [draggedSheetId, setDraggedSheetId] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleAddSheet = () => {
@@ -48,6 +55,35 @@ const SheetTabs: React.FC = () => {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, sheetId: string) => {
+    setDraggedSheetId(sheetId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedSheetId && draggedSheetId !== sheetIds[targetIndex]) {
+      reorderSheets(draggedSheetId, targetIndex);
+    }
+    setDraggedSheetId(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedSheetId(null);
+    setDragOverIndex(null);
+  };
+
   useEffect(() => {
     if (editingSheetId && inputRef.current) {
       inputRef.current.focus();
@@ -64,20 +100,34 @@ const SheetTabs: React.FC = () => {
         aria-label="sheet tabs"
         sx={{ height: '2em', minHeight: '2em' }}
       >
-        {sheetIds.map((id) => {
+        {sheetIds.map((id, index) => {
           const sheet = sheets[id];
           if (!sheet) return null;
           const isEditing = editingSheetId === sheet.id;
+          const isDragging = draggedSheetId === sheet.id;
+          const isDropTarget = dragOverIndex === index;
 
           return (
             <Tab
               key={sheet.id}
+              draggable={!isEditing}
+              onDragStart={(e) => handleDragStart(e, sheet.id)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
               sx={{
                 height: '2em',
                 minHeight: '2em',
                 padding: '0 .625em',
+                opacity: isDragging ? 0.5 : 1,
+                cursor: isEditing ? 'text' : 'grab',
+                borderLeft: isDropTarget ? '2px solid #1976d2' : 'none',
                 '&.Mui-selected': {
                   bgcolor: '#f7ededff', // Background color for selected tab
+                },
+                '&:active': {
+                  cursor: isEditing ? 'text' : 'grabbing',
                 },
               }}
               label={

@@ -8,6 +8,7 @@ export interface SheetStoreActions {
   removeSheet: (id: string) => void;
   setActiveSheet: (id: string) => void;
   renameSheet: (id: string, name: string) => void;
+  reorderSheets: (sheetId: string, newIndex: number) => void;
 }
 
 // This will be imported and used in the main store
@@ -27,9 +28,13 @@ export const createSheetActions = (
       // Determine a template sheet from current active sheet or fallback to any existing sheet
       const templateSheet = state.sheets[state.activeSheetId] || Object.values(state.sheets)[0] as Sheet;
 
+      // Calculate the next index (max existing index + 1)
+      const maxIndex = Math.max(-1, ...Object.values(state.sheets).map(s => s.index ?? -1));
+
       const newSheet: Sheet = {
         id: newSheetId,
         name: newSheetName,
+        index: maxIndex + 1,
         shapesById: {},
         shapeIds: [],
         connectors: {},
@@ -112,6 +117,44 @@ export const createSheetActions = (
           ...state.sheets,
           [id]: { ...sheet, name },
         },
+      };
+    });
+  },
+
+  reorderSheets: (sheetId: string, newIndex: number) => {
+    addHistory();
+    set((state) => {
+      const sheet = state.sheets[sheetId];
+      if (!sheet) return state;
+
+      const oldIndex = sheet.index;
+      if (oldIndex === newIndex) return state;
+
+      // Reindex all sheets
+      const updatedSheets = { ...state.sheets };
+      
+      // Get sorted sheet entries
+      const sortedEntries = Object.entries(updatedSheets).sort(
+        ([, a], [, b]) => a.index - b.index
+      );
+
+      // Remove the dragged sheet from its current position
+      const draggedEntry = sortedEntries.find(([id]) => id === sheetId);
+      if (!draggedEntry) return state;
+      
+      const filteredEntries = sortedEntries.filter(([id]) => id !== sheetId);
+      
+      // Insert at new position
+      filteredEntries.splice(newIndex, 0, draggedEntry);
+      
+      // Reassign indices
+      filteredEntries.forEach(([id, sheet], idx) => {
+        updatedSheets[id] = { ...sheet, index: idx };
+      });
+
+      return {
+        ...state,
+        sheets: updatedSheets,
       };
     });
   },

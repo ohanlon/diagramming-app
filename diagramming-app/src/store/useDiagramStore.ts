@@ -53,6 +53,7 @@ const initialState: DiagramState = {
     [defaultSheetId]: {
       id: defaultSheetId,
       name: 'Default Sheet',
+      index: 0,
       shapesById: {},
       shapeIds: [],
       connectors: {},
@@ -480,6 +481,7 @@ export const useDiagramStore = create<DiagramState & DiagramStoreActions>()((set
     const newSheet = {
       id: newSheetId,
       name: 'Sheet 1',
+      index: 0,
       shapesById: {},
       shapeIds: [],
       connectors: {},
