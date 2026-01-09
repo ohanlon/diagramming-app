@@ -31,7 +31,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-easy-crop": "^4.4.0",
-    "react-router-dom": "^6.17.0",
+    "react-router-dom": "^6.30.3",
     "utif": "*",
     "validator": "^13.9.0",
     "zustand": "^5.0.7"
