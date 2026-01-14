@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Shape, Point, AnchorType } from '../../types';
 import Node from '../Node/Node';
+import { useDiagramStore } from '../../store/useDiagramStore';
 
 interface GroupProps {
   groupShape: Shape;
@@ -34,6 +35,13 @@ const Group: React.FC<GroupProps> = ({
   activeLayerId,
   layers,
 }) => {
+  const { updateShapeDimensions, recordShapeResize, sheets, activeSheetId } = useDiagramStore();
+  const activeSheet = sheets?.[activeSheetId];
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandleType, setResizeHandleType] = useState<string | null>(null);
+  const initialMousePos = useRef({ x: 0, y: 0 });
+  const initialResizeState = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+
   // Handler for group-level mouse down
   const handleGroupMouseDown = (e: React.MouseEvent) => {
     // Prevent interaction with individual children
@@ -45,6 +53,93 @@ const Group: React.FC<GroupProps> = ({
     e.stopPropagation();
     onContextMenu(e, groupShape.id);
   };
+
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent, handleType: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    setIsResizing(true);
+    setResizeHandleType(handleType);
+    initialMousePos.current = { x: e.clientX, y: e.clientY };
+    initialResizeState.current = {
+      x: groupShape.x,
+      y: groupShape.y,
+      width: groupShape.width,
+      height: groupShape.height
+    };
+    
+    document.body.style.userSelect = 'none';
+  }, [groupShape]);
+
+  const handleResizeMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing || !initialResizeState.current || !activeSheet) return;
+
+    const dx = (e.clientX - initialMousePos.current.x) / zoom;
+    const dy = (e.clientY - initialMousePos.current.y) / zoom;
+
+    const initial = initialResizeState.current;
+    let newX = initial.x;
+    let newY = initial.y;
+    let newWidth = initial.width;
+    let newHeight = initial.height;
+
+    switch (resizeHandleType) {
+      case 'top-left':
+        newX += dx;
+        newY += dy;
+        newWidth -= dx;
+        newHeight -= dy;
+        break;
+      case 'top-right':
+        newY += dy;
+        newWidth += dx;
+        newHeight -= dy;
+        break;
+      case 'bottom-left':
+        newX += dx;
+        newWidth -= dx;
+        newHeight += dy;
+        break;
+      case 'bottom-right':
+        newWidth += dx;
+        newHeight += dy;
+        break;
+    }
+
+    newWidth = Math.max(20, newWidth);
+    newHeight = Math.max(20, newHeight);
+
+    updateShapeDimensions(groupShape.id, newX, newY, newWidth, newHeight);
+  }, [isResizing, resizeHandleType, zoom, groupShape.id, updateShapeDimensions, activeSheet]);
+
+  const handleResizeMouseUp = useCallback(() => {
+    if (isResizing && initialResizeState.current) {
+      recordShapeResize(
+        groupShape.id,
+        groupShape.x,
+        groupShape.y,
+        groupShape.width,
+        groupShape.height
+      );
+    }
+
+    setIsResizing(false);
+    setResizeHandleType(null);
+    initialResizeState.current = null;
+    document.body.style.userSelect = '';
+  }, [isResizing, groupShape, recordShapeResize]);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMouseMove);
+      document.addEventListener('mouseup', handleResizeMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMouseMove);
+        document.removeEventListener('mouseup', handleResizeMouseUp);
+      };
+    }
+    return undefined;
+  }, [isResizing, handleResizeMouseMove, handleResizeMouseUp]);
 
   return (
     <g
@@ -90,6 +185,60 @@ const Group: React.FC<GroupProps> = ({
       {/* Connector anchor points for the group */}
       {isSelected && (
         <>
+          {/* Resize handles */}
+          <rect 
+            x={groupShape.x - 5} 
+            y={groupShape.y - 5} 
+            rx={2} 
+            ry={2} 
+            width={10} 
+            height={10} 
+            fill="white" 
+            stroke="#1976d2" 
+            strokeWidth="1" 
+            cursor="nwse-resize" 
+            onMouseDown={(e) => handleResizeMouseDown(e, 'top-left')} 
+          />
+          <rect 
+            x={groupShape.x + groupShape.width - 5} 
+            y={groupShape.y - 5} 
+            rx={2} 
+            ry={2} 
+            width={10} 
+            height={10} 
+            fill="white" 
+            stroke="#1976d2" 
+            strokeWidth="1" 
+            cursor="nesw-resize" 
+            onMouseDown={(e) => handleResizeMouseDown(e, 'top-right')} 
+          />
+          <rect 
+            x={groupShape.x - 5} 
+            y={groupShape.y + groupShape.height - 5} 
+            rx={2} 
+            ry={2} 
+            width={10} 
+            height={10} 
+            fill="white" 
+            stroke="#1976d2" 
+            strokeWidth="1" 
+            cursor="nesw-resize" 
+            onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-left')} 
+          />
+          <rect 
+            x={groupShape.x + groupShape.width - 5} 
+            y={groupShape.y + groupShape.height - 5} 
+            rx={2} 
+            ry={2} 
+            width={10} 
+            height={10} 
+            fill="white" 
+            stroke="#1976d2" 
+            strokeWidth="1" 
+            cursor="nwse-resize" 
+            onMouseDown={(e) => handleResizeMouseDown(e, 'bottom-right')} 
+          />
+
           {/* Top anchor */}
           <circle
             cx={groupShape.x + groupShape.width / 2}

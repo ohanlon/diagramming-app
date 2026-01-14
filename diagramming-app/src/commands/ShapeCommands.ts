@@ -79,14 +79,32 @@ export class DeleteShapesCommand extends BaseCommand {
   execute(): void {
     // Store deleted shapes for undo
     const currentShapes = this.getCurrentShapes();
-    this.deletedShapes = this.shapeIds.map(id => currentShapes[id]!).filter(Boolean);
+
+    // Find all descendants of any groups being deleted
+    const allIdsToDelete = new Set<string>();
+    const processId = (id: string) => {
+      if (allIdsToDelete.has(id)) return;
+      allIdsToDelete.add(id);
+
+      // If this is a group, find its children
+      Object.values(currentShapes).forEach(s => {
+        if (s.parentId === id) {
+          processId(s.id);
+        }
+      });
+    };
+
+    this.shapeIds.forEach(id => processId(id));
+    const finalShapeIdsToDelete = Array.from(allIdsToDelete);
+
+    this.deletedShapes = finalShapeIdsToDelete.map(id => currentShapes[id]!).filter(Boolean);
 
     // Store deleted connectors for undo
     const currentConnectors = this.getCurrentConnectors();
     this.deletedConnectors = Object.entries(currentConnectors)
-      .filter(([_, connector]) => 
-        this.shapeIds.includes(connector.startNodeId) || 
-        this.shapeIds.includes(connector.endNodeId)
+      .filter(([_, connector]) =>
+        finalShapeIdsToDelete.includes(connector.startNodeId) ||
+        finalShapeIdsToDelete.includes(connector.endNodeId)
       )
       .map(([id, connector]) => ({ id, connector }));
 
@@ -95,7 +113,7 @@ export class DeleteShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      this.shapeIds.forEach(id => delete newShapesById[id]);
+      finalShapeIdsToDelete.forEach(id => delete newShapesById[id]);
 
       const newConnectors = { ...currentSheet.connectors };
       this.deletedConnectors.forEach(({ id }) => delete newConnectors[id]);
@@ -107,7 +125,7 @@ export class DeleteShapesCommand extends BaseCommand {
           [this.activeSheetId]: {
             ...currentSheet,
             shapesById: newShapesById,
-            shapeIds: currentSheet.shapeIds.filter((id: string) => !this.shapeIds.includes(id)),
+            shapeIds: currentSheet.shapeIds.filter((id: string) => !finalShapeIdsToDelete.includes(id)),
             connectors: newConnectors,
             selectedShapeIds: [],
             selectedConnectorIds: [],
@@ -194,29 +212,32 @@ export class MoveShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      
+
       // Move the explicitly specified shapes
       this.newShapePositions.forEach(({ id, x, y }) => {
         const shape = newShapesById[id];
         if (shape) {
-          const oldX = shape.x;
-          const oldY = shape.y;
+          const dx = x - shape.x;
+          const dy = y - shape.y;
           newShapesById[id] = { ...shape, x, y };
-          
-          // If this is a group, move all its children by the same delta
-          if (shape.type === 'Group') {
-            const dx = x - oldX;
-            const dy = y - oldY;
-            
-            Object.values(newShapesById).forEach((childShape: any) => {
-              if (childShape.parentId === id) {
-                newShapesById[childShape.id] = {
-                  ...childShape,
-                  x: childShape.x + dx,
-                  y: childShape.y + dy,
+
+          const moveDescendants = (parentId: string, deltaX: number, deltaY: number) => {
+            Object.values(newShapesById).forEach((s: any) => {
+              if (s.parentId === parentId) {
+                newShapesById[s.id] = {
+                  ...s,
+                  x: s.x + deltaX,
+                  y: s.y + deltaY,
                 };
+                if (s.type === 'Group') {
+                  moveDescendants(s.id, deltaX, deltaY);
+                }
               }
             });
+          };
+
+          if (shape.type === 'Group' && (dx !== 0 || dy !== 0)) {
+            moveDescendants(id, dx, dy);
           }
         }
       });
@@ -240,28 +261,31 @@ export class MoveShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      
+
       this.oldPositions.forEach((pos, id) => {
         const shape = newShapesById[id];
         if (shape) {
-          const oldX = shape.x;
-          const oldY = shape.y;
+          const dx = pos.x - shape.x;
+          const dy = pos.y - shape.y;
           newShapesById[id] = { ...shape, x: pos.x, y: pos.y };
-          
-          // If this is a group, move all its children by the same delta
-          if (shape.type === 'Group') {
-            const dx = pos.x - oldX;
-            const dy = pos.y - oldY;
-            
-            Object.values(newShapesById).forEach((childShape: any) => {
-              if (childShape.parentId === id) {
-                newShapesById[childShape.id] = {
-                  ...childShape,
-                  x: childShape.x + dx,
-                  y: childShape.y + dy,
+
+          const moveDescendants = (parentId: string, deltaX: number, deltaY: number) => {
+            Object.values(newShapesById).forEach((s: any) => {
+              if (s.parentId === parentId) {
+                newShapesById[s.id] = {
+                  ...s,
+                  x: s.x + deltaX,
+                  y: s.y + deltaY,
                 };
+                if (s.type === 'Group') {
+                  moveDescendants(s.id, deltaX, deltaY);
+                }
               }
             });
+          };
+
+          if (shape.type === 'Group' && (dx !== 0 || dy !== 0)) {
+            moveDescendants(id, dx, dy);
           }
         }
       });
@@ -601,7 +625,7 @@ export class GroupShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      
+
       // Update grouped shapes - keep absolute positions
       this.shapeIds.forEach(id => {
         const shape = newShapesById[id];
@@ -613,13 +637,13 @@ export class GroupShapesCommand extends BaseCommand {
           };
         }
       });
-      
+
       // Add or update group shape
       newShapesById[this.groupId] = this.groupShape;
 
       // Only add to shapeIds if it's a new group (not already in the array)
-      const newShapeIds = this.isExistingGroup 
-        ? currentSheet.shapeIds 
+      const newShapeIds = this.isExistingGroup
+        ? currentSheet.shapeIds
         : [...currentSheet.shapeIds, this.groupId];
 
       return {
@@ -643,14 +667,14 @@ export class GroupShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      
+
       // Restore original shapes
       this.shapeIds.forEach(id => {
         if (this.oldShapes[id]) {
           newShapesById[id] = this.oldShapes[id];
         }
       });
-      
+
       if (this.isExistingGroup && this.oldGroupShape) {
         // Restore the old group state
         newShapesById[this.groupId] = this.oldGroupShape;
@@ -713,11 +737,11 @@ export class UngroupShapesCommand extends BaseCommand {
     if (!group || group.type !== 'Group') {
       throw new Error('Invalid group shape');
     }
-    
+
     this.groupShape = { ...group };
     this.childShapes = {};
     this.childIds = [];
-    
+
     // Find all children of this group
     Object.entries(currentShapes).forEach(([id, shape]) => {
       if (shape.parentId === groupId) {
@@ -733,10 +757,10 @@ export class UngroupShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      
+
       // Remove group shape
       delete newShapesById[this.groupId];
-      
+
       // Remove parentId from children (positions are already absolute)
       this.childIds.forEach(id => {
         const child = newShapesById[id];
@@ -769,10 +793,10 @@ export class UngroupShapesCommand extends BaseCommand {
       if (!currentSheet) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      
+
       // Add group shape back
       newShapesById[this.groupId] = this.groupShape;
-      
+
       // Restore children to relative positions with parentId
       this.childIds.forEach(id => {
         if (this.childShapes[id]) {

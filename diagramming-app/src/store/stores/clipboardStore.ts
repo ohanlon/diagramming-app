@@ -11,8 +11,8 @@ export interface ClipboardStoreActions {
 
 // This will be imported and used in the main store
 export const createClipboardActions = (
-  set: (fn: (state: DiagramState) => DiagramState) => void, 
-  _get: () => DiagramState, 
+  set: (fn: (state: DiagramState) => DiagramState) => void,
+  _get: () => DiagramState,
   addHistory: () => void
 ): ClipboardStoreActions => ({
 
@@ -22,19 +22,33 @@ export const createClipboardActions = (
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      const shapesToCut = ids
-        .map((id) => currentSheet.shapesById[id])
+      const shapesById = currentSheet.shapesById;
+      const allIdsToCollect = new Set<string>();
+
+      const processId = (id: string) => {
+        if (allIdsToCollect.has(id)) return;
+        allIdsToCollect.add(id);
+        Object.values(shapesById).forEach(s => {
+          if (s.parentId === id) processId(s.id);
+        });
+      };
+
+      ids.forEach(id => processId(id));
+      const finalIds = Array.from(allIdsToCollect);
+
+      const shapesToCut = finalIds
+        .map((id) => shapesById[id])
         .filter((shape): shape is Shape => Boolean(shape));
       if (shapesToCut.length === 0) return state;
 
       const newShapesById = { ...currentSheet.shapesById };
-      ids.forEach((id) => delete newShapesById[id]);
+      finalIds.forEach((id) => delete newShapesById[id]);
 
-      const newShapeIds = currentSheet.shapeIds.filter((id) => !ids.includes(id));
+      const newShapeIds = currentSheet.shapeIds.filter((id) => !finalIds.includes(id));
 
       const newConnectors = Object.fromEntries(
         Object.entries(currentSheet.connectors).filter(
-          ([, conn]) => !ids.includes(conn.startNodeId) && !ids.includes(conn.endNodeId)
+          ([, conn]) => !finalIds.includes(conn.startNodeId) && !finalIds.includes(conn.endNodeId)
         )
       );
 
@@ -60,8 +74,22 @@ export const createClipboardActions = (
       const currentSheet = state.sheets[state.activeSheetId];
       if (!currentSheet) return state;
 
-      const shapesToCopy = ids
-        .map((id) => currentSheet.shapesById[id])
+      const shapesById = currentSheet.shapesById;
+      const allIdsToCollect = new Set<string>();
+
+      const processId = (id: string) => {
+        if (allIdsToCollect.has(id)) return;
+        allIdsToCollect.add(id);
+        Object.values(shapesById).forEach(s => {
+          if (s.parentId === id) processId(s.id);
+        });
+      };
+
+      ids.forEach(id => processId(id));
+      const finalIds = Array.from(allIdsToCollect);
+
+      const shapesToCopy = finalIds
+        .map((id) => shapesById[id])
         .filter((shape): shape is Shape => Boolean(shape));
       if (shapesToCopy.length === 0) return state;
 
@@ -87,10 +115,13 @@ export const createClipboardActions = (
       const { clipboard, selectedShapeIds, shapesById, pan, zoom } = currentSheet;
       if (!clipboard || clipboard.length === 0) return state;
 
-      const referenceShape = clipboard[0];
-      if (!referenceShape) {
-        return state;
-      }
+      // Find the reference shape (the one that was selected when copied)
+      // Usually it's the first one in the list that doesn't have a parent in the clipboard
+      const rootShapesInClipboard = clipboard.filter(s =>
+        !s.parentId || !clipboard.some(other => other.id === s.parentId)
+      );
+      const referenceShape = rootShapesInClipboard[0] || clipboard[0];
+      if (!referenceShape) return state;
 
       let pasteX = 0;
       let pasteY = 0;
@@ -103,36 +134,38 @@ export const createClipboardActions = (
           pasteY = selectedShape.y + 10;
         }
       } else {
-        // Calculate center of the visible canvas area
-        const canvasWidth = window.innerWidth; // Assuming canvas takes full window width
-        const canvasHeight = window.innerHeight; // Assuming canvas takes full window height
-
-        // Adjust for current pan and zoom to get the center in diagram coordinates
-        pasteX = (canvasWidth / 2 - pan.x) / zoom;
-        pasteY = (canvasHeight / 2 - pan.y) / zoom;
-
-        // Adjust for the first shape's own offset from its group's top-left
-        // This assumes clipboard[0] is the reference point for the group
-        pasteX -= referenceShape.x;
-        pasteY -= referenceShape.y;
+        const canvasWidth = window.innerWidth;
+        const canvasHeight = window.innerHeight;
+        pasteX = (canvasWidth / 2 - pan.x) / zoom - referenceShape.width / 2;
+        pasteY = (canvasHeight / 2 - pan.y) / zoom - referenceShape.height / 2;
       }
 
-      const newShapes: Shape[] = [];
-      const newShapeIds: string[] = [];
+      const idMap = new Map<string, string>();
+      clipboard.forEach(s => idMap.set(s.id, uuidv4()));
+
       const newShapesById = { ...shapesById };
+      const newPastedShapeIds: string[] = [];
 
       clipboard.forEach((shape) => {
-        const newShapeId = uuidv4();
+        const newShapeId = idMap.get(shape.id)!;
+        const newParentId = shape.parentId ? idMap.get(shape.parentId) : undefined;
+
         const newShape = {
           ...shape,
           id: newShapeId,
           x: pasteX + (shape.x - referenceShape.x),
           y: pasteY + (shape.y - referenceShape.y),
+          parentId: newParentId || shape.parentId, // Keep existing if not remapped (though usually it should be remapped or removed)
           layerId: currentSheet.activeLayerId,
         };
-        newShapes.push(newShape);
-        newShapeIds.push(newShapeId);
+
+        // If parent was NOT in clipboard, we should probably clear parentId
+        if (shape.parentId && !idMap.has(shape.parentId)) {
+          newShape.parentId = undefined;
+        }
+
         newShapesById[newShapeId] = newShape;
+        newPastedShapeIds.push(newShapeId);
       });
 
       return {
@@ -142,8 +175,8 @@ export const createClipboardActions = (
           [state.activeSheetId]: {
             ...currentSheet,
             shapesById: newShapesById,
-            shapeIds: [...currentSheet.shapeIds, ...newShapeIds],
-            selectedShapeIds: newShapeIds,
+            shapeIds: [...currentSheet.shapeIds, ...newPastedShapeIds],
+            selectedShapeIds: newPastedShapeIds,
           },
         },
       };

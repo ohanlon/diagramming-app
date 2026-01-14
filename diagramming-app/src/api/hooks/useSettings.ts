@@ -5,6 +5,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../client';
 import type { UserSettings, UserSettingsResponse } from '../types';
+import { authKeys } from './useAuth';
 
 export const settingsKeys = {
   all: ['settings'] as const,
@@ -35,10 +36,10 @@ export function useUpdateUserSettings() {
     mutationFn: async (settings: Partial<UserSettings>): Promise<void> => {
       // Get current settings
       const current = queryClient.getQueryData<UserSettings>(settingsKeys.user()) || {};
-      
+
       // Merge with new settings
       const updated = { ...current, ...settings };
-      
+
       await api.put('/users/me/settings', { settings: updated });
     },
     onMutate: async (newSettings) => {
@@ -63,8 +64,10 @@ export function useUpdateUserSettings() {
       }
     },
     onSettled: () => {
-      // Refetch after error or success
+      // Refetch settings after error or success
       queryClient.invalidateQueries({ queryKey: settingsKeys.user() });
+      // Also invalidate currentUser to refresh avatarUrl in UI
+      queryClient.invalidateQueries({ queryKey: authKeys.currentUser });
     },
   });
 }

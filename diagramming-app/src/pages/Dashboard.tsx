@@ -8,6 +8,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 import History from '@mui/icons-material/History';
+import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 import { useDiagramStore } from '../store/useDiagramStore';
@@ -60,7 +61,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
-      const fetchDiagrams = async () => {
+    const fetchDiagrams = async () => {
       setLoading(true);
       try {
         const diagrams = await listDiagrams();
@@ -159,7 +160,7 @@ const Dashboard: React.FC = () => {
     }
     setRecipients(prev => {
       const seen = new Set(prev.map(r => r.email.toLowerCase()));
-      const added = [] as Array<{ email: string; permission: 'view'|'edit'; canCopy: boolean }>;
+      const added = [] as Array<{ email: string; permission: 'view' | 'edit'; canCopy: boolean }>;
       for (const e of list) {
         if (!seen.has(e)) {
           added.push({ email: e, permission: defaultPermission, canCopy: defaultCanCopy });
@@ -176,7 +177,7 @@ const Dashboard: React.FC = () => {
     setRecipients(prev => prev.filter(r => String(r.email).toLowerCase() !== String(email).toLowerCase()));
   }
 
-  function updateRecipient(email: string, patch: Partial<{ permission: 'view'|'edit'; canCopy: boolean }>) {
+  function updateRecipient(email: string, patch: Partial<{ permission: 'view' | 'edit'; canCopy: boolean }>) {
     setRecipients(prev => prev.map(r => r.email.toLowerCase() === String(email).toLowerCase() ? { ...r, ...patch } : r));
   }
 
@@ -282,18 +283,20 @@ const Dashboard: React.FC = () => {
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, padding: '2', color: 'inherit',
-            backgroundColor: (theme) => theme.palette.background.default }}>
+    <Box sx={{
+      display: 'flex', gap: 2, padding: '2', color: 'inherit',
+      backgroundColor: (theme) => theme.palette.background.default
+    }}>
       {/* Left sidebar: simple text sections to filter main grid */}
       <Box
-          sx={{
-            height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: (theme) => theme.palette.background.default,
-            borderRight: (theme) => `1px solid ${theme.palette.divider}`
-          }}
-        >
+        sx={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: (theme) => theme.palette.background.default,
+          borderRight: (theme) => `1px solid ${theme.palette.divider}`
+        }}
+      >
         <List>
           <ListItemButton selected={selectedSection === 'favorites'} onClick={() => setSelectedSection('favorites')}>
             <ListItemText
@@ -339,8 +342,10 @@ const Dashboard: React.FC = () => {
       </Box>
 
       {/* Main content: header + grid of diagrams */}
-      <Box sx={{ flexGrow: 1,
-            backgroundColor: (theme) => theme.palette.background.default }}>
+      <Box sx={{
+        flexGrow: 1,
+        backgroundColor: (theme) => theme.palette.background.default
+      }}>
         {/* Compute dynamic header title based on selected section */}
         {
           (() => {
@@ -363,8 +368,17 @@ const Dashboard: React.FC = () => {
                   color: (theme) => theme.palette.primary.contrastText,
                 }}
               >
-                <Toolbar disableGutters variant="dense"  sx={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 1 }}>
-                  <Typography variant="h6">{headerTitle}</Typography>
+                <Toolbar disableGutters variant="dense" sx={{ display: 'flex', justifyContent: 'space-between', paddingLeft: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <IconButton
+                      aria-label="home"
+                      onClick={() => navigate('/')}
+                      sx={{ color: (theme) => theme.palette.primary.contrastText }}
+                    >
+                      <HomeIcon />
+                    </IconButton>
+                    <Typography variant="h6">{headerTitle}</Typography>
+                  </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <NewButton />
                     <AccountMenu />
@@ -394,99 +408,99 @@ const Dashboard: React.FC = () => {
                   ? mergedAll.filter(d => favorites[d.id])
                   : (sharedDiagrams || []);
             return diagramsToShow.map((d) => (
-               <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-              {/* Favorite star at top-left */}
-              <IconButton
-                aria-label={favorites[d.id] ? 'Unfavorite' : 'Favorite'}
-                sx={{ position: 'absolute', left: 4, top: 4, zIndex: 2 }}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  // Toggle favorite in UI immediately
-                  const currentlyFav = !!favorites[d.id];
-                  setFavorites(prev => ({ ...prev, [d.id]: !currentlyFav }));
-                  // Persist to user settings
-                  try {
-                    const { apiFetch } = await import('../utils/apiFetch');
-                    const settingsResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
-                    let settingsJson: any = { settings: {} };
-                    if (settingsResp.ok) settingsJson = await settingsResp.json();
-                    const existingFavs: string[] = (settingsJson.settings && settingsJson.settings.favorites) || [];
-                    const favoritesToSave = currentlyFav ? existingFavs.filter((id: string) => id !== d.id) : Array.from(new Set([...existingFavs, d.id]));
-                    await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(settingsJson.settings || {}), favorites: favoritesToSave } }) });
-                  } catch (err) {
-                    console.error('Failed to toggle favorite', err);
-                  }
-                }}
-              >
-                {favorites[d.id] ? <StarIcon color="warning" /> : <StarBorderIcon />}
-              </IconButton>
+              <Card key={d.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                {/* Favorite star at top-left */}
+                <IconButton
+                  aria-label={favorites[d.id] ? 'Unfavorite' : 'Favorite'}
+                  sx={{ position: 'absolute', left: 4, top: 4, zIndex: 2 }}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    // Toggle favorite in UI immediately
+                    const currentlyFav = !!favorites[d.id];
+                    setFavorites(prev => ({ ...prev, [d.id]: !currentlyFav }));
+                    // Persist to user settings
+                    try {
+                      const { apiFetch } = await import('../utils/apiFetch');
+                      const settingsResp = await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'GET' });
+                      let settingsJson: any = { settings: {} };
+                      if (settingsResp.ok) settingsJson = await settingsResp.json();
+                      const existingFavs: string[] = (settingsJson.settings && settingsJson.settings.favorites) || [];
+                      const favoritesToSave = currentlyFav ? existingFavs.filter((id: string) => id !== d.id) : Array.from(new Set([...existingFavs, d.id]));
+                      await apiFetch(`${useDiagramStore.getState().serverUrl}/users/me/settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings: { ...(settingsJson.settings || {}), favorites: favoritesToSave } }) });
+                    } catch (err) {
+                      console.error('Failed to toggle favorite', err);
+                    }
+                  }}
+                >
+                  {favorites[d.id] ? <StarIcon color="warning" /> : <StarBorderIcon />}
+                </IconButton>
 
-              {/* Menu at top-right */}
-              <IconButton aria-label="more" sx={{ position: 'absolute', right: 4, top: 4, zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setMenuAnchorEl(e.currentTarget); setMenuForId(d.id); }}>
-                <MoreVertIcon />
-              </IconButton>
-              <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl && menuForId === d.id)} onClose={() => { setMenuAnchorEl(null); setMenuForId(null); }}>
-                <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}`); }}>
-                  <ListItemIcon><OpenInNewIcon fontSize="small" /></ListItemIcon>
-                  Open
-                </MenuItem>
-                <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}/history`); }}>
-                  <ListItemIcon><History fontSize="small" /></ListItemIcon>
-                  History
-                </MenuItem>
-                <MenuItem disabled={isCloning && menuForId === d.id} onClick={async () => {
-                  setMenuAnchorEl(null);
-                  setIsCloning(true);
-                  try {
-                    const { apiFetch } = await import('../utils/apiFetch');
-                    // Fetch original diagram state
-                    const serverUrl = useDiagramStore.getState().serverUrl;
-                    const getResp = await apiFetch(`${serverUrl}/diagrams/${d.id}`, { method: 'GET' });
-                    if (!getResp.ok) throw new Error('Failed to fetch original diagram');
-                    const original = await getResp.json();
-                    const newState = { ...original.state };
-                    newState.diagramName = `${newState.diagramName || 'Untitled'} (Copy)`;
-                    const postResp = await apiFetch(`${serverUrl}/diagrams`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: newState }) });
-                    if (!postResp.ok) throw new Error('Failed to create clone');
-                    const created = await postResp.json();
-                    // Navigate to newly created diagram
-                    navigate(`/diagram/${created.id}`);
-                  } catch (err) {
-                    console.error('Clone failed', err);
-                    // Optionally show toast
-                  } finally {
-                    setIsCloning(false);
-                  }
-                }}>
-                  <ListItemIcon>
-                    {isCloning && menuForId === d.id ? <CircularProgress size={18} /> : <FileCopyIcon fontSize="small" />}
-                  </ListItemIcon>
-                  Clone
-                </MenuItem>
-                <MenuItem onClick={() => { setMenuAnchorEl(null); setDeleteTargetId(d.id); setConfirmDeleteOpen(true); }} disabled={!(d as any).ownerUserId || ((d as any).ownerUserId !== currentUserId && !currentUserIsAdmin)}>
-                  <ListItemIcon><DeleteIcon fontSize="small" /></ListItemIcon>
-                  Delete
-                </MenuItem>
-                <MenuItem onClick={() => { setMenuAnchorEl(null); setShareDialogOpen(true); setMenuForId(d.id); }} disabled={!(d as any).ownerUserId || ((d as any).ownerUserId !== currentUserId && !currentUserIsAdmin)}>
-                  <ListItemIcon><ShareIcon fontSize="small" /></ListItemIcon>
-                  Share
-                </MenuItem>
-              </Menu>
+                {/* Menu at top-right */}
+                <IconButton aria-label="more" sx={{ position: 'absolute', right: 4, top: 4, zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setMenuAnchorEl(e.currentTarget); setMenuForId(d.id); }}>
+                  <MoreVertIcon />
+                </IconButton>
+                <Menu anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl && menuForId === d.id)} onClose={() => { setMenuAnchorEl(null); setMenuForId(null); }}>
+                  <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}`); }}>
+                    <ListItemIcon><OpenInNewIcon fontSize="small" /></ListItemIcon>
+                    Open
+                  </MenuItem>
+                  <MenuItem onClick={() => { setMenuAnchorEl(null); navigate(`/diagram/${d.id}/history`); }}>
+                    <ListItemIcon><History fontSize="small" /></ListItemIcon>
+                    History
+                  </MenuItem>
+                  <MenuItem disabled={isCloning && menuForId === d.id} onClick={async () => {
+                    setMenuAnchorEl(null);
+                    setIsCloning(true);
+                    try {
+                      const { apiFetch } = await import('../utils/apiFetch');
+                      // Fetch original diagram state
+                      const serverUrl = useDiagramStore.getState().serverUrl;
+                      const getResp = await apiFetch(`${serverUrl}/diagrams/${d.id}`, { method: 'GET' });
+                      if (!getResp.ok) throw new Error('Failed to fetch original diagram');
+                      const original = await getResp.json();
+                      const newState = { ...original.state };
+                      newState.diagramName = `${newState.diagramName || 'Untitled'} (Copy)`;
+                      const postResp = await apiFetch(`${serverUrl}/diagrams`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: newState }) });
+                      if (!postResp.ok) throw new Error('Failed to create clone');
+                      const created = await postResp.json();
+                      // Navigate to newly created diagram
+                      navigate(`/diagram/${created.id}`);
+                    } catch (err) {
+                      console.error('Clone failed', err);
+                      // Optionally show toast
+                    } finally {
+                      setIsCloning(false);
+                    }
+                  }}>
+                    <ListItemIcon>
+                      {isCloning && menuForId === d.id ? <CircularProgress size={18} /> : <FileCopyIcon fontSize="small" />}
+                    </ListItemIcon>
+                    Clone
+                  </MenuItem>
+                  <MenuItem onClick={() => { setMenuAnchorEl(null); setDeleteTargetId(d.id); setConfirmDeleteOpen(true); }} disabled={!(d as any).ownerUserId || ((d as any).ownerUserId !== currentUserId && !currentUserIsAdmin)}>
+                    <ListItemIcon><DeleteIcon fontSize="small" /></ListItemIcon>
+                    Delete
+                  </MenuItem>
+                  <MenuItem onClick={() => { setMenuAnchorEl(null); setShareDialogOpen(true); setMenuForId(d.id); }} disabled={!(d as any).ownerUserId || ((d as any).ownerUserId !== currentUserId && !currentUserIsAdmin)}>
+                    <ListItemIcon><ShareIcon fontSize="small" /></ListItemIcon>
+                    Share
+                  </MenuItem>
+                </Menu>
 
-              {d.thumbnailDataUrl ? (
-                <CardMedia component="img" image={d.thumbnailDataUrl} alt={d.diagramName} sx={{ height: 98, width: 128, objectFit: 'contain', background: (theme) => theme.palette.background.paper, mt: 1 }} />
-              ) : (
-                <Box sx={{ height: 98, width: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: (theme) => theme.palette.background.paper, mt: 1, borderRadius: 1 }}>
-                  <Typography variant="caption">No preview</Typography>
-                </Box>
-              )}
-              <CardContent sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Typography variant="subtitle1" noWrap sx={{ width: '100%', textAlign: 'center' }}>{d.diagramName || 'Untitled'}</Typography>
-                <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                  <Button variant="contained" size="small" onClick={() => navigate(`/diagram/${d.id}`)}>Open</Button>
-                </Box>
-              </CardContent>
-            </Card>
+                {d.thumbnailDataUrl ? (
+                  <CardMedia component="img" image={d.thumbnailDataUrl} alt={d.diagramName} sx={{ height: 98, width: 128, objectFit: 'contain', background: (theme) => theme.palette.background.paper, mt: 1 }} />
+                ) : (
+                  <Box sx={{ height: 98, width: 128, display: 'flex', alignItems: 'center', justifyContent: 'center', background: (theme) => theme.palette.background.paper, mt: 1, borderRadius: 1 }}>
+                    <Typography variant="caption">No preview</Typography>
+                  </Box>
+                )}
+                <CardContent sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Typography variant="subtitle1" noWrap sx={{ width: '100%', textAlign: 'center' }}>{d.diagramName || 'Untitled'}</Typography>
+                  <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                    <Button variant="contained" size="small" onClick={() => navigate(`/diagram/${d.id}`)}>Open</Button>
+                  </Box>
+                </CardContent>
+              </Card>
             ));
           })()}
           {(() => {
@@ -522,7 +536,7 @@ const Dashboard: React.FC = () => {
                 <List>
                   {favoritesList.map(f => (
                     <ListItemButton key={f.id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }} onClick={() => navigate(`/diagram/${f.id}`)}>
-                        <Box sx={{ width: 64, height: 48, background: (theme) => theme.palette.background.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', border: (theme) => `1px solid ${theme.palette.divider}` }}>
+                      <Box sx={{ width: 64, height: 48, background: (theme) => theme.palette.background.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', border: (theme) => `1px solid ${theme.palette.divider}` }}>
                         {f.thumbnailDataUrl ? <img src={f.thumbnailDataUrl} alt={f.diagramName} style={{ maxWidth: '100%', maxHeight: '100%' }} /> : <Typography variant="caption">No preview</Typography>}
                       </Box>
                       <Box sx={{ flexGrow: 1, textAlign: 'left' }}>
@@ -600,10 +614,10 @@ const Dashboard: React.FC = () => {
                 {shareList.map(s => (
                   <ListItemButton key={s.userId} sx={{ pl: 0, pr: 0 }}>
                     <ListItemText primary={s.username} secondary={s.permission ? `Permission: ${s.permission}${typeof s.canCopy !== 'undefined' ? ` · Can copy: ${s.canCopy ? 'yes' : 'no'}` : ''}` : undefined} />
-                    {( (menuForId && ((ownedDiagrams || []).find(dd => dd.id === menuForId) as any)?.ownerUserId === currentUserId) || currentUserIsAdmin) ? (
+                    {((menuForId && ((ownedDiagrams || []).find(dd => dd.id === menuForId) as any)?.ownerUserId === currentUserId) || currentUserIsAdmin) ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <FormControl size="small" sx={{ minWidth: 120 }}>
-                                    <Select value={s.permission || 'view'} onChange={(e: any) => updateShareSettingsForUser(s.userId, String(e.target.value).toLowerCase(), undefined)} disabled={!!shareUpdateLoading[s.userId]}>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                          <Select value={s.permission || 'view'} onChange={(e: any) => updateShareSettingsForUser(s.userId, String(e.target.value).toLowerCase(), undefined)} disabled={!!shareUpdateLoading[s.userId]}>
                             <MenuItem value="view">View</MenuItem>
                             <MenuItem value="edit">Edit</MenuItem>
                           </Select>
@@ -652,7 +666,7 @@ const Dashboard: React.FC = () => {
                 labelId="permission-label"
                 value={defaultPermission}
                 label="Permission"
-                onChange={(e: any) => setDefaultPermission((e.target.value as 'view'|'edit'))}
+                onChange={(e: any) => setDefaultPermission((e.target.value as 'view' | 'edit'))}
               >
                 <MenuItem value="view">View</MenuItem>
                 <MenuItem value="edit">Edit</MenuItem>
@@ -676,7 +690,7 @@ const Dashboard: React.FC = () => {
                   <ListItemButton key={r.email} sx={{ pl: 0, pr: 0 }}>
                     <ListItemText primary={r.email} />
                     <FormControl size="small" sx={{ minWidth: 120, mr: 1 }}>
-                      <Select value={r.permission} onChange={(e: any) => updateRecipient(r.email, { permission: e.target.value as 'view'|'edit' })} disabled={false}>
+                      <Select value={r.permission} onChange={(e: any) => updateRecipient(r.email, { permission: e.target.value as 'view' | 'edit' })} disabled={false}>
                         <MenuItem value="view">View</MenuItem>
                         <MenuItem value="edit">Edit</MenuItem>
                       </Select>
@@ -688,24 +702,24 @@ const Dashboard: React.FC = () => {
               </List>
             </Box>
           )}
-         </DialogContent>
-         <DialogActions>
-           <Button onClick={() => { setShareDialogOpen(false); setShareInput(''); setShareError(null); setMenuForId(null); }}>Cancel</Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setShareDialogOpen(false); setShareInput(''); setShareError(null); setMenuForId(null); }}>Cancel</Button>
           <Button variant="contained" disabled={shareLoading} onClick={async () => { await onShareClick(); }}>{shareLoading ? 'Sharing...' : 'Share'}</Button>
-         </DialogActions>
-       </Dialog>
+        </DialogActions>
+      </Dialog>
 
-       {/* Invite missing emails button */}
-       {missingEmailsToInvite && missingEmailsToInvite.length > 0 && (
-         <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
-           <Typography variant="body2">Invite these emails to register and view the diagram:</Typography>
-           <Button variant="outlined" onClick={async () => { await sendInvitesForMissing(); }}>Send invites</Button>
-         </Box>
-       )}
+      {/* Invite missing emails button */}
+      {missingEmailsToInvite && missingEmailsToInvite.length > 0 && (
+        <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
+          <Typography variant="body2">Invite these emails to register and view the diagram:</Typography>
+          <Button variant="outlined" onClick={async () => { await sendInvitesForMissing(); }}>Send invites</Button>
+        </Box>
+      )}
 
-       <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={() => setSnackbarOpen(false)}>
-         <MuiAlert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} elevation={6} variant="filled">{snackbarMessage}</MuiAlert>
-       </Snackbar>
+      <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={() => setSnackbarOpen(false)}>
+        <MuiAlert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} elevation={6} variant="filled">{snackbarMessage}</MuiAlert>
+      </Snackbar>
     </Box>
   );
 };

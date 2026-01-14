@@ -20,7 +20,7 @@ export interface ShapeStoreActions {
   updateShapeSvgContent: (id: string, svgContent: string) => void;
   updateShapeText: (id: string, text: string) => void;
   deleteSelected: () => void;
-  
+
   // Shape positioning and dimensions
   updateShapePosition: (id: string, newX: number, newY: number) => void;
   updateShapePositions: (positions: { id: string; x: number; y: number }[]) => void;
@@ -31,10 +31,10 @@ export interface ShapeStoreActions {
   updateShapeDimensionsMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => void;
   recordShapeResize: (id: string, finalX: number, finalY: number, finalWidth: number, finalHeight: number) => void;
   recordShapeResizeMultiple: (dimensions: { id: string; x: number; y: number; width: number; height: number }[]) => void;
-  
+
   // Shape styling
   setSelectedShapeColor: (color: string) => void;
-  
+
   // Shape text and formatting
   updateShapeTextPosition: (id: string, textOffsetX: number, textOffsetY: number) => void;
   updateShapeTextDimensions: (id: string, textWidth: number, textHeight: number) => void;
@@ -48,13 +48,13 @@ export interface ShapeStoreActions {
   setVerticalAlign: (alignment: 'top' | 'middle' | 'bottom') => void;
   setHorizontalAlign: (alignment: 'left' | 'center' | 'right') => void;
   setSelectedTextColor: (color: string) => void;
-  
+
   // Shape ordering
   bringForward: (id: string) => void;
   sendBackward: (id: string) => void;
   bringToFront: (id: string) => void;
   sendToBack: (id: string) => void;
-  
+
   // Shape grouping and interactions
   groupShapes: (ids: string[]) => void;
   ungroupShapes: (groupId: string) => void;
@@ -99,7 +99,7 @@ export const _addShapeToState = (state: DiagramState, shape: Shape): DiagramStat
   document.body.appendChild(tempDiv);
 
   const singleLineWidth = Math.round(tempDiv.scrollWidth + PADDING_HORIZONTAL);
-  
+
   // Now measure multi-line height if text position is outside and width is constrained
   if (newShape.textPosition === 'outside' && !newShape.autosize) {
     // For outside text, constrain to a reasonable width based on shape
@@ -107,7 +107,7 @@ export const _addShapeToState = (state: DiagramState, shape: Shape): DiagramStat
     tempDiv.style.whiteSpace = 'normal';
     tempDiv.style.width = `${Math.min(singleLineWidth, maxWidth)}px`;
   }
-  
+
   const textWidth = newShape.autosize ? singleLineWidth : Math.min(singleLineWidth, newShape.width * 3.2);
   const textHeight = Math.round(tempDiv.scrollHeight + PADDING_VERTICAL);
   document.body.removeChild(tempDiv);
@@ -222,16 +222,40 @@ export const createShapeActions = (
       const shape = currentSheet.shapesById[id];
       if (!shape) return state;
 
+      const newShapesById = { ...currentSheet.shapesById };
+
+      const dx = newX - shape.x;
+      const dy = newY - shape.y;
+
+      newShapesById[id] = { ...shape, x: newX, y: newY };
+
+      // If this is a group, move children recursively
+      const moveDescendants = (parentId: string, deltaX: number, deltaY: number) => {
+        Object.values(newShapesById).forEach((s: any) => {
+          if (s.parentId === parentId) {
+            newShapesById[s.id] = {
+              ...s,
+              x: s.x + deltaX,
+              y: s.y + deltaY,
+            };
+            if (s.type === 'Group') {
+              moveDescendants(s.id, deltaX, deltaY);
+            }
+          }
+        });
+      };
+
+      if (shape.type === 'Group' && (dx !== 0 || dy !== 0)) {
+        moveDescendants(id, dx, dy);
+      }
+
       return {
         ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
             ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY },
-            },
+            shapesById: newShapesById,
           },
         },
       };
@@ -247,7 +271,27 @@ export const createShapeActions = (
       positions.forEach(({ id, x, y }) => {
         const shape = newShapesById[id];
         if (shape) {
+          const dx = x - shape.x;
+          const dy = y - shape.y;
           newShapesById[id] = { ...shape, x, y };
+
+          if (shape.type === 'Group' && (dx !== 0 || dy !== 0)) {
+            const moveDescendants = (parentId: string, deltaX: number, deltaY: number) => {
+              Object.values(newShapesById).forEach((s: any) => {
+                if (s.parentId === parentId) {
+                  newShapesById[s.id] = {
+                    ...s,
+                    x: s.x + deltaX,
+                    y: s.y + deltaY,
+                  };
+                  if (s.type === 'Group') {
+                    moveDescendants(s.id, deltaX, deltaY);
+                  }
+                }
+              });
+            };
+            moveDescendants(id, dx, dy);
+          }
         }
       });
       return {
@@ -305,9 +349,13 @@ export const createShapeActions = (
       const shape = currentSheet.shapesById[id];
       if (!shape) return state;
 
+      const newShapesById = { ...currentSheet.shapesById };
+      const dx = newX - shape.x;
+      const dy = newY - shape.y;
+
       let updatedTextOffsetX = shape.textOffsetX;
       let updatedTextOffsetY = shape.textOffsetY;
-      
+
       // Only adjust text offsets if textPosition is 'outside' and position hasn't been manually set
       if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
         // Adjust vertical position to maintain distance from bottom
@@ -315,7 +363,7 @@ export const createShapeActions = (
         const originalTextOffsetY = shape.textOffsetY;
         const distanceFromBottom = originalHeight - originalTextOffsetY;
         updatedTextOffsetY = newHeight - distanceFromBottom;
-        
+
         // Adjust horizontal position based on alignment
         if (shape.horizontalAlign === 'center') {
           updatedTextOffsetX = (newWidth / 2) - (shape.textWidth / 2);
@@ -327,16 +375,34 @@ export const createShapeActions = (
         }
       }
 
+      newShapesById[id] = { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY };
+
+      // If this is a group and it moved, update children relative positions recursively
+      if (shape.type === 'Group' && (dx !== 0 || dy !== 0)) {
+        const moveDescendants = (parentId: string, deltaX: number, deltaY: number) => {
+          Object.values(newShapesById).forEach((s: any) => {
+            if (s.parentId === parentId) {
+              newShapesById[s.id] = {
+                ...s,
+                x: s.x + deltaX,
+                y: s.y + deltaY,
+              };
+              if (s.type === 'Group') {
+                moveDescendants(s.id, deltaX, deltaY);
+              }
+            }
+          });
+        };
+        moveDescendants(id, dx, dy);
+      }
+
       return {
         ...state,
         sheets: {
           ...state.sheets,
           [state.activeSheetId]: {
             ...currentSheet,
-            shapesById: {
-              ...currentSheet.shapesById,
-              [id]: { ...shape, x: newX, y: newY, width: newWidth, height: newHeight, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY },
-            },
+            shapesById: newShapesById,
           },
         },
       };
@@ -376,14 +442,14 @@ export const createShapeActions = (
         if (shape) {
           let updatedTextOffsetX = shape.textOffsetX;
           let updatedTextOffsetY = shape.textOffsetY;
-          
+
           if (shape.textPosition === 'outside' && !shape.isTextPositionManuallySet) {
             // Adjust vertical position
             const originalHeight = shape.height;
             const originalTextOffsetY = shape.textOffsetY;
             const distanceFromBottom = originalHeight - originalTextOffsetY;
             updatedTextOffsetY = height - distanceFromBottom;
-            
+
             // Adjust horizontal position based on alignment
             if (shape.horizontalAlign === 'center') {
               updatedTextOffsetX = (width / 2) - (shape.textWidth / 2);
@@ -393,7 +459,7 @@ export const createShapeActions = (
               updatedTextOffsetX = 0;
             }
           }
-          
+
           newShapesById[id] = { ...shape, x, y, width, height, textOffsetX: updatedTextOffsetX, textOffsetY: updatedTextOffsetY };
         }
       });
@@ -834,7 +900,7 @@ export const createShapeActions = (
     if (existingGroup) {
       // Merge into existing group
       const nonGroupShapes = shapesToGroup.filter((shape) => shape.type !== 'Group' && shape.id !== existingGroup.id);
-      
+
       if (nonGroupShapes.length === 0) return; // Nothing to add to the group
 
       // Calculate new bounding box including existing group and new shapes

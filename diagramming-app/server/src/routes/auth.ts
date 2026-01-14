@@ -88,18 +88,18 @@ router.post('/register', async (req: Request, res: Response) => {
     const salt = bcrypt.genSaltSync(BCRYPT_ROUNDS);
     const passwordHash = bcrypt.hashSync(password, salt);
     const created = await createUser(username, passwordHash, salt, String(firstName).trim(), String(lastName).trim());
-  const refreshToken = createRefreshJwt(created.id);
-  // Set cookies for access and refresh tokens
-  issueAccessToken(res, created.id, created.username);
-  setRefreshCookie(res, refreshToken);
-  const settings = await getUserSettings(created.id);
-  try {
-    const { getUserRoles } = require('../usersStore');
-    const roles = await getUserRoles(created.id);
-    res.status(201).json({ user: { id: created.id, username: created.username, firstName: created.first_name || created.firstName || '', lastName: created.last_name || created.lastName || '', roles }, settings });
-  } catch (e) {
-    res.status(201).json({ user: { id: created.id, username: created.username, firstName: created.first_name || created.firstName || '', lastName: created.last_name || created.lastName || '', roles: [] }, settings });
-  }
+    const refreshToken = createRefreshJwt(created.id);
+    // Set cookies for access and refresh tokens
+    issueAccessToken(res, created.id, created.username);
+    setRefreshCookie(res, refreshToken);
+    const settings = await getUserSettings(created.id);
+    try {
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(created.id);
+      res.status(201).json({ user: { id: created.id, username: created.username, firstName: created.first_name || created.firstName || '', lastName: created.last_name || created.lastName || '', roles }, settings });
+    } catch (e) {
+      res.status(201).json({ user: { id: created.id, username: created.username, firstName: created.first_name || created.firstName || '', lastName: created.last_name || created.lastName || '', roles: [] }, settings });
+    }
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to register user' });
@@ -114,17 +114,17 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
     const ok = bcrypt.compareSync(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-  const refreshToken = createRefreshJwt(user.id);
-  issueAccessToken(res, user.id, user.username);
-  setRefreshCookie(res, refreshToken);
-  const settings = await getUserSettings(user.id);
-  try {
-    const { getUserRoles } = require('../usersStore');
-    const roles = await getUserRoles(user.id);
-    res.json({ user: { id: user.id, username: user.username, roles }, settings });
-  } catch (e) {
-    res.json({ user: { id: user.id, username: user.username, roles: [] }, settings });
-  }
+    const refreshToken = createRefreshJwt(user.id);
+    issueAccessToken(res, user.id, user.username);
+    setRefreshCookie(res, refreshToken);
+    const settings = await getUserSettings(user.id);
+    try {
+      const { getUserRoles } = require('../usersStore');
+      const roles = await getUserRoles(user.id);
+      res.json({ user: { id: user.id, username: user.username, roles }, settings });
+    } catch (e) {
+      res.json({ user: { id: user.id, username: user.username, roles: [] }, settings });
+    }
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Failed to login' });
@@ -157,7 +157,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     try {
       const renewed = createRefreshJwt(userId);
       setRefreshCookie(res, renewed);
-    } catch (_) {}
+    } catch (_) { }
     return res.json({ ok: true });
   } catch (e) {
     return res.status(401).json({ error: 'Invalid or expired refresh token' });
@@ -190,7 +190,19 @@ router.get('/me', async (req: Request, res: Response) => {
       const userRow = await getUserById(payload.id);
       const firstName = userRow ? (userRow.first_name || userRow.firstName || '') : '';
       const lastName = userRow ? (userRow.last_name || userRow.lastName || '') : '';
-      res.json({ user: { id: payload.id, username: payload.username, firstName, lastName, roles } });
+
+      // Fetch avatar from user settings
+      let avatarUrl: string | undefined;
+      try {
+        const settings = await getUserSettings(payload.id);
+        if (settings && settings.avatarDataUrl) {
+          avatarUrl = settings.avatarDataUrl;
+        }
+      } catch (e) {
+        console.warn('Failed to fetch user settings for avatar', e);
+      }
+
+      res.json({ user: { id: payload.id, username: payload.username, firstName, lastName, avatarUrl, roles } });
     } catch (e) {
       console.warn('Failed to fetch user roles or details for /me', e);
       res.json({ user: { id: payload.id, username: payload.username, firstName: '', lastName: '', roles: [] } });
